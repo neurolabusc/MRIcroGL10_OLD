@@ -1,0 +1,252 @@
+This software distribution includes two files that have different licenses from the others: "gzio2.pas" and "dglOpenGL.pas" please see those files for specific licenses. 
+
+
+Note some source was adapted from other projects, with sources listed in the code (e.g. "nii_mat.pas")
+
+
+This 2-Clause BSD license included below applies to the following files:
+autoroi.dfm
+autoroi.lfm
+autoroi.lrs
+autoroi.pas
+_clean.bat
+clustering.pas
+clut.pas
+colorbar2d.pas
+commandsu.pas
+coordinates.pas
+dcm2nii.dfm
+dcm2nii.lfm
+dcm2nii.pas
+debian/
+define_types.pas
+_delphizip.bat
+detectmsaa.pas
+dglOpenGL.pas
+drawu_future.pas
+drawu.pas
+extract.pas
+extractui.dfm
+extractui.lfm
+extractui.pas
+FastMM4Options.inc
+FILES
+fsl_calls.pas
+glpanel.pas
+GraphicsMathLibrary.pas
+gzio2.pas
+histogram2d.pas
+histogram.pas
+icon48p.ico
+index.html
+isgui.inc
+LICENSE
+lut/
+lut.pas
+mainunit.dfm
+mainunit.lfm
+mainunit.pas
+_make.bat
+manual/
+mni152_2009_256.nii.gz
+mosaicprefs.dfm
+mosaicprefs.lfm
+mosaicprefs.pas
+motor.nii.gz
+mricrogl256.ico
+MRIcroGL2.ini
+mricrogl.ico
+MRIcroGL.ini
+mricrogl.svg
+nifti_dicom.pas
+nifti_foreign.pas
+nifti_hdr.pas
+nifti_types.pas
+nii_label.pas
+nii_reslice.pas
+options.inc
+_osx.command
+otsuml.pas
+prefs.pas
+raycastglsl.pas
+readint.dfm
+readint.lfm
+readint.pas
+reorient.pas
+reslice.dfm
+reslice.lfm
+reslice.pas
+saccades.nii.gz
+savethreshold.pas
+scaleimageintensity.pas
+script/
+scriptengine.dfm
+scriptengine.lfm
+scriptengine.pas
+shaders/
+shaders_support1D/
+shaderui.pas
+shaderu.pas
+simple.cfg
+simple.dof
+simple.dpr
+simple.dproj
+simple.dproj.2007
+simple.dproj.local
+simple.dsk
+simple.identcache
+simple.ini
+simplelaz.ico
+simplelaz.lpi
+simplelaz.lpr
+simplelaz.lrs
+simplelaz.manifest
+simplelaz.rc
+simplelaz.res
+simple.res
+slices2d.pas
+_strip.bat
+textfx.pas
+texture2raycast.pas
+texture_3d_unita.pas
+texture_3d_unit.pas
+uscaledpi.pas
+userdir.pas
+watermark.pas
+winmemmap.pas
+_xclean.bat
+_xmake.bat
+yokesharemem.pas
+zconflaz.inc
+
+./lut:
+1hot.clut
+2winter.clut
+3warm.clut
+4cool.clut
+5redyell.clut
+6bluegrn.clut
+actc.clut
+bone.clut
+carp.clut
+CT_Bones.clut
+CT_Kidneys.clut
+CT_Liver.clut
+CT_Lungs.clut
+CT_Muscles.clut
+CT_Skin.clut
+CT_Vessels.clut
+GE_color.clut
+gold.clut
+HOTIRON.clut
+Rainramp.clut
+surface.clut
+x_rain.clut
+
+./manual:
+alpha.png
+clipping.png
+colorbar_05_95_95_90.png
+colorbar_85_50_95_90.png
+colorbarpos.png
+colortrans.png
+cutoutdemo2.png
+cutout.png
+cutout_visible_human.png
+edge_ct.png
+edge_detect.png
+edge_enhance.png
+edge_invisible_human.png
+fx.PNG
+glass.png
+hires/
+kidneys.png
+manual.odt
+miponoff.png
+mip.png
+mosaic.png
+muscles.png
+nomip.png
+notes.txt
+overlays.png
+render_slices.png
+segment.png
+shaders/
+shaders.png
+slices.png
+
+./manual/hires:
+abdo.png
+glassbrain.png
+mosaic.PNG
+mra.png
+overlay_clip.png
+overlay.png
+visiblehuman.png
+
+./manual/shaders:
+specular.png
+volume.png
+
+./script:
+basic.gls
+color.gls
+mra.gls
+overlay_clipping.gls
+overlay_cutout.gls
+overlay_glass.gls
+overlay_shell.gls
+shader.gls
+startup_test.gls
+startup_x.gls
+wobble.gls
+
+./shaders:
+default.txt
+edge_phong.txt
+minimal.txt
+mip.txt
+overlay_glass.txt
+overlay_shell.txt
+overlay_sh.txt
+overlay_toon.txt
+overlay.txt
+phong_sh.txt
+special_effects.txt
+
+./shaders_support1D:
+default.txt
+edge_phong.txt
+edge.txt
+marcus.txt
+minimal_noclip.txt
+minimal.txt
+mip.txt
+phong_sh.txt
+phong.txt
+special_effects.txt
+
+Copyright (c) 2009-2015 Chris Rorden. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the copyright owner nor the name of this project
+   (MRIcroGL) may be used to endorse or promote products derived from this
+   software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT OWNER ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO
+EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.     

@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+  <meta name="GENERATOR" content="cr">
+<title>GLSL Raycasting </title>
+<STYLE TYPE="text/css">
+#page {
+	text-align:right;
+	direction:rtl;
+}
+img.alignright {
+	margin: 0 7px 2px 0;
+}
+
+img.alignleft {
+	margin: 0 0 2px 7px;
+}
+.right
+{
+	float: right;
+}
+html, body, legend {
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 5px;
+  padding-right: 5px;
+  border: 0;
+  font-family:arial, tahoma;
+  font-weight: inherit;
+  font-style: inherit;
+  font-size: 100%;
+  vertical-align: baseline;
+}
+p { margin-top: 0.5 em; margin-bottom: 0.5 em; }
+div {color: #223F92; }
+h1,h2,h3 h4 {font-family:arial, tahoma; color: #223F92; line-height: .3 em;}
+h1 { font-size: 24px; font-weight: bold; color: #000000; padding-top: 0px; margin-bottom: 5px;}
+h2 { font-size: 16px; font-weight: bold; color: #223F92; padding-top: 0px; margin-bottom: 5px;}
+</STYLE> 
+</head>
+<body bgcolor="#ffffff">
+<table style=border="0" cellpadding="0" cellspacing="0">
+ <tbody>
+    <tr>
+ <td><a href="../index.html"><img src="images/48x36.gif"  border="0"  height="36" width="48"></a>&nbsp;</td>
+ <td><h1>GLSL raycasting</h1></td>
+    </tr>
+  </tbody>
+</table>
+
+
+ 
+<H2>Introduction</H2>
+<div class="figure third right" style="max-width: 286px; min-width: 5.5em;">
+<img style="max-width: 328px; max-height: 1534px;" src="images/sequence.jpg"  title="3dstack" alt="[Image: raw data]" />
+</div>
+<p>This page describes a simple volume raycaster based on GLSL (a shading language for OpenGL). <a href="http://en.wikipedia.org/wiki/Volume_ray_casting">Volume raycasting</a> is a form of <a href="http://en.wikipedia.org/wiki/Volume_rendering">volume rendering</a>, a technique that generates 3D images based on a stack of 2D bitmap images. In raycasting, for each pixel on the screen we shoot a beam from the viewer's eye through any objects in in its path, determining the brightness encountered by that ray. 
+<ul>
+ <li><a href="raycast.zip">Click here</a> to get the Windows executable, sample images and source code. Note this requires a video card that supports large 3D textures, so it probably will not work with many Intel-based GPUs.
+ <li><a href="raycastosx.zip">Click here</a> to get the OSX executable, sample images. Requires GPU that supports large 3D textures.
+</ul>
+
+<H2>How it works</H2>
+<p>We start by loading the raw data, which you can think of as a stack of pictures where each pixel simply reports the intensity (black through white) at that location (top image). This original 3D image only has a single channel: brightness. We then convert this 3D image with one channel into a 3D image with four channels: X-gradient, Y-gradient, Z-gradient and brightness. This is illustrated in the second image, where the X/Y/Z gradients are shown as red/green/blue. These gradients are storing the surface angle for each voxel. This information is useful for shading the image (e.g. we can compute the viewing and light incidence, and use this image to shade specific regions). Finally, we generate a 1D color lookup table. This helps us convert brightness at each location with a corresponding level of red, green blue, and opacity (RGBA, with alpha refering to transparency).
+<ol>
+ <li>Load volume with single channel (e.g. brightness).
+ <li>Create color table to convert brightness to four channels: red, green, blue, alpha.
+ <li>Create 3D gradient map that shows surface orientation of each voxel (with red, blue, and green corresponding with anterior-posterior, left-right, superior-inferior).
+ <li>Shoot beams through the volume, and accumulate colors based on the color table.
+ <li>[Optional] Adjust color based on gradient direction and magnitude. For example here we show <a href="http://pages.cs.wisc.edu/~nowak/779/779ClassProject.html#edge">Edge coloring</a>, where edges that are aligned with the viewing direction appear darker.
+ <li>[Optional] Adjust transparency based on gradient magnitude. For example here we show <a href="http://pages.cs.wisc.edu/~nowak/779/779ClassProject.html#bound">Boundary Enhancement</a>, where regions of consistent intensity appear transparent.
+</ol> 
+
+<H2>Compiling the source code (Lazarus)</H2>
+<ul>
+ <li>You will need a relatively recent version of <a href="http://sourceforge.net/projects/lazarus/files/">Lazarus</a> installed.
+ <li>You will need the "lazopenglcontext" package installed:
+  <ul>
+    <li>Launch Lazarus.
+    <li>From the package menu, select "Configure installed packages".
+    <li>Select "lazopenglcontext" from the list of available packages and press the "Install selection" button.
+    <li> Press the "Save and rebuild IDE" button. 
+     <li><a href="raycast.zip">Click here</a> to get the raycast source code and sample images.
+     <li>Launch Lazarus, open the project and choose 'Run' from the 'Run' menu.
+  </ul>
+</ul>
+
+<H2>Compiling the source code (Delphi)</H2>
+<ul>
+ <li>This has been tested with Delphi 7 and Delphi XE (thanks to George Boudouris).
+ <li><a href="raycast.zip">Click here</a> to get the raycast source code and sample images.
+ <li>Launch Delphi, open the project simple.dpr and compile. No additional components should be required.
+</ul>
+
+<H2>Notes</H2>
+<ul>
+ <li>Requires a GPU able to load large 3D textures. This should work on modern Radeon and GeForce video cards. Works with Intel HD2000/3000 but not earlier Intel cards.
+ <li>Currently loads 8-bit, 16-bit and RGB NIfTI format data. 
+ <li>Delphi version only opens uncompressed images (.nii or .hdr/.img pairs). The Lazarus version can also open compressed .nii.gz files.
+ <li>This is a pretty complex project. I have also created a <a href="minimal.zip">minimal Delphi/Lazarus project</a> as a template for dglOpenGL applications.
+</ul>
+
+<H2>Bounties</H2>
+<p>This is a work in progress. I have been unable to resolve the following problem. I am happy to offer individuals $200 USD for being the first one to find a solution:
+<ol>
+<li>The raycaster from the GLScene team (below) generates poorer quality renderings than the dglopengl version. While setting high values "PROJECTION_LENGTH" should create higher quality renderings (as each ray is sampled more frequently), this does not seem to work well with GLScene. I think the problem might be with the <a href="http://wscg.zcu.cz/wscg2007/Papers_2007/journal/G31-full.pdf">opacity correction for oversampled ray casting</a>. The traditional shader code for this would be "s.a = 1.0-pow((1.0 - s.a), oversamplingratio);" such that if the ray samples at twice the slice thickness (ratio 1/2=0.5) then a sample where the opacity was a=0.6 should be scaled to contribute 0.367 to the ray (see pages 219-220 of Engle's book for details). 
+
+ </ol>
+
+<H2>GLScene versions</H2>
+<ul>
+ <li>Here are two volume raycasters that use GLScene, one from the <a href="glscene.zip">GLScene team</a> and <a href="rayscene.zip">my adaptation of my dglOpenGL project</a>.
+ <li>The current GLScene team renderer shows a number of artifacts. Their project also requires the latest versions of GLScene, so you may need to upgrade. This code was tested with <a href="http://sourceforge.net/projects/glscene/">March 2011</a>.
+ <li>My project does not yet support all the features of my dglOpenGL project.
+</ul>
+
+<H2>Links</H2>
+<ul>
+ <li>Engle et al's book "Real time volume graphics" (ISBN 1568812663) is an excellent resource, and their <a href="http://www.real-time-volume-graphics.org/">web page</a> includes sample code, tutorials, and links.
+ <li>This project is mostly a direct port of the Single-Pass Raycasting technique described by <a href="http://www.daimi.au.dk/~trier/?page_id=98">Peter Trier</a>, <a href="http://prideout.net/blog/?p=64">Philip Rideout</a> and <a href="http://www.doyub.com/blog/759">Doyub Kim</a>.
+ <li><a href="http://www.marcusbannerman.co.uk/index.php/component/content/article/42-articles/97-vol-render-optimizations.html">Marcus Bannerman</a> has a great description of GLSL tricks such as stochastic jittering and surface lighting.
+ <li>This example uses the <a href="http://wiki.delphigl.com/index.php/dglOpenGL.pas/en">dglopengl</a> headers, and their web page has some useful tutorials.
+ <li>My code uses a <a href="http://www.aravind.ca/cs788h_Final_Project/gradient_estimators.htm">3D Sobel filter</a> to estimate gradients (the direction of the surfaces), a technique that provides better results than the faster Central Difference estimate.
+ <li><a href="http://magnuswrenninge.com/volumetricmethods">Volumetric Methods in Visual Effects (SIGGRAPH 2010 course)</a>.
+ <li>Brandon Ellenberger and K. Evan Nowak provide some nice looking <a href="http://pages.cs.wisc.edu/~nowak/779/779ClassProject.html">GLSL shading fragments.</a>
+  <li><a href="http://www.voreen.org/">Voreen</a> has very sophisticated shaders that can generate dramatic images.
+  <li>Jurgen Abel has created the <a href="http://www.mve.info/index.htm">Medical Volume Explorer</a> which uses Cg shaders to good effect. He also created the <a href="http://glscene.sourceforge.net/wikka/UserDemos/">Texture3D</a> demo, which is a nice introduction to <href="http://en.wikipedia.org/wiki/Volume_rendering">texture mapping</a> rendering if you use Lazarus or Delphi with GLScene.
+  <li><a href="http://www.cabiatl.com/mricrogl/">MRIcroGL</a> is a <href="http://en.wikipedia.org/wiki/Volume_rendering">texture mapping</a> volume renderer I created that attempts to be intuitive but relatively powerful.
+</ul>
+
+<div class="figure third left" style="max-width: 690px; min-width: 5.5em;">
+<img style="max-width: 690px; max-height: 315px;" src="images/edges.jpg"  title="Left: without edge enhancement, Right: with edge enhancement" alt="[Image: without edge enhancement, with edge enhancement]" />
+</div>

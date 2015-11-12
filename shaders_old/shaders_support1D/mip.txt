@@ -1,0 +1,77 @@
+//vert
+void main() {
+	gl_TexCoord[1] = gl_MultiTexCoord1;
+	gl_Position = ftransform();
+}
+//frag
+uniform int loops;
+uniform float stepSize;
+uniform float sliceSize;
+uniform sampler3D intensityVol; //3DTexture containing brightness
+uniform sampler2D backFace;
+uniform sampler1D TransferTexture;
+uniform bool useTransferTexture;
+
+uniform float viewWidth;
+uniform float viewHeight;
+uniform vec3 clearColor, clipPlane;
+uniform float isClip;
+uniform float clipPlaneDepth; //Clipping plane values
+
+void main() {
+	// get normalized pixel coordinate in view port (e.g. [0,1]x[0,1])
+	vec2 pixelCoord = gl_FragCoord.st;
+	pixelCoord.x /= viewWidth;
+	pixelCoord.y /= viewHeight;	
+	// starting position of the ray is stored in the texture coordinate
+	vec3 start = gl_TexCoord[1].xyz;
+	vec3 backPosition = texture2D(backFace,pixelCoord).xyz;
+	vec3 dir = backPosition - start;
+	float len = length(dir);
+	dir = normalize(dir);
+	
+	if (clipPlaneDepth > -0.5) {
+		gl_FragColor.rgb = clearColor;
+		//next, see if clip plane faces viewer
+		bool frontface = (dot(dir , clipPlane) > 0.0);
+		//next, distance from ray origin to clip plane
+		float dis = dot(dir,clipPlane);
+		if (dis != 0.0  )  dis = (-clipPlaneDepth - dot(clipPlane, start.xyz-0.5)) / dis;
+		if ((!frontface) && (dis < 0.0)) discard;
+		if ((frontface) && (dis > len)) discard;
+		if ((dis > 0.0) && (dis < len)) {
+			if (frontface) {
+				start = start + dir * dis;
+			} else {
+				backPosition =  start + dir * dis; 
+			}
+			dir = backPosition - start;
+			len = length(dir);
+			dir = normalize(dir);		
+		}		
+	}	
+	vec3 deltaDir = dir * stepSize;
+	vec4 colorSample,colAcc = vec4(0.0,0.0,0.0,0.0);
+	float lengthAcc = 0.0;
+	//Dither ray starting depth to reduce wood grain artifacts
+	vec3 samplePos  = start + deltaDir* (fract(sin(gl_FragCoord.x * 12.9898 + gl_FragCoord.y * 78.233) * 43758.5453));
+	for(int i = 0; i < loops; i++) {
+		if (useTransferTexture) {
+			colorSample.a = texture3D(intensityVol,samplePos).a;
+			colorSample= texture1D(TransferTexture, colorSample.a).rgba;
+		} else {
+			colorSample = texture3D(intensityVol,samplePos);
+		}
+		//select brightest voxel in rays trajectory
+		if (colorSample.a > colAcc.a)
+			colAcc = colorSample;
+		samplePos += deltaDir;
+		lengthAcc += stepSize;
+		// terminate if the ray is outside the volume
+		if ( lengthAcc >= len)
+			break;
+	}
+	if (colAcc.a > 0.0)
+		colAcc.a = 1.0;
+	gl_FragColor = colAcc;
+}

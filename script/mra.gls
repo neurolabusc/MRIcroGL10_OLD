@@ -1,0 +1,21 @@
+CONST
+	kTime= 15;
+	kSteps= 36;
+VAR
+	i: integer;
+BEGIN
+	RESETDEFAULTS;
+	LOADIMAGE('chris_MRA');
+	CONTRASTMINMAX(40,100);
+	BACKCOLOR(255, 255, 255);
+	FOR i := kSteps DOWNTO 0 DO BEGIN
+		AZIMUTHELEVATION(i*10, 30);
+		WAIT(kTime);
+	END;
+	MODELESSMESSAGE('extracting arteries from background');
+	Extract(4,1,TRUE);
+	FOR i := kSteps DOWNTO 0 DO BEGIN
+		AZIMUTHELEVATION(i*10, 30);
+		WAIT(kTime);
+	END;
+END.

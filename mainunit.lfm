@@ -1,0 +1,1326 @@
+object GLForm1: TGLForm1
+  Left = 336
+  Height = 748
+  Top = 204
+  Width = 1168
+  ActiveControl = ToolPanel
+  AllowDropFiles = True
+  Caption = 'MRIcroGL'
+  ClientHeight = 748
+  ClientWidth = 1168
+  KeyPreview = True
+  Menu = MainMenu1
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnDropFiles = FormDropFiles
+  OnKeyDown = FormKeyDown
+  Position = poScreenCenter
+  LCLVersion = '1.5'
+  object ToolPanel: TPanel
+    Left = 0
+    Height = 748
+    Top = 0
+    Width = 272
+    Align = alLeft
+    ClientHeight = 748
+    ClientWidth = 272
+    TabOrder = 0
+    OnClick = ToolPanelClick
+    object ClipBox: TGroupBox
+      Left = 1
+      Height = 110
+      Top = 162
+      Width = 270
+      Align = alTop
+      Caption = 'Clipping'
+      ClientHeight = 88
+      ClientWidth = 262
+      ParentFont = False
+      TabOrder = 0
+      object Label4: TLabel
+        Left = 4
+        Height = 16
+        Top = 2
+        Width = 38
+        Caption = 'Depth'
+        ParentColor = False
+        OnClick = Label4Click
+      end
+      object Label5: TLabel
+        Left = 4
+        Height = 16
+        Top = 32
+        Width = 53
+        Caption = 'Azimuth'
+        ParentColor = False
+        OnClick = Label5Click
+      end
+      object Label6: TLabel
+        Left = 4
+        Height = 16
+        Top = 62
+        Width = 57
+        Caption = 'Elevation'
+        ParentColor = False
+        OnClick = Label6Click
+      end
+      object ClipTrack: TTrackBar
+        Left = 70
+        Height = 30
+        Top = 0
+        Width = 190
+        Max = 1000
+        OnChange = ClipTrackChange
+        Position = 0
+        TickStyle = tsNone
+        TabOrder = 0
+      end
+      object AziTrack1: TTrackBar
+        Left = 70
+        Height = 30
+        Top = 30
+        Width = 190
+        Max = 360
+        OnChange = ClipTrackChange
+        Position = 180
+        TickStyle = tsNone
+        TabOrder = 1
+      end
+      object ElevTrack1: TTrackBar
+        Left = 70
+        Height = 30
+        Top = 60
+        Width = 190
+        Max = 180
+        Min = -180
+        OnChange = ClipTrackChange
+        Position = 0
+        TickStyle = tsNone
+        TabOrder = 2
+      end
+    end
+    object ShaderBox: TGroupBox
+      Left = 1
+      Height = 100
+      Top = 647
+      Width = 270
+      Align = alClient
+      Caption = 'Shader'
+      ClientHeight = 78
+      ClientWidth = 262
+      ParentFont = False
+      TabOrder = 1
+      OnResize = ShaderBoxResize
+      object Label1: TLabel
+        Left = 156
+        Height = 16
+        Hint = 'Lower quality renders faster, higher quality looks better'
+        Top = 2
+        Width = 10
+        Caption = 'Q'
+        ParentColor = False
+        ParentShowHint = False
+        ShowHint = True
+      end
+      object Label2: TLabel
+        Left = 4
+        Height = 16
+        Hint = 'Set the elevation and azimuth of the illumination'
+        Top = 36
+        Width = 32
+        Caption = 'Light'
+        ParentColor = False
+        ParentShowHint = False
+        ShowHint = True
+      end
+      object ShaderDrop: TComboBox
+        Left = 2
+        Height = 20
+        Top = 0
+        Width = 146
+        DropDownCount = 24
+        ItemHeight = 0
+        OnChange = ShaderDropChange
+        Style = csDropDownList
+        TabOrder = 0
+      end
+      object QualityTrack: TTrackBar
+        Left = 170
+        Height = 30
+        Top = 0
+        Width = 92
+        Min = 1
+        OnChange = QualityTrackChange
+        Position = 3
+        TickStyle = tsNone
+        TabOrder = 1
+      end
+      object ElevTrack: TTrackBar
+        Left = 52
+        Height = 30
+        Top = 34
+        Width = 92
+        Max = 90
+        Min = -90
+        OnChange = AziElevChange
+        Position = 5
+        TickStyle = tsNone
+        TabOrder = 2
+      end
+      object AziTrack: TTrackBar
+        Left = 170
+        Height = 30
+        Top = 32
+        Width = 92
+        Max = 180
+        Min = -180
+        OnChange = AziElevChange
+        Position = 0
+        TickStyle = tsNone
+        TabOrder = 3
+      end
+      object Memo1: TMemo
+        Left = 0
+        Height = 74
+        Top = 4
+        Width = 262
+        Align = alBottom
+        Lines.Strings = (
+          'Memo1'
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+        )
+        TabOrder = 4
+      end
+    end
+    object IntensityBox: TGroupBox
+      Tag = 270
+      Left = 1
+      Height = 48
+      Top = 1
+      Width = 270
+      Align = alTop
+      Caption = 'Intensity Minimum..Maximum'
+      ClientHeight = 26
+      ClientWidth = 262
+      ParentFont = False
+      TabOrder = 2
+      object MinEdit: TEdit
+        Left = 4
+        Height = 22
+        Top = 2
+        Width = 120
+        OnKeyPress = MinMaxEditKeyPress
+        OnKeyUp = MinMaxEditKeyUp
+        TabOrder = 0
+        Text = 'MinEdit'
+      end
+      object MaxEdit: TEdit
+        Left = 138
+        Height = 22
+        Top = 2
+        Width = 120
+        OnExit = MinMaxEditExit
+        OnKeyPress = MinMaxEditKeyPress
+        OnKeyUp = MinMaxEditKeyUp
+        TabOrder = 1
+        Text = 'MaxEdit'
+      end
+    end
+    object CutoutBox: TGroupBox
+      Left = 1
+      Height = 110
+      Top = 537
+      Width = 270
+      Align = alTop
+      Caption = 'Cutout'
+      ClientHeight = 88
+      ClientWidth = 262
+      ParentFont = False
+      TabOrder = 3
+      object Xx: TLabel
+        Left = 4
+        Height = 16
+        Top = 2
+        Width = 8
+        Caption = 'X'
+        ParentColor = False
+      end
+      object Yy: TLabel
+        Left = 4
+        Height = 16
+        Top = 32
+        Width = 8
+        Caption = 'Y'
+        ParentColor = False
+      end
+      object Zz: TLabel
+        Left = 4
+        Height = 16
+        Top = 62
+        Width = 8
+        Caption = 'Z'
+        ParentColor = False
+      end
+      object XTrackBar: TTrackBar
+        Left = 18
+        Height = 30
+        Top = 0
+        Width = 92
+        Max = 1000
+        OnChange = CutoutChange
+        Position = 1000
+        TickStyle = tsNone
+        TabOrder = 0
+      end
+      object X2TrackBar: TTrackBar
+        Left = 116
+        Height = 30
+        Top = 0
+        Width = 92
+        Max = 1000
+        OnChange = CutoutChange
+        Position = 1000
+        TickStyle = tsNone
+        TabOrder = 1
+      end
+      object YTrackBar: TTrackBar
+        Left = 18
+        Height = 30
+        Top = 30
+        Width = 92
+        Max = 1000
+        OnChange = CutoutChange
+        Position = 1000
+        TickStyle = tsNone
+        TabOrder = 2
+      end
+      object Y2TrackBar: TTrackBar
+        Left = 116
+        Height = 30
+        Top = 30
+        Width = 92
+        Max = 1000
+        OnChange = CutoutChange
+        Position = 1000
+        TickStyle = tsNone
+        TabOrder = 3
+      end
+      object ZTrackBar: TTrackBar
+        Left = 18
+        Height = 30
+        Top = 60
+        Width = 92
+        Max = 1000
+        OnChange = CutoutChange
+        Position = 1000
+        TickStyle = tsNone
+        TabOrder = 4
+      end
+      object Z2TrackBar: TTrackBar
+        Left = 116
+        Height = 30
+        Top = 60
+        Width = 92
+        Max = 1000
+        OnChange = CutoutChange
+        Position = 1000
+        TickStyle = tsNone
+        TabOrder = 5
+      end
+      object NearBtn: TButton
+        Left = 210
+        Height = 25
+        Top = 12
+        Width = 48
+        Caption = 'Near'
+        OnClick = CutoutNearestSector
+        TabOrder = 6
+      end
+      object NoneBtn: TButton
+        Left = 210
+        Height = 25
+        Top = 48
+        Width = 48
+        Caption = 'None'
+        OnClick = HideBtnClick
+        TabOrder = 7
+      end
+    end
+    object CollapseToolPanelBtn: TButton
+      Left = 252
+      Height = 16
+      Hint = 'Click here to hide the tool panel'
+      Top = 1
+      Width = 16
+      OnClick = CollapsedToolPanelClick
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 4
+    end
+    object MosaicBox: TGroupBox
+      Left = 1
+      Height = 265
+      Top = 272
+      Width = 270
+      Align = alTop
+      Caption = 'Mosaic'
+      ClientHeight = 243
+      ClientWidth = 262
+      TabOrder = 5
+      Visible = False
+      object ColEdit: TSpinEdit
+        Left = 65
+        Height = 16
+        Top = 2
+        Width = 72
+        MaxValue = 20
+        MinValue = 1
+        OnChange = UpdateMosaic
+        TabOrder = 0
+        Value = 3
+      end
+      object RowEdit: TSpinEdit
+        Left = 65
+        Height = 16
+        Top = 32
+        Width = 72
+        MaxValue = 20
+        MinValue = 1
+        OnChange = UpdateMosaic
+        TabOrder = 1
+        Value = 2
+      end
+      object Label3: TLabel
+        Left = 4
+        Height = 16
+        Top = 32
+        Width = 33
+        Caption = 'Rows'
+        ParentColor = False
+      end
+      object Label7: TLabel
+        Left = 4
+        Height = 16
+        Top = 2
+        Width = 56
+        Caption = 'Columns'
+        ParentColor = False
+      end
+      object ColOverlap: TTrackBar
+        Left = 144
+        Height = 30
+        Top = 0
+        Width = 118
+        Max = 9
+        Min = -9
+        OnChange = UpdateMosaic
+        Position = -1
+        TickStyle = tsNone
+        TabOrder = 2
+      end
+      object RowOverlap: TTrackBar
+        Left = 144
+        Height = 30
+        Top = 30
+        Width = 118
+        Max = 9
+        Min = -9
+        OnChange = UpdateMosaic
+        Position = -3
+        TickStyle = tsNone
+        TabOrder = 3
+      end
+      object Label8: TLabel
+        Left = 4
+        Height = 16
+        Top = 62
+        Width = 71
+        Caption = 'Orientation'
+        ParentColor = False
+      end
+      object OrientDrop: TComboBox
+        Left = 84
+        Height = 20
+        Top = 60
+        Width = 100
+        ItemHeight = 0
+        ItemIndex = 0
+        Items.Strings = (
+          'Axial'
+          'Coronal'
+          'Sagittal+'
+          'Sagittal-'
+        )
+        OnChange = UpdateMosaic
+        Style = csDropDownList
+        TabOrder = 4
+        Text = 'Axial'
+      end
+      object MosaicText: TMemo
+        Left = 0
+        Height = 103
+        Top = 140
+        Width = 262
+        Align = alBottom
+        Lines.Strings = (
+          'Memo1'
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+        )
+        TabOrder = 5
+      end
+      object CrossCheck: TCheckBox
+        Left = 4
+        Height = 18
+        Top = 86
+        Width = 88
+        Caption = 'Cross slice'
+        OnChange = UpdateMosaic
+        TabOrder = 6
+      end
+      object LabelCheck: TCheckBox
+        Left = 120
+        Height = 18
+        Top = 86
+        Width = 93
+        Caption = 'Label slices'
+        OnChange = UpdateMosaic
+        TabOrder = 7
+      end
+      object CopyScriptBtn: TButton
+        Left = 8
+        Height = 25
+        Top = 109
+        Width = 103
+        Caption = 'Copy Script'
+        OnClick = CopyScriptClick
+        TabOrder = 8
+      end
+      object RunScriptBtn: TButton
+        Left = 152
+        Height = 25
+        Top = 109
+        Width = 103
+        Caption = 'Run Script'
+        OnClick = RunScriptClick
+        TabOrder = 9
+      end
+    end
+    object OverlayBox: TGroupBox
+      Left = 1
+      Height = 113
+      Top = 49
+      Width = 270
+      Align = alTop
+      Caption = 'Overlays'
+      ClientHeight = 91
+      ClientWidth = 262
+      TabOrder = 6
+      Visible = False
+      object StringGrid1: TStringGrid
+        Left = 0
+        Height = 91
+        Top = 0
+        Width = 262
+        Align = alClient
+        AutoEdit = False
+        BorderStyle = bsNone
+        ColCount = 4
+        DefaultColWidth = 66
+        DefaultRowHeight = 23
+        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goDrawFocusSelected, goTabs, goSmoothScroll]
+        RowCount = 33
+        ScrollBars = ssNone
+        TabOrder = 0
+        OnDrawCell = StringGrid1DrawCell
+        OnExit = StringGrid1Exit
+        OnKeyPress = StringGrid1KeyPress
+        OnMouseDown = StringGrid1MouseDown
+        OnSelectCell = StringGrid1SelectCell
+      end
+      object LUTdrop: TComboBox
+        Left = 88
+        Height = 20
+        Top = 40
+        Width = 73
+        DropDownCount = 22
+        ItemHeight = 0
+        Items.Strings = (
+          'a'
+          'b'
+          'c'
+          'd'
+          'e'
+          'f'
+          'g'
+        )
+        OnChange = LUTdropChange
+        ParentFont = False
+        Style = csDropDownList
+        TabOrder = 1
+      end
+    end
+    object HideRenderToolsBtn: TButton
+      Left = 232
+      Height = 16
+      Hint = 'Click to hide/show render tools (useful for small screens)'
+      Top = 1
+      Width = 16
+      OnClick = HideRenderToolsBtnClick
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 7
+    end
+  end
+  object CollapsedToolPanel: TPanel
+    Left = 272
+    Height = 748
+    Top = 0
+    Width = 4
+    Align = alLeft
+    TabOrder = 1
+    Visible = False
+    OnClick = CollapsedToolPanelClick
+  end
+  object MainMenu1: TMainMenu
+    left = 320
+    top = 536
+    object AppleMenu: TMenuItem
+      Caption = ''
+      object AppleAbout: TMenuItem
+        Caption = 'About MRIcroGL'
+        OnClick = About1Click
+      end
+      object ApplePreferences: TMenuItem
+        Caption = 'Preferences'
+        OnClick = Preferences1Click
+      end
+    end
+    object File1: TMenuItem
+      Caption = 'File'
+      object NewWindow1: TMenuItem
+        Caption = 'New window'
+        OnClick = NewWindow1Click
+      end
+      object Open1: TMenuItem
+        Caption = 'Open'
+        ShortCut = 16463
+        OnClick = Open1Click
+      end
+      object Save1: TMenuItem
+        Caption = 'Save'
+        OnClick = Save1Click
+      end
+      object Exit1: TMenuItem
+        Caption = 'Exit'
+        ShortCut = 16472
+        OnClick = Exit1Click
+      end
+      object MenuSep1: TMenuItem
+        Caption = '-'
+      end
+      object MRU1: TMenuItem
+        Caption = 'MRU1'
+      end
+      object MRU2: TMenuItem
+        Caption = 'MRU2'
+      end
+      object MRU3: TMenuItem
+        Caption = 'MRU3'
+      end
+      object MRU4: TMenuItem
+        Caption = 'MRU4'
+      end
+      object MRU5: TMenuItem
+        Caption = 'MRU5'
+      end
+      object MRU6: TMenuItem
+        Caption = 'MRU6'
+      end
+      object MRU7: TMenuItem
+        Caption = 'MRU7'
+      end
+      object MRU8: TMenuItem
+        Caption = 'MRU8'
+      end
+      object MRU9: TMenuItem
+        Caption = 'MRU9'
+      end
+      object MRU10: TMenuItem
+        Caption = 'MRU10'
+      end
+    end
+    object Edit1: TMenuItem
+      Caption = 'Edit'
+      object Copy1: TMenuItem
+        Caption = 'Copy'
+        ShortCut = 16384
+        OnClick = Copy1Click
+      end
+    end
+    object Overlays1: TMenuItem
+      Caption = 'Overlays'
+      object Addoverlay1: TMenuItem
+        Caption = 'Add overlay'
+        OnClick = Addoverlay1Click
+      end
+      object Thresholdmenu: TMenuItem
+        Caption = 'Add overlay (remove small clusters)'
+        OnClick = ThresholdMenuClick
+      end
+      object Closeoverlays1: TMenuItem
+        Caption = 'Close overlays'
+        OnClick = Closeoverlays1Click
+      end
+      object Onbackground1: TMenuItem
+        Caption = 'Transparency on background'
+        object N0Opaque1: TMenuItem
+          AutoCheck = True
+          Caption = '0% Opaque'
+          GroupIndex = 123
+          RadioItem = True
+          OnClick = SetBackgroundAlpha
+        end
+        object N201: TMenuItem
+          Tag = 20
+          AutoCheck = True
+          Caption = '20%'
+          GroupIndex = 123
+          RadioItem = True
+          OnClick = SetBackgroundAlpha
+        end
+        object N401: TMenuItem
+          Tag = 40
+          AutoCheck = True
+          Caption = '40%'
+          GroupIndex = 123
+          RadioItem = True
+          OnClick = SetBackgroundAlpha
+        end
+        object N501: TMenuItem
+          Tag = 50
+          AutoCheck = True
+          Caption = '50%'
+          GroupIndex = 123
+          RadioItem = True
+          OnClick = SetBackgroundAlpha
+        end
+        object N601: TMenuItem
+          Tag = 60
+          AutoCheck = True
+          Caption = '60%'
+          GroupIndex = 123
+          RadioItem = True
+          OnClick = SetBackgroundAlpha
+        end
+        object N801: TMenuItem
+          Tag = 80
+          AutoCheck = True
+          Caption = '80%'
+          GroupIndex = 123
+          RadioItem = True
+          OnClick = SetBackgroundAlpha
+        end
+        object N100transparent1: TMenuItem
+          Tag = 100
+          AutoCheck = True
+          Caption = '100% transparent'
+          GroupIndex = 123
+          RadioItem = True
+          OnClick = SetBackgroundAlpha
+        end
+        object Additive1: TMenuItem
+          Tag = -1
+          AutoCheck = True
+          Caption = 'Additive'
+          GroupIndex = 123
+          RadioItem = True
+          OnClick = SetBackgroundAlpha
+        end
+        object ModulateMenu: TMenuItem
+          Tag = -2
+          AutoCheck = True
+          Caption = 'Modulate'
+          GroupIndex = 123
+          RadioItem = True
+          OnClick = SetBackgroundAlpha
+        end
+      end
+      object Onotheroverlays1: TMenuItem
+        Caption = 'Transparency on other overlays'
+        object N0opaque2: TMenuItem
+          AutoCheck = True
+          Caption = '0% opaque'
+          GroupIndex = 133
+          RadioItem = True
+          OnClick = SetOverlayAlpha
+        end
+        object N202: TMenuItem
+          Tag = 20
+          AutoCheck = True
+          Caption = '20%'
+          GroupIndex = 133
+          RadioItem = True
+          OnClick = SetOverlayAlpha
+        end
+        object N402: TMenuItem
+          Tag = 40
+          AutoCheck = True
+          Caption = '40%'
+          GroupIndex = 133
+          RadioItem = True
+          OnClick = SetOverlayAlpha
+        end
+        object N502: TMenuItem
+          Tag = 50
+          AutoCheck = True
+          Caption = '50%'
+          GroupIndex = 133
+          RadioItem = True
+          OnClick = SetOverlayAlpha
+        end
+        object N602: TMenuItem
+          Tag = 60
+          AutoCheck = True
+          Caption = '60%'
+          GroupIndex = 133
+          RadioItem = True
+          OnClick = SetOverlayAlpha
+        end
+        object N802: TMenuItem
+          Tag = 80
+          AutoCheck = True
+          Caption = '80%'
+          GroupIndex = 133
+          RadioItem = True
+          OnClick = SetOverlayAlpha
+        end
+        object N100transparent2: TMenuItem
+          Tag = 100
+          AutoCheck = True
+          Caption = '100% transparent'
+          GroupIndex = 133
+          RadioItem = True
+          OnClick = SetOverlayAlpha
+        end
+        object Additive2: TMenuItem
+          Tag = -1
+          AutoCheck = True
+          Caption = 'Additive'
+          GroupIndex = 133
+          RadioItem = True
+          OnClick = SetOverlayAlpha
+        end
+      end
+      object InterpolateMenu: TMenuItem
+        AutoCheck = True
+        Caption = 'Smooth when loading'
+        Checked = True
+        OnClick = InterpolateMenuClick
+      end
+      object BackgroundMaskMenu: TMenuItem
+        AutoCheck = True
+        Caption = 'Background masks overlays'
+        Checked = True
+        OnClick = BackgroundMaskMenuClick
+      end
+      object OverlayColorFromZeroMenu: TMenuItem
+        AutoCheck = True
+        Caption = 'Overlay color from zero'
+        OnClick = OverlayColorFromZeroMenuClick
+      end
+      object OverlayHideZerosMenu: TMenuItem
+        AutoCheck = True
+        Caption = 'Overlay hide zeros'
+        OnClick = OverlayColorFromZeroMenuClick
+      end
+    end
+    object Import1: TMenuItem
+      Caption = 'Import'
+      object ConvertDicom1: TMenuItem
+        Caption = 'Convert DICOM to NIfTI'
+        OnClick = ConvertDicom1Click
+      end
+    end
+    object Draw1: TMenuItem
+      Caption = 'Draw'
+      object OpenVOI1: TMenuItem
+        Caption = 'Open VOI'
+        OnClick = OpenVOI1Click
+      end
+      object SaveVOI1: TMenuItem
+        Caption = 'Save VOI'
+        OnClick = SaveVOI1Click
+      end
+      object CloseVOI1: TMenuItem
+        Caption = 'Close VOI'
+        OnClick = CloseVOI1Click
+      end
+      object UndoVOI1: TMenuItem
+        Caption = 'Undo'
+        ShortCut = 16474
+        OnClick = UndoVOI1Click
+      end
+      object Transparency1: TMenuItem
+        Caption = 'Transparency'
+        object HideVOI1: TMenuItem
+          AutoCheck = True
+          Caption = 'Hide/Unhide'
+          ShortCut = 16456
+          OnClick = TransparencyVOIClick
+        end
+        object TransparencyVOIhi: TMenuItem
+          Tag = 64
+          AutoCheck = True
+          Caption = '25%'
+          GroupIndex = 121
+          RadioItem = True
+          OnClick = TransparencyVOIClick
+        end
+        object TransparencyVOImid: TMenuItem
+          Tag = 128
+          AutoCheck = True
+          Caption = '50%'
+          Checked = True
+          GroupIndex = 121
+          RadioItem = True
+          OnClick = TransparencyVOIClick
+        end
+        object TransparencyVOIlo: TMenuItem
+          Tag = 230
+          AutoCheck = True
+          Caption = '90%'
+          GroupIndex = 121
+          RadioItem = True
+          OnClick = TransparencyVOIClick
+        end
+      end
+      object DrawTool1: TMenuItem
+        Caption = 'Draw color'
+        OnClick = DrawTool1Click
+        object NoDraw1: TMenuItem
+          Tag = -1
+          AutoCheck = True
+          Caption = 'None (disable: draw mode off)'
+          Checked = True
+          GroupIndex = 189
+          RadioItem = True
+          ShortCut = 16452
+          OnClick = DrawTool1Click
+        end
+        object Eraser1: TMenuItem
+          AutoCheck = True
+          Caption = 'Erase'
+          GroupIndex = 189
+          RadioItem = True
+          ShortCut = 16432
+          OnClick = DrawTool1Click
+        end
+      end
+      object Advanced1: TMenuItem
+        Caption = 'Advanced'
+        object OverwriteDrawColor1: TMenuItem
+          AutoCheck = True
+          Caption = 'Overwrite draw colors'
+          Checked = True
+        end
+        object PasteSlice1: TMenuItem
+          Caption = 'Clone slice'
+          OnClick = PasteSlice1Click
+        end
+        object CustomDrawColors1: TMenuItem
+          Caption = 'Custom draw colors'
+          OnClick = CustomDrawColors1Click
+        end
+        object Smooth1: TMenuItem
+          Caption = 'Smooth and refine drawing'
+          OnClick = Smooth1Click
+        end
+        object AutoRoi1: TMenuItem
+          Caption = 'Automatic VOI'
+          OnClick = AutoRoi1Click
+        end
+      end
+    end
+    object Display1: TMenuItem
+      Caption = 'Display'
+      object Render1: TMenuItem
+        AutoCheck = True
+        Caption = 'Render'
+        GroupIndex = 212
+        RadioItem = True
+        ShortCut = 16466
+        OnClick = SetViewClick
+      end
+      object Axial1: TMenuItem
+        Tag = 1
+        AutoCheck = True
+        Caption = 'Axial'
+        GroupIndex = 212
+        RadioItem = True
+        ShortCut = 65
+        OnClick = SetViewClick
+      end
+      object Coronal1: TMenuItem
+        Tag = 2
+        AutoCheck = True
+        Caption = 'Coronal'
+        GroupIndex = 212
+        RadioItem = True
+        OnClick = SetViewClick
+      end
+      object Sagittal1: TMenuItem
+        Tag = 3
+        AutoCheck = True
+        Caption = 'Sagittal'
+        GroupIndex = 212
+        RadioItem = True
+        ShortCut = 83
+        OnClick = SetViewClick
+      end
+      object MPR1: TMenuItem
+        Tag = 4
+        AutoCheck = True
+        Caption = 'Multi Planar (A+C+S)'
+        GroupIndex = 212
+        RadioItem = True
+        ShortCut = 16461
+        OnClick = SetViewClick
+      end
+      object Mosaic1: TMenuItem
+        Tag = 5
+        AutoCheck = True
+        Caption = 'Mosaic'
+        GroupIndex = 212
+        RadioItem = True
+        OnClick = Mosaic1Click
+      end
+      object YokeSepMenu: TMenuItem
+        Caption = '-'
+        Visible = False
+      end
+      object YokeMenu: TMenuItem
+        AutoCheck = True
+        Caption = 'Yoke'
+        ShortCut = 16473
+        Visible = False
+        OnClick = YokeMenuClick
+      end
+    end
+    object View1: TMenuItem
+      Caption = 'View'
+      object Tool1: TMenuItem
+        AutoCheck = True
+        Caption = 'Tool panel'
+        ShortCut = 16468
+        OnClick = Tool1Click
+      end
+      object Orient1: TMenuItem
+        AutoCheck = True
+        Caption = 'Text and orientation cube'
+        ShortCut = 112
+        OnClick = Orient1Click
+      end
+      object Scripting1: TMenuItem
+        Caption = 'Scripting'
+        OnClick = Scripting1Click
+      end
+      object Extract1: TMenuItem
+        Caption = 'Extract object[s]'
+        OnClick = Extract1Click
+      end
+      object BET1: TMenuItem
+        Caption = 'Extract brain'
+        OnClick = BET1Click
+      end
+      object Sharpen1: TMenuItem
+        Caption = 'Sharpen'
+        OnClick = Sharpen1Click
+      end
+    end
+    object Colors1: TMenuItem
+      Caption = 'Color'
+      object Scheme1: TMenuItem
+        Caption = 'Scheme'
+      end
+      object ToggleTransparency1: TMenuItem
+        AutoCheck = True
+        Caption = 'Color editor'
+        OnClick = ToggleTransparency1Click
+      end
+      object Colorbar1: TMenuItem
+        AutoCheck = True
+        Caption = 'Colorbar'
+        ShortCut = 114
+        OnClick = Colorbar1Click
+      end
+      object Backcolor1: TMenuItem
+        Caption = 'Back color'
+        OnClick = Backcolor1Click
+      end
+    end
+    object Help1: TMenuItem
+      Caption = 'Help'
+      object About1: TMenuItem
+        Caption = 'About'
+        OnClick = About1Click
+      end
+      object Preferences1: TMenuItem
+        Caption = 'Preferences'
+        OnClick = Preferences1Click
+      end
+    end
+  end
+  object OpenDialog1: TOpenDialog
+    FileName = '/Users/rorden/Documents/pas/raycast'
+    Filter = 'NIfTI|*.nii;*.hdr;*.nii.gz|PIC|*.PIC'
+    InitialDir = '/Users/rorden/Documents/pas/'
+    left = 320
+    top = 16
+  end
+  object ColorDialog1: TColorDialog
+    Color = clBlack
+    CustomColors.Strings = (
+      'ColorA=000000'
+      'ColorB=000080'
+      'ColorC=008000'
+      'ColorD=008080'
+      'ColorE=800000'
+      'ColorF=800080'
+      'ColorG=808000'
+      'ColorH=808080'
+      'ColorI=C0C0C0'
+      'ColorJ=0000FF'
+      'ColorK=00FF00'
+      'ColorL=00FFFF'
+      'ColorM=FF0000'
+      'ColorN=FF00FF'
+      'ColorO=FFFF00'
+      'ColorP=FFFFFF'
+      'ColorQ=C0DCC0'
+      'ColorR=F0CAA6'
+      'ColorS=F0FBFF'
+      'ColorT=A4A0A0'
+    )
+    left = 432
+    top = 16
+  end
+  object UpdateTimer: TTimer
+    Enabled = False
+    Interval = 150
+    OnTimer = UpdateTimerTimer
+    left = 320
+    top = 80
+  end
+  object SaveDialog1: TSaveDialog
+    DefaultExt = '.png'
+    Filter = 'PNG lossless|*.png|JPEG lossy|*.jpg'
+    left = 320
+    top = 144
+  end
+  object AutoRunTimer1: TTimer
+    Enabled = False
+    Interval = 250
+    OnTimer = AutoRunTimer1Timer
+    left = 320
+    top = 208
+  end
+  object GradientsIdleTimer: TTimer
+    Enabled = False
+    OnTimer = GradientsIdleTimerTimer
+    left = 320
+    top = 280
+  end
+  object SaveDialogVoi: TSaveDialog
+    Title = 'Save drawing as'
+    Filter = 'Volume of Interest (.voi)|.voi|FSL (.nii.gz)|.nii.gz|SPM/FSL (.nii)|.nii'
+    left = 320
+    top = 344
+  end
+  object OpenDialogVoi: TOpenDialog
+    left = 320
+    top = 408
+  end
+  object OpenDialogTxt: TOpenDialog
+    Filter = 'ITK-SnAP Label Description (txt)|*.txt'
+    left = 320
+    top = 472
+  end
+  object ErrorTimer: TTimer
+    Enabled = False
+    Interval = 50
+    OnTimer = ErrorTimerTimer
+    left = 432
+    top = 72
+  end
+  object YokeTimer: TTimer
+    Enabled = False
+    Interval = 200
+    OnTimer = YokeTimerTimer
+    left = 429
+    top = 151
+  end
+end

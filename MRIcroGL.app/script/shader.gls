@@ -1,0 +1,22 @@
+CONST
+	ksteps = 120;
+	kAziSpeed= 22;
+	kElevSpeed= 22;
+	kTime = 1;
+VAR
+	a,e: single;
+	i: integer;
+BEGIN
+	RESETDEFAULTS;
+	BACKCOLOR(255, 255, 255);
+	LOADIMAGE('mni152_2009bet');
+	COLORNAME('surface');
+	SHADERNAME('default');
+	SHADERADJUST('specular',0.9);
+	FOR i := 1 TO ksteps DO BEGIN
+		a := abs (0.5-(i mod kAziSpeed)/kAzispeed)*2;
+		e := abs (0.5-(i mod kElevSpeed)/kElevspeed)*2;
+		SHADERLIGHTAZIMUTHELEVATION( round((a-0.5)*120),round((e-0.2)*120));
+		WAIT(ktime);
+	END;
+END.
