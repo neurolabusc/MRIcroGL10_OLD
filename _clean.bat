@@ -6,7 +6,7 @@ del /S *.ddp
 del /S *.mps
 del /S *.mpt
 del /S *.dsm
-del /S C:\pas\raycast\simple.exe
-del /S C:\pas\raycast\MRIcroGL
-del /S C:\pas\raycast\MRIcroGL.app\Contents\MacOS\MRIcroGL
+del /S C:\pas\MRIcroGL\simple.exe
+del /S C:\pas\MRIcroGL\MRIcroGL
+del /S C:\pas\MRIcroGL\MRIcroGL.app\Contents\MacOS\MRIcroGL
 

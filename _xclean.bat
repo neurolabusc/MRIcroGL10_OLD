@@ -1,4 +1,4 @@
-cd ~/Documents/pas/raycast/
+cd ~/Documents/pas/MRIcroGL/
 rm  -r *.o
 rm  -r *.ppu
 rm -r *.bak

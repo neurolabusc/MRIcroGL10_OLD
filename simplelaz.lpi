@@ -65,9 +65,6 @@
         </CompilerOptions>
       </Item2>
       <Item3 Name="Release">
-        <MacroValues Count="1">
-          <Macro1 Name="LCLWidgetType" Value="cocoa"/>
-        </MacroValues>
         <CompilerOptions>
           <Version Value="11"/>
           <PathDelim Value="\"/>
@@ -109,9 +106,6 @@
           </Other>
         </CompilerOptions>
       </Item3>
-      <SharedMatrixOptions Count="1">
-        <Item1 ID="773276142281" Modes="Release" Type="IDEMacro" MacroName="LCLWidgetType" Value="cocoa"/>
-      </SharedMatrixOptions>
     </BuildModes>
     <PublishOptions>
       <Version Value="2"/>
@@ -140,10 +134,11 @@
       <Unit0>
         <Filename Value="simplelaz.lpr"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="-1"/>
+        <EditorIndex Value="2"/>
         <WindowIndex Value="1"/>
-        <CursorPos X="17" Y="8"/>
+        <CursorPos X="38" Y="25"/>
         <UsageCount Value="207"/>
+        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit0>
       <Unit1>
@@ -152,9 +147,10 @@
         <ComponentName Value="GLForm1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <IsVisibleTab Value="True"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="1376"/>
-        <CursorPos X="41" Y="1388"/>
+        <TopLine Value="3"/>
+        <CursorPos X="3" Y="13"/>
         <UsageCount Value="207"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -171,11 +167,10 @@
         <ComponentName Value="ScriptForm"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="515"/>
-        <CursorPos Y="534"/>
+        <TopLine Value="516"/>
+        <CursorPos X="40" Y="519"/>
         <UsageCount Value="207"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -240,7 +235,7 @@
       <Unit10>
         <Filename Value="shaderui.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="3"/>
         <WindowIndex Value="1"/>
         <TopLine Value="317"/>
         <CursorPos X="17" Y="328"/>
@@ -420,7 +415,7 @@
       </Unit31>
       <Unit32>
         <Filename Value="nifti_foreign.pas"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="6"/>
         <WindowIndex Value="1"/>
         <TopLine Value="1107"/>
         <CursorPos X="25" Y="1145"/>
@@ -440,7 +435,7 @@
       <Unit34>
         <Filename Value="clut.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="4"/>
         <WindowIndex Value="1"/>
         <TopLine Value="80"/>
         <CursorPos X="19" Y="96"/>
@@ -676,7 +671,7 @@
       </Unit63>
       <Unit64>
         <Filename Value="userdir.pas"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="5"/>
         <WindowIndex Value="1"/>
         <CursorPos X="23"/>
         <UsageCount Value="10"/>
@@ -784,7 +779,7 @@
       <Unit76>
         <Filename Value="..\..\..\..\..\Developer\lazarus\components\opengl\openglcontext.pas"/>
         <UnitName Value="OpenGLContext"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="7"/>
         <WindowIndex Value="1"/>
         <TopLine Value="534"/>
         <CursorPos Y="550"/>
@@ -794,124 +789,124 @@
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="295" Column="20" TopLine="276"/>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="1124" Column="52" TopLine="1108"/>
       </Position1>
       <Position2>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="297" Column="20" TopLine="278"/>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="1118" Column="28" TopLine="1092"/>
       </Position2>
       <Position3>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="167" Column="29" TopLine="145"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="3334" Column="46" TopLine="3320"/>
       </Position3>
       <Position4>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="297" Column="5" TopLine="276"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="574" Column="37" TopLine="568"/>
       </Position4>
       <Position5>
-        <Filename Value="shaderui.pas"/>
-        <Caret Column="29"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="1414" Column="17" TopLine="1376"/>
       </Position5>
       <Position6>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="158" Column="10" TopLine="138"/>
+        <Filename Value="scriptengine.pas"/>
+        <Caret Line="299" Column="33" TopLine="288"/>
       </Position6>
       <Position7>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="29" Column="14" TopLine="18"/>
+        <Filename Value="scriptengine.pas"/>
+        <Caret Line="550" Column="28" TopLine="530"/>
       </Position7>
       <Position8>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="164" Column="14" TopLine="147"/>
+        <Filename Value="scriptengine.pas"/>
+        <Caret Line="535" Column="105" TopLine="530"/>
       </Position8>
       <Position9>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="217" Column="14" TopLine="206"/>
+        <Filename Value="simplelaz.lpr"/>
+        <Caret Line="8" Column="17"/>
       </Position9>
       <Position10>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="234" Column="14" TopLine="215"/>
+        <Filename Value="simplelaz.lpr"/>
+        <Caret Line="14" Column="98"/>
       </Position10>
       <Position11>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="2218" Column="11" TopLine="2207"/>
+        <Filename Value="simplelaz.lpr"/>
+        <Caret Line="25" Column="38"/>
       </Position11>
       <Position12>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="2611" Column="13" TopLine="2607"/>
+        <Caret Line="7" Column="51"/>
       </Position12>
       <Position13>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="2616" Column="19" TopLine="2607"/>
+        <Caret Line="19" Column="8"/>
       </Position13>
       <Position14>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="2592" TopLine="2586"/>
+        <Caret Line="561" Column="81" TopLine="536"/>
       </Position14>
       <Position15>
-        <Filename Value="clut.pas"/>
-        <Caret Line="166" Column="22" TopLine="155"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="571" Column="60" TopLine="546"/>
       </Position15>
       <Position16>
-        <Filename Value="clut.pas"/>
-        <Caret Line="96" Column="19" TopLine="80"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="1008" Column="84" TopLine="983"/>
       </Position16>
       <Position17>
-        <Filename Value="nifti_foreign.pas"/>
-        <Caret Line="555" Column="63" TopLine="548"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="1354" Column="83" TopLine="1329"/>
       </Position17>
       <Position18>
-        <Filename Value="nifti_foreign.pas"/>
-        <Caret Line="1073" Column="38" TopLine="1064"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="1397" Column="18" TopLine="1372"/>
       </Position18>
       <Position19>
-        <Filename Value="nifti_foreign.pas"/>
-        <Caret Line="1115" Column="107" TopLine="1098"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="1836" Column="50" TopLine="1810"/>
       </Position19>
       <Position20>
-        <Filename Value="nifti_foreign.pas"/>
-        <Caret Line="1105" Column="23" TopLine="1098"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2191" Column="30" TopLine="2165"/>
       </Position20>
       <Position21>
-        <Filename Value="nifti_foreign.pas"/>
-        <Caret Line="1124" Column="26" TopLine="1103"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2247" Column="42" TopLine="2221"/>
       </Position21>
       <Position22>
-        <Filename Value="nifti_foreign.pas"/>
-        <Caret Line="1122" Column="49" TopLine="1107"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2705" Column="65" TopLine="2679"/>
       </Position22>
       <Position23>
-        <Filename Value="nifti_foreign.pas"/>
-        <Caret Line="1124" Column="52" TopLine="1108"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2706" Column="46" TopLine="2680"/>
       </Position23>
       <Position24>
-        <Filename Value="nifti_foreign.pas"/>
-        <Caret Line="1118" Column="28" TopLine="1092"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="3130" Column="33" TopLine="3104"/>
       </Position24>
       <Position25>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="3334" Column="46" TopLine="3320"/>
+        <Caret Line="3131" Column="33" TopLine="3105"/>
       </Position25>
       <Position26>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="574" Column="37" TopLine="568"/>
+        <Caret Line="3196" Column="30" TopLine="3170"/>
       </Position26>
       <Position27>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="1414" Column="17" TopLine="1376"/>
+        <Caret Line="3198" Column="30" TopLine="3172"/>
       </Position27>
       <Position28>
-        <Filename Value="scriptengine.pas"/>
-        <Caret Line="299" Column="33" TopLine="288"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="3336" Column="100" TopLine="3310"/>
       </Position28>
       <Position29>
-        <Filename Value="scriptengine.pas"/>
-        <Caret Line="550" Column="28" TopLine="530"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="3467" Column="37" TopLine="3442"/>
       </Position29>
       <Position30>
-        <Filename Value="scriptengine.pas"/>
-        <Caret Line="535" Column="105" TopLine="530"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="3468" Column="37" TopLine="3443"/>
       </Position30>
     </JumpHistory>
   </ProjectOptions>

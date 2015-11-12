@@ -9,7 +9,7 @@ cp dcm2niix /Users/rorden/Documents/osx/dcm2niix
 cp dcm2niix /Users/rorden/Documents/osx/MRIcroGL.app/Contents/MacOS/dcm2niix
 cp dcm2niix /Users/rorden/Documents/osx/MRIcroGL64.app/Contents/MacOS/dcm2niix
 
-cd ~/Documents/pas/raycast/
+cd ~/Documents/pas/MRIcroGL/
 #compile MRIcroGL64
 lazbuild ./simplelaz.lpr --cpu=x86_64 --ws=cocoa --compiler="/usr/local/bin/ppcx64"
 cp MRIcroGL /Users/rorden/Documents/osx/MRIcroGL64.app/Contents/MacOS/MRIcroGL
@@ -30,8 +30,8 @@ strip /Users/rorden/Documents/osx/MRIcroGL.app/Contents/MacOS/MRIcroGL
 
 cd /Users/rorden/Documents/pas/
 #get rid of symbolic link
-raycast/MRIcroGL.app/Contents/MacOS/MRIcroGL
-zip -r /Users/rorden/Documents/source.zip raycast
+rm /Users/rorden/Documents/pas/MRIcroGL/MRIcroGL.app/Contents/MacOS/MRIcroGL
+zip -r /Users/rorden/Documents/source.zip MRIcroGL
 
 cd /Users/rorden/Documents/
 zip -r /Users/rorden/Documents/osx.zip osx

@@ -1,4 +1,4 @@
-cd ~/raycast
+cd ~/MRIcroGL
 lazbuild -B simplelaz.lpr
 cp MRIcroGL ~/mricrogl_lx/MRIcroGL
 
