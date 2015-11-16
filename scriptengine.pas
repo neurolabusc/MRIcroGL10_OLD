@@ -376,11 +376,8 @@ end;
 procedure TScriptForm.Save1Click(Sender: TObject);
 begin
   if fn = '' then
-  begin
-    Saveas1Click(nil);
-  end
-  else
-  begin
+    Saveas1Click(nil)
+  else begin
     Memo1.Lines.SaveToFile(fn);
     gchanged := False;
     Add2MRU(gPrefs.PrevScriptName,fn);
@@ -391,14 +388,13 @@ end;
 procedure TScriptForm.SaveAs1Click(Sender: TObject);
 begin
   SaveDialog1.FileName := '';
-  if SaveDialog1.Execute then
-  begin
-    fn := SaveDialog1.FileName;
-    Memo1.Lines.SaveToFile(fn);
-    gchanged := False;
-    Add2MRU(gPrefs.PrevScriptName,fn);
-	  UpdateSMRU;
-  end;
+  if not SaveDialog1.Execute then
+    exit;
+  fn := SaveDialog1.FileName;
+  Memo1.Lines.SaveToFile(fn);
+  gchanged := False;
+  Add2MRU(gPrefs.PrevScriptName,fn);
+  UpdateSMRU;
 end;
 
 procedure TScriptForm.Memo1Change(Sender: TObject);
@@ -429,7 +425,6 @@ begin
   ScriptForm.Stop1Click(nil);
   if not SaveTest then
     exit;
-
   Memo2.Lines.Clear;
   fn := '';
   DemoProgram;
@@ -538,8 +533,8 @@ end;
 procedure TScriptForm.Memo1KeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  inherited;
-  Memo1Click(nil);
+     Memo1Click(nil);
+    inherited;
 end;
 
 procedure TScriptForm.Copy1Click(Sender: TObject);
