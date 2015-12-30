@@ -11,7 +11,8 @@ uses
   gzio2,
 {$ENDIF}
 {$IFNDEF FPC} Windows, {$ENDIF}
-dglOpenGL, nifti_types,
+{$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF}
+ nifti_types,
 define_types,SysUtils,nii_mat,nifti_foreign, //GLMisc, //GLTexture, GLContext,
 {$IFDEF GUI}dialogs;{$ELSE} dialogsx;{$ENDIF}
 type
@@ -641,14 +642,14 @@ procedure FixCrapMat(var lMat: TMatrix);
 var
  lVec000,lVec100,lVec010,lVec001: TVector;
 begin
- lVec000 := Vector3D  (0, 0, 0);
- lVec100 := Vector3D  (1, 0, 0);
- lVec010 := Vector3D  (0, 1, 0);
- lVec001 := Vector3D  (0, 0, 1);
- lVec000 := Transform (lVec000, lMat);
- lVec100 := Transform (lVec100, lMat);
- lVec010 := Transform (lVec010, lMat);
- lVec001 := Transform (lVec001, lMat);
+ lVec000 := Vec3D  (0, 0, 0);
+ lVec100 := Vec3D  (1, 0, 0);
+ lVec010 := Vec3D  (0, 1, 0);
+ lVec001 := Vec3D  (0, 0, 1);
+ lVec000 := Transform3D (lVec000, lMat);
+ lVec100 := Transform3D (lVec100, lMat);
+ lVec010 := Transform3D (lVec010, lMat);
+ lVec001 := Transform3D (lVec001, lMat);
  if SameVec(lVec000,lVec100) or
     SameVec(lVec000,lVec010) or
     SameVec(lVec000,lVec001) then begin

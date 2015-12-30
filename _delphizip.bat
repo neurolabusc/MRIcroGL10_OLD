@@ -1,8 +1,10 @@
 REM copy latest version of dcm2niix
+cd c:\dcm2niix\console
+g++ -O3 -DmyDisableOpenJPEG -I. main_console.cpp nii_dicom.cpp nifti1_io_core.cpp nii_ortho.cpp nii_dicom_batch.cpp jpg_0XC3.cpp ujpeg.cpp -s -o dcm2niix -static-libgcc
 copy c:\dcm2niix\console\dcm2niix.exe c:\mricrogl\dcm2niix.exe
 
 REM COMPILE MRIcroGL
-
+cd c:\pas\MRIcroGL
 c:\lazarus\lazbuild --cpu=x86_64 -B simplelaz.lpi
 move /Y "C:\pas\MRIcroGL\MRIcroGL.exe" "c:\mricrogl\MRIcroGL64.exe"
 

@@ -1,7 +1,8 @@
 unit nii_reslice;
 interface
-{$D-,L-,O+,Q-,R-,Y-,S-}
+//{$D-,O+,Q-,R-,S-} // L-,Y-,
 {$H+}
+{$mode delphi}
 uses
   Dialogs, nii_mat,define_types,sysutils,prefs,nifti_hdr,Texture_3D_Unit, nifti_types;
 
@@ -24,32 +25,6 @@ begin
   lHdr.srow_z[0],lHdr.srow_z[1],lHdr.srow_z[2],lHdr.srow_z[3]);
 end;
 
-
-(*procedure ReportMatrix (lM:TMatrix);
-const
-	kCR = chr (13);
-begin
-	showmessage(RealToStr(lM.matrix[1,1],6)+','+RealToStr(lM.matrix[1,2],6)+','+RealToStr(lM.matrix[1,3],6)+','+RealToStr(lM.matrix[1,4],6)+kCR+
-		RealToStr(lM.matrix[2,1],6)+','+RealToStr(lM.matrix[2,2],6)+','+RealToStr(lM.matrix[2,3],6)+','+RealToStr(lM.matrix[2,4],6)+kCR+
-		RealToStr(lM.matrix[3,1],6)+','+RealToStr(lM.matrix[3,2],6)+','+RealToStr(lM.matrix[3,3],6)+','+RealToStr(lM.matrix[3,4],6)+kCR
-    +RealToStr(lM.matrix[4,1],6)+','+RealToStr(lM.matrix[4,2],6)+','+RealToStr(lM.matrix[4,3],6)+','+RealToStr(lM.matrix[4,4],6)
-	  );
-end;     *)
-
-(*
-procedure  SPMmat(var lDestMat: TMatrix);
-//SPM matrices are indexed from 1
-//This function is only useful for direct comparisons with SPM
-var
-  lTemp,lVS: TMatrix;
-begin
-  lVS := Matrix3D (1,0,0,-1,
-    0,1,0,-1,
-    0,0,1,-1, 0,0,0,1);//VoxelShift
-  lTemp := lDestMat;
-  lDestMat := MultiplyMatrices(lTemp,lVS);
-end;*)
-
 procedure  Coord(var lV: TVector; var lMat: TMatrix);
 //transform X Y Z by matrix
 var
@@ -68,6 +43,8 @@ begin
   lVx.vector[3] := lVx.vector[3] - lV0.vector[3];
 end;
 
+
+
 function Voxel2Voxel (var lDestHdr,lSrcHdr: TNIFTIhdr): TMatrix;
 //returns matrix for transforming voxels from one image to the other image
 //results are in VOXELS not mm
@@ -81,10 +58,10 @@ begin
      //subsequent voxels being left, up or anterior
      lDestMat := Hdr2Mat(lDestHdr);
      //SPMmat(lDestMat);
-     lV0 := Vector3D  (0,0,0);
-     lVx := Vector3D  (1,0,0);
-     lVy := Vector3D  (0,1,0);
-     lVz := Vector3D  (0,0,1);
+     lV0 := vec3D  ( 0,0,0);
+     lVx := vec3D  ( 1,0,0);
+     lVy := vec3D  ( 0,1,0);
+     lVz := vec3D  ( 0,0,1);
      Coord(lV0,lDestMat);
      Coord(lVx,lDestMat);
      Coord(lVy,lDestMat);
@@ -97,10 +74,10 @@ begin
      //therefore we transpose the matrix
      transposeMatrix(lSrcMatInv);
      //the 'transform' multiplies the vector by the matrix
-     lV0 := Transform (lV0,lSrcMatInv);
-     lVx := Transform (lVx,lSrcMatInv);
-     lVy := Transform (lVy,lSrcMatInv);
-     lVz := Transform (lVz,lSrcMatInv);
+     lV0 := Transform3D (lV0,lSrcMatInv);
+     lVx := Transform3D (lVx,lSrcMatInv);
+     lVy := Transform3D (lVy,lSrcMatInv);
+     lVz := Transform3D (lVz,lSrcMatInv);
      //subtract each vector from the origin
      // this reveals the voxel-space influence for each dimension
      SubVec(lVx,lV0);

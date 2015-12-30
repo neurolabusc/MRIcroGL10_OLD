@@ -6,8 +6,9 @@ interface
 {$include options.inc}
 uses
  // LCLIntf,//<- only for gettickcount
+  {$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF}
   {$IFDEF USETRANSFERTEXTURE}texture_3d_unita,texture2raycast, {$ELSE} texture_3d_unit,{$ENDIF}
-  dglOpenGL, histogram, clut,
+   histogram, clut,
   Classes, SysUtils, define_types, otsuml;
  procedure DilateSphere (var lImg: Bytep; lXi,lYi,lZi: integer; lVoxDistance: single; lChange: byte  );
 procedure SmoothFWHM2Vox (var lImg: Bytep; lXi,lYi,lZi: integer);

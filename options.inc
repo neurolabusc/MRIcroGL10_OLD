@@ -1,5 +1,4 @@
-//{$include options.inc}
-//{$IFDEF GLSCENE} glscenecode {$ELSE} dglopenglcode{$ENDIF}
+//{$DEFINE DGL}  //comment for gl/glext, else use dglOpenGL
  {$DEFINE ENABLECLIP}
 {$DEFINE ENABLESHADER}
 {$DEFINE ENABLECLUT}

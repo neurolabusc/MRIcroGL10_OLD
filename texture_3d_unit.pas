@@ -16,7 +16,7 @@ uses
 //{$IFDEF Unix}LCLIntf, {$ELSE} Windows,{$ENDIF}
   SysUtils,
   Dialogs,clut,
-  dglOpenGL,nii_mat,
+{$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF} nii_mat,
   ExtCtrls,  nifti_hdr, define_types,nii_label, nifti_types;
 Type
   TTexture =  RECORD //3D data

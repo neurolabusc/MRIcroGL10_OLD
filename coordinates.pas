@@ -1,8 +1,10 @@
 unit coordinates;
-{$D-,L-,O+,Q-,R-,Y-,S-}
+{$D-,O+,Q-,R-,S-} //L-,Y-,
+{$mode delphi}
 interface
 uses
-  SysUtils,define_types,nii_mat,nifti_hdr,dialogs, nifti_types;
+  //SysUtils,dialogs,
+  define_types,nii_mat,nifti_hdr, nifti_types;
 
 procedure Voxel2mm(var X,Y,Z: single; var lHdr: TNIfTIHdr);
 procedure mm2Voxel (var X,Y,Z: single; var lInvMat: TMatrix);
@@ -31,12 +33,17 @@ begin
   lV.vector[3] := (lXi*lMat.matrix[3][1]+lYi*lMat.matrix[3][2]+lZi*lMat.matrix[3][3]+lMat.matrix[3][4]);
 end;
 
+
 procedure mm2Voxel (var X,Y,Z: single; var lInvMat: TMatrix);
 //returns voxels indexed from 1 not 0!
 var
    lV: TVector;
 begin
-     lV := Vector3D (X,Y,Z);
+     //lV := Vec3D (X,Y,Z);
+     lV.vector[1] := x;
+     lV.vector[2] := y;
+     lV.vector[3] := z;
+     lV.vector[4] := 1.0;
      Coord (lV,lInvMat);
      X := lV.vector[1]+1;
      Y := lV.vector[2]+1;
@@ -56,8 +63,12 @@ var
    lV: TVector;
    lMat: TMatrix;
 begin
-     //lV := Vector3D (X-1,Y-1,Z-1);
-     lV := Vector3D (X-1,Y-1,Z-1);
+     //lV := Vec3D (X-1,Y-1,Z-1);
+     lV.vector[1] := x-1;
+     lV.vector[2] := y-1;
+     lV.vector[3] := z-1;
+     lV.vector[4] := 1.0;
+
      lMat := Hdr2Mat(lHdr);
      Coord(lV,lMat);
      X := lV.vector[1];
@@ -66,4 +77,4 @@ begin
 end;
 
 end.
- 
+

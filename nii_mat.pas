@@ -1,5 +1,8 @@
 unit nii_mat;
 //basic Matrix and Vector Types and Transforms
+//{$D-,O+,Q-,R-,S-} // L-,Y-,
+{$H+}
+{$mode delphi}
 interface
 
 uses dialogs;
@@ -20,9 +23,9 @@ type
   function matrix3D(a,b,c,d, e,f,g,h, i,j,k,l: single): TMatrix;
   function multiplymatrices(a, b: TMatrix): TMatrix;
   function sameVec (a,b: TVector): boolean;
-  function transform(v: TVector; m: TMatrix): TVector;
+  function transform3D(v: TVector; m: TMatrix): TVector;
   procedure  transposeMatrix(var lMat: TMatrix);
-  function vector3D  (x, y, z:  single):  TVector;
+  function vec3D  (x, y, z:  single):  TVector;
 
 implementation
 
@@ -120,7 +123,7 @@ begin
    result := ( (a.vector[1]=b.vector[1]) and (a.vector[2]=b.vector[2]) and (a.vector[3]=b.vector[3]));
 end; //sameVec()
 
-function transform(v: TVector; m: TMatrix): TVector;
+function transform3D(v: TVector; m: TMatrix): TVector;  inline;
 //vec4 nifti_vect44mat44_mul(vec4 v, mat44 m ) //multiply vector * 4x4matrix
 var
    i, j: integer;
@@ -144,7 +147,7 @@ begin
       lMat.matrix[i,j] := lTemp.matrix[j,i];
 end; //transposeMatrix()
 
-function vector3D  (x, y, z:  single):  TVector;
+function vec3D  (x, y, z:  single):  TVector; inline;
 begin
 	result.vector[1] := x;
 	result.vector[2] := y;

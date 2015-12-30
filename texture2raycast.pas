@@ -3,9 +3,10 @@ unit texture2raycast;
 interface
 {$include options.inc}
 uses
+{$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF}
   {$IFNDEF FPC} Windows, {$ENDIF}  raycastglsl,
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unita, {$ELSE} texture_3d_unit,{$ENDIF}
-  shaderu, clut,dglOpenGL,dialogs,Classes,define_types, sysUtils;
+  shaderu, clut,dialogs,Classes,define_types, sysUtils;
 procedure CreateGradientVolume (var Tex: TTexture; var gradientVolume : GLuint; var inRGBA : Bytep0; isOverlay: boolean);
 procedure CreateVolumeGL (var Tex: TTexture; var volumeID    : GLuint; ptr: PChar);
 Procedure LoadTTexture(var Tex: TTexture);
@@ -335,7 +336,7 @@ begin
     glTexImage3D(GL_TEXTURE_3D, 0,GL_RGBA, Tex.FiltDim[1], Tex.FiltDim[2],Tex.FiltDim[3],0, GL_RGBA, GL_UNSIGNED_BYTE,PChar(gradRGBA)  );
     SetLength(gradRGBA,0);
     if gPrefs.Debug then
-         GLForm1.Caption := 'CPU gradient time '+inttostr((gettickcount-startTime));
+         GLForm1.Caption := 'CPU gradient '+inttostr(gettickcount-startTime)+'ms ';
   end;
 end;
 
@@ -357,32 +358,6 @@ begin
 end;
 {$ENDIF}
 
-procedure Report;
-var
-Vendor: AnsiString;
-tot,free,pct,sz: GLInt;
-freeAMD: array[0..4] of GLInt;
-begin
-  Vendor := glGetString(GL_VENDOR);
-  //http://developer.download.nvidia.com/opengl/specs/GL_NVX_gpu_memory_info.txt
-  tot := 0;
-  //glGetIntegerv(GL_MAX_TEXTURE_SIZE, @sz);
-  glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, @sz);
-  glGetIntegerv($9047, @tot);//GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX
-  glGetIntegerv($9049, @free);//GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX  0x9049
-
-  if (tot > 0) then begin
-    pct := round(free/tot*100);
-    GLForm1.IntensityBox.Caption := 'MaxDim '+inttostr(sz)+' '+Vendor+' Mem Free/Total/% '+inttostr(free)+' '+inttostr(tot)+' '+inttostr(pct);
-  end else begin
-    //http://www.opengl.org/registry/specs/ATI/meminfo.txt
-    glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, @freeAMD);//TEXTURE_FREE_MEMORY_ATI 0x87FC
-    if freeAMD[0] > 0 then
-     GLForm1.IntensityBox.Caption :='MaxDim '+inttostr(sz)+' '+Vendor+' Texture Mem Free '+ inttostr(freeAMD[0])
-    else  //not AMD or NVIdia - Intel?
-      GLForm1.IntensityBox.Caption :='MaxDim '+inttostr(sz)+' '+Vendor;
-  end;
-end;
 
 (* CreateVolumeGL (var Tex: TTexture; var volumeID    : GLuint; ptr: PChar);
 begin
@@ -465,8 +440,6 @@ Procedure LoadTTexture(var Tex: TTexture);
 begin
      CreateVolumeGL (Tex, gRayCast.intensityTexture3D, PChar(Tex.FiltImg));
      CreateGradientVolume (Tex, gRayCast.gradientTexture3D, Tex.FiltImg, false);
-  if gPrefs.Debug then
-     report;
 end;
 
 end.

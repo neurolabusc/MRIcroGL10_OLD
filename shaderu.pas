@@ -1,8 +1,10 @@
 unit shaderu;
 {$IFDEF FPC}{$mode objfpc}{$H+}{$ENDIF}
 {$D-,L-,O+,Q-,R-,Y-,S-}
+{$include options.inc}
 interface
-uses sysutils,dialogs,dglOpenGL;
+uses
+ {$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF} sysutils,dialogs;
 const
   kMaxUniform = 10;
   kError = 666;
@@ -19,7 +21,7 @@ type
     Bool: boolean;
   end;
   TShader = record
-         FragmentProgram,VertexProgram,Note: String;
+         FragmentProgram,VertexProgram,Note, Vendor: String;
          OverlayVolume: integer;
          nUniform: integer;
          Uniform: array [1..kMaxUniform] of
@@ -203,7 +205,6 @@ begin
   result.nUniform := 0;
   result.OverlayVolume := 0;//false;
   result.FragmentProgram := '';
-
   if not fileexists(lFilename) then  lFilename := lFilename +'.txt';
   if not fileexists(lFilename) then begin
   //if true  then begin

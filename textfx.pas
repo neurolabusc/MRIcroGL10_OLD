@@ -1,6 +1,7 @@
 unit textfx;
+{$include options.inc}
 interface
-uses dglopenGL, define_types;
+uses {$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF}  define_types;
 
 procedure TextArrow (X,Y,Sz: single; NumStr: string; orient: integer;FontColor,ArrowColor: TGLRGBQuad);
 procedure Enter2D;

@@ -1,9 +1,7 @@
 //pref
-lightAmount|float|0.0|0.6|1
-ambient|float|0.0|0.5|1.0
 occlusion|float|0.0|0.5|1.0
-diffuse|float|0.0|0.5|1.0
-specular|float|0.0|0.5|1.0
+diffuse|float|0.0|1.7|3.0
+specular|float|0.0|0.3|1.0
 shininess|float|0.5|15.0|30
 boundExp|float|0.0|0.0|3
 Phong with Spherical Harmonic (SH) lighting, developed by Martins Upitis.|note
@@ -15,7 +13,7 @@ uniform sampler3D gradientVol; //3DTexture containing gradient direction and mag
 uniform sampler2D backFace;
 uniform vec3 clearColor,lightPosition, clipPlane;
 uniform float clipPlaneDepth;
-uniform float ambient,occlusion,diffuse,specular,shininess, boundExp, lightAmount;
+uniform float occlusion,diffuse,specular,shininess, boundExp;
 
 const vec3 lightColor = vec3(0.94,0.94,0.74);//sunlight
 const vec3 materialColor = vec3(1.0,0.5,0.5);
@@ -32,7 +30,7 @@ const float C5 = 0.247708;
 
 
 //SH Coefficients for Kitchen
-const vec3 L00  = vec3( 1.734544, 1.556294, 1.439345);
+/*const vec3 L00  = vec3( 1.734544, 1.556294, 1.439345);
 const vec3 L1m1 = vec3( 0.338957, 0.474754, 0.430223);
 const vec3 L10  = vec3(-0.158125,-0.081117, 0.079266);
 const vec3 L11  = vec3(-0.093501, 0.010596, 0.133635);
@@ -40,7 +38,17 @@ const vec3 L2m2 = vec3(-0.087476,-0.086387,-0.072157);
 const vec3 L2m1 = vec3(-0.190691,-0.144194,-0.059567);
 const vec3 L20  = vec3( 0.148483, 0.281598, 0.420320);
 const vec3 L21  = vec3(-0.127079, 0.000459, 0.124372);
-const vec3 L22  = vec3(-0.201219,-0.038875, 0.136428);
+const vec3 L22  = vec3(-0.201219,-0.038875, 0.136428);*/
+// Constants for Old Town Square lighting
+const vec3 L00 = vec3( 0.871297, 0.875222, 0.864470);
+const vec3 L1m1 = vec3( 0.175058, 0.245335, 0.312891);
+const vec3 L10 = vec3( 0.034675, 0.036107, 0.037362);
+const vec3 L11 = vec3(-0.004629, -0.029448, -0.048028);
+const vec3 L2m2 = vec3(-0.120535, -0.121160, -0.117507);
+const vec3 L2m1 = vec3( 0.003242, 0.003624, 0.007511);
+const vec3 L20 = vec3(-0.028667, -0.024926, -0.020998);
+const vec3 L21 = vec3(-0.077539, -0.086325, -0.091591);
+const vec3 L22 = vec3(-0.161784, -0.191783, -0.219152);
 
 vec3 SH(vec3 vNormal)
 {
@@ -53,7 +61,7 @@ vec3 SH(vec3 vNormal)
                     2.0 * C1 * L21  * vNormal.x * vNormal.z +
                     2.0 * C1 * L2m1 * vNormal.y * vNormal.z +
                     2.0 * C2 * L11  * vNormal.x +
-                    2.0 * C2 * L1m1 * vNormal.y +   
+                    2.0 * C2 * L1m1 * vNormal.y +
                     2.0 * C2 * L10  * vNormal.z;
     return diffuseColor;
 }
@@ -68,9 +76,9 @@ vec3 shading(vec3 N, vec3 V, vec3 L)
 	{
 		vec3 E = normalize(V);
 		vec3 R = reflect(-L, N);
-		final_color += lightColor * materialColor * lambertTerm * diffuse;	
+		final_color += lightColor * materialColor * lambertTerm * diffuse;
 		float specularTerm = pow( max(dot(R, E), 0.0), shininess );
-		final_color += lightColor * specularTerm * specular;	
+		final_color += lightColor * specularTerm * specular;
 	}
 	return final_color;
 }
@@ -79,7 +87,7 @@ void main() {
 	// get normalized pixel coordinate in view port (e.g. [0,1]x[0,1])
 	vec2 pixelCoord = gl_FragCoord.st;
 	pixelCoord.x /= viewWidth;
-	pixelCoord.y /= viewHeight;	
+	pixelCoord.y /= viewHeight;
 	// starting position of the ray is stored in the texture coordinate
 	vec3 start = gl_TexCoord[1].xyz;
 	vec3 backPosition = texture2D(backFace,pixelCoord).xyz;
@@ -101,13 +109,13 @@ void main() {
 			if (frontface) {
 				start = start + dir * dis;
 			} else {
-				backPosition =  start + dir * (dis); 
+				backPosition =  start + dir * (dis);
 			}
 			dir = backPosition - start;
 			len = length(dir);
-			dir = normalize(dir);		
+			dir = normalize(dir);
 		}
-	}	
+	}
 	vec3 deltaDir = dir * stepSize;
 	vec4 colorSample,gradientSample,colAcc = vec4(0.0,0.0,0.0,0.0);
 	float lengthAcc = 0.0;
@@ -120,27 +128,23 @@ void main() {
 		colorSample = texture3D(intensityVol,samplePos);
 		if ((lengthAcc <= stepSizex2) && (colorSample.a > 0.01) )  colorSample.a = sqrt(colorSample.a); //opaque clipping surface
 		colorSample.a = 1.0-pow((1.0 - colorSample.a), stepSize/sliceSize);//opacity correction
-		if ((colorSample.a > 0.01) && (lengthAcc > stepSizex2)  ) {	
+		if ((colorSample.a > 0.01) && (lengthAcc > stepSizex2)  ) {
 			gradientSample= texture3D(gradientVol,samplePos); //interpolate gradient direction and magnitude
 			gradientSample.rgb = normalize(gradientSample.rgb*2.0 - 1.0); //direction saved as 0..1, rescale to -1..1
 			//re-use previous normal if it has larger magnitude
 			if (gradientSample.a < prevNorm.a)
 				gradientSample.rgb = prevNorm.rgb;
 			prevNorm = gradientSample;
-		  if (lightAmount > 0.0) {
-			vec3 ambientCol = mix(SH(gradientSample.rgb)*ambient, SH(gradientSample.rgb)*ambient*colorSample.rgb, occlusion);
-			vec3 phong = shading(gradientSample.rgb,-dir,lightPosition)*lightAmount+ambientCol; //Diffuse&Specular
-			if (lightAmount < 1.0) {
-				colorSample.rgb = mix(colorSample.rgb,phong.rgb,lightAmount );
-			} else {
-				colorSample.rgb = phong;
-			}	
-		  }
+
+		  	vec3 n = reflect(lightPosition, gradientSample.rgb);
+		  	colorSample.rgb +=   specular *  pow(max(dot(n, dir), 0.0), shininess);
+			colorSample.rgb *= SH(-n  )* diffuse;
+
 		  if (boundExp > 0.0)
-			colorSample.a = colorSample.a * pow(gradientSample.a,boundExp);	
+			colorSample.a = colorSample.a * pow(gradientSample.a,boundExp);
 		}
 
-		colorSample.rgb *= colorSample.a; 
+		colorSample.rgb *= colorSample.a;
 		//accumulate color
 		colAcc= (1.0 - colAcc.a) * colorSample + colAcc;
 		samplePos += deltaDir;

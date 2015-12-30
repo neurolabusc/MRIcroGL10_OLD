@@ -5,10 +5,12 @@ unit shaderui;
 {$ENDIF}
 interface
 {$include options.inc}
- uses  {$IFDEF FPC}FileUtil, GraphType, LCLProc,  LCLIntf,LResources,OpenGLContext,{$ELSE}Windows,glpanel, {$ENDIF}
+ uses
+   {$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF}
+   {$IFDEF FPC}FileUtil, GraphType, LCLProc,  LCLIntf,LResources,OpenGLContext,{$ELSE}Windows,glpanel, {$ENDIF}
   Graphics,Classes, SysUtils, Forms,  Buttons,define_types,userdir,
 
-  Dialogs, ComCtrls, Menus, dglOpenGL, raycastglsl,  Controls,
+  Dialogs, ComCtrls, Menus, raycastglsl,  Controls,
   ExtCtrls, StdCtrls, shaderu;//, prefstextfx,;
 
 procedure SetShader(lFilename: string);

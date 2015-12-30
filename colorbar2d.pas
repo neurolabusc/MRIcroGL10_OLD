@@ -3,7 +3,8 @@ unit colorbar2d;
 interface
 {$include options.inc}
 uses
-define_types, dglOpenGL, textfx,prefs, clut, math;
+{$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF}
+define_types,  textfx,prefs, clut, math;
 
 procedure DrawCLUT ( lU: TUnitRect;lBorder: single; lPrefs: TPrefs);
 function ColorBarPos(var  lU: TUnitRect): integer;
@@ -126,30 +127,30 @@ begin
   lB := lB*gRayCast.WINDOW_HEIGHT;
   if (lR-lL) > (lB-lT) then begin
     lN := (lCLUT.nodes[0].intensity/255 * (lR-lL))+lL;
-    for lI := 1 to (lCLUT.numnodes-1) do begin
-      glBegin(GL_POLYGON);
-        glColor4ub (lCLUT.nodes[lI-1].rgba.rgbRed, lCLUT.nodes[lI-1].rgba.rgbgreen,lCLUT.nodes[lI-1].rgba.rgbblue,255);
-        glVertex2f(lN,lB);
-        glVertex2f(lN,lT);
+    glBegin(GL_TRIANGLE_STRIP);
+     glColor4ub (lCLUT.nodes[0].rgba.rgbRed, lCLUT.nodes[0].rgba.rgbgreen,lCLUT.nodes[0].rgba.rgbblue,255);
+     glVertex2f(lN,lT);
+     glVertex2f(lN,lB);
+     for lI := 1 to (255) do begin
         lN := (lCLUT.nodes[lI].intensity/255 * (lR-lL))+lL;
         glColor4ub (lCLUT.nodes[lI].rgba.rgbRed, lCLUT.nodes[lI].rgba.rgbgreen,lCLUT.nodes[lI].rgba.rgbblue,255);
         glVertex2f(lN,lT);
         glVertex2f(lN,lB);
-      glEnd;//POLYGON
-    end;
+     end;
+    glEnd;//STRIP
   end else begin //If WIDE, else TALL
     lN := (lCLUT.nodes[0].intensity/255 * (lB-lT))+lT;
-    for lI := 1 to (lCLUT.numnodes-1) do begin
-      glBegin(GL_POLYGON);
-        glColor4ub (lCLUT.nodes[lI-1].rgba.rgbRed, lCLUT.nodes[lI-1].rgba.rgbgreen,lCLUT.nodes[lI-1].rgba.rgbblue,255);
-        glVertex2f(lL, lN);
-        glVertex2f(lR, lN);
+    glBegin(GL_TRIANGLE_STRIP);
+     glColor4ub (lCLUT.nodes[0].rgba.rgbRed, lCLUT.nodes[0].rgba.rgbgreen,lCLUT.nodes[0].rgba.rgbblue,255);
+     glVertex2f(lL, lN);
+     glVertex2f(lR, lN);
+     for lI := 1 to (255) do begin
         lN := (lCLUT.nodes[lI].intensity/255 * (lB-lT))+lT;
         glColor4ub (lCLUT.nodes[lI].rgba.rgbRed, lCLUT.nodes[lI].rgba.rgbgreen,lCLUT.nodes[lI].rgba.rgbblue,255);
-        glVertex2f(lR, lN);
-        glVertex2f(lL, lN);
-      glEnd;//POLYGON
-    end;
+         glVertex2f(lR, lN);
+         glVertex2f(lL, lN);
+     end;
+    glEnd;//STRIP
   end;
 end;
 

@@ -10,7 +10,7 @@ uses
 {$IFDEF COMPILEYOKE}
 yokesharemem, coordinates, nii_mat,
 {$ENDIF}
-dglOpenGL, types,clipbrd,
+{$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF} types,clipbrd,
 {$IFNDEF FPC} messages,ShellAPI, pngimage,JPEG,detectmsaa,{$ENDIF}Dialogs, ExtCtrls, Menus,  shaderu, texture2raycast,
   StdCtrls, Controls, ComCtrls, Reslice,
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unita, {$ELSE} texture_3d_unit,extract,{$ENDIF}
@@ -21,7 +21,7 @@ Windows,{$ENDIF}
   histogram2d, readint, raycastglsl, histogram, nifti_hdr, shaderui,
   prefs, userdir, slices2d, colorbar2d, autoroi, fsl_calls, drawU, dcm2nii, lut,
   extractui, scaleimageintensity;
-  
+
   {$IFNDEF FPC}
   //WARNING DELPHI USER: YOU NEED TO COMMENT OUT THE LINE "GLBox:TOpenGLControl;"
     {$ENDIF}
@@ -296,7 +296,7 @@ function MouseUpVOI (Shift: TShiftState; X, Y: Integer): boolean;
     procedure GLboxResize(Sender: TObject);
     procedure Colorbar1Click(Sender: TObject);
     procedure Open1Click(Sender: TObject);
-    procedure FormResize(Sender: TObject);
+    //procedure FormResize(Sender: TObject);
     procedure AziElevChange(Sender: TObject);
     procedure QualityTrackChange(Sender: TObject);
     procedure ShaderDropChange(Sender: TObject);
@@ -376,7 +376,6 @@ GLBox:TOpenGLControl;
 {$ELSE}
 GLbox : TGLPanel;
 {$ENDIF}
-
 
 
 procedure TGLForm1.YokeMenuClick(Sender: TObject);
@@ -624,7 +623,7 @@ begin
           DestPtr^ := p^[z+2]+(p^[z+1] shl 8)+(p^[z] shl 16);
           Inc(PByte(DestPtr), BytePerPixel);
           z := z + 4;
-      end; 
+      end;
     end;
   end;
   FreeMem(p);
@@ -1179,7 +1178,7 @@ end;
 
 procedure TGLForm1.UpdateMRU;//most-recently-used menu
 const
-   
+
      kMenuItems = 5;//515) Check Darwin: no File/Exit with OSX users quit from application menu
 var
   lPos,lN,lM : integer;
@@ -1209,12 +1208,12 @@ begin
     UpdateTimer.Enabled  := true;
 end;
 
-procedure TGLForm1.FormResize(Sender: TObject);
+(*procedure TGLForm1.FormResize(Sender: TObject);
 begin
   AreaInitialized := false;
   GLbox.Invalidate;
   ShaderBoxResize(Sender);
-end;
+end;  *)
 
 procedure TGLForm1.ExitButton1Click(Sender: TObject);
 begin
@@ -1392,7 +1391,7 @@ begin
   GLBox.OnDblClick :=  GLboxDblClick;
   GLBox.OnResize:= GLboxResize;
   //GLBox.DepthBits:= 0; //if set to zero, uncomment raycastglsl.pas glEnable(GL_CULL_FACE);
- ShaderDropChange(Sender);   
+ ShaderDropChange(Sender);
  if gPrefs.FormMaximized then
   GLForm1.WindowState := wsMaximized
  else
@@ -1893,12 +1892,14 @@ end;
    {$ELSE}
    str := '32-bit';
    {$ENDIF}
-  str := 'MRIcroGL '+str+' 11 Nov 2015'
+   {$IFDEF DGL} str := str +' (DGL) '; {$ENDIF}//the DGL library has more dependencies - report this if incompatibilities are found
+  str := 'MRIcroGL '+str+' 24 Dec 2015'
    +kCR+' www.mricro.com :: BSD 2-Clause License (opensource.org/licenses/BSD-2-Clause)'
    +kCR+' Dimensions '+inttostr(gTexture3D.NIFTIhdr.dim[1])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[2])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[3])
    +kCR+' Bytes per voxel '+inttostr(gTexture3D.NIFTIhdr.bitpix div 8)
    +kCR+' Spacing '+realtostr(gTexture3D.NIFTIhdr.pixdim[1],2)+'x'+realtostr(gTexture3D.NIFTIhdr.pixdim[2],2)+'x'+realtostr(gTexture3D.NIFTIhdr.pixdim[3],2)
     +kCR+' Description  '+  trim(gTexture3D.NIFTIhdr.descrip)
+    +kCR + gShader.Vendor
     + fpsstr
    +kCR+'Press "Abort" to quit and open settings '+ininame;
   i := MessageDlg(str,mtInformation,[mbAbort, mbOK],0);
@@ -2107,12 +2108,21 @@ end;
 
 procedure TGLForm1.GLboxPaint(Sender: TObject);
 begin
+
   if (gRendering) or (gRayCast.ScreenCapture) then exit;
   gRendering:=true;
   if gInitialSetup then begin //first time only!
+    {$IFDEF DGL}
     InitOpenGL;
     ReadExtensions;
     ReadImplementationProperties;
+    {$ELSE}
+    if not  Load_GL_version_2_1 then
+       GLForm1.ShowmessageError('Unable to load OpenGL v2.1: '+gpuReport);
+    Load_GL_EXT_framebuffer_object;
+    //Load_GL_ARB_framebuffer_object;
+    Load_GL_EXT_texture_object;
+    {$ENDIF}
     gRayCast.WINDOW_WIDTH := GLbox.Width;
     gRayCast.WINDOW_HEIGHT := GLbox.Height;
     LoadStartupImage;
@@ -2121,6 +2131,7 @@ begin
     if gPrefs.NoveauWarning then WarningIfNoveau;
     {$ENDIF}
   end;
+
   if not AreaInitialized then begin
     gRayCast.WINDOW_WIDTH := GLbox.Width;
     gRayCast.WINDOW_HEIGHT := GLbox.Height;
@@ -2162,7 +2173,13 @@ begin
   end;
   DisplayGL(gTexture3D);
   {$IFDEF FPC}
-  GLbox.SwapBuffers; //DoubleBuffered
+  if ( gRayCast.WINDOW_WIDTH = GLbox.Width) and (gRayCast.WINDOW_HEIGHT = GLbox.Height) then
+     GLbox.SwapBuffers //DoubleBuffered
+  else begin
+        gRendering:=false;
+        GLBox.Invalidate;
+
+  end;
   {$ENDIF}
   gRendering:=false;
 end;
@@ -2171,6 +2188,7 @@ procedure TGLForm1.GLboxResize(Sender: TObject);
 begin
     AreaInitialized := false;
     GLbox.Invalidate;
+    UpdateTimer.Enabled:=true;
 end;
 
 
@@ -2367,16 +2385,6 @@ begin
    Val(S, NewVal, errorPos);
   result := (errorPos = 0);
   if result then FloatVal := NewVal;
-  (*  //on OSX debugger hangs with StrToFloat of "."
-  try
-    NewVal := StrToFloat(S);    // Middle blanks are not supported
-  except
-    exit;
-    //on Exception : EConvertError do
-    //  NewVal := FloatVal//ShowMessage(Exception.Message);
-  end;
-  FloatVal := NewVal;
-  result := true; *)
 end;
 
 procedure TGLForm1.MinMaxEditKeyPress(Sender: TObject; var Key: Char);
@@ -2420,9 +2428,6 @@ procedure TGLForm1.Colorbar1Click(Sender: TObject);
 begin
   gPrefs.Colorbar := Colorbar1.checked;
   GLBox.invalidate;
-  //exit;
-  //gPrefs.Colorbar := Colorbar1.Checked;
-  //GLBox.invalidate;
 end;
 
 procedure TGLForm1.AdjustFormPos (var lForm: TForm);
@@ -2521,32 +2526,6 @@ begin
   LoadDatasetNIFTIvolx(lFileName,true);
 end;
 
-(*function TGLForm1.GenerateClipboardImage: boolean;
-var
-  x,y: integer;
-begin
-  gRayCast.ScreenCapture := 1;
-  if gPrefs.BitmapZoom > 1 then begin
-    ToolPanel.Visible := false;
-    x := GLbox.Width * gPrefs.BitmapZoom;
-    y := GLbox.Height * gPrefs.BitmapZoom;
-    GLBox.Align := alCustom;
-    GLBox.Width := x;
-    GLBox.Height := y;
-    GLbox.RealizeBounds;
-  end;
-  glBox.Invalidate;
-  repeat
-    Application.ProcessMessages;
-  until gRayCast.ScreenCapture = 0;
-  result := (gClipboardBitmap.Height>0) and (gClipboardBitmap.Width > 0);
-  if gPrefs.BitmapZoom > 1 then begin
-     ToolPanel.Visible := gPrefs.ShowToolbar;
-     GLBox.Align := alClient;
-  end;
-  glBox.Invalidate;
-end; *)
-
 function GetFloat(lStr: string; lMin,lDefault,lMax: single): single;
 var
    s: string;
@@ -2616,12 +2595,7 @@ begin
        IncTrackBar(ElevTrack1, false);
 end;
 
-
-
 procedure TGLForm1.Extract1Click(Sender: TObject);
-//var
-//  lOtsuLevels,lDilate: integer;
-//  lOneContiguousObject : boolean;
 begin
  {$IFDEF USETRANSFERTEXTURE}
   showmessage('Not yet available in this version');
@@ -2630,9 +2604,6 @@ begin
    showmessage('Only able to extract grayscale images (not RGB color images).');
     exit;
  end;
- //lOtsuLevels :=  ReadIntForm.GetInt('Otsu levels: larger values for larger volumes',1,5,5);
- //lDilate :=  ReadIntForm.GetInt('Edge dilation voxels: larger values for larger volumes',0,2,12);
- //lOneContiguousObject := OKMsg('Only extract single largest object?');
  ExtractForm.ShowModal;
  ExtractTexture (gTexture3D, ExtractForm.OtsuLevelsEdit.value, ExtractForm.DilateEdit.value, ExtractForm.OneContiguousObjectCheck.checked);
  M_refresh := true;
@@ -3974,6 +3945,7 @@ begin
      showmessage('Unspecified OpenGL error')
   else
       showmessage(IntensityBox.Hint);
+  GLForm1.IntensityBox.Hint := '';
 end;
 
 procedure TGLForm1.Sharpen1Click(Sender: TObject);
@@ -3985,7 +3957,8 @@ end;
 
 procedure  TGLForm1.ShowmessageError(Str:string);
 begin
-     GLForm1.IntensityBox.Hint := Str;
+     if (GLForm1.IntensityBox.Hint = '') then //Show 1st error
+        GLForm1.IntensityBox.Hint := Str;
      GLForm1.ErrorTimer.Enabled := true;
 end;
 

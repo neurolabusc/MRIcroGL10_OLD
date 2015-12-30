@@ -5,9 +5,10 @@ unit drawu;
 interface
 
 uses
+   {$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF}
   {$IFNDEF FPC} Windows, {$ENDIF}  raycastglsl,
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unita, {$ELSE} {$ENDIF}
-  shaderu, dglOpenGL,dialogs,Classes,define_types, sysUtils;  //clut, texture_3d_unit,
+  shaderu,dialogs,Classes,define_types, sysUtils;  //clut, texture_3d_unit,
 
 type
  TDraw = packed record //Next: analyze Format Header structure

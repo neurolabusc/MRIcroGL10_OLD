@@ -50,8 +50,8 @@ var
 
 var
   gRayCast: TRayCast;
-  procedure glUniform1ix(prog: GLuint; name: AnsiString; value: integer);
-  procedure glUniform1fx(prog: GLuint; name: AnsiString; value: single );
+  procedure glUniform1ix(prog: GLuint; name: AnsiString; value: integer);  //GLHandleARB
+  procedure glUniform1fx(prog: GLuint; name: AnsiString; value: single );  //GLHandleARB
 procedure DisplayGL(var lTex: TTexture);
 procedure DisplayGLz(var lTex: TTexture; zoom, zoomOffsetX, zoomOffsetY: integer);
 //function DisplayGL(var lTex: TTexture): boolean;
@@ -60,10 +60,15 @@ procedure  InitGL (InitialSetup: boolean);// (var lTex: TTexture);
 procedure uniform1f( name: AnsiString; value: single );
 procedure uniform1i( name: AnsiString; value: integer);
 function  initVertFrag(vert, frag: string): GLuint;
-function gpuReport: string; //warning: must be called while in OpenGL context!
+function gpuReport: string;
 implementation
 uses
   shaderu, mainunit,slices2d;
+
+function gpuReport: string; //warning: must be called while in OpenGL context!
+begin
+  result := 'Vendor= '+glGetString(GL_VENDOR)+' OpenGL= '+glGetString(GL_VERSION)+'; GLSL='+glGetString(GL_SHADING_LANGUAGE_VERSION);
+end;
 
 function WarningIfNoveau: boolean;
 var
@@ -122,20 +127,6 @@ const kSobelShaderFrag = 'uniform float coordZ, dX, dY, dZ;'
 +#10'void main(void){'
 +#10'  gl_FragColor = vec4 (0.3, 0.5, 0.7, 0.2);'
 +#10'}';*)
-
- function gpuReport: string; //warning: must be called while in OpenGL context!
-begin
-  result := ' OpenGL '+glGetString(GL_VERSION)+' GLSL '+glGetString(GL_SHADING_LANGUAGE_VERSION);
-end;
-
-procedure DetectErrorGL(s: string);
-var
-  err: GLenum;
-begin
- err:=glGetError();
- if err>0 then //ShowMessage(format('Model_before: glGetError, code: %d',[err]));
-    GLForm1.ShowmessageError('OpenGL error '+s +' : '+inttostr(err));
-end;
 
 procedure GetError(p: integer);  //report OpenGL Error
 var
@@ -224,10 +215,75 @@ begin
   end;
   glDetachShader(result, fs);
   glDeleteShader(fs);
-  //glUseProgram(result);  // <- causes flicker on resize with OSX
-  glUseProgram(0);
-  GetError(1);
+  glUseProgram(result);
+    GetError(1);
 end;
+
+
+(*function  initVertFrag(vert, frag: string): GLuint;
+var
+	fr, vt, ProgramID: GLuint;
+	status: GLint;
+        {$IFDEF UNICODE}
+        shader_source: AnsiString;
+        {$ELSE}
+        shader_source: string;
+        {$ENDIF}
+begin
+    result := 0;
+    fr := glCreateShader(GL_FRAGMENT_SHADER);
+    if (fr = 0) then
+        exit;
+    //shader_source:=PAnsiChar(frag+#0);
+    shader_source:=PAnsiChar(frag);
+    {$IFDEF DGL}
+    glShaderSource(fr, 1, PPGLChar(@shader_source), nil);
+    {$ELSE}
+    glShaderSource(fr, 1, PChar(@shader_source), nil);
+    {$ENDIF}
+    glCompileShader(fr);
+    status := 0;
+    glGetShaderiv(fr, GL_COMPILE_STATUS, @status);
+    if (status = 0) then begin //report compiling errors.
+        ReportErrorsGL(fr);
+        glDeleteShader(fr);
+        exit;
+    end;
+    ProgramID := glCreateProgram();
+    glAttachShader(ProgramID, fr);
+    vt := 0;
+    if (length(vert) > 0) then begin
+        vt := glCreateShader(GL_VERTEX_SHADER);
+        if (vt = 0) then
+            exit;
+        //shader_source:=PAnsiChar(vert+#0);
+        shader_source:=PAnsiChar(vert);
+        {$IFDEF DGL}
+        glShaderSource(vt, 1, PPGLChar(@shader_source), nil);
+        {$ELSE}
+        glShaderSource(vt, 1, PChar(@shader_source), nil);
+        {$ENDIF}
+        glCompileShader(vt);
+        glGetShaderiv(vt, GL_COMPILE_STATUS, @status);
+        if (status = 0) then begin //report compiling errors.
+            ReportErrorsGL(vt);
+            glDeleteShader(fr);
+            glDeleteShader(vt);
+            exit;
+        end;
+        glAttachShader(ProgramID, vt);
+    end;
+    glLinkProgram(ProgramID);
+    glUseProgram(ProgramID);
+    glDetachShader(ProgramID, fr);
+    glDeleteShader(fr);
+    if (length(vert) > 0) then begin
+        glDetachShader(ProgramID, vt);
+        glDeleteShader(vt);
+    end;
+    glUseProgram(0);
+    result := ProgramID;
+end;   *)
 
 function bindBlankGL(var lTex: TTexture): GLuint;
 begin //creates an empty texture in VRAM without requiring memory copy from RAM
@@ -273,11 +329,7 @@ begin
   glViewport(0, 0, lTex.FiltDim[1], lTex.FiltDim[2]);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  {$IFDEF DGL}
-  gluOrtho2D(0, 1, 0, 1);
-  {$ELSE}
   glOrtho (0, 1,0, 1, -1, 1);  //gluOrtho2D(0, 1, 0, 1);  https://www.opengl.org/sdk/docs/man2/xhtml/gluOrtho2D.xml
-  {$ENDIF}
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   glDisable(GL_TEXTURE_2D);
@@ -387,7 +439,7 @@ begin
        performBlurSobel(lTex, false);
        lTex.updateBackgroundGradientsGLSL := false;
        if gPrefs.Debug then
-          GLForm1.Caption := 'GLSL gradients '+inttostr(gettickcount-startTime)+' ms ';
+          GLForm1.Caption := 'GLSL gradients '+inttostr(gettickcount-startTime)+' ms '+gpuReport;
     end;
     if (lTex.updateOverlayGradientsGLSL) then begin
        performBlurSobel(lTex, true);
@@ -486,36 +538,9 @@ begin
   glViewport(0, 0,w,h);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  {$IFDEF DGL}
-  gluOrtho2D(0, 1, 0, 1.0);
-  {$ELSE}
-  glOrtho (0, 1,0, 1, -1, 1);  //https://www.opengl.org/sdk/docs/man2/xhtml/gluOrtho2D.xml
-  {$ENDIF}
+  glOrtho (0, 1,0, 1, -1, 1);  //gluOrtho2D(0, 1, 0, 1.0);  https://www.opengl.org/sdk/docs/man2/xhtml/gluOrtho2D.xml
   glMatrixMode(GL_MODELVIEW);//?
 end;
-
-{$IFNDEF DGL}  //glext does not link to the glu functions, so we will write our own
-procedure gluPerspective (fovy, aspect, zNear, zFar: single);
-//https://www.opengl.org/sdk/docs/man2/xhtml/gluPerspective.xml
-var
-  i, j : integer;
-  f: single;
-  m : array [0..3, 0..3] of single;
-begin
-   for i := 0 to 3 do
-       for j := 0 to 3 do
-           m[i,j] := 0;
-   f :=  cot(degtorad(fovy)/2);
-   m[0,0] := f/aspect;
-   m[1,1] := f;
-   m[2,2] := (zFar+zNear)/(zNear-zFar) ;
-   m[3,2] := (2*zFar*zNear)/(zNear-zFar);
-   m[2,3] := -1;
-   //glLoadMatrixf(@m[0,0]);
-   glMultMatrixf(@m[0,0]);
-   //raise an exception if zNear = 0??
-end;
-{$ENDIF}
 
 procedure resize(w,h, zoom, zoomOffsetX, zoomOffsetY: integer);
 var
@@ -529,9 +554,9 @@ begin
       glViewport(0, 0, w, h);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  if gPrefs.Perspective then
+  (*if gPrefs.Perspective then
     gluPerspective(40.0, w/h, 0.01, kMaxDistance{Distance})
-  else begin
+  else*) begin
        if gRayCast.Distance = 0 then
           scale := 1
        else
@@ -562,7 +587,6 @@ begin
     glGenTextures(1, @gRayCast.backFaceBuffer);
     glGenTextures(1, @gRayCast.finalImage);
     glGenRenderbuffersEXT(1, @gRayCast.renderBuffer);
-    gShader.Vendor:= gpuReport;
   end;
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,gRayCast.frameBuffer);
   glBindTexture(GL_TEXTURE_2D, gRayCast.backFaceBuffer);
@@ -630,6 +654,97 @@ begin
   drawQuads(1.0,1.0,1.0);
   glDisable(GL_CULL_FACE);
 end;
+
+(*procedure  InitGL (InitialSetup: boolean);// (var lTex: TTexture);
+begin
+  glEnable(GL_CULL_FACE);
+  glClearColor(gPrefs.BackColor.rgbRed/255,gPrefs.BackColor.rgbGreen/255,gPrefs.BackColor.rgbBlue/255, 0);
+  //initShaderWithFile('xrc.vert', 'xrc.frag',gRayCast.glslprogramGradient);
+  // Load the vertex and fragment raycasting programs
+  //initShaderWithFile('rc.vert', 'rc.frag',gRayCast.glslprogram);
+  if (gRayCast.glslprogram <> 0) then begin
+    glDeleteProgram(gRayCast.glslprogram);
+    gRayCast.glslprogram := 0;
+  end;
+  gRayCast.glslprogram :=  initVertFrag(gShader.VertexProgram, gShader.FragmentProgram);
+  if (gRayCast.glslprogram = 0) then begin //error: load default shader
+     gShader := LoadShader('');
+     gRayCast.glslprogram :=  initVertFrag(gShader.VertexProgram, gShader.FragmentProgram);
+  end;
+
+  // Create the to FBO's one for the backside of the volumecube and one for the finalimage rendering
+  if InitialSetup then begin
+    glGenFramebuffersEXT(1, @gRayCast.frameBuffer);
+    glGenTextures(1, @gRayCast.backFaceBuffer);
+    glGenTextures(1, @gRayCast.finalImage);
+    glGenRenderbuffersEXT(1, @gRayCast.renderBuffer);
+  end;
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,gRayCast.frameBuffer);
+  glBindTexture(GL_TEXTURE_2D, gRayCast.backFaceBuffer);
+  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+  glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA16F_ARB, gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT, 0, GL_RGBA, GL_FLOAT, nil);
+  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, gRayCast.backFaceBuffer, 0);
+  glBindTexture(GL_TEXTURE_2D, gRayCast.finalImage);
+  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+  glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA16F_ARB, gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT, 0, GL_RGBA, GL_FLOAT, nil);
+  //These next lines moved to DisplayGZz for VirtualBox compatibility
+   glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, gRayCast.renderBuffer);
+   glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT);
+  glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, gRayCast.renderBuffer);
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+end;
+
+procedure drawUnitQuad;
+//stretches image in view space.
+begin
+	glDisable(GL_DEPTH_TEST);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0,0);
+	glVertex2f(0,0);
+	glTexCoord2f(1,0);
+	glVertex2f(1,0);
+	glTexCoord2f(1, 1);
+	glVertex2f(1, 1);
+	glTexCoord2f(0, 1);
+	glVertex2f(0, 1);
+	glEnd();
+	glEnable(GL_DEPTH_TEST);
+end;
+
+// display the final image on the screen
+procedure renderBufferToScreen;
+begin
+	glClear( GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT );
+	glLoadIdentity();
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D,gRayCast.finalImage);
+	//use next line instead of previous to illustrate one-pass rendering
+	//glBindTexture(GL_TEXTURE_2D,backFaceBuffer)
+	reshapeOrtho(gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT);
+	drawUnitQuad();
+	glDisable(GL_TEXTURE_2D);
+end;
+
+// render the backface to the offscreen buffer backFaceBuffer
+procedure renderBackFace(var lTex: TTexture);
+begin
+  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, gRayCast.backFaceBuffer, 0);
+  glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT );
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_FRONT);
+  glMatrixMode(GL_MODELVIEW);
+  glScalef(lTex.Scale[1],lTex.Scale[2],lTex.Scale[3]);
+  drawQuads(1.0,1.0,1.0);
+  glDisable(GL_CULL_FACE);
+end;    *)
 
 procedure uniform1f( name: AnsiString; value: single );
 begin
@@ -973,30 +1088,6 @@ begin
   //glDisable(GL_CULL_FACE); // <- required for Cocoa
 end;
 
-(*procedure DisplayGLz(var lTex: TTexture; zoom, zoomOffsetX, zoomOffsetY: integer);  //Redraw image using ray casting
-begin
-  //these next lines only required when switching from texture slicing
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,  gRayCast.frameBuffer);
-  glMatrixMode( GL_TEXTURE );
-  glLoadIdentity();
-  glDisable(GL_TEXTURE_3D);
-  //raycasting follows
-  glClearColor(gPrefs.BackColor.rgbRed/255,gPrefs.BackColor.rgbGreen/255,gPrefs.BackColor.rgbBlue/255, 0);
-  resize(gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT,zoom, zoomOffsetX, zoomOffsetY);
-  glBindFramebufferEXT (GL_FRAMEBUFFER_EXT,  gRayCast.frameBuffer);
-  glBindRenderbufferEXT(GL_RENDERBUFFER_EXT,  gRayCast.renderBuffer);
-  glTranslatef(0,0,-gRayCast.Distance);
-  glRotatef(90-gRayCast.Elevation,-1,0,0);
-  glRotatef(gRayCast.Azimuth,0,0,1);
-  glTranslatef(-lTex.Scale[1]/2,-lTex.Scale[2]/2,-lTex.Scale[3]/2);
-  //glScalef(Zoom,Zoom,Zoom);
-  renderBackFace(lTex);
-  rayCasting(lTex);
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);//disable framebuffer
-  renderBufferToScreen();
-  //next, you will need to execute SwapBuffers
-end; *)
-
 procedure DisplayGLz(var lTex: TTexture; zoom, zoomOffsetX, zoomOffsetY: integer);
 begin
   //if (gPrefs.SliceView  = 5) and (length(gRayCast.MosaicString) < 1) then exit; //we need to draw something, otherwise swapbuffer crashes
@@ -1047,6 +1138,57 @@ begin
   //glFinish;//<-this would pause until all jobs finished: generally a bad idea!
   //next, you will need to execute SwapBuffers
 end;
+
+
+(*procedure DisplayGLz(var lTex: TTexture; zoom, zoomOffsetX, zoomOffsetY: integer);
+begin
+  //if (gPrefs.SliceView  = 5) and (length(gRayCast.MosaicString) < 1) then exit; //we need to draw something, otherwise swapbuffer crashes
+  if (gPrefs.SliceView  <> 5) then  gRayCast.MosaicString := '';
+  doShaderBlurSobel(lTex);
+  glClearColor(gPrefs.BackColor.rgbRed/255,gPrefs.BackColor.rgbGreen/255,gPrefs.BackColor.rgbBlue/255, 0);
+  resize(gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT,zoom, zoomOffsetX, zoomOffsetY);
+  glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, gRayCast.renderBuffer);
+  glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT);  //required by VirtualBox
+  {$IFDEF ENABLEMOSAICS}
+  if length(gRayCast.MosaicString)> 0 then begin //draw mosaics
+     glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT );
+     glDisable(GL_CULL_FACE); //<-this is important, otherwise nodes and quads not filled
+     MosaicGL(gRayCast.MosaicString);
+
+  end else {$ENDIF} if gPrefs.SliceView > 0  then begin //draw 2D orthogonal slices
+    glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT );
+    glDisable(GL_CULL_FACE); //<-this is important, otherwise nodes and quads not filled
+    DrawOrtho(lTex);
+  end else begin //else draw 3D rendering
+    enableRenderbuffers();
+    glTranslatef(0,0,-gRayCast.Distance);
+    glRotatef(90-gRayCast.Elevation,-1,0,0);
+    glRotatef(gRayCast.Azimuth,0,0,1);
+    glTranslatef(-lTex.Scale[1]/2,-lTex.Scale[2]/2,-lTex.Scale[3]/2);
+    renderBackFace(lTex);
+    rayCasting(lTex);
+    disableRenderBuffers();
+    renderBufferToScreen();
+    if gPrefs.SliceDetailsCubeAndText then
+      drawCube(gRayCast.WINDOW_WIDTH*zoom, gRayCast.WINDOW_HEIGHT*zoom, zoomOffsetX, zoomOffsetY);
+    resize(gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT,zoom, zoomOffsetX, zoomOffsetY);
+  end;
+  if gPrefs.ColorEditor then
+    DrawNodes(gRayCast.WINDOW_HEIGHT,gRayCast.WINDOW_WIDTH, lTex, gPrefs);
+  if gPrefs.Colorbar then
+     DrawCLUT( gPrefs.ColorBarPos,0.01, gPrefs);//, gRayCast.WINDOW_WIDTH*zoom, gRayCast.WINDOW_HEIGHT*zoom, zoomOffsetX, zoomOffsetY);
+
+  {$IFDEF ENABLEWATERMARK}
+  if gWatermark.filename <> '' then
+    LoadWatermark(gWatermark);
+  if gWatermark.Ht > 0 then
+    DrawWatermark(gWatermark.X,gWatermark.Y,gWatermark.Wid,gWatermark.Ht,gWatermark);
+  {$ENDIF}
+  glDisable (GL_BLEND); //just in case one of the previous functions forgot...
+  glFlush;//<-this would pause until all jobs are SUBMITTED
+  //glFinish;//<-this would pause until all jobs finished: generally a bad idea!
+  //next, you will need to execute SwapBuffers
+end;*)
 
 procedure DisplayGL(var lTex: TTexture);
 begin

@@ -6,7 +6,8 @@ interface
 uses
 {$IFNDEF FPC}windows, {$ENDIF}
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unita, {$ELSE} texture_3d_unit,{$ENDIF}
- dglOpenGL,  clut, define_types, Forms, Classes, Controls, prefs;
+{$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF}
+ clut, define_types, Forms, Classes, Controls, prefs;
 
   procedure DrawNodes(WINDOW_HEIGHT,WINDOW_WIDTH: integer; Tex: TTexture; var lPrefs: TPrefs);
   procedure ClutMouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -349,13 +350,14 @@ glTranslatef(0,-100,0.0);
    {$ENDIF}
 end;
 
+
 procedure DrawNodes(WINDOW_HEIGHT,WINDOW_WIDTH: integer; Tex: TTexture; var lPrefs: TPrefs);
 var
   C: TChart2d;
 begin
   glMatrixMode (GL_PROJECTION);
   glLoadIdentity ();
-  gluOrtho2D (0, WINDOW_WIDTH,0, WINDOW_HEIGHT);
+  glOrtho (0, WINDOW_WIDTH,0, WINDOW_HEIGHT, -1, 1);  //gluOrtho2D (0, WINDOW_WIDTH,0, WINDOW_HEIGHT);  https://www.opengl.org/sdk/docs/man2/xhtml/gluOrtho2D.xml
   glEnable (GL_BLEND); //blend transparency bar with background
   glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   C.rgba := lPrefs.GridAndBorder; //RGBA(96,96,128,196);
