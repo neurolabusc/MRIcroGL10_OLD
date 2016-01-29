@@ -714,7 +714,9 @@ begin
    end;
    if (lHdr.NiftiHdr.vox_offset < 0) then lHdr.NiftiHdr.vox_offset := 0;
    if (lHdr.gzBytes = K_gzBytes_headerAndImageUncompressed) and (FSize (lImgName) < (lHdr.NiftiHdr.vox_offset+ lImgBytes)) then begin
-       GLForm1.ShowmessageError('LoadImg Error: File smaller than expected  '+lImgName);
+     GLForm1.ShowmessageError(format('LoadImg Error: File smaller (%d) than expected (%d+%d): %s',[FSize (lImgName), round(lHdr.NiftiHdr.vox_offset), lImgBytes,  lImgName]) );
+
+     //GLForm1.ShowmessageError(format('LoadImg Error: File smaller (%d+%d) than expected (%d) : %s',[FSize (lImgName),lHdr.NiftiHdr.vox_offset, lImgBytes,  lImgName]) );
        exit;
    end;
 

@@ -1,0 +1,45 @@
+//frag
+uniform float stepSize, sliceSize, viewWidth, viewHeight, clipPlaneDepth;
+uniform sampler3D intensityVol; 
+uniform sampler2D backFace;
+uniform vec3 clearColor, clipPlane;
+void main() {
+	float opacityCorrection = stepSize/sliceSize;
+	// get normalized pixel coordinate in view port (e.g. [0,1]x[0,1])
+	vec3 backPosition = texture2D(backFace,vec2(gl_FragCoord.x/viewWidth,gl_FragCoord.y/viewHeight)).xyz;
+	vec3 start = gl_TexCoord[1].xyz; // starting position of the ray is stored in the texture coordinate
+	vec3 dir = normalize(backPosition - start);
+	float len = length(backPosition - start);
+	if (clipPlaneDepth > -0.5) { //if clip plane intersects ray
+		bool frontface = (dot(dir , clipPlane) > 0.0); //does clip plane face the camera?
+		//next, distance from ray origin to clip plane
+		float dis = dot(dir,clipPlane);
+		if (dis != 0.0  )  dis = (-clipPlaneDepth - dot(clipPlane, start.xyz-0.5)) / dis;
+		//test: "return" fails on 2006MacBookPro10.4ATI1900, "discard" fails on MacPro10.5NV8800
+		if (((frontface) && (dis >= len)) || ((!frontface) && (dis <= 0.0))) {
+		 gl_FragColor.rgb = clearColor;
+		 return;
+		}
+		if ((dis > 0.0) && (dis < len)) {
+			if (frontface) {
+				start = start + dir * dis;
+			} else {
+				backPosition =  start + dir * (dis); 
+			}	
+			len = length(backPosition - start);
+		}
+	}	
+	dir = dir * stepSize;
+	vec4 colorSample,colAcc = vec4(0.0,0.0,0.0,0.0);
+	//jitter ray start to avoid wood grain aliasing
+	vec3 samplePos = start.xyz + dir* (fract(sin(gl_FragCoord.x * 12.9898 + gl_FragCoord.y * 78.233) * 43758.5453));
+	for(int i = 0; i < int(len / stepSize); i++) {
+		colorSample = texture3D(intensityVol, samplePos);
+		colorSample.a = 1.0-pow((1.0 - colorSample.a), opacityCorrection);		
+		colorSample.rgb *= colorSample.a; 
+		colAcc += (1.0 - colAcc.a) * colorSample; //accumulate color
+		if ( colAcc.a > 0.95 ) break; // terminate if opacity > 95%
+		samplePos += dir;
+	}
+	gl_FragColor.rgb = mix(clearColor,colAcc.rgb,colAcc.a);
+}

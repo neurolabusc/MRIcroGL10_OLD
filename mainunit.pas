@@ -186,6 +186,7 @@ TGLForm1 = class(TForm)
     CollapseToolPanelBtn: TButton;
     Thresholdmenu: TMenuItem;
     procedure BackgroundMaskMenuClick(Sender: TObject);
+    procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
     procedure InterpolateMenuClick(Sender: TObject);
     procedure LUTdropChange(Sender: TObject);
     procedure SetOverlayAlpha(Sender: TObject);
@@ -260,7 +261,7 @@ function MouseUpVOI (Shift: TShiftState; X, Y: Integer): boolean;
   procedure ShowOrthoSliceInfo (isYoke: boolean);
   procedure Quit2TextEditor;
     procedure ClipTrackChange(Sender: TObject);
-    procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
+    procedure AppDropFiles(Sender: TObject; const FileNames: array of String);
     procedure OpenColorScheme(Sender: TObject);
     procedure About1Click(Sender: TObject);
     procedure Smooth1Click(Sender: TObject);
@@ -1368,7 +1369,7 @@ begin
  DisplayPrefs;
  FormCreateShaders; //CreateAllControls;
   {$IFDEF FPC}
-  Application.OnDropFiles:= FormDropFiles;
+  {$IFDEF Darwin}Application.OnDropFiles:= AppDropFiles; {$ENDIF} //for OSX: respond if user drops icon on dock
   Application.ShowButtonGlyphs:= sbgNever;
   GLbox:= TOpenGLControl.Create(GLForm1);
   GLbox.AutoResizeViewport:= true;   // http://www.delphigl.com/forum/viewtopic.php?f=10&t=11311
@@ -2508,22 +2509,6 @@ begin
   AdjustFormPos(TForm(ScriptForm));
   ScriptForm.SHow;
 {$ENDIF}
-end;
-
-procedure TGLForm1.FormDropFiles(Sender: TObject;
-  const FileNames: array of String);
-var
-   lFilename: string;
-begin
- if dcm2niiForm.visible then begin
-    dcm2niiForm.FormDropFiles(Sender, FileNames);
-    exit;
- end;
- AutoRunTimer1.Enabled := false;  //if user opens with application, disable startup script in OSX
-  if length(FileNames) < 1 then
-     exit;
-  lFilename := Filenames[0];
-  LoadDatasetNIFTIvolx(lFileName,true);
 end;
 
 function GetFloat(lStr: string; lMin,lDefault,lMax: single): single;
@@ -3960,6 +3945,27 @@ begin
      if (GLForm1.IntensityBox.Hint = '') then //Show 1st error
         GLForm1.IntensityBox.Hint := Str;
      GLForm1.ErrorTimer.Enabled := true;
+end;
+
+procedure TGLForm1.FormDropFiles(Sender: TObject;
+  const FileNames: array of String);
+var
+ lFilename: string;
+begin
+if dcm2niiForm.visible then begin
+  dcm2niiForm.FormDropFiles(Sender, FileNames);
+  exit;
+end;
+AutoRunTimer1.Enabled := false;  //if user opens with application, disable startup script in OSX
+if length(FileNames) < 1 then
+   exit;
+lFilename := Filenames[0];
+LoadDatasetNIFTIvolx(lFileName,true);
+end;
+
+procedure TGLForm1.AppDropFiles(Sender: TObject; const FileNames: array of String);
+begin
+     FormDropFiles(Sender, Filenames);
 end;
 
 initialization
