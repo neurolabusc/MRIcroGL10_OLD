@@ -2153,6 +2153,8 @@ begin
     AreaInitialized:=true;
     MinEdit.Text := floattostr(gCLUTrec.min);
     MaxEdit.Text := floattostr(gCLUTrec.max);
+    if (gPrefs.SliceView > 0) and (gPrefs.SliceView < 5)  then
+       ShowOrthoSliceInfo (false);
     if gInitialSetup then begin
        gInitialSetup := false;
        UpdateTimer.enabled := true;

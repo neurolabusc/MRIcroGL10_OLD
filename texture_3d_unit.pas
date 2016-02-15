@@ -17,7 +17,7 @@ uses
   SysUtils,
   Dialogs,clut,
 {$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF} nii_mat,
-  ExtCtrls,  nifti_hdr, define_types,nii_label, nifti_types;
+  ExtCtrls,  nifti_hdr, define_types,nii_label, nifti_types, coordinates;
 Type
   TTexture =  RECORD //3D data
     NIFTIhdr,NIFTIhdrRaw: TNIFTIHdr;
@@ -682,7 +682,8 @@ end;
 function NIFTIhdr_LoadImg (var lFilename: string; var lHdr: TMRIcroHdr; var lImgBuffer: byteP; lVolume: integer): boolean;
 //loads img to byteP - if this returns successfully you must freemem(lImgBuffer)
 var
-   lImgName: string;
+
+  lImgName: string;
    lVolOffset,lnVol,lVol,lFileBytes,lImgBytes: integer;
    lBuf: ByteP;
    lInF: File;
@@ -690,7 +691,6 @@ begin
     result := false;
     if not NIFTIhdr_LoadHdr (lFilename, lHdr) then
         exit;
-
    if lHdr.NIFTIhdr.dim[4] < 1 then
     lHdr.NIFTIhdr.dim[4] := 1;
    if lHdr.NIFTIhdr.dim[5] < 1 then
@@ -702,7 +702,6 @@ begin
    if lHdr.NIFTIhdr.datatype = kDT_RGB then begin
       lHdr.NIFTIhdr.bitpix := 24;
       lVol := 1; //read all RGB planes, later on we can separate different planes
-
    end;
    //GLForm1.Caption := inttostr(lHdr.NIFTIhdr.dim[1])+'x'+inttostr(lHdr.NIFTIhdr.dim[2])+'x'+inttostr(lHdr.NIFTIhdr.dim[3])+ ' '+inttostr(lHdr.NIFTIhdr.bitpix);
    lImgBytes := lHdr.NIFTIhdr.dim[1]*lHdr.NIFTIhdr.dim[2]*lHdr.NIFTIhdr.dim[3]*(lHdr.NIFTIhdr.bitpix div 8);
@@ -1061,6 +1060,31 @@ begin
     result := lRGBA;
 end;
 
+procedure SetOriginXYZ (var lTexture3D: TTexture);
+var
+  lInvMat: TMatrix ;
+  lOK: boolean;
+  lXmm,lYmm,lZmm: single;
+begin
+  gRayCast.OrthoX := 0.5;
+  gRayCast.OrthoY := 0.5;
+  gRayCast.OrthoZ := 0.5;
+  if true and  (lTexture3D.FiltDim[1] > 1) or (lTexture3D.FiltDim[2] > 1) or (lTexture3D.FiltDim[3] > 1) then begin
+      lInvMat := Hdr2InvMat (lTexture3D.NIftiHdr,lOK);
+      if not lOK then exit;
+      lXmm := 0;
+      lYmm := 0;
+      lZmm := 0;
+      mm2Voxel (lXmm,lYmm,lZmm, lInvMat);
+      gRayCast.OrthoX := (lXmm-1)/(lTexture3D.FiltDim[1]-1);
+      gRayCast.OrthoY := (lYmm-1)/(lTexture3D.FiltDim[2]-1);
+      gRayCast.OrthoZ := (lZmm-1)/(lTexture3D.FiltDim[3]-1);
+      if (gRayCast.OrthoX < 0.0) or (gRayCast.OrthoX > 1.0) then gRayCast.OrthoX := 0.5;
+      if (gRayCast.OrthoY < 0.0) or (gRayCast.OrthoY > 1.0) then gRayCast.OrthoY := 0.5;
+      if (gRayCast.OrthoZ < 0.0) or (gRayCast.OrthoZ > 1.0) then gRayCast.OrthoZ := 0.5;
+  end;
+end;
+
 Function Load_From_NIfTI (var lTexture: TTexture; Const F_FileName : String; lPowerOfTwo: boolean; lVol: integer) : boolean;
 var
   CalRange, ImgRange: double;
@@ -1328,6 +1352,8 @@ begin //Proc Load_From_NIfTI
     for lI := 1 to 3 do
       lTexture.NIFTIhdr.dim[lI] := lTexture.FiltDim[lI];
     result :=true;
+    SetOriginXYZ(lTexture);
+
 end; //Proc Load_From_NIfTI
 
 end.
