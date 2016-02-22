@@ -2,7 +2,7 @@ unit nii_mat;
 //basic Matrix and Vector Types and Transforms
 //{$D-,O+,Q-,R-,S-} // L-,Y-,
 {$H+}
-{$mode delphi}
+{$IFDEF FPC}{$mode delphi}{$ENDIF}
 interface
 
 uses dialogs;
@@ -123,7 +123,7 @@ begin
    result := ( (a.vector[1]=b.vector[1]) and (a.vector[2]=b.vector[2]) and (a.vector[3]=b.vector[3]));
 end; //sameVec()
 
-function transform3D(v: TVector; m: TMatrix): TVector;  inline;
+function transform3D(v: TVector; m: TMatrix): TVector; {$IFDEF FPC} inline; {$ENDIF} 
 //vec4 nifti_vect44mat44_mul(vec4 v, mat44 m ) //multiply vector * 4x4matrix
 var
    i, j: integer;
@@ -147,7 +147,7 @@ begin
       lMat.matrix[i,j] := lTemp.matrix[j,i];
 end; //transposeMatrix()
 
-function vec3D  (x, y, z:  single):  TVector; inline;
+function vec3D  (x, y, z:  single):  TVector; {$IFDEF FPC}inline;{$ENDIF}
 begin
 	result.vector[1] := x;
 	result.vector[2] := y;

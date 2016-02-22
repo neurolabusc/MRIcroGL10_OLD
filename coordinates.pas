@@ -1,6 +1,6 @@
 unit coordinates;
 {$D-,O+,Q-,R-,S-} //L-,Y-,
-{$mode delphi}
+{$IFDEF FPC}{$mode delphi}{$ENDIF}
 interface
 uses
   //SysUtils,dialogs,

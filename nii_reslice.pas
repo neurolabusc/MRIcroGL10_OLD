@@ -2,7 +2,7 @@ unit nii_reslice;
 interface
 //{$D-,O+,Q-,R-,S-} // L-,Y-,
 {$H+}
-{$mode delphi}
+{$IFDEF FPC}{$mode delphi}{$ENDIF}
 uses
   Dialogs, nii_mat,define_types,sysutils,prefs,nifti_hdr,Texture_3D_Unit, nifti_types;
 

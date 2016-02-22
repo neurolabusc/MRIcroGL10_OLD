@@ -777,7 +777,7 @@ begin
   result := false;
   strlst:=TStringList.Create;
   AssignFile(f, fname);
-  Reset(f,1);
+  {$IFDEF FPC} Reset(f,1); {$ELSE} Reset(f); {$ENDIF}
   ReadLnBin(f, str); //signature: '# vtk DataFile'
   if pos('VTK', UpperCase(str)) <> 3 then begin
     showmessage('Not a VTK file');

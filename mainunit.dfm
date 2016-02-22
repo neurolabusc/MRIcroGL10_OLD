@@ -1,6 +1,6 @@
 object GLForm1: TGLForm1
-  Left = 553
-  Top = 103
+  Left = 936
+  Top = 58
   Width = 675
   Height = 740
   Caption = 'MRIcroGL'
@@ -19,14 +19,14 @@ object GLForm1: TGLForm1
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
   OnMouseWheel = GLboxMouseWheel
-  OnResize = FormResize
+  OnResize = GLboxResize
   PixelsPerInch = 96
   TextHeight = 13
   object ToolPanel: TPanel
     Left = 0
     Top = 0
     Width = 264
-    Height = 692
+    Height = 681
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 0
@@ -145,7 +145,7 @@ object GLForm1: TGLForm1
       Left = 0
       Top = 601
       Width = 264
-      Height = 91
+      Height = 80
       Align = alClient
       Caption = 'Shader'
       TabOrder = 1
@@ -218,7 +218,7 @@ object GLForm1: TGLForm1
       end
       object Memo1: TMemo
         Left = 2
-        Top = 62
+        Top = 51
         Width = 260
         Height = 27
         Align = alBottom
@@ -529,7 +529,7 @@ object GLForm1: TGLForm1
     Left = 264
     Top = 0
     Width = 4
-    Height = 692
+    Height = 681
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 1
