@@ -16,7 +16,7 @@ object GLForm1: TGLForm1
   OnDropFiles = FormDropFiles
   OnKeyDown = FormKeyDown
   Position = poScreenCenter
-  LCLVersion = '1.6.0.2'
+  LCLVersion = '1.6.0.4'
   object ToolPanel: TPanel
     Left = 0
     Height = 748
@@ -188,6 +188,7 @@ object GLForm1: TGLForm1
         Align = alBottom
         Lines.Strings = (
           'Memo1'
+          ''
           ''
           ''
           ''
@@ -594,6 +595,7 @@ object GLForm1: TGLForm1
         Align = alBottom
         Lines.Strings = (
           'Memo1'
+          ''
           ''
           ''
           ''

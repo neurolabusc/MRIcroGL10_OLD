@@ -3,7 +3,7 @@ program simplelaz;
 {$mode objfpc}{$H+}
 {$include options.inc}
 uses
-{$IFDEF FPC}{$IFNDEF UNIX}  uscaledpi,{$ENDIF}{$ENDIF}  
+{$IFDEF FPC}{$IFNDEF UNIX} uscaledpi, {$ENDIF}{$IFDEF LINUX} Graphics, uscaledpi, {$ENDIF}{$ENDIF}
   {$IFDEF UNIX}{$IFDEF UseCThreads}
   cthreads,
   {$ENDIF}{$ENDIF}
@@ -23,6 +23,7 @@ begin
   Application.CreateForm(Tdcm2niiForm, dcm2niiForm);
   Application.CreateForm(TAutoROIForm, AutoROIForm);
   Application.CreateForm(TExtractForm, ExtractForm);
+ {$IFDEF FPC}{$IFDEF LINUX} HighDPIfont(GetFontData(GLForm1.Font.Handle).Height); {$ENDIF} {$ENDIF}
   {$IFDEF FPC}{$IFNDEF UNIX}HighDPI(96);{$ENDIF}{$ENDIF}
   Application.Run;
 end.

@@ -1446,6 +1446,7 @@ begin
 {$ENDIF}
 SetToolPanelWidth;
 //gPrefs.FasterGradientCalculations := true;
+GLForm1.Caption:= inttostr(GetFontData(GLForm1.Font.Handle).Height)+'  '+inttostr(Screen.PixelsPerInch);
 end;
 
 
