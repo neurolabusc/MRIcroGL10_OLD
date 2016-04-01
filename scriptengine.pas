@@ -143,6 +143,7 @@ type
     procedure Copy1Click(Sender: TObject);
     procedure OpenSMRU(Sender: TObject);//open template or MRU
     procedure UpdateSMRU;
+    procedure ToPascal(s: string);
     procedure InsertCommand(Sender: TObject);
     //procedure AdjustSelText;
     procedure PSScript1Compile(Sender: TPSScript);
@@ -336,15 +337,68 @@ begin
     result := true;
 end;
 
-function TScriptForm.OpenParamScript: boolean;
+function EndsStr( const Needle, Haystack : string ) : Boolean;
+//http://www.delphibasics.co.uk/RTL.asp?Name=AnsiEndsStr
 var
-  lF: string;
+  szN,szH: integer;
+  s : string;
+begin
+  result := false;
+  szH := length(Haystack);
+  szN := length(Needle);
+  if szN > szH then exit;
+  s := copy ( Haystack,  szH-szN + 1, szN );
+  if comparestr(Needle,s) = 0 then result := true;
+end;
+
+function isNewLine(s: string): boolean;
+var
+  sz: integer;
+begin
+  result := false;
+  sz := length(s);
+  if sz < 1 then exit;
+  result := true;
+  if s[sz] = ';' then exit;
+  if EndsStr('var', s) then exit;
+  if EndsStr('begin', s) then exit;
+  result := false;
+end;
+
+procedure TScriptForm.ToPascal(s: string);
+var
+  i: integer;
+  l: string;
+begin
+  if length(s) < 1 then exit;
+  Memo1.lines.Clear;
+  l := '';
+  for i := 1 to length(s) do begin
+      l := l + s[i];
+      if isNewLine(l) then begin
+        Memo1.lines.Add(l);
+        l := '';
+      end;
+  end;
+  Memo1.lines.Add(l);
+end;
+
+function TScriptForm.OpenParamScript: boolean;
 begin
      result := false;
-     if (ParamCount = 0) then exit;
-     lF := Paramstr(1);
-     if fileexists(lF) then
-       result := OpenScript(lF);
+     if gPrefs.initScript = '' then  exit;
+     //FillMRU (gPrefs.PrevScriptName, ScriptDir+pathdelim,kScriptExt,True);
+     if FileExists(gPrefs.initScript) or (UpCaseExt(gPrefs.initScript) = uppercase(kScriptExt))  then begin
+       if not FileExists(gPrefs.initScript) then
+          gPrefs.initScript := ScriptDir +pathdelim+gPrefs.initScript;
+       result := OpenScript(gPrefs.initScript);
+       if not result then
+          writeln('Unable to find '+ gPrefs.initScript);
+     end else begin
+       ToPascal(gPrefs.initScript);//Memo1.Lines.Add(gPrefs.initScript);
+       result := true;
+     end;
+
 end;
 
 function TScriptForm.OpenStartupScript: boolean;

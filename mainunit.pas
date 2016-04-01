@@ -1326,9 +1326,30 @@ end;
 
 procedure TGLForm1.FormCreate(Sender: TObject);
  var
-  lQuality: integer;
+  lQuality, i: integer;
+  forceReset: boolean;
+  s: string;
+  c: char;
 begin
-  if not ResetIniDefaults then
+  {$IFDEF FPC} Application.ShowButtonGlyphs:= sbgNever; {$ENDIF}
+  forceReset := false;
+  gPrefs.InitScript := '';
+  i := 1;
+  while i <= ParamCount do begin
+     s := ParamStr(i);
+     if (length(s)> 1) and (s[1]='-') then begin
+         c := upcase(s[2]);
+         if c='R' then
+            forceReset := true
+         else if (i < paramcount) and (c='S') then begin
+           inc(i);
+           gPrefs.InitScript := ParamStr(i);
+         end;
+     end else //length > 1 char
+       gPrefs.initScript := ParamStr(i);
+     inc(i);
+   end; //for each parameter
+  if (not ResetIniDefaults) and (not forceReset) then
     IniFile(true,IniName,gPrefs)
   else begin
     SetDefaultPrefs(gPrefs,true);//reset everything to defaults!
@@ -1446,7 +1467,7 @@ begin
 {$ENDIF}
 SetToolPanelWidth;
 //gPrefs.FasterGradientCalculations := true;
-GLForm1.Caption:= inttostr(GetFontData(GLForm1.Font.Handle).Height)+'  '+inttostr(Screen.PixelsPerInch);
+//GLForm1.Caption:= inttostr(GetFontData(GLForm1.Font.Handle).Height)+'  '+inttostr(Screen.PixelsPerInch);
 end;
 
 
@@ -1982,7 +2003,6 @@ procedure TGLForm1.LoadStartupImage;
 var
   lFilename : string;
 begin
-
   if gPrefs.PrevFilename[1] = '' then begin
       lFilename := 'mni152_2009_256';
       CheckFilename (lFilename,false);
@@ -3052,7 +3072,7 @@ end;
 
 procedure CloseOverlay (lOverlayIndex: integer);
 begin
- GLForm1.MinEdit.SetFocus;
+ GLForm1.ActiveControl := nil; //GLForm1.MinEdit.SetFocus;
  GLForm1.LUTdrop.visible := false;
   GLForm1.StringGrid1.Selection := TGridRect(Rect(-1, -1, -1, -1));
   if gOverlayImg[lOverlayIndex].ImgBufferUnaligned <> nil then
@@ -3066,8 +3086,7 @@ procedure CloseOverlays;
 var
   I: integer;
 begin
-   GLForm1.StringGrid1.Selection:=TGridRect(Rect(-1,-1,-1,-1));
-    //SetLengthB(gTexture3D.OverlayImg,0);
+  GLForm1.StringGrid1.Selection:=TGridRect(Rect(-1,-1,-1,-1));
     for I := kMinOverlayIndex to kMaxOverlays do
       CloseOverlay(I);
     gOpenOverlays := 0;
@@ -3103,7 +3122,7 @@ end;
 
 procedure TGLForm1.Closeoverlays1Click(Sender: TObject);
 begin
- MinEdit.SetFocus;
+ GLForm1.ActiveControl := nil;
  OverlayBox.Visible := false;//StringGrid1.Visible := false;
  LUTdrop.Visible := false;
  CloseOverlays;
@@ -3959,7 +3978,8 @@ if dcm2niiForm.visible then begin
   dcm2niiForm.FormDropFiles(Sender, FileNames);
   exit;
 end;
-AutoRunTimer1.Enabled := false;  //if user opens with application, disable startup script in OSX
+if AutoRunTimer1.enabled then exit;
+//AutoRunTimer1.Enabled := false;  //if user opens with application, disable startup script in OSX
 if length(FileNames) < 1 then
    exit;
 lFilename := Filenames[0];

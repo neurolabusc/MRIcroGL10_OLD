@@ -26,6 +26,7 @@ type
          CLUTWindowColor,CLUTIntensityColor: TColor;
          GridAndBorder,BackColor,TextColor,TextBorder,CrosshairColor,HistogramColor,{HistogramGrid,}HistogramBack: TGLRGBQuad;
          ColorBarPos: TUnitRect;
+         InitScript: string;
          PrevFilename,PrevScriptName: TMRU;
   end;
 function IniFile(lRead: boolean; lFilename: string; var lPrefs: TPrefs): boolean;
