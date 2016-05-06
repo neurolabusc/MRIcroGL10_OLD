@@ -1,7 +1,7 @@
 object GLForm1: TGLForm1
-  Left = 515
+  Left = 949
   Height = 748
-  Top = 141
+  Top = 130
   Width = 1168
   ActiveControl = ToolPanel
   AllowDropFiles = True
@@ -188,6 +188,11 @@ object GLForm1: TGLForm1
         Align = alBottom
         Lines.Strings = (
           'Memo1'
+          ''
+          ''
+          ''
+          ''
+          ''
           ''
           ''
           ''
@@ -601,6 +606,11 @@ object GLForm1: TGLForm1
         Align = alBottom
         Lines.Strings = (
           'Memo1'
+          ''
+          ''
+          ''
+          ''
+          ''
           ''
           ''
           ''

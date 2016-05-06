@@ -178,7 +178,7 @@ begin
             RayCastQuality1to10 := 7;
             PlanarRGB := 2;//autodetect
             BitmapZoom := 2;
-            StartupScript := true;
+            StartupScript := false;
             FormMaximized := false;
             Debug := false;
             {$IFNDEF FPC}

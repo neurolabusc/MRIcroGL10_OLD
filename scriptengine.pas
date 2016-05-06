@@ -210,8 +210,10 @@ begin
   if Sender = nil then begin
     if (gPrefs.PrevScriptName[1] <> '') and (Fileexists(gPrefs.PrevScriptName[1])) then
       OpenScript (gPrefs.PrevScriptName[1]);
-  end else
+  end else begin
     OpenScript (gPrefs.PrevScriptName[(Sender as TMenuItem).tag]);
+    Compile1Click(Sender);
+  end;
 end;
 
 procedure TScriptForm.UpdateSMRU;
@@ -231,6 +233,12 @@ begin
 	  File1.Items[lM].Tag := lPos;
           File1.Items[lM].onclick :=  OpenSMRU; //Lazarus
           File1.Items[lM].Visible := true;
+          if lPos < 10 then
+          {$IFDEF Darwin}
+                  File1.Items[lM].ShortCut := ShortCut(Word('1')+ord(lPos-1), [ssMeta]);
+          {$ELSE}
+                 File1.Items[lM].ShortCut := ShortCut(Word('1')+ord(lPos-1), [ssCtrl]);
+          {$ENDIF}
       end else
           File1.Items[lM].Visible := false;
       inc(lM);
@@ -332,9 +340,10 @@ begin
     gchanged := False;
     Memo2.Lines.Clear;
     fn := lFileName;
-    Add2MRU(gPrefs.PrevScriptName,fn);
-    UpdateSMRU;
+   (* Add2MRU(gPrefs.PrevScriptName,fn);
+    UpdateSMRU;*)
     result := true;
+
 end;
 
 function EndsStr( const Needle, Haystack : string ) : Boolean;
@@ -411,6 +420,7 @@ begin
     result := OpenScript(lF);
   //if result then
   //  Compile1Click(nil);
+
 end;
 
 procedure TScriptForm.Open1Click(Sender: TObject);
@@ -435,7 +445,7 @@ begin
     Memo1.Lines.SaveToFile(fn);
     gchanged := False;
     Add2MRU(gPrefs.PrevScriptName,fn);
-	  UpdateSMRU;
+    UpdateSMRU;
   end;
 end;
 

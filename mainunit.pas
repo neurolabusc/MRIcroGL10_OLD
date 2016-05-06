@@ -1195,6 +1195,13 @@ begin
 	  File1.Items[lM].Tag := lPos;
           File1.Items[lM].onclick :=  OpenMRU; //Lazarus
           File1.Items[lM].Visible := true;
+          //Number key shortcuts used for pens!
+          //if lPos < 10 then
+          {$IFDEF Darwin}
+          //File1.Items[lM].ShortCut := ShortCut(Word('1')+ord(lPos-1), [ssMeta]);
+          {$ELSE}
+          //File1.Items[lM].ShortCut := ShortCut(Word('1')+ord(lPos-1), [ssCtrl]);
+          {$ENDIF}
       end else
           File1.Items[lM].Visible := false;
       inc(lM);
@@ -1916,7 +1923,7 @@ end;
    str := '32-bit';
    {$ENDIF}
    {$IFDEF DGL} str := str +' (DGL) '; {$ENDIF}//the DGL library has more dependencies - report this if incompatibilities are found
-  str := 'MRIcroGL '+str+' 12 Feb 2016'
+  str := 'MRIcroGL '+str+' 5 May 2016'
    +kCR+' www.mricro.com :: BSD 2-Clause License (opensource.org/licenses/BSD-2-Clause)'
    +kCR+' Dimensions '+inttostr(gTexture3D.NIFTIhdr.dim[1])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[2])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[3])
    +kCR+' Bytes per voxel '+inttostr(gTexture3D.NIFTIhdr.bitpix div 8)
@@ -2021,9 +2028,11 @@ begin
   {$IFDEF ENABLESCRIPT}
  AutoRunTimer1.enabled := ScriptForm.OpenParamScript;  //if user passes script as parameter when launching program, e.g. "mricrogl ~/myscript.gls"
  if not AutoRunTimer1.enabled then begin
-    if gPrefs.StartupScript then begin
-      AutoRunTimer1.enabled := ScriptForm.OpenStartupScript;
 
+     if gPrefs.StartupScript then begin
+       //AutoRunTimer1.enabled := ScriptForm.OpenStartupScript;
+       ScriptForm.OpenStartupScript;
+       AutoRunTimer1.enabled := true; //run first script even if no script named 'startupscript' found
     end;
   end;
   if AutoRunTimer1.enabled then lFilename := '';   //we will run a script - don't waste time with external image
