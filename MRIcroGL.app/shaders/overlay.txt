@@ -36,7 +36,7 @@ void main() {
 	// get normalized pixel coordinate in view port (e.g. [0,1]x[0,1])
 	vec2 pixelCoord = gl_FragCoord.st;
 	pixelCoord.x /= viewWidth;
-	pixelCoord.y /= viewHeight;	
+	pixelCoord.y /= viewHeight;
 	// starting position of the ray is stored in the texture coordinate
 	vec3 start = gl_TexCoord[1].xyz;
 	vec3 backPosition = texture2D(backFace,pixelCoord).xyz;
@@ -61,20 +61,20 @@ void main() {
 				dis = disBackFace;
 				disBackFace = swap;
 			}
-			
+
 			if (dis >= len) len = 0.0;
 			backPosition =  start + dir * disBackFace;
 			//if ((dis > 0.0) && (dis < len)) {
 			if (dis < len) {
 				if (dis > 0.0)
 				start = start + dir * dis;
-				
-					//backPosition =  start + dir * (dis); 
+
+					//backPosition =  start + dir * (dis);
 
 				dir = backPosition - start;
 				len = length(dir);
 				//if (len <= 0.0) len = 0.0;
-				dir = normalize(dir);		
+				dir = normalize(dir);
 			} else
 				len = 0.0;
 		} else {
@@ -87,10 +87,11 @@ void main() {
 				clipStart = disBackFace;
 			}
 		}
-	}		
+	}
 	vec3 deltaDir = dir * stepSize;
 	vec4 overAcc = vec4(0.0,0.0,0.0,0.0);
-	vec4 ocolorSample,colorSample,gradientSample,colAcc = vec4(0.0,0.0,0.0,0.0);
+	vec4 ocolorSample,gradientSample,colAcc = vec4(0.0,0.0,0.0,0.0);
+	vec4 colorSample = vec4(0.0,0.0,0.0,0.0);
 	float lengthAcc = 0.0;
 	float overAtten = 0.0;
 	int overDepth = 0;
@@ -111,9 +112,9 @@ void main() {
 			colorSample = texture3D(intensityVol,samplePos);
 			if ((lengthAcc <= stepSizex2) && (colorSample.a > 0.01) )  colorSample.a = sqrt(colorSample.a); //opaque clipping surface
 			colorSample.a = 1.0-pow((1.0 - colorSample.a), opacityCorrection);
-			if ((colorSample.a > 0.01) && (lengthAcc > stepSizex2)  ) {	
+			if ((colorSample.a > 0.01) && (lengthAcc > stepSizex2)  ) {
 				if (backDepthStart == loops) backDepthStart = i;
-				backDepthEnd = i;	
+				backDepthEnd = i;
 				gradientSample= texture3D(gradientVol,samplePos); //interpolate gradient direction and magnitude
 				gradientSample.rgb = normalize(gradientSample.rgb*2.0 - 1.0); //direction saved as 0..1, rescale to -1..1
 				//re-use previous normal if it has larger magnitude
@@ -123,11 +124,11 @@ void main() {
 				//Edge shading - darken edges parallel with viewing direction
 				float lightNormDot = dot(gradientSample.rgb, lightDirHeadOn); //with respect to viewer
 				float edgeVal = pow(1.0-abs(lightNormDot),edgeExp) * pow(gradientSample.a,0.3);
-				if (edgeVal >= edgeThresh) 
+				if (edgeVal >= edgeThresh)
 					colorSample.rgb = mix(colorSample.rgb, vec3(0.0,0.0,0.0), pow((edgeVal-edgeThresh)/(1.0-edgeThresh),4.0));
 				//specular
 				lightNormDot = dot(gradientSample.rgb, lightPosition); //with respect to light location
-				
+
 				if (lightNormDot > 0.0) {
 					colorSample.rgb += (lightNormDot * diffuse) - diffuseDiv;
 					colorSample.rgb +=   specular * pow(max(dot(reflect(lightPosition, gradientSample.rgb), dir), 0.0), shininess);
@@ -136,36 +137,36 @@ void main() {
 				if (gradientSample.a > boundThresh) {
 					float lightNormDot = dot(gradientSample.rgb, lightDirHeadOn); //with respect to viewer
 					float boundAlpha = pow(1.0-abs(lightNormDot),6.0);
-					boundAlpha = 1.0-pow((1.0 - boundAlpha), opacityCorrection);		
+					boundAlpha = 1.0-pow((1.0 - boundAlpha), opacityCorrection);
 					boundAcc += (1.0 - boundAcc2) * boundAlpha;
 					boundAcc2 += (1.0 - boundAcc2) * boundAlpha;
 				}
-			
+
 			};
 		}
-		
+
 
 		if ( overlays > 0 ) {
 			gradientSample= texture3D(overlayGradientVol,samplePos); //interpolate gradient direction and magnitude
-			if (gradientSample.a > 0.01) {			
-				
+			if (gradientSample.a > 0.01) {
+
 				if (gradientSample.a < oprevNorm.a)
 					gradientSample.rgb = oprevNorm.rgb;
 				oprevNorm = gradientSample;
 				gradientSample.rgb = normalize(gradientSample.rgb*2.0 - 1.0); //direction saved as 0..1, rescale to -1..1
 				ocolorSample = texture3D(overlayVol,samplePos);
 				ocolorSample.a *= gradientSample.a; //modulate by gradient
-				
-				
-				
-				
+
+
+
+
 				ocolorSample.a = sqrt(ocolorSample.a);
 				//Edge shading - darken edges parallel with viewing direction
 				float lightNormDot = dot(gradientSample.rgb, lightDirHeadOn); //with respect to viewer
 				float edgeVal = pow(1.0-abs(lightNormDot),edgeExp) * pow(gradientSample.a,overShade);
 				ocolorSample.a = pow(ocolorSample.a, 1.0 -edgeVal);
 				ocolorSample.rgb = mix(ocolorSample.rgb, vec3(0.0,0.0,0.0), edgeVal);
-				//if (edgeVal >= edgeThresh) 
+				//if (edgeVal >= edgeThresh)
 				//	ocolorSample.rgb = mix(ocolorSample.rgb, vec3(0.0,0.0,0.0), pow((edgeVal-edgeThresh)/(1.0-edgeThresh),4.0));
 
 				//specular
@@ -175,13 +176,13 @@ void main() {
 				//float lightAmount = 0.1 * overLight;
 				//diffuse
 		  		//if (lightAmount > 0.0)
-				//	ocolorSample.rgb += lightAmount*dot(normalize(lightPosition), gradientSample.rgb);								
+				//	ocolorSample.rgb += lightAmount*dot(normalize(lightPosition), gradientSample.rgb);
 				//Diffuse lighting
 				//float diffTerm =  max(0.5 * lightNormDot + 0.5, 0.5);
 				//Quadratic falloff of the diffusive term
 				//diffTerm *= diffTerm;
 				//ocolorSample.rgb *= diffuse* (diffTerm) + (1.0 - diffuse);
-				
+
 				ocolorSample.a *= overAlphaFrac;
 
 				if ( ocolorSample.a > 0.2) {
@@ -195,13 +196,13 @@ void main() {
 				}
 				//xxx colorSample= max(ocolorSample, colorSample);
 				//accumulate overlay color
-				ocolorSample.a = 1.0-pow((1.0 - ocolorSample.a), opacityCorrection);		
+				ocolorSample.a = 1.0-pow((1.0 - ocolorSample.a), opacityCorrection);
 				overAcc= (1.0 - overAcc.a) * ocolorSample + overAcc;
 				boundAcc2 += (1.0 - boundAcc2) * ocolorSample.a;
 			}
 		}
-		
-		colorSample.rgb *= colorSample.a; 
+
+		colorSample.rgb *= colorSample.a;
 		//accumulate color
 		colAcc= (1.0 - colAcc.a) * colorSample + colAcc;
 		samplePos += deltaDir;

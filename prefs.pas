@@ -371,7 +371,7 @@ begin
 	//IniBool(lRead,lIniFile, 'SliceText',lPrefs.SliceText);
 	IniBool(lRead,lIniFile, 'ColorBarText',lPrefs.ColorBarText);
  	IniBool(lRead,lIniFile, 'ForcePowerOfTwo',lPrefs.ForcePowerOfTwo);
-	IniBool(lRead,lIniFile, 'StartupScript',lPrefs.StartupScript);
+	IniBool(lRead,lIniFile, 'StartScript',lPrefs.StartupScript);
 	//IniBool(lRead,lIniFile, 'IntelWarning',lPrefs.IntelWarning);
         IniBool(lRead,lIniFile, 'NoveauWarning',lPrefs.NoveauWarning);
 	//IniBool(lRead,lIniFile, 'Show2DSlicesDuringRendering',lPrefs.Show2DSlicesDuringRendering);

@@ -89,7 +89,8 @@ void main() {
 	}
 	vec3 deltaDir = dir * stepSize;
 	vec4 overAcc = vec4(0.0,0.0,0.0,0.0);
-	vec4 ocolorSample,colorSample,gradientSample,colAcc = vec4(0.0,0.0,0.0,0.0);
+	vec4 ocolorSample,gradientSample,colAcc = vec4(0.0,0.0,0.0,0.0);
+	vec4 colorSample = vec4(0.0,0.0,0.0,0.0);
 	float lengthAcc = 0.0;
 	float overAtten = 0.0;
 	int overDepth = 0;

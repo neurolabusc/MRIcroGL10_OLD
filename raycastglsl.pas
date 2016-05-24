@@ -866,12 +866,9 @@ begin
   uniform1i( 'TransferTexture',2); //used when render volumes are scalar, not RGBA{$ENDIF}
   {$ENDIF}
   uniform1i( 'intensityVol', 3 );
-  if (gShader.OverlayVolume > 0) then begin
-    uniform1i( 'overlays',gOpenOverlays);
-    uniform1i( 'overlayVol', 4 );
-    if (gShader.OverlayVolume > 1) then
-        uniform1i( 'overlayGradientVol', 5 );
-  end;
+  uniform1i( 'overlayVol', 4 );
+  uniform1i( 'overlayGradientVol', 5 );
+  uniform1i( 'overlays', gOpenOverlays);
   if lTex.DataType = GL_RGBA then
     uniform1i( 'useTransferTexture',0)
   else

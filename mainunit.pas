@@ -2668,7 +2668,7 @@ end;
 
 procedure SetBitmapZoom;
 begin
-     gPrefs.BitmapZoom := ReadIntForm.GetInt('Set desired bitmap zoom (large values create huge images)',1,gPrefs.BitmapZoom,10);
+     gPrefs.BitmapZoom := ReadIntForm.GetInt('Bitmap zoom (large values create huge images)',1,gPrefs.BitmapZoom,10);
 end;
 
 procedure TGLForm1.Preferences1Click(Sender: TObject);
