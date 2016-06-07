@@ -4,7 +4,6 @@ object ReadIntForm: TReadIntForm
   Top = 111
   Width = 571
   ActiveControl = ReadIntEdit
-  BorderStyle = bsDialog
   Caption = 'Integer required'
   ClientHeight = 92
   ClientWidth = 571
@@ -12,12 +11,12 @@ object ReadIntForm: TReadIntForm
   Font.Name = 'Default'
   OnCreate = FormCreate
   Position = poScreenCenter
-  LCLVersion = '1.4.0.4'
+  LCLVersion = '1.6.0.4'
   object ReadIntLabel: TLabel
     Left = 112
-    Height = 13
+    Height = 16
     Top = 12
-    Width = 74
+    Width = 97
     Alignment = taRightJustify
     Caption = 'Enter a number'
     ParentColor = False
@@ -25,7 +24,7 @@ object ReadIntForm: TReadIntForm
   end
   object ReadIntEdit: TSpinEdit
     Left = 8
-    Height = 21
+    Height = 16
     Top = 10
     Width = 93
     MaxValue = 0

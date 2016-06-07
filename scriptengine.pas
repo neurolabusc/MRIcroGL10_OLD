@@ -284,6 +284,7 @@ end;
 
 procedure TScriptForm.FormCreate(Sender: TObject);
 begin
+  //writeln('Create scriptForm');
   fn := '';
   gchanged := False;
   DemoProgram;

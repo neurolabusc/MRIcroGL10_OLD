@@ -10,8 +10,11 @@ http://www.mccauslandcenter.sc.edu/mricrogl/
 
 9-September-2015
  - Add retina and 64-bit support for OSX. Better compatibility with VirtualBox. New shaders. Retina quality screen captures.
- 
+
+6-June-2016
+ - Fix some shaders to ensure variable colorSample initialized to zero.
+
  ##### License
- 
+
  This software includes a [BSD license](https://opensource.org/licenses/BSD-2-Clause)
- 
+

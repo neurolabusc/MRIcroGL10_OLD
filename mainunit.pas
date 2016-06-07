@@ -187,6 +187,7 @@ TGLForm1 = class(TForm)
     Thresholdmenu: TMenuItem;
     procedure BackgroundMaskMenuClick(Sender: TObject);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
+    procedure FormShow(Sender: TObject);
     procedure InterpolateMenuClick(Sender: TObject);
     procedure LUTdropChange(Sender: TObject);
     procedure SetOverlayAlpha(Sender: TObject);
@@ -1338,7 +1339,7 @@ procedure TGLForm1.FormCreate(Sender: TObject);
   s: string;
   c: char;
 begin
-  {$IFDEF FPC} Application.ShowButtonGlyphs:= sbgNever; {$ENDIF}
+{$IFDEF FPC} Application.ShowButtonGlyphs:= sbgNever; {$ENDIF}
   forceReset := false;
   gPrefs.InitScript := '';
   i := 1;
@@ -1922,8 +1923,12 @@ end;
    {$ELSE}
    str := '32-bit';
    {$ENDIF}
+   {$IFDEF Windows}str := str + ' Windows '; {$ENDIF}
+   {$IFDEF LINUX}str := str + ' Linux '; {$ENDIF}
+   {$IFDEF Darwin}str := str + ' OSX '; {$ENDIF}
+   {$IFDEF LCLCarbon}str := str + ' (Carbon) '; {$ENDIF}
    {$IFDEF DGL} str := str +' (DGL) '; {$ENDIF}//the DGL library has more dependencies - report this if incompatibilities are found
-  str := 'MRIcroGL '+str+' 5 May 2016'
+  str := 'MRIcroGL '+str+' 6 June 2016'
    +kCR+' www.mricro.com :: BSD 2-Clause License (opensource.org/licenses/BSD-2-Clause)'
    +kCR+' Dimensions '+inttostr(gTexture3D.NIFTIhdr.dim[1])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[2])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[3])
    +kCR+' Bytes per voxel '+inttostr(gTexture3D.NIFTIhdr.bitpix div 8)
@@ -3993,6 +3998,11 @@ if length(FileNames) < 1 then
    exit;
 lFilename := Filenames[0];
 LoadDatasetNIFTIvolx(lFileName,true);
+end;
+
+procedure TGLForm1.FormShow(Sender: TObject);
+begin
+  //
 end;
 
 procedure TGLForm1.AppDropFiles(Sender: TObject; const FileNames: array of String);

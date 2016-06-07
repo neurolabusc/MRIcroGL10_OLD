@@ -21,7 +21,7 @@ object AutoROIForm: TAutoROIForm
   OnHide = FormHide
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '1.4.0.4'
+  LCLVersion = '1.6.0.4'
   object OriginLabel: TLabel
     Left = 6
     Height = 17

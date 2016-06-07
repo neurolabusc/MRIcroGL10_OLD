@@ -112,7 +112,7 @@ end;
 
 procedure TAutoROIForm.FormCreate(Sender: TObject);
 begin
-//
+  //writeln('Create AutoROI');
 end;
 
 procedure TAutoROIForm.FormHide(Sender: TObject);

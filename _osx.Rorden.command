@@ -17,7 +17,10 @@ cp dcm2niix /Users/rorden/Documents/osx/MRIcroGL.app/Contents/MacOS/dcm2niix
 
 cd ~/Documents/pas/MRIcroGL/
 #compile MRIcroGL64
-/Developer/lazarus/lazbuild ./simplelaz.lpr --cpu=x86_64 --ws=cocoa --compiler="/usr/local/bin/ppcx64"
+# /Developer/lazarus/lazbuild ./simplelaz.lpr --cpu=x86_64 --ws=cocoa --compiler="/usr/local/bin/ppcx64"
+#compile MRIcroGL32
+/Developer/lazarus/lazbuild ./simplelaz.lpr --ws=cocoa
+
 strip ./MRIcroGL
 cp MRIcroGL /Users/rorden/Documents/osx/MRIcroGL.app/Contents/MacOS/MRIcroGL
 #strip /Users/rorden/Documents/osx/MRIcroGL.app/Contents/MacOS/MRIcroGL

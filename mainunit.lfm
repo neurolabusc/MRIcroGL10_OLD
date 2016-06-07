@@ -15,6 +15,7 @@ object GLForm1: TGLForm1
   OnDestroy = FormDestroy
   OnDropFiles = FormDropFiles
   OnKeyDown = FormKeyDown
+  OnShow = FormShow
   Position = poScreenCenter
   LCLVersion = '1.6.0.4'
   object ToolPanel: TPanel
@@ -188,6 +189,8 @@ object GLForm1: TGLForm1
         Align = alBottom
         Lines.Strings = (
           'Memo1'
+          ''
+          ''
           ''
           ''
           ''
@@ -691,6 +694,8 @@ object GLForm1: TGLForm1
           ''
           ''
           ''
+          ''
+          ''
         )
         TabOrder = 5
       end
@@ -698,7 +703,7 @@ object GLForm1: TGLForm1
         Left = 4
         Height = 18
         Top = 86
-        Width = 88
+        Width = 87
         Caption = 'Cross slice'
         OnChange = UpdateMosaic
         TabOrder = 6
@@ -707,7 +712,7 @@ object GLForm1: TGLForm1
         Left = 120
         Height = 18
         Top = 86
-        Width = 93
+        Width = 91
         Caption = 'Label slices'
         OnChange = UpdateMosaic
         TabOrder = 7
