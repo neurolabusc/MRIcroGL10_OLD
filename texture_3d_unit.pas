@@ -705,6 +705,11 @@ begin
    end;
    //GLForm1.Caption := inttostr(lHdr.NIFTIhdr.dim[1])+'x'+inttostr(lHdr.NIFTIhdr.dim[2])+'x'+inttostr(lHdr.NIFTIhdr.dim[3])+ ' '+inttostr(lHdr.NIFTIhdr.bitpix);
    lImgBytes := lHdr.NIFTIhdr.dim[1]*lHdr.NIFTIhdr.dim[2]*lHdr.NIFTIhdr.dim[3]*(lHdr.NIFTIhdr.bitpix div 8);
+   if lImgBytes < 1 then begin
+    GLForm1.ShowmessageError(format('Image dimensions do not make sense (x*y*z*bpp = %d*%d*%d*%d)',[lHdr.NIFTIhdr.dim[1], lHdr.NIFTIhdr.dim[2], lHdr.NIFTIhdr.dim[3], (lHdr.NIFTIhdr.bitpix div 8)]) );
+    exit;
+
+   end;
    lVolOffset := (lVol-1) * lImgBytes;
    lImgName := lHdr.ImgFileName;
    if not fileexists(lImgName) then begin
@@ -714,23 +719,20 @@ begin
    if (lHdr.NiftiHdr.vox_offset < 0) then lHdr.NiftiHdr.vox_offset := 0;
    if (lHdr.gzBytes = K_gzBytes_headerAndImageUncompressed) and (FSize (lImgName) < (lHdr.NiftiHdr.vox_offset+ lImgBytes)) then begin
      GLForm1.ShowmessageError(format('LoadImg Error: File smaller (%d) than expected (%d+%d): %s',[FSize (lImgName), round(lHdr.NiftiHdr.vox_offset), lImgBytes,  lImgName]) );
-
      //GLForm1.ShowmessageError(format('LoadImg Error: File smaller (%d+%d) than expected (%d) : %s',[FSize (lImgName),lHdr.NiftiHdr.vox_offset, lImgBytes,  lImgName]) );
        exit;
    end;
-
    lFileBytes := lImgBytes;
    GetMem(lImgBuffer,lFileBytes);
    Filemode := 0;  //Read Only - allows us to open images where we do not have permission to modify
    if (lHdr.gzBytes = K_gzBytes_headerAndImageUncompressed) then begin
-       AssignFile(lInF, lImgName);
+      AssignFile(lInF, lImgName);
        Reset(lInF,1);
        Seek(lInF,lVolOffset+round(lHdr.NiftiHdr.vox_offset));
        BlockRead(lInF, lImgBuffer^[1],lImgBytes);
        CloseFile(lInF);
    end else begin
-      lBuf := @lImgBuffer^[1];
-
+       lBuf := @lImgBuffer^[1];
       {$IFDEF GZIP}
       if (lHdr.gzBytes = K_gzBytes_onlyImageCompressed) then
         UnGZip2 (lImgName,lBuf, lVolOffset ,lImgBytes, round(lHdr.NIFtiHdr.vox_offset))

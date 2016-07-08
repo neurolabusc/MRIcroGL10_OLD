@@ -17,9 +17,13 @@ cp dcm2niix /Users/rorden/Documents/osx/MRIcroGL.app/Contents/MacOS/dcm2niix
 
 cd ~/Documents/pas/MRIcroGL/
 #compile MRIcroGL64
-# /Developer/lazarus/lazbuild ./simplelaz.lpr --cpu=x86_64 --ws=cocoa --compiler="/usr/local/bin/ppcx64"
+# /Users/rorden/lazarus/lazbuild ./simplelaz.lpr --cpu=x86_64 --ws=cocoa --compiler="/usr/local/bin/ppcx64"
+#Current FPC 3.0.0 can not compile on OSX 10.11 El Capitan, so use 3.1.1
+ /Users/rorden/lazarus/lazbuild ./simplelaz.lpr --cpu=x86_64 --ws=cocoa --compiler="/usr/local/lib/fpc/3.1.1/ppcx64"
+
+
 #compile MRIcroGL32
-/Developer/lazarus/lazbuild ./simplelaz.lpr --ws=cocoa
+#/Developer/lazarus/lazbuild ./simplelaz.lpr --ws=cocoa
 
 strip ./MRIcroGL
 cp MRIcroGL /Users/rorden/Documents/osx/MRIcroGL.app/Contents/MacOS/MRIcroGL

@@ -1,5 +1,3 @@
-{ This is an automatically generated lazarus resource file }
-
 LazarusResources.Add('TAutoROIForm','FORMDATA',[
   'TPF0'#12'TAutoROIForm'#11'AutoROIForm'#4'Left'#3#5#4#6'Height'#3#226#0#3'Top'
   +#3#149#0#5'Width'#3#252#0#18'HorzScrollBar.Page'#3#8#1#18'VertScrollBar.Page'
@@ -9,7 +7,7 @@ LazarusResources.Add('TAutoROIForm','FORMDATA',[
   +'raints.MinHeight'#3#226#0#20'Constraints.MinWidth'#3#252#0#9'Font.Name'#6#13
   +'MS Sans Serif'#7'OnClose'#7#9'FormClose'#8'OnCreate'#7#10'FormCreate'#9'OnD'
   +'estroy'#7#11'FormDestroy'#6'OnHide'#7#8'FormHide'#6'OnShow'#7#8'FormShow'#8
-  +'Position'#7#14'poScreenCenter'#10'LCLVersion'#6#7'1.4.0.4'#0#6'TLabel'#11'O'
+  +'Position'#7#14'poScreenCenter'#10'LCLVersion'#6#7'1.6.0.4'#0#6'TLabel'#11'O'
   +'riginLabel'#4'Left'#2#6#6'Height'#2#17#3'Top'#2'&'#5'Width'#2','#7'Caption'
   +#6#8'Origin: '#11'ParentColor'#8#0#0#12'TSpeedButton'#9'OriginBtn'#4'Left'#2
   +#7#6'Height'#2#26#4'Hint'#6'&You can also double-click on the image'#3'Top'#2

@@ -1,7 +1,7 @@
 object GLForm1: TGLForm1
-  Left = 949
+  Left = 1005
   Height = 748
-  Top = 130
+  Top = 204
   Width = 1168
   ActiveControl = ToolPanel
   AllowDropFiles = True
@@ -17,7 +17,7 @@ object GLForm1: TGLForm1
   OnKeyDown = FormKeyDown
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '1.6.0.4'
+  LCLVersion = '1.7'
   object ToolPanel: TPanel
     Left = 0
     Height = 748
@@ -31,7 +31,7 @@ object GLForm1: TGLForm1
     object ClipBox: TGroupBox
       Left = 1
       Height = 110
-      Top = 162
+      Top = 146
       Width = 270
       Align = alTop
       Caption = 'Clipping'
@@ -103,12 +103,12 @@ object GLForm1: TGLForm1
     end
     object ShaderBox: TGroupBox
       Left = 1
-      Height = 100
-      Top = 647
+      Height = 116
+      Top = 631
       Width = 270
       Align = alClient
       Caption = 'Shader'
-      ClientHeight = 78
+      ClientHeight = 94
       ClientWidth = 262
       ParentFont = False
       TabOrder = 1
@@ -184,11 +184,23 @@ object GLForm1: TGLForm1
       object Memo1: TMemo
         Left = 0
         Height = 74
-        Top = 4
+        Top = 20
         Width = 262
         Align = alBottom
         Lines.Strings = (
           'Memo1'
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
           ''
           ''
           ''
@@ -341,12 +353,12 @@ object GLForm1: TGLForm1
     object IntensityBox: TGroupBox
       Tag = 270
       Left = 1
-      Height = 48
+      Height = 56
       Top = 1
       Width = 270
       Align = alTop
       Caption = 'Intensity Minimum..Maximum'
-      ClientHeight = 26
+      ClientHeight = 34
       ClientWidth = 262
       ParentFont = False
       TabOrder = 2
@@ -375,7 +387,7 @@ object GLForm1: TGLForm1
     object CutoutBox: TGroupBox
       Left = 1
       Height = 110
-      Top = 537
+      Top = 521
       Width = 270
       Align = alTop
       Caption = 'Cutout'
@@ -506,7 +518,7 @@ object GLForm1: TGLForm1
     object MosaicBox: TGroupBox
       Left = 1
       Height = 265
-      Top = 272
+      Top = 256
       Width = 270
       Align = alTop
       Caption = 'Mosaic'
@@ -696,6 +708,20 @@ object GLForm1: TGLForm1
           ''
           ''
           ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
+          ''
         )
         TabOrder = 5
       end
@@ -738,18 +764,18 @@ object GLForm1: TGLForm1
     end
     object OverlayBox: TGroupBox
       Left = 1
-      Height = 113
-      Top = 49
+      Height = 89
+      Top = 57
       Width = 270
       Align = alTop
       Caption = 'Overlays'
-      ClientHeight = 91
+      ClientHeight = 67
       ClientWidth = 262
       TabOrder = 6
       Visible = False
       object StringGrid1: TStringGrid
         Left = 0
-        Height = 91
+        Height = 67
         Top = 0
         Width = 262
         Align = alClient
@@ -758,9 +784,11 @@ object GLForm1: TGLForm1
         ColCount = 4
         DefaultColWidth = 66
         DefaultRowHeight = 23
-        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goDrawFocusSelected, goTabs, goSmoothScroll]
+        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goDrawFocusSelected, goEditing, goTabs, goAlwaysShowEditor, goSmoothScroll]
+        ParentShowHint = False
         RowCount = 33
         ScrollBars = ssNone
+        ShowHint = True
         TabOrder = 0
         OnDrawCell = StringGrid1DrawCell
         OnExit = StringGrid1Exit
@@ -1177,6 +1205,7 @@ object GLForm1: TGLForm1
       object Render1: TMenuItem
         AutoCheck = True
         Caption = 'Render'
+        Checked = True
         GroupIndex = 212
         RadioItem = True
         ShortCut = 16466
@@ -1232,9 +1261,48 @@ object GLForm1: TGLForm1
       object YokeMenu: TMenuItem
         AutoCheck = True
         Caption = 'Yoke'
+        Checked = True
         ShortCut = 16473
         Visible = False
         OnClick = YokeMenuClick
+      end
+      object ViewSepMenu: TMenuItem
+        Caption = '-'
+      end
+      object LeftMenu: TMenuItem
+        Caption = 'Left'
+        ShortCut = 76
+        OnClick = OrientMenuClick
+      end
+      object RightMenu: TMenuItem
+        Tag = 1
+        Caption = 'Right'
+        ShortCut = 82
+        OnClick = OrientMenuClick
+      end
+      object PosteriorMenu: TMenuItem
+        Tag = 2
+        Caption = 'Posterior'
+        ShortCut = 80
+        OnClick = OrientMenuClick
+      end
+      object AnteriorMenu: TMenuItem
+        Tag = 3
+        Caption = 'Anterior'
+        ShortCut = 65
+        OnClick = OrientMenuClick
+      end
+      object InferiorMenu: TMenuItem
+        Tag = 4
+        Caption = 'Inferior'
+        ShortCut = 73
+        OnClick = OrientMenuClick
+      end
+      object SuperiorMenu: TMenuItem
+        Tag = 5
+        Caption = 'Superior'
+        ShortCut = 83
+        OnClick = OrientMenuClick
       end
     end
     object View1: TMenuItem

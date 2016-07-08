@@ -112,7 +112,47 @@ begin
   end;
 end;
 
-procedure DrawCLUTx (var lCLUT: TCLUTrec; lU: TUnitRect;lPrefs: TPrefs);
+procedure DrawCLUTxx (var lLUT: TLUT; lU: TUnitRect;lPrefs: TPrefs);
+var
+  lL,lT,lR,lB, lN: single;
+  lI: integer;
+begin
+  SetOrder(lU.L,lU.R,lL,lR);
+  SetOrder(lU.T,lU.B,lT,lB);
+  lL := lL*gRayCast.WINDOW_WIDTH;
+  lR := lR*gRayCast.WINDOW_WIDTH;
+  lT := lT*gRayCast.WINDOW_HEIGHT;
+  lB := lB*gRayCast.WINDOW_HEIGHT;
+  if (lR-lL) > (lB-lT) then begin
+    lN := lL;
+    glBegin(GL_TRIANGLE_STRIP);
+     glColor4ub (lLUT[0].rgbRed, lLUT[0].rgbgreen, lLUT[0].rgbblue,255);
+     glVertex2f(lN,lT);
+     glVertex2f(lN,lB);
+     for lI := 1 to (255) do begin
+        lN := (li/255 * (lR-lL))+lL;
+        glColor4ub (lLUT[lI].rgbRed, lLUT[lI].rgbgreen, lLUT[lI].rgbblue,255);
+        glVertex2f(lN,lT);
+        glVertex2f(lN,lB);
+     end;
+    glEnd;//STRIP
+  end else begin //If WIDE, else TALL
+     lN := lT;
+    glBegin(GL_TRIANGLE_STRIP);
+    glColor4ub (lLUT[0].rgbRed, lLUT[0].rgbgreen, lLUT[0].rgbblue,255);
+     glVertex2f(lL, lN);
+     glVertex2f(lR, lN);
+     for lI := 1 to (255) do begin
+        lN := (lI/255 * (lB-lT))+lT;
+         glColor4ub (lLUT[lI].rgbRed, lLUT[lI].rgbgreen, lLUT[lI].rgbblue,255);
+         glVertex2f(lR, lN);
+         glVertex2f(lL, lN);
+     end;
+    glEnd;//STRIP
+  end;
+end;
+
+(*procedure DrawCLUTx (var lCLUT: TCLUTrec; lU: TUnitRect;lPrefs: TPrefs);
 var
   lL,lT,lR,lB,lN: single;
   lI: integer;
@@ -152,7 +192,7 @@ begin
      end;
     glEnd;//STRIP
   end;
-end;
+end;*)
 
 procedure DrawBorder (var lU: TUnitRect;lBorder: single; lPrefs: TPrefs);
 var
@@ -206,6 +246,7 @@ var
   lX,lY,lMin,lMax: single;
   lIsHorzTop: boolean;
   lIx,lI: integer;
+  lLUT: TLUT;
 begin
   lIsHorzTop := false;
   Enter2D;
@@ -217,13 +258,15 @@ begin
   if true then begin
 {$ENDIF}
     DrawBorder(lU,lBorder,lPrefs);
-    DrawCLUTx(gCLUTrec,lU,lPrefs);
+
+    GenerateLUT(gCLUTrec, lLUT);
+    DrawCLUTxx(lLUT,lU,lPrefs);
+    //DrawCLUTx(gCLUTrec,lU,lPrefs);
     if lPrefs.ColorbarText then
       DrawColorBarText(gCLUTrec.min,gCLUTrec.max, lU,lBorder,lPrefs);
     glDisable (GL_BLEND);
     exit;
   end;
-
   {$IFDEF ENABLEOVERLAY}
   if abs(lU.R-lU.L) > abs(lU.B-lU.T) then begin //wide bars
     lX := 0;
@@ -256,8 +299,9 @@ begin
   end;
   DrawBorder(lU2,lBorder,lPrefs);
   lU2 := lU;
-  for lI := 1 to gOpenOverlays do begin
-    DrawCLUTx(gOverlayCLUTrec[BarIndex(lI,lIsHorzTop)],lU2,lPrefs);
+  for lIx := 1 to gOpenOverlays do begin
+    lI := BarIndex(lIx,lIsHorzTop);
+    DrawCLUTxx(gOverlayImg[lI].LUT,lU2,lPrefs);
     UOffset(lU2,lX,lY);
   end;
   if not lPrefs.ColorbarText then

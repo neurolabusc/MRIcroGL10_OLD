@@ -593,6 +593,7 @@ begin
   convertForeignToNifti(nhdr);
   result := true;
 end;
+
 function readMGHHeader (var fname: string; var nhdr: TNIFTIhdr; var gzBytes: int64; var swapEndian: boolean): boolean;
 Type
   Tmgh = packed record //Next: MGH Format Header structure
@@ -671,6 +672,11 @@ begin
         nhdr.datatype := kDT_INT32
   else if (mgh.mtype = 3)  then
         nhdr.datatype := kDT_FLOAT32;
+  if ((mgh.width > 32767) or (mgh.height > 32767) or (mgh.depth > 32767) or (mgh.nframes > 32767)) then begin
+     //MGH datasets can be huge 1D streams, see https://github.com/vistalab/vistasoft/tree/master/fileFilters/freesurfer
+        NSLog('Error: this software limits rows/columns/slices/volumes to 32767 or less.');
+        exit;
+  end;
   nhdr.dim[1]:=mgh.width;
   nhdr.dim[2]:=mgh.height;
   nhdr.dim[3]:=mgh.depth;
@@ -697,7 +703,7 @@ begin
   nhdr.srow_x[0]:=m[0,0]; nhdr.srow_x[1]:=m[0,1]; nhdr.srow_x[2]:=m[0,2]; nhdr.srow_x[3]:=mgh.cr - PxyzOffset[0];
 	nhdr.srow_y[0]:=m[1,0]; nhdr.srow_y[1]:=m[1,1]; nhdr.srow_y[2]:=m[1,2]; nhdr.srow_y[3]:=mgh.ca - PxyzOffset[1];
 	nhdr.srow_z[0]:=m[2,0]; nhdr.srow_z[1]:=m[2,1]; nhdr.srow_z[2]:=m[2,2]; nhdr.srow_z[3]:=mgh.cs - PxyzOffset[2];
-	convertForeignToNifti(nhdr);
+  convertForeignToNifti(nhdr);
   result := true;
 end;
 

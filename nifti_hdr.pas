@@ -763,7 +763,7 @@ begin
   if not FileExistsEX(lFilename) then exit;
   lHdr.HdrFileName:= lFilename;
   if (lExt <> '.IMG') and (lExt <> '.NII') and (lExt <> '.VOI') and  (lExt <> '.HDR') and (lExt <> '.NII.GZ') then begin
-    result := readForeignHeader (lFilename, lHdr.NIFTIhdr,  lHdr.gzBytes, swapEndian);
+     result := readForeignHeader (lFilename, lHdr.NIFTIhdr,  lHdr.gzBytes, swapEndian);
     lHdr.ImgFileName := lfilename;
     lfilename :=  lHdr.HdrFileName; //expert filename is header not image!
     lHdr.DiskDataNativeEndian := not  swapEndian;

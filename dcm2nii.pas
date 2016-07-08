@@ -35,7 +35,9 @@ type
     OpenDialog1: TOpenDialog;
     outnameEdit: TEdit;
     VerboseCheck: TCheckBox;
+    bidsCheck: TCheckBox;
     VerboseLabel: TLabel;
+    VerboseLabel1: TLabel;
     //verboseCheck: TCheckBox;
     //VerboseLabel: TLabel;
     procedure compressCheckClick(Sender: TObject);
@@ -138,6 +140,10 @@ var
       WriteLn(iniFile, 'isGZ=1')
    else
        WriteLn(iniFile, 'isGZ=0');
+   if (bidsCheck.checked) then
+      WriteLn(iniFile, 'isBIDS=1')
+   else
+       WriteLn(iniFile, 'isBIDS=0');
    WriteLn(iniFile, 'filename='+outnameEdit.caption);
    CloseFile(iniFile);
 end; //writeIni
@@ -146,10 +152,11 @@ procedure Tdcm2niiForm.readIni (ForceReset: boolean);
 var
   fileData, rowData : TStringList;
   row, i: integer;
-  opts_isGz: boolean;
+  opts_isGz, opts_isBids: boolean;
   opts_filename: string;
 begin
      opts_isGz := true;
+     opts_isBids := true;
      //opts_outdir := '';
      opts_filename := '%t_%p_%s';
      if FileExists( iniName) and (not (ForceReset )) then begin
@@ -162,6 +169,8 @@ begin
                rowData.DelimitedText:=fileData[row];
                if ((rowData.Count > 1) and (CompareText(rowData[0] ,'isGZ')= 0)) then
                   opts_isGz := (CompareText(rowData[1],'1') = 0);
+               if ((rowData.Count > 1) and (CompareText(rowData[0] ,'isBIDS')= 0)) then
+                  opts_isBids := (CompareText(rowData[1],'1') = 0);
                if ((rowData.Count > 1) and (CompareText(rowData[0] ,'filename')= 0)) then begin
                   opts_filename := '';
                   if (rowData.Count > 2) then
@@ -176,6 +185,7 @@ begin
      end else
          memo1.Lines.Add('Using default settings');
      compressCheck.Checked := opts_isGz;
+     bidsCheck.Checked := opts_isBids;
      outnameEdit.Caption := opts_filename;
      //getExeName;
 end; //readIni()
@@ -189,6 +199,7 @@ begin
      ARegistry.RootKey := HKEY_CURRENT_USER;//HKEY_LOCAL_MACHINE;
      if ARegistry.OpenKey ('\Software\dcm2nii',true) then begin
        	  ARegistry.WriteBool('isGZ', compressCheck.Checked );
+          ARegistry.WriteBool('isBIDS', bidsCheck.Checked );
        	  ARegistry.WriteString('filename', outnameEdit.text );
      end;
      ARegistry.Free;
@@ -197,9 +208,10 @@ end; //writeIni()
 procedure Tdcm2niiForm.readIni (ForceReset: boolean);
 var
   ARegistry: TRegistry;
-  opts_isGz: boolean;
+  opts_isGz, opts_isBids: boolean;
   opts_filename: string;
 begin
+     opts_isBids := true;
      opts_isGz := true;
      opts_filename := '%t_%p_%s';
      if not ForceReset then begin
@@ -208,11 +220,14 @@ begin
        if ARegistry.OpenKey ('\Software\dcm2nii',true) then begin
        	    if ARegistry.ValueExists( 'isGZ' ) then
           	   opts_isGz := ARegistry.ReadBool( 'isGZ' );
-       	    if ARegistry.ValueExists( 'isGZ' ) then
+       	    if ARegistry.ValueExists( 'isBIDS' ) then
+          	   opts_isBids := ARegistry.ReadBool( 'isBIDS' );
+            if ARegistry.ValueExists( 'isGZ' ) then
           	   opts_filename := ARegistry.ReadString( 'filename' );
        end;
        ARegistry.Free;
      end;
+     bidsCheck.Checked := opts_isBids;
      compressCheck.Checked := opts_isGz;
      outnameEdit.text := opts_filename;
      //getExeName;
@@ -361,6 +376,10 @@ begin
      if infolder = '' then exit; //error
  end;*)
  cmd := '"'+getExeName +'" ';
+ if bidsCheck.checked then
+    cmd := cmd + '-b y '
+ else
+     cmd := cmd + '-b n ';
  if compressCheck.checked then
     cmd := cmd + '-z y '
  else

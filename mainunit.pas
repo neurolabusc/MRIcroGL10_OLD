@@ -28,6 +28,13 @@ Windows,{$ENDIF}
 type { TGLForm1 }
 TGLForm1 = class(TForm)
     CopyScriptBtn: TButton;
+    LeftMenu: TMenuItem;
+    AnteriorMenu: TMenuItem;
+    InferiorMenu: TMenuItem;
+    SuperiorMenu: TMenuItem;
+    PosteriorMenu: TMenuItem;
+    RightMenu: TMenuItem;
+    ViewSepMenu: TMenuItem;
     RunScriptBtn: TButton;
     NearBtn: TButton;
   ColEdit: TSpinEdit;
@@ -190,7 +197,9 @@ TGLForm1 = class(TForm)
     procedure FormShow(Sender: TObject);
     procedure InterpolateMenuClick(Sender: TObject);
     procedure LUTdropChange(Sender: TObject);
+    procedure OrientMenuClick(Sender: TObject);
     procedure SetOverlayAlpha(Sender: TObject);
+    procedure StringGridSetCaption(aRow: integer);
     procedure StringGrid1DrawCell(Sender: TObject; aCol, aRow: Integer;
       aRect: TRect; aState: TGridDrawState);
     procedure ThresholdMenuClick(Sender: TObject);
@@ -981,6 +990,7 @@ var
   lFilename: string;
 begin
   if lFilenameX = '' then exit;
+  if fileexists(lFilenameX) then exit;
   lFilename := lFilenameX;
   lFilenameX := GetCurrentDir + pathdelim + lFilename;
   if AddExtSearch(lFilenameX,lBitmap) then
@@ -1128,6 +1138,7 @@ begin
   lFilenameX := lFilename;
   if lFilenameX <> '' then
     CheckFilename (lFilenameX,false);
+  //caption := lFilename +' --> '+lFilenameX;
   ResetSliders;
   if lVolume > 0 then
     M_Reload := lVolume
@@ -1175,6 +1186,7 @@ begin
         lFilename := gPrefs.PrevFilename[1]
      else
          lFilename := gPrefs.PrevFilename[(Sender as TMenuItem).tag];
+
  LoadDatasetNIFTIvolx(lFilename,true);
 end;
 
@@ -1192,6 +1204,7 @@ begin
   for lPos :=  1 to lN do begin
       if gPrefs.PrevFilename[lPos] <> '' then
                     begin
+
           File1.Items[lM].Caption :=ExtractFileName(gPrefs.PrevFilename[lPos]);//(ParseFileName(ExtractFileName(lFName)));
 	  File1.Items[lM].Tag := lPos;
           File1.Items[lM].onclick :=  OpenMRU; //Lazarus
@@ -1254,6 +1267,7 @@ begin
  //OrthoSlice.checked := gPrefs.OrthoSliceView;
  Colorbar1.Checked := gPrefs.Colorbar;
  SelectSliceView(gPrefs.SliceView);
+ OverlayColorFromZeroMenu.checked := gPrefs.OverlayColorFromZero;
 end;
 
 function SimpleGetInt(lPrompt: string; lMin,lDefault,lMax: integer): integer;
@@ -1926,9 +1940,10 @@ end;
    {$IFDEF Windows}str := str + ' Windows '; {$ENDIF}
    {$IFDEF LINUX}str := str + ' Linux '; {$ENDIF}
    {$IFDEF Darwin}str := str + ' OSX '; {$ENDIF}
+   {$IFDEF LCLCocoa}str := str + ' (Cocoa) '; {$ENDIF}
    {$IFDEF LCLCarbon}str := str + ' (Carbon) '; {$ENDIF}
    {$IFDEF DGL} str := str +' (DGL) '; {$ENDIF}//the DGL library has more dependencies - report this if incompatibilities are found
-  str := 'MRIcroGL '+str+' 6 June 2016'
+  str := 'MRIcroGL '+str+' 28 June 2016'
    +kCR+' www.mricro.com :: BSD 2-Clause License (opensource.org/licenses/BSD-2-Clause)'
    +kCR+' Dimensions '+inttostr(gTexture3D.NIFTIhdr.dim[1])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[2])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[3])
    +kCR+' Bytes per voxel '+inttostr(gTexture3D.NIFTIhdr.bitpix div 8)
@@ -2015,7 +2030,7 @@ procedure TGLForm1.LoadStartupImage;
 var
   lFilename : string;
 begin
-  if gPrefs.PrevFilename[1] = '' then begin
+  (*if gPrefs.PrevFilename[1] = '' then begin
       lFilename := 'mni152_2009_256';
       CheckFilename (lFilename,false);
       if not fileexists(lFilename) then begin
@@ -2028,7 +2043,7 @@ begin
         FillMRU (gPrefs.PrevFilename, ExtractFileDirWithPathDelim(gPrefs.PrevFilename[1]),'.nii.gz',false);
         UpdateMRU;
       end;
-  end else
+  end else  *)
     lFilename := gPrefs.PrevFilename[1];
   {$IFDEF ENABLESCRIPT}
  AutoRunTimer1.enabled := ScriptForm.OpenParamScript;  //if user passes script as parameter when launching program, e.g. "mricrogl ~/myscript.gls"
@@ -2175,6 +2190,7 @@ begin
       voiClose;
       if Load_From_NIfTI (gTexture3D,OpenDialog1.Filename,gPrefs.ForcePowerOfTwo, M_reload) then begin
       Add2MRU(gPrefs.PrevFileName,OpenDialog1.Filename);
+
       UpdateMRU;
       M_reload := 0;
       AutoDetectVOI;
@@ -2278,6 +2294,7 @@ end;
 procedure TGLForm1.UpdateTimerTimer(Sender: TObject);
 begin
  GLForm1.Refresh;
+      StringGridSetCaption(gPrevRow);
  UpdateTimer.Enabled := false;
   M_refresh := true;
   GLbox.Invalidate;
@@ -3057,6 +3074,13 @@ begin
  ClipBox.Visible := ShowRenderTools;
  ShaderBox.Visible := ShowRenderTools;
  if ShaderBox.Visible then ShaderBoxResize(nil);
+ ViewSepMenu.Visible := ShowRenderTools;
+ LeftMenu.Visible := ShowRenderTools;
+ RightMenu.Visible := ShowRenderTools;
+ AnteriorMenu.Visible := ShowRenderTools;
+ PosteriorMenu.Visible := ShowRenderTools;
+ InferiorMenu.Visible := ShowRenderTools;
+ SuperiorMenu.Visible := ShowRenderTools;
  CutoutBox.visible := ShowRenderTools;
  MosaicBox.Visible := gPrefs.SliceView = 5;
 end;
@@ -3222,6 +3246,7 @@ var
   ACol,ARow: integer;
   S: string;
 begin
+
 ACol := abs(GLForm1.StringGrid1.Selection.Right);
   ARow := abs(GLForm1.StringGrid1.Selection.Top);
   //if ((ACol <> gPrevCol) or (ACol <> gPrevCol)) and    ChangeOverlayUpdate;
@@ -3244,7 +3269,10 @@ ACol := abs(GLForm1.StringGrid1.Selection.Right);
     exit;
   end;
   gTypeInCell := true;
-    OverlayIdleTimerReset;
+   {$IFNDEF LCLCocoa}
+ OverlayIdleTimerReset;
+{$ENDIF}
+
 	if(( GLForm1.StringGrid1.Selection.Top = GLForm1.StringGrid1.Selection.Bottom ) and
 		( GLForm1.StringGrid1.Selection.Left = GLForm1.StringGrid1.Selection.Right )) then begin
         if gEnterCell then begin
@@ -3357,6 +3385,26 @@ begin
   UpdateLUT(intRow,GLForm1.LUTdrop.ItemIndex,false);
   ChangeOverlayUpdate;
   GLForm1.StringGrid1.Selection:=TGridRect(Rect(-1,-1,-1,-1));
+end;
+
+procedure TGLForm1.OrientMenuClick(Sender: TObject);
+var
+  i,elev, azi: integer;
+begin
+  case (Sender as TMenuItem).tag  of
+       4: elev := -90;
+       5: elev := 90;
+       else elev := 0;
+  end;
+  case (Sender as TMenuItem).tag  of
+       0: azi := 90;
+       1: azi := 270;
+       2,5: azi := 0;
+       else azi := 180;
+  end;
+  gRayCast.Elevation := elev;
+  gRayCast.Azimuth := azi;
+  updateGL;
 end;
 
 procedure TGLForm1.InterpolateMenuClick(Sender: TObject);
@@ -3521,6 +3569,14 @@ begin
   end;
 end;
 
+procedure TGLForm1.StringGridSetCaption(aRow: integer);
+begin
+    if (aRow < 1) or (aRow > gOpenOverlays) then exit;
+    //writes 2.599999 instead of 2.6
+    //GLForm1.Caption := format('%s : %s %g..%g', [GLForm1.StringGrid1.Cells[0, aRow], GLForm1.StringGrid1.Cells[kLUT, aRow], gOverlayImg[aRow].WindowScaledMin, gOverlayImg[aRow].WindowScaledMax] );
+end;
+
+
 procedure TGLForm1.StringGrid1MouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 var
@@ -3529,11 +3585,11 @@ begin
   if (gOpenOverlays < 1) then exit;
   if (X >  (GLForm1.StringGrid1.ColWidths[kFName])) then
     exit; //not one of the first two colums
-
   Row := GLForm1.StringGrid1.DefaultRowHeight div 2;
   Row := round((Y-Row)/GLForm1.StringGrid1.DefaultRowHeight);
   GLForm1.LUTdrop.visible := false;
   if (Row < 1) or (Row > gOpenOverlays) then exit;
+  StringGrid1.Hint := GLForm1.StringGrid1.Cells[0, Row];
   If  ((ssRight in Shift) or (ssShift in Shift)) then begin //hide overlay
       OverlayVisible(Row, (not gOverlayImg[Row].LUTvisible) );
       ChangeOverlayUpdate;
@@ -3554,8 +3610,9 @@ procedure TGLForm1.StringGrid1SelectCell(Sender: TObject; aCol, aRow: Integer;
 var R: TYPES.TRect;
 begin
   if (gTypeInCell) then UpdateImageIntensity(gPrevRow); // ChangeOverlayUpdate;
-  if (ACol < kLUT) or (ACol > kMax) or (ARow < 1) or (ARow > gOpenOverlays) then
-     exit;
+  if (ARow < 1) or (ARow > gOpenOverlays) then exit;
+  StringGrid1.Hint := GLForm1.StringGrid1.Cells[0, ARow];
+  if (ACol < kLUT) or (ACol > kMax) then exit;
   ReadCell(gPrevCol,gPrevRow, false);
   if (ACol = kLUT) and  (ARow <> 0) then begin
     //Size and position the combo box to fit the cell
@@ -3588,7 +3645,6 @@ procedure TGLForm1.UpdateImageIntensity (lOverlay: integer);
 begin
      gTypeInCell := false;
      RescaleImgIntensity(gOverlayImg[lOverlay] );
-
     if gPrefs.OverlayHideZeros then HideZeros(gOverlayImg[lOverlay] );
   ChangeOverlayUpdate;
 end;

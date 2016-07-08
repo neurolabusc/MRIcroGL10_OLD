@@ -40,6 +40,8 @@ procedure FillMRU (var lMRU: TMRU; lSearchPath,lSearchExt: string; lForce: boole
 
 implementation
 
+uses mainunit;
+
 function IsNovel (lName: string; var lMRU: TMRU; lnOK: integer):boolean;
 var lI,lN: integer;
 begin
@@ -75,7 +77,7 @@ begin
       end; //for each MRU
       if lOK = knMRU then
         exit; //all slots filled;
-      for lI := (lOK+1) to knMRU do 
+      for lI := (lOK+1) to knMRU do
         lMRU[lI] :=  '';//empty slot
   end; //check exisiting MRUs
   lS := TStringList.Create;
@@ -223,20 +225,6 @@ begin
   end;//with lPrefs
 end; //Proc SetDefaultPrefs
 
-procedure SetDefaultPrefsMRU (var lPrefs: TPrefs);
-var
-  lI: integer;
-begin
-    SetDefaultPrefs(lPrefs,true);
-    for lI := 1 to knMRU do begin
-      lPrefs.PrevFilename[lI] := '';
-      lPrefs.PrevScriptName[lI] := '';
-    end;
-end;
-
-
-
-
 procedure IniInt(lRead: boolean; lIniFile: TIniFile; lIdent: string;  var lValue: integer);
 //read or write an integer value to the initialization file
 var
@@ -314,7 +302,7 @@ begin
   lValue := RGBA2TColor(lC);
 end; //IniColor
 
-procedure IniMRU(lRead: boolean; lIniFile: TIniFile; lIdent: string;  var lMRU: TMRU);
+(*procedure IniMRU(lRead: boolean; lIniFile: TIniFile; lIdent: string;  var lMRU: TMRU);
 var
 	lI,lOK: integer;
 function Novel: boolean;
@@ -345,7 +333,78 @@ begin
   end else
 	  for lI := 1 to knMRU do
       IniStr(lRead,lIniFile,lIdent+inttostr(lI),lMRU[lI]); //write values
-end;   
+end; *)
+procedure IniMRU(lRead: boolean; lIniFile: TIniFile; lIdent: string;  var lMRU: TMRU);
+var
+	lI,lOK: integer;
+        lStr: string;
+        lMRUold: TMRU;
+function Novel: boolean;
+var
+  lX: integer;
+begin
+   result  := true;
+   if (lOK < 1) or (lOK > knMRU) then exit;
+   result := false;
+   for lX := 1 to lOK do
+    if lMRU[lX] = lStr then
+      exit;
+   result := true;
+end;
+begin
+  if lRead then begin //compress files so lowest values are OK
+    for lI := 1 to knMRU do
+        lMRUold[lI] := lMRU[lI];
+    lOK := 0;
+    for lI := 1 to knMRU do begin
+      IniStr(lRead,lIniFile,lIdent+inttostr(lI),lStr);
+      if (length(lStr) > 0) and (fileexists(lStr)) and (Novel) then begin
+		    inc(lOK);
+		    lMRU[lOK] := lStr;
+      end else
+        lMRU[lI] := '';
+      end; //for each MRU
+      //file empty slots
+      lI := 0;
+      while (lOK < knMRU) and (lI < knMRU) do begin
+        lI := lI + 1;
+        lStr := lMRUold[lI];
+        if (length(lStr) > 0) and (fileexists(lStr)) and (Novel) then begin
+		    inc(lOK);
+		    lMRU[lOK] := lStr;
+        end;
+      end;
+  end else
+      for lI := 1 to knMRU do
+      	IniStr(lRead,lIniFile,lIdent+inttostr(lI),lMRU[lI]); //write values
+end;
+
+procedure SetDefaultPrefsMRU (var lPrefs: TPrefs);
+var
+  lI: integer;
+  lFilename: string;
+begin
+    SetDefaultPrefs(lPrefs,true);
+    for lI := 1 to knMRU do begin
+      lPrefs.PrevFilename[lI] := '';
+      lPrefs.PrevScriptName[lI] := '';
+    end;
+    //load default files
+    lFilename := 'mni152_2009_256';
+    GLForm1.CheckFilename (lFilename,false);
+    if not fileexists(lFilename) then begin
+         lFilename := 'ch256';
+         GLForm1.CheckFilename (lFilename,false);
+    end;
+    if fileexists(lFilename) then begin
+       //GLForm1.OpenDialog1.filename := lFilename;
+       lPrefs.PrevFilename[1] := lFilename;
+       FillMRU (lPrefs.PrevFilename, ExtractFileDirWithPathDelim(lPrefs.PrevFilename[1]),'.nii.gz',false);
+       //UpdateMRU;
+    end;
+
+
+end;
 
 function IniFile(lRead: boolean; lFilename: string; var lPrefs: TPrefs): boolean;
 //Read or write initialization variables to disk
@@ -355,10 +414,9 @@ begin
   result := false;
   if (lRead) then
     SetDefaultPrefsMRU (lPrefs);
-  if (lRead) and (not Fileexists(lFilename)) then begin
-        //FillEmptyMRU(lPrefs);
+  if (lRead) and (not Fileexists(lFilename)) then
         exit;
-  end;
+  //if lPrefs.SkipPrefWriting then showmessage('xxxx');
   if (not lRead) and (lPrefs.SkipPrefWriting) then exit; //avoid contention: user aborting program to edit prefs with text editor
   lIniFile := TIniFile.Create(lFilename);
 	IniBool(lRead,lIniFile, 'ShowToolbar',lPrefs.ShowToolbar);
