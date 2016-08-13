@@ -10,6 +10,7 @@ uses
 procedure NIFTIhdr_UnswapImg (var lHdr: TMRIcroHdr; var lImgBuffer: byteP); //ensures image data is in native space
 procedure NIFTIhdr_MinMaxImg (var lHdr: TMRIcroHdr; var lImgBuffer: byteP); //ensures image data is in native space
 procedure Int32ToFloat (var lHdr: TMRIcroHdr; var lImgBuffer: byteP);
+procedure Uint32ToFloat (var lHdr: TMRIcroHdr; var lImgBuffer: byteP);
 procedure Float32RemoveNAN (var lHdr: TMRIcroHdr; var lImgBuffer: byteP);
 
 function Reslice2Targ (lSrcName: string; var lTargHdr: TNIFTIHdr; var lDestHdr: TMRIcroHdr; lTrilinearInterpolation: boolean; lVolume: integer): string;
@@ -325,6 +326,25 @@ begin
     lHdr.NIFTIHdr.datatype := kDT_FLOAT;
     lHdr.DiskDataNativeEndian := true;
 end;//Int32ToFloat
+
+procedure Uint32ToFloat (var lHdr: TMRIcroHdr; var lImgBuffer: byteP);
+var
+  lI,lInVox: integer;
+  l32Buf : SingleP;
+begin
+    if lHdr.NIFTIHdr.datatype <> kDT_UINT32 then
+      exit;
+    lInVox :=  lHdr.NIFTIhdr.dim[1] *  lHdr.NIFTIhdr.dim[2] * lHdr.NIFTIhdr.dim[3];
+    l32Buf := SingleP(lImgBuffer );
+    if not lHdr.DiskDataNativeEndian then
+        for lI := 1 to lInVox do
+          l32Buf^[lI] := (Swap4r4u(l32Buf^[lI]))
+    else  //convert integer to float
+       for lI := 1 to lInVox do
+        l32Buf^[lI] := Conv4r4u(l32Buf^[lI]);
+    lHdr.NIFTIHdr.datatype := kDT_FLOAT;
+    lHdr.DiskDataNativeEndian := true;
+end;//Uint32ToFloat
 
 procedure Float32RemoveNAN (var lHdr: TMRIcroHdr; var lImgBuffer: byteP);
 //set "Not-A-Number" values to be zero... SPM uses NaN for voxels it can not compute

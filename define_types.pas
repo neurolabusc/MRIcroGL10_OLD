@@ -118,6 +118,8 @@ function PadStr (lValIn, lPadLenIn: integer): string;
 function ChangeFileExtX( lFilename: string; lExt: string): string;
 function swap4r4i (s:single): longint; //swap and convert: endian-swap and then typecast 32-bit float as 32-bit integer
 function conv4r4i (s:single): longint; //convert: typecast 32-bit float as 32-bit integer
+function swap4r4u (s:single): longword; //swap and convert: endian-swap and then typecast 32-bit float as 32-bit unsigned integer
+function conv4r4u (s:single): longword; //convert: typecast 32-bit float as 32-bit unsigned integer
 function swap8r(s : double):double; //endian-swap 64-bit float
 procedure pswap4i(var s : LongInt); //procedure to endian-swap 32-bit integer
 procedure pswap4r ( var s:single);  //procedure to endian-swap 32-bit integer
@@ -1143,6 +1145,38 @@ begin
   outguy.Word2 := swap(inguy^.Word1);
   swap4r4i:=outguy.long;
 end;//swap4r4i
+
+function conv4r4u (s:single): longword;
+type
+  swaptype = packed record
+    case byte of
+      1:(long:longword);
+  end;
+  swaptypep = ^swaptype;
+var
+  inguy:swaptypep;
+begin
+  inguy := @s; //assign address of s to inguy
+  conv4r4u:=inguy^.long;
+end;
+
+function swap4r4u (s:single): longword;
+type
+  swaptype = packed record
+    case byte of
+      0:(Word1,Word2 : word); //word is 16 bit
+      1:(long:longword);
+  end;
+  swaptypep = ^swaptype;
+var
+  inguy:swaptypep;
+  outguy:swaptype;
+begin
+  inguy := @s; //assign address of s to inguy
+  outguy.Word1 := swap(inguy^.Word2);
+  outguy.Word2 := swap(inguy^.Word1);
+  swap4r4u:=outguy.long;
+end;//swap4r4u
 
 (*function ChangeFileExtX( var lFilename: string; lExt: string): string;
 begin
