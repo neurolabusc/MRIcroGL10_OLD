@@ -1139,9 +1139,9 @@ begin //Proc Load_From_NIfTI
     NIFTIhdr_UnswapImg (lHdr,lImgBuffer); //ensures image data is in native byteorder
     Float32RemoveNAN(lHdr,lImgBuffer);
     NIFTIhdr_MinMaxImg (lHdr,lImgBuffer); //sets global minmax
-    if not (lHdr.NIFTIHdr.datatype in [kDT_UNSIGNED_CHAR, kDT_SIGNED_SHORT, kDT_FLOAT,kDT_RGB]) then begin
+    if (lHdr.NIFTIhdr.datatype <> kDT_UINT32) and not (lHdr.NIFTIHdr.datatype in [kDT_UNSIGNED_CHAR, kDT_SIGNED_SHORT, kDT_FLOAT,kDT_RGB]) then begin
       freemem(lImgBuffer);
-      GLForm1.ShowmessageError('Error: currently only able to read 8 or 16-bit integers, 32-bit floats, or 24-bit RGB data.');
+      GLForm1.ShowmessageError('Error: currently only able to read 8, 16, 32-bit integers, 32-bit floats, or 24-bit RGB data.');
       exit;//abort - unsupported format
     end;
     if lHdr.NIFTIHdr.datatype <> kDT_RGB then
