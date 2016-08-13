@@ -1,5 +1,6 @@
 BEGIN
 	RESETDEFAULTS;
+	return;
 	LOADIMAGE('mni152_2009bet');
 	OVERLAYLOAD('motor');
 	OVERLAYMINMAX(1, 2.6, 5.0);

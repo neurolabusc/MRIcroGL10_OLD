@@ -288,8 +288,7 @@ begin
   fn := '';
   gchanged := False;
   DemoProgram;
-  //FillMRU (gPrefs.PrevScriptName, ScriptDir+pathdelim,kScriptExt,False);
-  FillMRU (gPrefs.PrevScriptName, ScriptDir+pathdelim,kScriptExt,True);
+  //FillMRU (gPrefs.PrevScriptName, ScriptDir+pathdelim,kScriptExt,True);
   UpdateSMRU;
   OpenSMRU(nil);
   OpenDialog1.InitialDir := ScriptDir;

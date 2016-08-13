@@ -1009,7 +1009,6 @@ begin
      glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT );
      glDisable(GL_CULL_FACE); //<-this is important, otherwise nodes and quads not filled
      MosaicGL(gRayCast.MosaicString);
-
   end else {$ENDIF} if gPrefs.SliceView > 0  then begin //draw 2D orthogonal slices
     glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT );
     glDisable(GL_CULL_FACE); //<-this is important, otherwise nodes and quads not filled

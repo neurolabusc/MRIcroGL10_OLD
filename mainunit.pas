@@ -3273,7 +3273,7 @@ ACol := abs(GLForm1.StringGrid1.Selection.Right);
  OverlayIdleTimerReset;
 {$ENDIF}
 
-	if(( GLForm1.StringGrid1.Selection.Top = GLForm1.StringGrid1.Selection.Bottom ) and
+(*	if(( GLForm1.StringGrid1.Selection.Top = GLForm1.StringGrid1.Selection.Bottom ) and
 		( GLForm1.StringGrid1.Selection.Left = GLForm1.StringGrid1.Selection.Right )) then begin
         if gEnterCell then begin
            S := ''
@@ -3289,7 +3289,7 @@ ACol := abs(GLForm1.StringGrid1.Selection.Right);
 		//StringGrid1.Cells[ StringGrid1.Selection.Left, StringGrid1.Selection.Top ] := S ;
    {$IFDEF FPC} GLForm1.StringGrid1.Cells[ GLForm1.StringGrid1.Selection.Left,GLForm1.StringGrid1.Selection.Top ] := S;
     {$ENDIF}
-	end ;
+	end ;    *)
           ReadCell(gPrevCol,gPrevRow, false);
 end;
 

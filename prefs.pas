@@ -397,10 +397,8 @@ begin
          GLForm1.CheckFilename (lFilename,false);
     end;
     if fileexists(lFilename) then begin
-       //GLForm1.OpenDialog1.filename := lFilename;
        lPrefs.PrevFilename[1] := lFilename;
        FillMRU (lPrefs.PrevFilename, ExtractFileDirWithPathDelim(lPrefs.PrevFilename[1]),'.nii.gz',false);
-       //UpdateMRU;
     end;
 
 
