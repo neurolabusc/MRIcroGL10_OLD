@@ -1133,6 +1133,7 @@ begin //Proc Load_From_NIfTI
     end else
         lTexture.LabelRA := nil;
     Int32ToFloat(lHdr,lImgBuffer);
+    Uint32ToFloat(lHdr,lImgBuffer);
     Uint16ToFloat32(lHdr,lImgBuffer);
     Float64ToFloat32(lHdr,lImgBuffer);
     NIFTIhdr_UnswapImg (lHdr,lImgBuffer); //ensures image data is in native byteorder
