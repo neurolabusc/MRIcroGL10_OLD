@@ -23,6 +23,7 @@ type
   function matrix3D(a,b,c,d, e,f,g,h, i,j,k,l: single): TMatrix;
   function multiplymatrices(a, b: TMatrix): TMatrix;
   function sameVec (a,b: TVector): boolean;
+  function isIdentity (m: TMatrix): boolean;
   function transform3D(v: TVector; m: TMatrix): TVector;
   procedure  transposeMatrix(var lMat: TMatrix);
   function vec3D  (x, y, z:  single):  TVector;
@@ -122,6 +123,14 @@ function sameVec (a,b: TVector): boolean;
 begin
    result := ( (a.vector[1]=b.vector[1]) and (a.vector[2]=b.vector[2]) and (a.vector[3]=b.vector[3]));
 end; //sameVec()
+
+function isIdentity (m: TMatrix): boolean;
+begin
+   result := ( (m.matrix[1,1]=1) and (m.matrix[1,2]=0) and (m.matrix[1,3]=0) and (m.matrix[1,4]=0) and
+               (m.matrix[2,1]=0) and (m.matrix[2,2]=1) and (m.matrix[2,3]=0) and (m.matrix[2,4]=0) and
+               (m.matrix[3,1]=0) and (m.matrix[3,2]=0) and (m.matrix[3,3]=1) and (m.matrix[3,4]=0) and
+               (m.matrix[4,1]=0) and (m.matrix[4,2]=0) and (m.matrix[4,3]=0) and (m.matrix[4,4]=1));
+end; //isIdentity()
 
 function transform3D(v: TVector; m: TMatrix): TVector; {$IFDEF FPC} inline; {$ENDIF} 
 //vec4 nifti_vect44mat44_mul(vec4 v, mat44 m ) //multiply vector * 4x4matrix
