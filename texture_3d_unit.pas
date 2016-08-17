@@ -1073,7 +1073,8 @@ begin
   gRayCast.OrthoZ := 0.5;
   if true and  (lTexture3D.FiltDim[1] > 1) or (lTexture3D.FiltDim[2] > 1) or (lTexture3D.FiltDim[3] > 1) then begin
       lInvMat := Hdr2InvMat (lTexture3D.NIftiHdr,lOK);
-      if not lOK then exit;
+      if not lOK or isIdentity(lInvMat) then exit;
+
       lXmm := 0;
       lYmm := 0;
       lZmm := 0;
