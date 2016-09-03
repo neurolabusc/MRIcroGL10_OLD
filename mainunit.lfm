@@ -352,6 +352,8 @@ object GLForm1: TGLForm1
           ''
           ''
           ''
+          ''
+          ''
         )
         TabOrder = 4
       end
@@ -628,6 +630,8 @@ object GLForm1: TGLForm1
         Align = alBottom
         Lines.Strings = (
           'Memo1'
+          ''
+          ''
           ''
           ''
           ''

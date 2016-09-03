@@ -2688,14 +2688,69 @@ begin
     //Cursor := crDefault;
 end;
 
+procedure PrefMenuClick;
+var
+  PrefForm: TForm;
+  bmpEdit: TEdit;
+  OkBtn, AdvancedBtn: TButton;
+  bmpLabel: TLabel;
+  isAdvancedPrefs: boolean;
+begin
+  PrefForm:=TForm.Create(nil);
+  PrefForm.SetBounds(100, 100, 520, 100);
+  PrefForm.Caption:='Preferences';
+  PrefForm.Position := poScreenCenter;
+  PrefForm.BorderStyle := bsDialog;
+  //Bitmap Scale
+  bmpLabel:=TLabel.create(PrefForm);
+  bmpLabel.Left := 8;
+  bmpLabel.Top := 18;
+  bmpLabel.Width := PrefForm.Width - 86;
+  bmpLabel.Caption := 'Bitmap zoom (large values create huge images)';
+  bmpLabel.Parent:=PrefForm;
+  //bmp edit
+  bmpEdit := TEdit.Create(PrefForm);
+  bmpEdit.Left := PrefForm.Width - 76;
+  bmpEdit.Top := 18;
+  bmpEdit.Width := 60;
+  bmpEdit.Text := inttostr(gPrefs.BitmapZoom);
+  bmpEdit.Parent:=PrefForm;
+  //OK button
+  OkBtn:=TButton.create(PrefForm);
+  OkBtn.Caption:='OK';
+  OkBtn.Left := PrefForm.Width - 128;
+  OkBtn.Width:= 100;
+  OkBtn.Top := 64;
+  OkBtn.Parent:=PrefForm;
+  OkBtn.ModalResult:= mrOK;
+  //Advanced button
+  AdvancedBtn:=TButton.create(PrefForm);
+  AdvancedBtn.Caption:='Advanced';
+  AdvancedBtn.Left := PrefForm.Width - 256;
+  AdvancedBtn.Width:= 100;
+  AdvancedBtn.Top := 64;
+  AdvancedBtn.Parent:=PrefForm;
+  AdvancedBtn.ModalResult:= mrYesToAll;
+  {$IFDEF Windows} ScaleDPI(PrefForm, 96);  {$ENDIF}
+  PrefForm.ShowModal;
+  if (PrefForm.ModalResult <> mrOK) and (PrefForm.ModalResult <> mrYesToAll) then exit; //if user closes window with out pressing "OK"
+  gPrefs.BitmapZoom:= strtointdef(bmpEdit.Text,1);
+  if gPrefs.BitmapZoom < 1 then gPrefs.BitmapZoom := 1;
+  if gPrefs.BitmapZoom > 10 then gPrefs.BitmapZoom := 10;
+  isAdvancedPrefs := (PrefForm.ModalResult = mrYesToAll);
+  FreeAndNil(PrefForm);
+  if  isAdvancedPrefs then
+     GLForm1.Quit2TextEditor;
+end; // PrefMenuClick()
+
 procedure SetBitmapZoom;
 begin
      gPrefs.BitmapZoom := ReadIntForm.GetInt('Bitmap zoom (large values create huge images)',1,gPrefs.BitmapZoom,10);
-end;
+end; // SetBitmapZoom()
 
 procedure TGLForm1.Preferences1Click(Sender: TObject);
 begin
-     SetBitmapZoom;
+     PrefMenuClick;//SetBitmapZoom;
 end;
 
 procedure TGLForm1.NewWindow1Click(Sender: TObject);
