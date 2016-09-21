@@ -10,7 +10,7 @@ http://www.mccauslandcenter.sc.edu/mricrogl/
 
 ##### Recent Versions
 
-28-June-2016
+21-September-2016
  - Ensure colorbars show active overlay colors. Improvements for OSX 10.11.
 
 6-June-2016

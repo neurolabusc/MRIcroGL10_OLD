@@ -206,6 +206,7 @@ var
    lKey: boolean;
 begin
      result := false;
+     if (paramcount > 0) then exit;
 {$IFDEF GUI}
      //{$IFDEF LINUX}
 
