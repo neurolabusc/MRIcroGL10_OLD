@@ -94,7 +94,7 @@ OutputDir=
 UnitOutputDir=
 PackageDLLOutputDir=
 PackageDCPOutputDir=
-SearchPath=.\delphionly;.\pngimg
+SearchPath=.\delphionly;.\pngimg;C:\pas\pascalscript\Source
 Packages=vcl;rtl;vclx;PNG_D7;PngComponentsD7;dbrtl;RxCtl7;VclSmp
 Conditionals=
 DebugSourceDirs=
@@ -105,6 +105,10 @@ HostApplication=
 Launcher=
 UseLauncher=0
 DebugCWD=
+[Language]
+ActiveLang=
+ProjectLang=
+RootDir=
 [Version Info]
 IncludeVerInfo=0
 AutoIncBuild=0
@@ -130,11 +134,17 @@ OriginalFilename=
 ProductName=
 ProductVersion=1.0.0.0
 Comments=
+[Excluded Packages]
+c:\program files (x86)\borland\delphi7\Projects\Bpl\PNG_D7.bpl=PNG image runtime/designtime
+c:\program files (x86)\borland\delphi7\Projects\Bpl\dclusr70.bpl=Borland User Components
+c:\program files (x86)\borland\delphi7\Projects\Bpl\PngComponentsD7D.bpl=Png components designtime
+c:\program files (x86)\borland\delphi7\Projects\Bpl\dclrx70.bpl=RX Library Controls and Tools
 [HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
 [HistoryLists\hlSearchPath]
-Count=3
-Item0=.\delphionly;.\pngimg
-Item1=$(DELPHI)\Lib\Debug;.\delphionly;.\pngimg
-Item2=.\delphionly
+Count=4
+Item0=.\delphionly;.\pngimg;C:\pas\pascalscript\Source
+Item1=.\delphionly;.\pngimg
+Item2=$(DELPHI)\Lib\Debug;.\delphionly;.\pngimg
+Item3=.\delphionly

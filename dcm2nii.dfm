@@ -1,8 +1,8 @@
 object dcm2niiForm: Tdcm2niiForm
   Left = 435
-  Top = 172
-  Width = 780
-  Height = 480
+  Top = 173
+  Width = 790
+  Height = 479
   Caption = 'dcm2nii'
   Color = clBtnFace
   Constraints.MinHeight = 120
@@ -23,23 +23,23 @@ object dcm2niiForm: Tdcm2niiForm
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 772
+    Width = 774
     Height = 32
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 0
     DesignSize = (
-      772
+      774
       32)
     object outnameLabel: TLabel
-      Left = 160
+      Left = 200
       Top = 8
       Width = 63
       Height = 13
       Caption = 'Output Name'
     end
     object Label2: TLabel
-      Left = 6
+      Left = 4
       Top = 8
       Width = 46
       Height = 13
@@ -53,14 +53,24 @@ object dcm2niiForm: Tdcm2niiForm
       Caption = 'Output Folder'
     end
     object VerboseLabel: TLabel
-      Left = 88
+      Left = 74
       Top = 8
       Width = 39
       Height = 13
       Caption = 'Verbose'
     end
+    object VerboseLabel1: TLabel
+      Left = 142
+      Top = 8
+      Width = 25
+      Height = 13
+      Hint = 'Create Brain Imaging Data Structure file'
+      Caption = 'BIDS'
+      ParentShowHint = False
+      ShowHint = True
+    end
     object compressCheck: TCheckBox
-      Left = 60
+      Left = 54
       Top = 6
       Width = 19
       Height = 17
@@ -68,9 +78,9 @@ object dcm2niiForm: Tdcm2niiForm
       OnClick = compressCheckClick
     end
     object outnameEdit: TEdit
-      Left = 232
+      Left = 264
       Top = 4
-      Width = 193
+      Width = 161
       Height = 21
       Hint = 
         'Name for NIfTI images. Special characers are %f (Folder name) %i' +
@@ -83,7 +93,7 @@ object dcm2niiForm: Tdcm2niiForm
     object outputFolderName: TButton
       Left = 502
       Top = 2
-      Width = 268
+      Width = 278
       Height = 25
       Anchors = [akLeft, akTop, akRight]
       Caption = 'input folder'
@@ -91,19 +101,27 @@ object dcm2niiForm: Tdcm2niiForm
       OnClick = outputFolderNameClick
     end
     object VerboseCheck: TCheckBox
-      Left = 132
+      Left = 120
       Top = 6
       Width = 19
       Height = 17
       TabOrder = 3
       OnClick = compressCheckClick
     end
+    object bidsCheck: TCheckBox
+      Left = 172
+      Top = 6
+      Width = 19
+      Height = 17
+      TabOrder = 4
+      OnClick = compressCheckClick
+    end
   end
   object Memo1: TMemo
     Left = 0
     Top = 32
-    Width = 772
-    Height = 402
+    Width = 774
+    Height = 388
     Align = alClient
     TabOrder = 1
   end

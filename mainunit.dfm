@@ -1,8 +1,8 @@
 object GLForm1: TGLForm1
-  Left = 936
-  Top = 58
+  Left = 311
+  Top = 100
   Width = 675
-  Height = 740
+  Height = 736
   Caption = 'MRIcroGL'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -26,7 +26,7 @@ object GLForm1: TGLForm1
     Left = 0
     Top = 0
     Width = 264
-    Height = 681
+    Height = 677
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 0
@@ -145,7 +145,7 @@ object GLForm1: TGLForm1
       Left = 0
       Top = 601
       Width = 264
-      Height = 80
+      Height = 76
       Align = alClient
       Caption = 'Shader'
       TabOrder = 1
@@ -218,7 +218,7 @@ object GLForm1: TGLForm1
       end
       object Memo1: TMemo
         Left = 2
-        Top = 51
+        Top = 47
         Width = 260
         Height = 27
         Align = alBottom
@@ -529,7 +529,7 @@ object GLForm1: TGLForm1
     Left = 264
     Top = 0
     Width = 4
-    Height = 681
+    Height = 677
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 1
@@ -947,6 +947,51 @@ object GLForm1: TGLForm1
         GroupIndex = 212
         ShortCut = 16473
         OnClick = YokeMenuClick
+      end
+      object ViewSepMenu: TMenuItem
+        Caption = '-'
+        GroupIndex = 212
+      end
+      object LeftMenu: TMenuItem
+        Caption = 'Left'
+        GroupIndex = 212
+        ShortCut = 76
+        OnClick = OrientMenuClick
+      end
+      object RightMenu: TMenuItem
+        Tag = 1
+        Caption = 'Right'
+        GroupIndex = 212
+        ShortCut = 82
+        OnClick = OrientMenuClick
+      end
+      object PosteriorMenu: TMenuItem
+        Tag = 2
+        Caption = 'Posterior'
+        GroupIndex = 212
+        ShortCut = 80
+        OnClick = OrientMenuClick
+      end
+      object AnteriorMenu: TMenuItem
+        Tag = 3
+        Caption = 'Anterior'
+        GroupIndex = 212
+        ShortCut = 65
+        OnClick = OrientMenuClick
+      end
+      object InferiorMenu: TMenuItem
+        Tag = 4
+        Caption = 'Inferior'
+        GroupIndex = 212
+        ShortCut = 73
+        OnClick = OrientMenuClick
+      end
+      object SuperiorMenu: TMenuItem
+        Tag = 5
+        Caption = 'Superior'
+        GroupIndex = 212
+        ShortCut = 83
+        OnClick = OrientMenuClick
       end
     end
     object View1: TMenuItem

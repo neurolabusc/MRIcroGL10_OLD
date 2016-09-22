@@ -8,15 +8,12 @@ File_5=SourceModule,'C:\pas\MRIcroGL\coordinates.pas',0,1,1,1,3,0,0
 File_6=SourceModule,'C:\pas\pascalscript\Source\uPSUtils.pas',0,1,1,1,1,0,0
 
 [Modules]
-Module0=C:\pas\MRIcroGL\mainunit.pas
-Module1=C:\pas\MRIcroGL\options.inc
-Count=2
+Module0=C:\pas\MRIcroGL\options.inc
+Module1=C:\pas\MRIcroGL\simple.dpr
+Module2=C:\pas\MRIcroGL\mainunit.pas
+Module3=C:\pas\MRIcroGL\dcm2nii.pas
+Count=4
 EditWindowCount=1
-
-[C:\pas\MRIcroGL\mainunit.pas]
-ModuleType=SourceModule
-FormState=1
-FormOnTop=0
 
 [C:\pas\MRIcroGL\options.inc]
 ModuleType=SourceModule
@@ -24,7 +21,18 @@ FormState=0
 FormOnTop=0
 
 [C:\pas\MRIcroGL\simple.dpr]
+ModuleType=SourceModule
 FormState=0
+FormOnTop=0
+
+[C:\pas\MRIcroGL\mainunit.pas]
+ModuleType=SourceModule
+FormState=1
+FormOnTop=0
+
+[C:\pas\MRIcroGL\dcm2nii.pas]
+ModuleType=SourceModule
+FormState=1
 FormOnTop=0
 
 [C:\Program Files (x86)\Borland\Delphi7\Bin\ProjectGroup1.bpg]
@@ -32,43 +40,59 @@ FormState=0
 FormOnTop=0
 
 [EditWindow0]
-ViewCount=2
-CurrentView=1
+ViewCount=4
+CurrentView=0
 View0=0
 View1=1
+View2=2
+View3=3
 CodeExplorer=CodeExplorer@EditWindow0
 MessageView=MessageView@EditWindow0
 Create=1
 Visible=1
 State=0
-Left=224
-Top=242
-Width=1302
-Height=682
+Left=40
+Top=207
+Width=1126
+Height=524
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=1286
-ClientHeight=643
+ClientWidth=1110
+ClientHeight=485
 LeftPanelSize=140
 LeftPanelClients=CodeExplorer@EditWindow0
 LeftPanelData=000004000000000000000000000000000000000000000000000100000000000000000C000000436F64654578706C6F726572FFFFFFFF
 RightPanelSize=0
 BottomPanelSize=0
 BottomPanelClients=MessageView@EditWindow0
-BottomPanelData=00000400010000000B0000004D6573736167655669657700000000000000000000000000000000000100000000000000000B0000004D65737361676556696577FFFFFFFF
+BottomPanelData=00000400010000000B0000004D65737361676556696577560400000000000002550000000000000001000000000000000000000000010000000056040000000000000100000000560400000B0000004D65737361676556696577FFFFFFFF
 
 [View0]
 Module=C:\pas\MRIcroGL\options.inc
-CursorX=38
-CursorY=1
+CursorX=41
+CursorY=10
 TopLine=1
 LeftCol=1
 
 [View1]
+Module=C:\pas\MRIcroGL\dcm2nii.pas
+CursorX=19
+CursorY=37
+TopLine=29
+LeftCol=1
+
+[View2]
 Module=C:\pas\MRIcroGL\mainunit.pas
-CursorX=52
-CursorY=2617
-TopLine=2602
+CursorX=51
+CursorY=1209
+TopLine=3855
+LeftCol=1
+
+[View3]
+Module=C:\pas\MRIcroGL\simple.dpr
+CursorX=30
+CursorY=19
+TopLine=17
 LeftCol=1
 
 [Watches]
@@ -86,11 +110,11 @@ Visible=1
 State=0
 Left=0
 Top=0
-Width=1920
+Width=1280
 Height=123
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=1904
+ClientWidth=1264
 ClientHeight=84
 
 [ProjectManager]
@@ -109,6 +133,23 @@ TBDockHeight=318
 LRDockWidth=446
 Dockable=1
 
+[CPUWindow]
+Create=1
+Visible=0
+State=0
+Left=107
+Top=95
+Width=1066
+Height=530
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=1050
+ClientHeight=491
+DumpPane=79
+DisassemblyPane=187
+RegisterPane=231
+FlagPane=64
+
 [AlignmentPalette]
 Create=1
 Visible=0
@@ -126,20 +167,20 @@ ClientHeight=60
 Create=1
 Visible=1
 State=0
-Left=0
-Top=491
+Left=35
+Top=131
 Width=190
-Height=556
+Height=589
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=174
-ClientHeight=517
+ClientHeight=550
 TBDockHeight=556
 LRDockWidth=190
 Dockable=1
 SplitPos=85
 ArrangeBy=Name
-SelectedItem=OnKeyDown
+SelectedItem=Action
 ExpandedItems=
 HiddenCategories=
 
@@ -166,11 +207,11 @@ State=0
 Left=0
 Top=12
 Width=140
-Height=631
+Height=473
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=140
-ClientHeight=631
+ClientHeight=473
 TBDockHeight=305
 LRDockWidth=140
 Dockable=1
@@ -181,11 +222,11 @@ Visible=0
 State=0
 Left=12
 Top=0
-Width=1274
+Width=1098
 Height=85
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=1274
+ClientWidth=1098
 ClientHeight=85
 TBDockHeight=85
 LRDockWidth=443

@@ -1,6 +1,6 @@
 unit uscaledpi;
  //http://wiki.lazarus.freepascal.org/High_DPI
-{$mode delphi}  {$H+}
+{$IFDEF FPC}{$mode delphi}  {$H+}{$ENDIF}
 
 interface
 

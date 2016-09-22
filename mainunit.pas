@@ -3,7 +3,7 @@ unit mainunit;
 {$D-,O+,Q-,R-,S-}
 {$include options.inc}
 interface
-//{$IFNDEF WIN64}
+//{$IFDEF FPC}
 {$DEFINE COMPILEYOKE}
 //{$ENDIF}
 uses
@@ -16,7 +16,7 @@ yokesharemem, coordinates, nii_mat,
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unita, {$ELSE} texture_3d_unit,extract,{$ENDIF}
   {$IFDEF FPC} FileUtil, GraphType, LCLProc,LCLtype,  LCLIntf,LResources,OpenGLContext,{$ELSE}glpanel, {$ENDIF}
 {$IFDEF UNIX}Process,  {$ELSE}//ShellApi,
-Windows, uscaledpi,{$ENDIF}
+Windows,{$IFDEF FPC}uscaledpi,{$ENDIF}{$ENDIF}
   Graphics, Classes, SysUtils, Forms, Buttons, Spin, Grids, clut, define_types,
   histogram2d, readint, raycastglsl, histogram, nifti_hdr, shaderui,
   prefs, userdir, slices2d, colorbar2d, autoroi, fsl_calls, drawU, dcm2nii, lut,
@@ -28,13 +28,6 @@ Windows, uscaledpi,{$ENDIF}
 type { TGLForm1 }
 TGLForm1 = class(TForm)
     CopyScriptBtn: TButton;
-    LeftMenu: TMenuItem;
-    AnteriorMenu: TMenuItem;
-    InferiorMenu: TMenuItem;
-    SuperiorMenu: TMenuItem;
-    PosteriorMenu: TMenuItem;
-    RightMenu: TMenuItem;
-    ViewSepMenu: TMenuItem;
     RunScriptBtn: TButton;
     NearBtn: TButton;
   ColEdit: TSpinEdit;
@@ -192,6 +185,13 @@ TGLForm1 = class(TForm)
     CollapsedToolPanel: TPanel;
     CollapseToolPanelBtn: TButton;
     Thresholdmenu: TMenuItem;
+    ViewSepMenu: TMenuItem;
+    LeftMenu: TMenuItem;
+    RightMenu: TMenuItem;
+    PosteriorMenu: TMenuItem;
+    AnteriorMenu: TMenuItem;
+    InferiorMenu: TMenuItem;
+    SuperiorMenu: TMenuItem;
     procedure BackgroundMaskMenuClick(Sender: TObject);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
     procedure FormShow(Sender: TObject);
@@ -3299,7 +3299,7 @@ const
   ControlV = #22;  //  Paste
 var
   ACol,ARow: integer;
-  S: string;
+  //S: string;
 begin
 
 ACol := abs(GLForm1.StringGrid1.Selection.Right);
@@ -3444,7 +3444,8 @@ end;
 
 procedure TGLForm1.OrientMenuClick(Sender: TObject);
 var
-  i,elev, azi: integer;
+  //i,
+  elev, azi: integer;
 begin
   case (Sender as TMenuItem).tag  of
        4: elev := -90;

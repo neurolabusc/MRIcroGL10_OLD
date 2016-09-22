@@ -35,9 +35,11 @@ type
     OpenDialog1: TOpenDialog;
     outnameEdit: TEdit;
     VerboseCheck: TCheckBox;
-    bidsCheck: TCheckBox;
+    //bidsCheck: TCheckBox;
     VerboseLabel: TLabel;
     VerboseLabel1: TLabel;
+    bidsCheck: TCheckBox;
+    //VerboseLabel1: TLabel;
     //verboseCheck: TCheckBox;
     //VerboseLabel: TLabel;
     procedure compressCheckClick(Sender: TObject);
