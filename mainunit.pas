@@ -16,7 +16,7 @@ yokesharemem, coordinates, nii_mat,
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unita, {$ELSE} texture_3d_unit,extract,{$ENDIF}
   {$IFDEF FPC} FileUtil, GraphType, LCLProc,LCLtype,  LCLIntf,LResources,OpenGLContext,{$ELSE}glpanel, {$ENDIF}
 {$IFDEF UNIX}Process,  {$ELSE}//ShellApi,
-Windows,{$ENDIF}
+Windows, uscaledpi,{$ENDIF}
   Graphics, Classes, SysUtils, Forms, Buttons, Spin, Grids, clut, define_types,
   histogram2d, readint, raycastglsl, histogram, nifti_hdr, shaderui,
   prefs, userdir, slices2d, colorbar2d, autoroi, fsl_calls, drawU, dcm2nii, lut,
