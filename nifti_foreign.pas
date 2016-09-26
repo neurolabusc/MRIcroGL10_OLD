@@ -17,7 +17,7 @@ uses
 {$ENDIF}
  nifti_types, define_types, sysutils, classes, StrUtils,nifti_dicom;//2015! dialogsx
 
-function readForeignHeader (var lFilename: string; var lHdr: TNIFTIhdr; var gzBytes: int64; var swapEndian: boolean): boolean;
+function readForeignHeader (var lFilename: string; var lHdr: TNIFTIhdr; var gzBytes: int64; var swapEndian, isDimPermute2341: boolean): boolean;
 procedure NII_Clear (var lHdr: TNIFTIHdr);
 procedure NII_SetIdentityMatrix (var lHdr: TNIFTIHdr); //create neutral rotation matrix
 
@@ -1111,7 +1111,7 @@ begin
   result := true;
 end;//MHA
 
-function readNRRDHeader (var fname: string; var nhdr: TNIFTIhdr; var gzBytes: int64; var swapEndian: boolean): boolean;
+function readNRRDHeader (var fname: string; var nhdr: TNIFTIhdr; var gzBytes: int64; var swapEndian, isDimPermute2341: boolean): boolean;
 //http://www.sci.utah.edu/~gk/DTI-data/
 //http://teem.sourceforge.net/nrrd/format.html
 label
@@ -1125,9 +1125,10 @@ var
   mat: mat33;
   isDetachedFile,isFirstLine: boolean;
   offset: array[0..3] of single;
-  vSqr: single;
+  vSqr, flt: single;
   transformMatrix: array [0..11] of single;
 begin
+  isDimPermute2341 := false;
   {$IFDEF FPC}
   DefaultFormatSettings.DecimalSeparator := '.' ;
   //DecimalSeparator := '.';
@@ -1184,9 +1185,17 @@ begin
           nhdr.dim[i+1] := strtoint(mArray.Strings[i]);
     end else if AnsiContainsText(tagName, 'space directions') then begin
       if (nItems > 12) then nItems :=12;
-      matElements :=nItems;
-      for i:=0 to (nItems-1) do
-          transformMatrix[i] :=strtofloat(mArray.Strings[i]);
+      matElements := 0;
+      for i:=0 to (nItems-1) do begin
+          flt := strToFloatDef(mArray.Strings[i], NAN);
+          if not specialsingle(flt) then begin
+             transformMatrix[matElements] :=strtofloat(mArray.Strings[i]);
+             matElements := matElements + 1;
+          end else begin
+              isDimPermute2341 := true;
+              //showmessage('--->'+inttostr(matElements));
+          end;
+      end;
       if (matElements >= 12) then
           LOAD_MAT33(mat, transformMatrix[0],transformMatrix[1],transformMatrix[2],
                      transformMatrix[4],transformMatrix[5],transformMatrix[6],
@@ -1521,11 +1530,12 @@ begin
   end;
 end;
 
-function readForeignHeader (var lFilename: string; var lHdr: TNIFTIhdr; var gzBytes: int64; var swapEndian: boolean): boolean;
+function readForeignHeader (var lFilename: string; var lHdr: TNIFTIhdr; var gzBytes: int64; var swapEndian, isDimPermute2341: boolean): boolean;
 var
   lExt: string;
 begin
   NII_Clear (lHdr);
+  isDimPermute2341 := false;
   //result := false;
   lExt := UpCaseExt(lFilename);
   if (lExt = '.PIC') then
@@ -1537,7 +1547,7 @@ begin
   else if (lExt = '.MHD') or (lExt = '.MHA') then
     result := readMHAHeader(lFilename, lHdr, gzBytes, swapEndian)
   else if (lExt = '.NRRD') or (lExt = '.NHDR') then
-    result := readNRRDHeader(lFilename, lHdr, gzBytes, swapEndian)
+    result := readNRRDHeader(lFilename, lHdr, gzBytes, swapEndian, isDimPermute2341)
   else if (lExt = '.HEAD') then
     result := readAFNIHeader(lFilename, lHdr, gzBytes, swapEndian)
   else

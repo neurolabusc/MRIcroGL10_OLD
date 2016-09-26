@@ -745,9 +745,10 @@ var
   lAHdr: TAnalyzeHdrSection;
   lReportedSz, lSwappedReportedSz,lHdrSz,lFileSz: Longint;
   lExt: string; //1494
-  swapEndian: boolean;
+  swapEndian, isDimPermute2341: boolean;
 begin
   Result := false; //assume error
+  isDimPermute2341 := false;
   NIFTIhdr_ClearHdr(lHdr);
   if lFilename = '' then exit;
   lExt := UpCaseExt(lFilename);
@@ -763,9 +764,9 @@ begin
   if not FileExistsEX(lFilename) then exit;
   lHdr.HdrFileName:= lFilename;
   if (lExt <> '.IMG') and (lExt <> '.NII') and (lExt <> '.VOI') and  (lExt <> '.HDR') and (lExt <> '.NII.GZ') then begin
-     result := readForeignHeader (lFilename, lHdr.NIFTIhdr,  lHdr.gzBytes, swapEndian);
+     result := readForeignHeader (lFilename, lHdr.NIFTIhdr,  lHdr.gzBytes, swapEndian, isDimPermute2341);
     lHdr.ImgFileName := lfilename;
-    lfilename :=  lHdr.HdrFileName; //expert filename is header not image!
+    lfilename :=  lHdr.HdrFileName; //expects filename to be header not image!
     lHdr.DiskDataNativeEndian := not  swapEndian;
     exit;
   end else if (lExt = '.NII.GZ') or (lExt = '.VOI') then
@@ -911,7 +912,6 @@ begin
   end;
     FixCrapMat(lHdr.Mat);
     //lHdr.NIFTIhdr.descrip := cleanstr(lHdr.NIFTIhdr.descrip);
-
 end; //func NIFTIhdr_LoadHdr
 
 procedure NIFTIhdr_SetIdentityMatrix (var lHdr: TMRIcroHdr); //create neutral rotation matrix
