@@ -1,17 +1,17 @@
 object ReadIntForm: TReadIntForm
-  Left = 327
-  Height = 92
-  Top = 111
-  Width = 571
+  Left = 508
+  Height = 116
+  Top = 168
+  Width = 721
   ActiveControl = ReadIntEdit
   Caption = 'Integer required'
-  ClientHeight = 92
-  ClientWidth = 571
+  ClientHeight = 116
+  ClientWidth = 721
   Font.Height = -11
   Font.Name = 'Default'
   OnCreate = FormCreate
   Position = poScreenCenter
-  LCLVersion = '1.6.0.4'
+  LCLVersion = '1.7'
   object ReadIntLabel: TLabel
     Left = 112
     Height = 16
@@ -32,9 +32,9 @@ object ReadIntForm: TReadIntForm
     TabOrder = 1
   end
   object OKBtn: TButton
-    Left = 488
+    Left = 624
     Height = 25
-    Top = 51
+    Top = 72
     Width = 75
     BorderSpacing.InnerBorder = 4
     Caption = 'OK'

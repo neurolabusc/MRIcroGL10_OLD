@@ -31,9 +31,9 @@ type
     MRU6: TMenuItem;
     MRU5: TMenuItem;
     MRU4: TMenuItem;
-    MRU1: TMenuItem;
     MRU3: TMenuItem;
     MRU2: TMenuItem;
+    MRU1: TMenuItem;
     Splitter1: TSplitter;
     Memo1: TMemo;
     Memo2: TMemo;
@@ -275,7 +275,7 @@ begin
       MyWriteln('Succesfully Executed')
     else
       MyWriteln('Error while executing script: '+
-                  PSScript1.ExecErrorToString);
+    PSScript1.ExecErrorToString);
     VideoEnd;
   end;
 end;
@@ -288,6 +288,7 @@ begin
   fn := '';
   gchanged := False;
   DemoProgram;
+  FillMRU (gPrefs.PrevScriptName, ScriptDir+pathdelim,kScriptExt,True);
   //FillMRU (gPrefs.PrevScriptName, ScriptDir+pathdelim,kScriptExt,True);
   UpdateSMRU;
   OpenSMRU(nil);
