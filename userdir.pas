@@ -6,7 +6,12 @@ interface
 function IniName: string;
 function DefaultsDir (lSubFolder: string): string;
 function DesktopFolder: string;
-function AppDir: string; //e.g. c:\folder\ for c:\folder\myapp.exe, but /folder/myapp.app/ for /folder/myapp.app/app
+{$IFDEF OLDOSX}
+function AppDir: string;  //e.g. c:\folder\ for c:\folder\myapp.exe, but /folder/myapp.app/ for /folder/myapp.app/app
+{$ELSE}
+function AppDir: string;  //OSX 10.12 requires pigz/dcm2niix in Resources for code signing. e.g. c:\folder\ for c:\folder\myapp.exe, but /myapp.app/Contents/Resources
+{$ENDIF}
+function AppDir2: string;
  //function ExeDir: string;
 
 implementation
@@ -215,8 +220,8 @@ end;
 
 
 {$IFDEF Darwin}
-
-function AppDir: string; //e.g. c:\folder\ for c:\folder\myapp.exe, but /folder/myapp.app/ for /folder/myapp.app/app
+function AppDirActual: string; //e.g. c:\folder\ for c:\folder\myapp.exe, but /folder/myapp.app/ for /folder/myapp.app/app
+//OSX Sierra: randomlocation on your drive https://9to5mac.com/2016/06/15/macos-sierra-gatekeeper-changes/
 var
    lInName,lPath,lName,lExt: string;
 begin
@@ -231,10 +236,34 @@ begin
  if (upcase(lExt) = '.APP')  then
     result := lPath+lName+lExt+pathdelim;
 end;
+
+{$IFDEF OLDOSX}
+function AppDir: string;  //e.g. c:\folder\ for c:\folder\myapp.exe, but /folder/myapp.app/ for /folder/myapp.app/app
+begin
+     result := AppDirActual;
+end;
+{$ELSE}
+///OSX 10.12 will not codesign files if pigz and dcm2niix are not in the resources folder MRIcroGL.app/Contents/Resources
+function AppDir: string;  //e.g. c:\folder\ for c:\folder\myapp.exe, but /myapp.app/Contents/Resources
+begin
+     result := AppDirActual+'Contents'+pathdelim+'Resources'+pathdelim;
+end;
+{$ENDIF}
+
+function AppDir2: string; //e.g. c:\folder\ for c:\folder\myapp.exe, but /folder/myapp.app/ for /folder/myapp.app/app
+begin
+ result := ExtractFilePath(ExtractFileDir(AppDirActual));
+end;
+
 {$ELSE}
 function AppDir: string; //e.g. c:\folder\ for c:\folder\myapp.exe, but /folder/myapp.app/ for /folder/myapp.app/app
 begin
  result := extractfilepath(paramstr(0));
+end;
+
+function AppDir2: string;
+begin
+   result := AppDir;
 end;
 {$ENDIF}
 
@@ -243,4 +272,4 @@ begin
  result := extractfilepath(paramstr(0));
 end;  *)
 
-end.
+end.

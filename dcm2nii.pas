@@ -10,6 +10,7 @@ uses
   Windows, FileCtrl, shellAPI, Messages,
   {$ENDIF}
   {$IFNDEF UNIX} Registry, {$ENDIF}
+    {$IFDEF Darwin} userdir, {$ENDIF}
   //
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls,
   StdCtrls, Menus;  
@@ -95,6 +96,10 @@ implementation
 {$IFDEF FPC}
 function FindDefaultExecutablePathX(const Executable: string): string;
 begin
+     {$IFDEF Darwin}
+     result := AppDir + kExeName;
+     if fileexists(result) then exit;
+     {$ENDIF}
      result := FindDefaultExecutablePath(kExeName);
      if result = '' then
         result := FindDefaultExecutablePath(ExtractFilePath  (paramstr(0)) +kExeName);

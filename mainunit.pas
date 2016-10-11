@@ -313,7 +313,7 @@ function MouseUpVOI (Shift: TShiftState; X, Y: Integer): boolean;
     procedure ShaderDropChange(Sender: TObject);
     procedure UpdateTimerTimer(Sender: TObject);
     procedure ToggleTransparency1Click(Sender: TObject);
-    procedure CheckFilename (var lFilenameX: string; lBitmap: boolean);
+    function CheckFilename (var lFilenameX: string; lBitmap: boolean): boolean;
     procedure FormClose(Sender: TObject; var TheAction: TCloseAction);
     procedure HideBtnClick(Sender: TObject);
     procedure CutoutNearestSector(Sender: TObject);
@@ -984,12 +984,14 @@ begin
 end;
 {$ENDIF}
 
-procedure TGLForm1.CheckFilename (var lFilenameX: string; lBitmap: boolean);
+function TGLForm1.CheckFilename (var lFilenameX: string; lBitmap: boolean): boolean;
 //find a file even if the file name is missing an extension or does not have a path
 var
   lFilename: string;
 begin
+  result := false;
   if lFilenameX = '' then exit;
+  result := true;
   if fileexists(lFilenameX) then exit;
   lFilename := lFilenameX;
   lFilenameX := GetCurrentDir + pathdelim + lFilename;
@@ -1001,6 +1003,9 @@ begin
     exit;
   {$IFDEF Darwin}
   lFilenameX := ParentOfAppFolder + extractfilename(lFilename);
+  if AddExtSearch(lFilenameX,lBitmap) then
+    exit;
+  lFilenameX := AppDir2 + extractfilename(lFilename);
   if AddExtSearch(lFilenameX,lBitmap) then
     exit;
   {$ENDIF}
@@ -1022,6 +1027,8 @@ begin
     exit;
   //unable to find a match!
   lFilenameX := lFilename;
+  if fileexists(lFilenameX) then exit;
+  result := false;
 end;
 
 procedure TGLForm1.ResetSliders;
@@ -1127,6 +1134,7 @@ function TGLForm1.LoadDatasetNIFTIvol(lFilename: string; lStopScript: boolean; l
 var
   lFilenameX: string;
 begin
+  result := false;
   UpdateTimer.Enabled := false;
   if lStopScript then
     StopScripts;
@@ -1137,7 +1145,7 @@ begin
 	SaveVOI1Click(nil);
   lFilenameX := lFilename;
   if lFilenameX <> '' then
-    CheckFilename (lFilenameX,false);
+    result := CheckFilename (lFilenameX,false);
   //caption := lFilename +' --> '+lFilenameX;
   ResetSliders;
   if lVolume > 0 then
@@ -1149,7 +1157,6 @@ begin
   AreaInitialized := false;
   gRendering := false;
   GLbox.Invalidate;
-  result := true;
   GLForm1.Refresh;
 end; //LoadDatasetNIFTI
 

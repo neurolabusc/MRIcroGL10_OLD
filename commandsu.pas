@@ -296,14 +296,16 @@ end;
 procedure LOADIMAGEVOL(lFilename: string; lVol: integer);
 begin
   FinishRender;
-  GLForm1.LoadDatasetNIFTIVol(lFileName,false,lVol);
+  if not GLForm1.LoadDatasetNIFTIVol(lFileName,false,lVol) then
+     MODELESSMESSAGE('Unable to load '+lFileName);
   FinishRender;
 end;
 
 procedure LOADIMAGE(lFilename: string);
 begin
   FinishRender;
-    GLForm1.LoadDatasetNIFTIvol1(lFileName,false);
+  if not GLForm1.LoadDatasetNIFTIvol1(lFileName,false) then
+     MODELESSMESSAGE('Unable to load '+lFileName);
   FinishRender;
 end;
 
@@ -315,7 +317,7 @@ begin
   FilenameParts (gPrefs.PrevFilename[1]{lFAFilename}, lPath,lName,lExt);
   lV1 := ChangeEnd (lPath+lName,'V1')+lExt;
   if not Fileexists(lV1) then
-    showmessage('Unable to find FSL vector named '+lV1);
+    MODELESSMESSAGE('Unable to find FSL vector named '+lV1);
   GLForm1.Addoverlay(lV1,1);
   GLForm1.Addoverlay(lV1,2);
   GLForm1.Addoverlay(lV1,3);
