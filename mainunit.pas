@@ -28,6 +28,8 @@ Windows,{$IFDEF FPC}uscaledpi,{$ENDIF}{$ENDIF}
 type { TGLForm1 }
 TGLForm1 = class(TForm)
     CopyScriptBtn: TButton;
+    InterpolateDrawMenu: TMenuItem;
+    voiBinarize1: TMenuItem;
     RunScriptBtn: TButton;
     NearBtn: TButton;
   ColEdit: TSpinEdit;
@@ -192,6 +194,8 @@ TGLForm1 = class(TForm)
     AnteriorMenu: TMenuItem;
     InferiorMenu: TMenuItem;
     SuperiorMenu: TMenuItem;
+    procedure InterpolateDrawMenuClick(Sender: TObject);
+    function OpenVOI(lFilename: string): boolean;
     procedure BackgroundMaskMenuClick(Sender: TObject);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
     procedure FormShow(Sender: TObject);
@@ -343,6 +347,7 @@ function MouseUpVOI (Shift: TShiftState; X, Y: Integer): boolean;
     procedure AutoRunTimer1Timer(Sender: TObject);
     procedure UpdateGL;
     procedure GradientsIdleTimerReset;
+    procedure voiBinarize1Click(Sender: TObject);
     procedure YokeMenuClick(Sender: TObject);
     procedure YokeTimerTimer(Sender: TObject);
   private
@@ -912,6 +917,9 @@ begin
   lFilenameX := lFilename+'.nii';
   if fileexists(lFilenameX) then
     exit;
+  lFilenameX := lFilename+'.voi';
+  if fileexists(lFilenameX) then
+    exit;
   lFilenameX := lFilename+'.nii.gz';
   if fileexists(lFilenameX) then
     exit;
@@ -1474,6 +1482,15 @@ begin
         Sagittal1.ShortCut :=  ShortCut(Word('S'), [ssMeta]);
         MPR1.ShortCut :=  ShortCut(Word('M'), [ssMeta]);
         YokeMenu.ShortCut :=  ShortCut(Word('Y'), [ssMeta]);
+        //in Cocoa: non-active menu intercepts keystrokes, so user typing in script form can not type "A" if that is used by main forms Axial menu
+        LeftMenu.ShortCut :=  ShortCut(Word('L'), [ssCtrl]);
+        RightMenu.ShortCut :=  ShortCut(Word('R'), [ssCtrl]);
+        AnteriorMenu.ShortCut :=  ShortCut(Word('A'), [ssCtrl]);
+        PosteriorMenu.ShortCut :=  ShortCut(Word('P'), [ssCtrl]);
+        SuperiorMenu.ShortCut :=  ShortCut(Word('S'), [ssCtrl]);
+        InferiorMenu.ShortCut :=  ShortCut(Word('I'), [ssCtrl]);
+
+
         {$ELSE}
    AppleMenu.visible := false;
  {$ENDIF}
@@ -2141,7 +2158,9 @@ begin
          showmessage('This version can only load 8-bit images for drawing');
          exit;
      end;
+
      voiCreate(gTexture3D.FiltDim[1], gTexture3D.FiltDim[2],gTexture3D.FiltDim[3], ByteP0(@lDestHdr.ImgBuffer^));
+     //voiBinarize;
      freemem(lDestHdr.ImgBuffer);
 end;
 
@@ -2608,6 +2627,13 @@ begin
      M_Refresh := TRUE;
 end;
 
+procedure TGLForm1.voiBinarize1Click(Sender: TObject);
+begin
+ voiBinarize(1);
+ //voiInterpolate;
+ GLForm1.UpdateGL;
+end;
+
 procedure TGLForm1.GradientsIdleTimerTimer(Sender: TObject);
 begin
      GradientsIdleTimer.Enabled := false;
@@ -2663,6 +2689,7 @@ procedure TGLForm1.FormKeyDown(Sender: TObject; var Key: Word;
 var
   X,Y,Z: single;
 begin
+ //if not GLForm1.Focused then exit; //e.g. do not intercept key srokes if use is editing a script!
  //Requires Form.KeyPreview := true;
  if gPrefs.SliceView < 1 then exit;
  X := 0; Y := 0; Z := 0;
@@ -3018,13 +3045,34 @@ begin
   GLbox.Invalidate;
 end;
 
+function TGLForm1.OpenVOI(lFilename: string): boolean;
+var
+   lFilenameX : string;
+begin
+  lFilenameX := lFilename;
+  GLForm1.CheckFilename (lFilenameX,false); //e.g. "nam" -> "c:\nam.voi"
+  result := fileexists(lFilenameX);
+  if not result then
+    exit;
+  GLForm1.OpenDialogVoi.Filename := lFilenameX;
+  GLForm1.M_reload := kOpenExistingVOI_reload;
+  GLbox.Invalidate;
+end;
+
+procedure TGLForm1.InterpolateDrawMenuClick(Sender: TObject);
+begin
+ showmessage('Not yet functional');
+ //voiInterpolate;
+ GLForm1.UpdateGL;
+end;
+
 procedure TGLForm1.OpenVOI1Click(Sender: TObject);
 begin
   OpenDialogVoi.filter := kImgPlusVOIFilter;
   OpenDialogVoi.initialDir := OpenDialog1.InitialDir;
   if not OpenDialogVoi.Execute then exit;
-  M_reload := kOpenExistingVOI_reload;
-  GLbox.Invalidate;
+  if not OpenVOI(OpenDialogVoi.Filename) then
+    Showmessage('Unable to find drawing '+OpenDialogVoi.Filename);
 end;
 
 procedure TGLForm1.DrawTool1Click(Sender: TObject);
@@ -3136,13 +3184,13 @@ begin
  ClipBox.Visible := ShowRenderTools;
  ShaderBox.Visible := ShowRenderTools;
  if ShaderBox.Visible then ShaderBoxResize(nil);
- ViewSepMenu.Visible := ShowRenderTools;
+ (*ViewSepMenu.Visible := ShowRenderTools;
  LeftMenu.Visible := ShowRenderTools;
  RightMenu.Visible := ShowRenderTools;
  AnteriorMenu.Visible := ShowRenderTools;
  PosteriorMenu.Visible := ShowRenderTools;
  InferiorMenu.Visible := ShowRenderTools;
- SuperiorMenu.Visible := ShowRenderTools;
+ SuperiorMenu.Visible := ShowRenderTools; *)
  CutoutBox.visible := ShowRenderTools;
  MosaicBox.Visible := gPrefs.SliceView = 5;
 end;
@@ -3451,9 +3499,29 @@ end;
 
 procedure TGLForm1.OrientMenuClick(Sender: TObject);
 var
-  //i,
   elev, azi: integer;
+  X,Y,Z: single;
 begin
+ //if not GLForm1.Focused then exit; //e.g. do not intercept key srokes if use is editing a script!
+ //Requires Form.KeyPreview := true;
+ if gPrefs.SliceView > 0 then begin
+    X := 0; Y := 0; Z := 0;
+    Case (Sender as TMenuItem).tag of
+         0: X := -1.0; //LEFT
+         1: X := +1.0; //RIGHT
+         2: Y := -1.0; //POSTERIOR
+         3: Y := +1.0; //ANTERIOR
+         4: Z := -1.0; //INFERIOR
+         5: Z := +1.0; //SUPERIOR
+    end; //case Key
+    if (X = 0) and (Y = 0) and (Z = 0) then exit;
+    caption := format('%g %g %g',[X,Y,Z]) ;
+
+    OrthoCoordMidSlice(X,Y,Z);
+    updateGL;
+    exit;
+ end;
+ //if not GLForm1.Focused then exit; //disable when user is typing scripts
   case (Sender as TMenuItem).tag  of
        4: elev := -90;
        5: elev := 90;

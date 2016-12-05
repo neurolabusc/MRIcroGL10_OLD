@@ -1118,10 +1118,12 @@ begin //Proc Load_From_NIfTI
     if not NIFTIhdr_LoadDummyImg (lHdr, lImgBuffer) then
       exit;
     {$ELSE}
-    if not NIFTIhdr_LoadImg (lFilename, lHdr, lImgBuffer,lVol) then
-      exit;
+    if not NIFTIhdr_LoadImg (lFilename, lHdr, lImgBuffer,lVol) then begin
+      //exit;
+      if not NIFTIhdr_LoadDummyImg (lHdr, lImgBuffer) then
+        exit;
+    end;
     {$ENDIF}
-
     lTexture.NIFTIhdr := lHdr.NIFTIhdr;
     lTexture.NIFTIhdrRaw := lHdr.NIFTIhdr;
     //lTexture.isMRA := IsMRA(lHdr.NIFTIHdr);

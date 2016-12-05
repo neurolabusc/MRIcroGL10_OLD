@@ -1,7 +1,7 @@
 object GLForm1: TGLForm1
-  Left = 284
+  Left = 768
   Height = 771
-  Top = 233
+  Top = 23
   Width = 1168
   ActiveControl = ToolPanel
   AllowDropFiles = True
@@ -1231,6 +1231,14 @@ object GLForm1: TGLForm1
         object AutoRoi1: TMenuItem
           Caption = 'Automatic VOI'
           OnClick = AutoRoi1Click
+        end
+        object voiBinarize1: TMenuItem
+          Caption = 'Binarize'
+          OnClick = voiBinarize1Click
+        end
+        object InterpolateDrawMenu: TMenuItem
+          Caption = 'Interpolate between slices'
+          OnClick = InterpolateDrawMenuClick
         end
       end
     end

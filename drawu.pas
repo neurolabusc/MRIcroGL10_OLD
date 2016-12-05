@@ -26,6 +26,7 @@ type
 var gDraw: TDraw;
 procedure voiUndo;
 procedure voiCloseSlice;
+procedure voiInterpolate;
 procedure voiMouseUp(autoClose, overwriteColors: boolean);
 function voiMouseMove (Xfrac, Yfrac, Zfrac:  single): boolean;
 procedure voiMouseDown(Color, Orient: integer; Xfrac, Yfrac, Zfrac:  single);
@@ -34,6 +35,7 @@ procedure voiMorphologyFill(RGBAimg: bytep0; Color: integer; Xmm, Ymm, Zmm, Xfra
 function voiOpenGLDraw: GLuint; //must be called from OpenGL
 procedure voiChangeAlpha (a: byte);
 procedure voiCreate(X,Y,Z: integer; ptr: byteP0);
+procedure voiBinarize(Color: integer);
 procedure voiClose;
 function voiGetVolume: byteP0;
 function voiActiveOrient: integer;
@@ -188,12 +190,18 @@ begin
      freemem(vol);
 end;
 
+const
+  kOrientSag = 3;
+  kOrientCoro = 2;
+  kOrientAx = 1;
+  kOrient3D = 0;
+
 procedure UpdateView3d;
 var
   volOffset, i,j,k, nPix: integer;
 begin
      if (gDraw.undo2d = nil) or (gDraw.view3d = nil) then exit;
-     if (gDraw.dim2d[0] = 0) then begin //3D volume
+     if (gDraw.dim2d[0] = kOrient3D) then begin //3D volume
         nPix := gDraw.dim3d[1]* gDraw.dim3d[2] * gDraw.dim3d[3];
         if nPix < 1 then exit;
         Move(gDraw.view2d^, gDraw.view3d^,nPix);//source/dest
@@ -202,7 +210,7 @@ begin
      nPix := gDraw.dim2d[1] * gDraw.dim2d[2]; //dim[3] = number of pixels
      if (nPix < 1) then exit;
 
-     if (gDraw.dim2d[0] = 3) then begin//Sag
+     if (gDraw.dim2d[0] = kOrientSag) then begin//Sag
         volOffset := gDraw.dim2d[3]; //sag slices are in X direction
         i := 0; //sag is Y*Z
         for j := 0 to (gDraw.dim3d[3]-1) do begin //read each slice (Z)
@@ -212,7 +220,7 @@ begin
             end;
             volOffset := volOffset + (gDraw.dim3d[1]*gDraw.dim3d[2]); //next Z slice
         end;
-     end else if (gDraw.dim2d[0] = 2) then begin//Coro
+     end else if (gDraw.dim2d[0] = kOrientCoro) then begin//Coro
          volOffset := gDraw.dim2d[3]*gDraw.dim3d[1]; //coro slices are in Y direction
          i := 0;  //coro is X*Z
          for j := 0 to (gDraw.dim3d[3]-1) do begin //read each slice (Z)
@@ -256,7 +264,7 @@ begin
      end;
      if (bright = dark) then exit; //no variability
      voiCloseSlice;  //2015
-     gDraw.dim2d[0] := 0; //dim[0] = slice orientation 0 = 3d volume
+     gDraw.dim2d[0] := kOrient3D; //dim[0] = slice orientation 0 = 3d volume
      getmem(gDraw.view2d, nPix);
      getmem(gDraw.undo2d, nPix);
      Move(gDraw.view3d^, gDraw.undo2d^,nPix);//source/dest
@@ -324,10 +332,10 @@ end;
 
 procedure click2pix (var Xpix, Ypix: integer; Xfrac, Yfrac, Zfrac:  single);
 begin
-  if (gDraw.dim2d[0] = 3) then begin //Sag
+  if (gDraw.dim2d[0] = kOrientSag) then begin //Sag
      Xpix := frac2pix(Yfrac, gDraw.dim2d[1]); //Sag is Y*Z
      Ypix := frac2pix(Zfrac, gDraw.dim2d[2]); //Sag is Y*Z
-  end else if (gDraw.dim2d[0] = 2) then begin //Coro
+  end else if (gDraw.dim2d[0] = kOrientCoro) then begin //Coro
      Xpix := frac2pix(Xfrac, gDraw.dim2d[1]); //Coro X*Z
      Ypix := frac2pix(Zfrac, gDraw.dim2d[2]); //Coro is X*Z
   end else begin  //Axial
@@ -348,7 +356,7 @@ end;
 function voiActiveOrient: integer;
 begin
      if (gDraw.view3d <> nil) and  (gDraw.isMouseDown) then
-        result := gDraw.dim2d[0] //return Axial(1), Coronal(2) or Sagittal(3)
+        result := gDraw.dim2d[0] //return 3D(0), Axial(1), Coronal(2) or Sagittal(3)
      else
        result := -1;
 end;
@@ -667,7 +675,7 @@ var
 begin
 
      if (gDraw.view3dId = 0) or ( gDraw.view2d = nil) or ( gDraw.undo2d = nil) then exit;
-     if (gDraw.dim2d[0] = 0) then  //3D volume
+     if (gDraw.dim2d[0] = kOrient3D) then  //3D volume
         nPix := gDraw.dim3d[1]* gDraw.dim3d[2] * gDraw.dim3d[3]
      else
           nPix := gDraw.dim2d[1] * gDraw.dim2d[2]; //dim[3] = number of pixels
@@ -684,25 +692,15 @@ end;
 
 procedure voiPasteSlice(Xfrac, Yfrac, Zfrac:  single);
 begin
-     if (gDraw.view3dId = 0) or ( gDraw.view2d = nil) then exit;
-     //qwerty
-     if (gDraw.dim2d[0] =  3) then begin
-        //gDraw.dim2d[3] := round(Xfrac * gDraw.dim3d[1]) //sag slices select Left-Right slices
+     if (gDraw.view3dId = 0) or ( gDraw.view2d = nil) or (gDraw.dim2d[0] =  kOrient3D) then exit;
+
+     if (gDraw.dim2d[0] =  kOrientSag) then begin
         gDraw.dim2d[3] := frac2pix(Xfrac, gDraw.dim3d[1]); //sag slices select Left-Right slices
-     end else if (gDraw.dim2d[0] =  2) then begin
-        //gDraw.dim2d[3] := round(Yfrac * gDraw.dim3d[2]) //coro slices select Anterio-Posterior slices
+     end else if (gDraw.dim2d[0] =  kOrientCoro) then begin
         gDraw.dim2d[3] := frac2pix(Yfrac, gDraw.dim3d[2]); //coro slices select Anterio-Posterior slices
      end else begin  //Axial
-         //gDraw.dim2d[3] := round(Zfrac * gDraw.dim3d[3]); //axial influences head-foot
          gDraw.dim2d[3] := frac2pix(Zfrac, gDraw.dim3d[3]); //axial influences head-foot
      end;
-     (*if (gDraw.dim2d[0] = 3) then begin
-        gDraw.dim2d[3] := round(Xfrac * gDraw.dim3d[1]) //sag slices select Left-Right slices
-     end else if (gDraw.dim2d[0] = 2) then begin
-        gDraw.dim2d[3] := round(Yfrac * gDraw.dim3d[2]) //coro slices select Anterio-Posterior slices
-     end else begin  //Axial
-         gDraw.dim2d[3] := round(Zfrac * gDraw.dim3d[3]); //axial influences head-foot
-     end;*)
      gDraw.doRedraw := true;
      UpdateView3d;
 end;
@@ -711,17 +709,17 @@ procedure Redraw;
 begin
      if (gDraw.view3dId = 0) or ( gDraw.view2d = nil) then exit;
      glBindTexture(GL_TEXTURE_3D, gDraw.view3dId);
-     if (gDraw.dim2d[0] = 0) then begin //insert 3D volume
+     if (gDraw.dim2d[0] = kOrient3D) then begin //insert 3D volume
         glTexSubImage3D(GL_TEXTURE_3D,0,
           0, 0,0,
          gDraw.dim3d[1], gDraw.dim3d[2], gDraw.dim3d[3],
          GL_ALPHA, GL_UNSIGNED_BYTE,@gDraw.view2d[0]);
-     end else if (gDraw.dim2d[0] = 3) then begin//Sag  - insert slice in X dimension
+     end else if (gDraw.dim2d[0] = kOrientSag) then begin//Sag  - insert slice in X dimension
         glTexSubImage3D(GL_TEXTURE_3D,0,
          gDraw.dim2d[3], 0,0,
          1, gDraw.dim2d[1],gDraw.dim2d[2],
          GL_ALPHA, GL_UNSIGNED_BYTE,@gDraw.view2d[0]);
-     end else if (gDraw.dim2d[0] = 2) then begin//Coro  - insert slice in Y dimension
+     end else if (gDraw.dim2d[0] = kOrientCoro) then begin//Coro  - insert slice in Y dimension
         glTexSubImage3D(GL_TEXTURE_3D,0,
          0,gDraw.dim2d[3], 0,
          gDraw.dim2d[1],1, gDraw.dim2d[2],
@@ -807,6 +805,106 @@ begin
   gDraw.glslprogramId := 0;
 end;
 
+procedure voiInterpolate;
+label
+  666;
+var
+  s: string;
+  nPix2D, nPix3D, z,zLo,zHi, xy, zMax, zOffset: integer;
+  isEmpty: array of boolean;
+  sliceLo, sliceHi: array of single;
+begin
+     if (gDraw.view3d = nil)  then exit; //nothing to erase
+     if (gDraw.dim3d[1] < 5) or (gDraw.dim3d[2] < 5) or (gDraw.dim3d[3] < 1) then exit;
+     nPix2D := gDraw.dim3d[1] * gDraw.dim3d[2];
+     nPix3D := nPix2D*gDraw.dim3d[3];
+     UpdateView3d;
+     voiCloseSlice;
+     gDraw.dim2d[0] := kOrient3D; //dim[0] = slice orientation 0 = 3d volume
+     getmem(gDraw.view2d, nPix3D);
+     getmem(gDraw.undo2d, nPix3D);
+     Move(gDraw.view3d^, gDraw.undo2d^,nPix3D);//source/dest
+     Move(gDraw.undo2d^,gDraw.view2d^,nPix3D);//source/dest
+     //determine which slices are empty
+     setlength(isEmpty, gDraw.dim3d[3]);
+     zHi := 0;
+     zLo := gDraw.dim3d[3];
+     for z := 0 to (gDraw.dim3d[3] -1) do begin
+         isEmpty[z] := true;
+         zOffset := z * nPix2D;
+         for xy := 0 to (nPix2D-1) do begin
+             if gDraw.view3d^[xy+zOffset] <> 0 then begin
+                isEmpty[z] := false;
+                if (z < zLo) then zLo := z;
+                zHi := z;
+                break;
+             end; //if slice has ROI in it
+         end; //for xy
+     end; //for each slice
+     GLForm1.Caption := 'xxx';
+     if (zHi < 1) or (zLo >= zHi) then goto 666; //nothing to do: all slices empty or only one slice filled
+     zMax := zHi;
+     //now interpolate
+     s := 'x';
+     setlength(sliceLo, nPix2D);
+     setlength(sliceHi, nPix2D);
+
+     while zLo < zMax do begin //for each slice, -2 since we need a gap
+         if (isEmpty[zLo]) or (not isEmpty[zLo+1]) then begin //don't interpolate if current slice is empty or next slice not empty
+            zLo := zLo + 1;
+            continue;
+         end;
+         zHi := zLo + 1;
+         while (isEmpty[zHi]) and (zHi < zMax) do
+               zHi := zHi + 1;
+         s := s + inttostr(zLo)+'..'+inttostr(zHi);
+         zOffset := zLo * nPix2D;
+         for xy := 0 to (nPix2D-1) do
+             sliceLo[xy] := gDraw.view3d^[xy+zOffset];
+         zOffset := zHi * nPix2D;
+         for xy := 0 to (nPix2D-1) do
+             sliceHi[xy] := gDraw.view3d^[xy+zOffset];
+
+         //look for next gap
+         zLo := zHi;
+
+     end;
+     GLForm1.Caption := s;
+     (*for i := 0 to (nPix-1) do
+            if gDraw.view3d^[i] <> 0 then
+               gDraw.view2d^[i] := 1;  *)
+     //GLForm1.Caption := inttostr(nPix);
+ 666:
+     gDraw.doRedraw := true;
+     UpdateView3d;
+     gDraw.isModified := true;
+end;
+
+
+procedure voiBinarize (Color: integer); //set all non-zero voxels to Color
+var
+  nPix,  i: integer;
+begin
+     if (Color < 0) then exit;
+     if (gDraw.view3d = nil) and (Color = 0)  then exit; //nothing to erase
+     if (gDraw.dim3d[1] < 5) or (gDraw.dim3d[2] < 5) or (gDraw.dim3d[3] < 1) then exit;
+     nPix := gDraw.dim3d[1] * gDraw.dim3d[2]*gDraw.dim3d[3];
+     UpdateView3d;
+     voiCloseSlice;
+     gDraw.dim2d[0] := kOrient3D; //dim[0] = slice orientation 0 = 3d volume
+     getmem(gDraw.view2d, nPix);
+     getmem(gDraw.undo2d, nPix);
+     Move(gDraw.view3d^, gDraw.undo2d^,nPix);//source/dest
+     Move(gDraw.undo2d^,gDraw.view2d^,nPix);//source/dest
+     for i := 0 to (nPix-1) do
+            if gDraw.view3d^[i] <> 0 then
+               gDraw.view2d^[i] := 1;
+     //GLForm1.Caption := inttostr(nPix);
+     gDraw.doRedraw := true;
+     UpdateView3d;
+     gDraw.isModified := true;
+end;
+
 procedure voiCreate(X,Y,Z: integer; Ptr: ByteP0);
 var
   vx: integer;
@@ -818,7 +916,7 @@ begin
   voiCloseSlice;
   if (gDraw.view3d <> nil) then freemem(gDraw.view3d);
   vx :=  gDraw.dim3d[1] * gDraw.dim3d[2] * gDraw.dim3d[3];
-  if (vx <1) or (gDraw.dim3d[1] < 1) or (gDraw.dim3d[2] < 1) or (gDraw.dim3d[3] < 1) then begin
+  if (vx <1) or (gDraw.dim3d[1] < 1) or (gDraw.dim3d[2] < 1) or (gDraw.dim3d[3] < 1) then begin //requires 3D image
      gDraw.view3d := nil;
      exit;
   end;
@@ -1015,7 +1113,7 @@ begin
      if (gDraw.dim3d[1] < 5) or (gDraw.dim3d[2] < 5) or (gDraw.dim3d[3] < 1) then exit;
      nPix := gDraw.dim3d[1] * gDraw.dim3d[2]*gDraw.dim3d[3];
      voiCloseSlice;
-     gDraw.dim2d[0] := 0; //dim[0] = slice orientation 0 = 3d volume
+     gDraw.dim2d[0] := kOrient3D; //dim[0] = slice orientation 0 = 3d volume
      getmem(gDraw.view2d, nPix);
      getmem(gDraw.undo2d, nPix);
      Move(gDraw.view3d^, gDraw.undo2d^,nPix);//source/dest
@@ -1023,7 +1121,7 @@ begin
      //get intensity
      getmem(intenVol, nPix * sizeof(byte));
      x := 0; //array is red/green/blue/aplha 0=R,1=G,2=B,3=A
-     for i := 0 to nPix do begin
+     for i := 0 to (nPix-1) do begin
             intenVol^[i] := (RGBAimg[x]+RGBAimg[x+1]+RGBAimg[x+2]) div 3;//Alpha
             inc(x,4);
      end; //for each vox
@@ -1037,7 +1135,6 @@ begin
      z := frac2pix(Zfrac, gDraw.dim3d[3]);
      //morphFill(volImg, volVoi: bytep0; Color: integer; Xmm,Ymm,Zmm: single; xOri, yOri, zOri, dxOrigin, dxEdge, radiusMM, erodeCycles, growStyle: integer; constrain0: boolean);
      morphFill(intenVol, gDraw.view3d,  Color, Xmm, Ymm, Zmm, x,y,z, dxOrigin,  radiusMM, constrain);
-
      freemem(intenVol);
      gDraw.doRedraw := true;
      UpdateView3d;

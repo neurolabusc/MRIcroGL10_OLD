@@ -1,7 +1,7 @@
 object ReadIntForm: TReadIntForm
-  Left = 508
+  Left = 473
   Height = 116
-  Top = 168
+  Top = 237
   Width = 721
   ActiveControl = ReadIntEdit
   Caption = 'Integer required'

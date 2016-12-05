@@ -42,6 +42,7 @@ procedure MEDIANSMOOTH;//new
 procedure DECIMATE (lPercent: integer);
 procedure ELEVATION (DEG: integer);
 procedure FRAMEVISIBLE (VISIBLE: boolean);
+procedure LOADDRAWING(lFilename: string);
 procedure LOADDTI(lFAFilename: string);
 procedure LOADIMAGE(lFilename: string);
 procedure LOADIMAGEVOL(lFilename: string; lVol: integer);
@@ -106,7 +107,7 @@ const
     (Ptr:@OVERLAYLOADCLUSTER;Decl:'OVERLAYLOADCLUSTER';Vars:'(lFilename: string; lThreshold, lClusterMM3: single; lSaveToDisk: boolean): integer'),
 
      (Ptr:@OVERLAYLOADVOL;Decl:'OVERLAYLOADVOL';Vars:'(lFilename: string; lVol: integer): integer'));
-  knProc = 76;
+  knProc = 77;
   kProcRA : array [1..knProc] of TScriptRec =
     (
       (Ptr:@AZIMUTH;Decl:'AZIMUTH';Vars:'(DEG: integer)'),
@@ -136,6 +137,7 @@ const
       (Ptr:@DECIMATE;Decl:'DECIMATE';Vars:'(lPercent: integer)'),
       (Ptr:@ELEVATION;Decl:'ELEVATION';Vars:'(DEG: integer)'),
       (Ptr:@FRAMEVISIBLE;Decl:'FRAMEVISIBLE';Vars:'(VISIBLE: boolean)'),
+      (Ptr:@LOADDRAWING;Decl:'LOADDRAWING';Vars:'(lFilename: string)'),
       (Ptr:@LOADDTI;Decl:'LOADDTI';Vars:'(lFAFilename: string)'),
       (Ptr:@LOADIMAGE;Decl:'LOADIMAGE';Vars:'(lFilename: string)'),
       (Ptr:@LOADIMAGEVOL;Decl:'LOADIMAGEVOL';Vars:'(lFilename: string; lVol: integer)'),
@@ -307,6 +309,15 @@ begin
   if not GLForm1.LoadDatasetNIFTIvol1(lFileName,false) then
      MODELESSMESSAGE('Unable to load '+lFileName);
   FinishRender;
+end;
+
+procedure LOADDRAWING(lFilename: string);
+begin
+  FinishRender;
+  if not GLForm1.OpenVOI(lFilename) then
+     MODELESSMESSAGE('Unable to load drawing '+lFilename);
+  FinishRender;
+  //GLForm1.InterpolateDrawMenuClick(nil);
 end;
 
 procedure LOADDTI(lFAFilename: string);

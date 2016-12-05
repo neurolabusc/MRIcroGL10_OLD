@@ -19,6 +19,11 @@ http://www.mccauslandcenter.sc.edu/mricrogl/
 9-September-2015
  - Add retina and 64-bit support for OSX. Better compatibility with VirtualBox. New shaders. Retina quality screen captures.
 
+##### Installation and Compiling
+
+The easiest way to install MRIcroGL is to get pre-compiled binaries from [NITRC (macOS, Linux and Windows)](https://www.nitrc.org/projects/mricrogl/). You can also compile a copy yourself. Instructions are available on the [MRIcroGL website](http://www.mccauslandcenter.sc.edu/mricrogl/source). In brief, you need to install FreePascal and Lazarus. You also have to [install](http://wiki.freepascal.org/Install_Packages) the "LazOpenGL" package into Lazarus. Finally you need to compile the application. On most systems this is as simple as running the following from the terminal command line: `lazbuild ./simplelaz.lpr`. This will compile to the default widgetset for your operating system (Windows: WinAPI; macOS: Carbon; Linux: GTK2). You can also compile to other widgetsets (e.g. QT, Cocoa), but that is beyond the scope of these instructions.
+
+
 ##### License
 
 This software includes a [BSD license](https://opensource.org/licenses/BSD-2-Clause)
