@@ -3061,8 +3061,8 @@ end;
 
 procedure TGLForm1.InterpolateDrawMenuClick(Sender: TObject);
 begin
- showmessage('Not yet functional');
- //voiInterpolate;
+ //showmessage('Not yet functional');
+ voiInterpolate;
  GLForm1.UpdateGL;
 end;
 

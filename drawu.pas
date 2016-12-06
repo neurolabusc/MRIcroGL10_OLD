@@ -805,14 +805,46 @@ begin
   gDraw.glslprogramId := 0;
 end;
 
+type TSlice2D = array of single;
+
+procedure SmoothSlice(var slice: TSlice2D; Xdim, Ydim: integer);
+var
+  x,y, pos: integer;
+  sliceTemp : TSlice2D;
+begin
+     if (Xdim < 3) or (Ydim < 3) then exit;
+     setlength(sliceTemp, Xdim * Ydim);
+     //emulate 2D Gaussian blur: since function is separable, compute as two 1D filter
+     //smooth in X dimension
+     pos := 0;
+     sliceTemp := Copy(slice, Low(slice), Length(slice));  //really clean, but unnecessary
+     for x := 0 to (Xdim -1) do begin
+         for y := 0 to (Ydim -1) do begin
+             pos := pos + 1;
+             if (x = 0) or (x = (Xdim-1)) then continue;
+             sliceTemp[pos] := (slice[pos-1] + slice[pos] + slice[pos] + slice[pos+1]) * 0.25;
+         end;
+     end;
+     //smooth in Y dimension
+     pos := 0;
+     for x := 0 to (Xdim -1) do begin
+         for y := 0 to (Ydim -1) do begin
+             pos := pos + 1;
+             if (y = 0) or (y = (Ydim-1)) then continue;
+             slice[pos] := (sliceTemp[pos-Ydim] + sliceTemp[pos] + sliceTemp[pos] + sliceTemp[pos+Ydim]) * 0.25;
+         end;
+     end;
+     sliceTemp := nil; //free
+end;
+
 procedure voiInterpolate;
 label
   666;
 var
-  s: string;
+  fracLo, fracHi: single;
   nPix2D, nPix3D, z,zLo,zHi, xy, zMax, zOffset: integer;
   isEmpty: array of boolean;
-  sliceLo, sliceHi: array of single;
+  sliceLo, sliceHi: TSlice2D;
 begin
      if (gDraw.view3d = nil)  then exit; //nothing to erase
      if (gDraw.dim3d[1] < 5) or (gDraw.dim3d[2] < 5) or (gDraw.dim3d[3] < 1) then exit;
@@ -841,14 +873,11 @@ begin
              end; //if slice has ROI in it
          end; //for xy
      end; //for each slice
-     GLForm1.Caption := 'xxx';
      if (zHi < 1) or (zLo >= zHi) then goto 666; //nothing to do: all slices empty or only one slice filled
      zMax := zHi;
      //now interpolate
-     s := 'x';
      setlength(sliceLo, nPix2D);
      setlength(sliceHi, nPix2D);
-
      while zLo < zMax do begin //for each slice, -2 since we need a gap
          if (isEmpty[zLo]) or (not isEmpty[zLo+1]) then begin //don't interpolate if current slice is empty or next slice not empty
             zLo := zLo + 1;
@@ -858,22 +887,32 @@ begin
          while (isEmpty[zHi]) and (zHi < zMax) do
                zHi := zHi + 1;
          s := s + inttostr(zLo)+'..'+inttostr(zHi);
+         //create smoothed copy of lower slice
          zOffset := zLo * nPix2D;
          for xy := 0 to (nPix2D-1) do
              sliceLo[xy] := gDraw.view3d^[xy+zOffset];
+         SmoothSlice(sliceLo, gDraw.dim3d[1], gDraw.dim3d[2]);
+         //create smoothed copy of upper slice
          zOffset := zHi * nPix2D;
          for xy := 0 to (nPix2D-1) do
              sliceHi[xy] := gDraw.view3d^[xy+zOffset];
+         SmoothSlice(sliceHi, gDraw.dim3d[1], gDraw.dim3d[2]);
+         //estimate intensity at each voxel in between
+         for z := (zLo+1) to (zHi -1) do begin
+             zOffset := z * nPix2D;
+             fracHi := (z-zLo) / (zHi - zLo);//weighting for of lower slice
+             fracLo := 1 - fracHi; //weighting for upper slice
+             for xy := 0 to (nPix2D-1) do begin
+                 if ((sliceLo[xy]*fracLo) + (sliceHi[xy]*fracHi)) >= 0.375 then
+                    gDraw.view2d^[xy+zOffset] := 1;
+                 //if ((sliceLo[xy]*fracLo) + (sliceHi[xy]*fracHi)) >= 0.5 then
+                 //   gDraw.view2d^[xy+zOffset] := 1;
+             end; //each pixel in 2D slice
 
+         end;
          //look for next gap
          zLo := zHi;
-
      end;
-     GLForm1.Caption := s;
-     (*for i := 0 to (nPix-1) do
-            if gDraw.view3d^[i] <> 0 then
-               gDraw.view2d^[i] := 1;  *)
-     //GLForm1.Caption := inttostr(nPix);
  666:
      gDraw.doRedraw := true;
      UpdateView3d;
