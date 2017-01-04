@@ -1,13 +1,13 @@
 object GLForm1: TGLForm1
-  Left = 768
-  Height = 771
-  Top = 23
-  Width = 1168
+  Left = 398
+  Height = 716
+  Top = 134
+  Width = 977
   ActiveControl = ToolPanel
   AllowDropFiles = True
   Caption = 'MRIcroGL'
-  ClientHeight = 771
-  ClientWidth = 1168
+  ClientHeight = 716
+  ClientWidth = 977
   KeyPreview = True
   Menu = MainMenu1
   OnClose = FormClose
@@ -20,27 +20,27 @@ object GLForm1: TGLForm1
   LCLVersion = '1.7'
   object ToolPanel: TPanel
     Left = 0
-    Height = 771
+    Height = 716
     Top = 0
-    Width = 272
+    Width = 204
     Align = alLeft
-    ClientHeight = 771
-    ClientWidth = 272
+    ClientHeight = 716
+    ClientWidth = 204
     TabOrder = 0
     OnClick = ToolPanelClick
     object ClipBox: TGroupBox
       Left = 1
-      Height = 110
-      Top = 146
-      Width = 270
+      Height = 82
+      Top = 110
+      Width = 202
       Align = alTop
       Caption = 'Clipping'
-      ClientHeight = 88
-      ClientWidth = 262
+      ClientHeight = 60
+      ClientWidth = 194
       ParentFont = False
       TabOrder = 0
       object Label4: TLabel
-        Left = 4
+        Left = 3
         Height = 16
         Top = 2
         Width = 38
@@ -49,28 +49,28 @@ object GLForm1: TGLForm1
         OnClick = Label4Click
       end
       object Label5: TLabel
-        Left = 4
+        Left = 3
         Height = 16
-        Top = 32
+        Top = 24
         Width = 53
         Caption = 'Azimuth'
         ParentColor = False
         OnClick = Label5Click
       end
       object Label6: TLabel
-        Left = 4
+        Left = 3
         Height = 16
-        Top = 62
+        Top = 46
         Width = 57
         Caption = 'Elevation'
         ParentColor = False
         OnClick = Label6Click
       end
       object ClipTrack: TTrackBar
-        Left = 70
-        Height = 30
+        Left = 52
+        Height = 22
         Top = 0
-        Width = 190
+        Width = 142
         Max = 1000
         OnChange = ClipTrackChange
         Position = 0
@@ -78,10 +78,10 @@ object GLForm1: TGLForm1
         TabOrder = 0
       end
       object AziTrack1: TTrackBar
-        Left = 70
-        Height = 30
-        Top = 30
-        Width = 190
+        Left = 52
+        Height = 22
+        Top = 22
+        Width = 142
         Max = 360
         OnChange = ClipTrackChange
         Position = 180
@@ -89,10 +89,10 @@ object GLForm1: TGLForm1
         TabOrder = 1
       end
       object ElevTrack1: TTrackBar
-        Left = 70
-        Height = 30
-        Top = 60
-        Width = 190
+        Left = 52
+        Height = 22
+        Top = 45
+        Width = 142
         Max = 180
         Min = -180
         OnChange = ClipTrackChange
@@ -103,18 +103,18 @@ object GLForm1: TGLForm1
     end
     object ShaderBox: TGroupBox
       Left = 1
-      Height = 139
-      Top = 631
-      Width = 270
+      Height = 169
+      Top = 546
+      Width = 202
       Align = alClient
       Caption = 'Shader'
-      ClientHeight = 117
-      ClientWidth = 262
+      ClientHeight = 147
+      ClientWidth = 194
       ParentFont = False
       TabOrder = 1
       OnResize = ShaderBoxResize
       object Label1: TLabel
-        Left = 156
+        Left = 117
         Height = 16
         Hint = 'Lower quality renders faster, higher quality looks better'
         Top = 2
@@ -125,10 +125,10 @@ object GLForm1: TGLForm1
         ShowHint = True
       end
       object Label2: TLabel
-        Left = 4
+        Left = 3
         Height = 16
         Hint = 'Set the elevation and azimuth of the illumination'
-        Top = 36
+        Top = 27
         Width = 32
         Caption = 'Light'
         ParentColor = False
@@ -139,7 +139,7 @@ object GLForm1: TGLForm1
         Left = 2
         Height = 20
         Top = 0
-        Width = 146
+        Width = 110
         DropDownCount = 24
         ItemHeight = 0
         OnChange = ShaderDropChange
@@ -147,10 +147,10 @@ object GLForm1: TGLForm1
         TabOrder = 0
       end
       object QualityTrack: TTrackBar
-        Left = 170
-        Height = 30
+        Left = 128
+        Height = 22
         Top = 0
-        Width = 92
+        Width = 69
         Min = 1
         OnChange = QualityTrackChange
         Position = 3
@@ -158,10 +158,10 @@ object GLForm1: TGLForm1
         TabOrder = 1
       end
       object ElevTrack: TTrackBar
-        Left = 52
-        Height = 30
-        Top = 34
-        Width = 92
+        Left = 39
+        Height = 22
+        Top = 26
+        Width = 69
         Max = 90
         Min = -90
         OnChange = AziElevChange
@@ -170,10 +170,10 @@ object GLForm1: TGLForm1
         TabOrder = 2
       end
       object AziTrack: TTrackBar
-        Left = 170
-        Height = 30
-        Top = 32
-        Width = 92
+        Left = 128
+        Height = 22
+        Top = 24
+        Width = 69
         Max = 180
         Min = -180
         OnChange = AziElevChange
@@ -183,9 +183,9 @@ object GLForm1: TGLForm1
       end
       object Memo1: TMemo
         Left = 0
-        Height = 74
-        Top = 43
-        Width = 262
+        Height = 56
+        Top = 91
+        Width = 194
         Align = alBottom
         Lines.Strings = (
           'Memo1'
@@ -370,30 +370,30 @@ object GLForm1: TGLForm1
     object IntensityBox: TGroupBox
       Tag = 270
       Left = 1
-      Height = 56
+      Height = 42
       Top = 1
-      Width = 270
+      Width = 202
       Align = alTop
       Caption = 'Intensity Minimum..Maximum'
-      ClientHeight = 34
-      ClientWidth = 262
+      ClientHeight = 20
+      ClientWidth = 194
       ParentFont = False
       TabOrder = 2
       object MinEdit: TEdit
-        Left = 4
+        Left = 3
         Height = 22
         Top = 2
-        Width = 120
+        Width = 90
         OnKeyPress = MinMaxEditKeyPress
         OnKeyUp = MinMaxEditKeyUp
         TabOrder = 0
         Text = 'MinEdit'
       end
       object MaxEdit: TEdit
-        Left = 138
+        Left = 104
         Height = 22
         Top = 2
-        Width = 120
+        Width = 90
         OnExit = MinMaxEditExit
         OnKeyPress = MinMaxEditKeyPress
         OnKeyUp = MinMaxEditKeyUp
@@ -403,17 +403,17 @@ object GLForm1: TGLForm1
     end
     object CutoutBox: TGroupBox
       Left = 1
-      Height = 110
-      Top = 521
-      Width = 270
+      Height = 82
+      Top = 391
+      Width = 202
       Align = alTop
       Caption = 'Cutout'
-      ClientHeight = 88
-      ClientWidth = 262
+      ClientHeight = 60
+      ClientWidth = 194
       ParentFont = False
       TabOrder = 3
       object Xx: TLabel
-        Left = 4
+        Left = 3
         Height = 16
         Top = 2
         Width = 8
@@ -421,26 +421,26 @@ object GLForm1: TGLForm1
         ParentColor = False
       end
       object Yy: TLabel
-        Left = 4
+        Left = 3
         Height = 16
-        Top = 32
+        Top = 24
         Width = 8
         Caption = 'Y'
         ParentColor = False
       end
       object Zz: TLabel
-        Left = 4
+        Left = 3
         Height = 16
-        Top = 62
+        Top = 46
         Width = 8
         Caption = 'Z'
         ParentColor = False
       end
       object XTrackBar: TTrackBar
-        Left = 18
-        Height = 30
+        Left = 14
+        Height = 22
         Top = 0
-        Width = 92
+        Width = 69
         Max = 1000
         OnChange = CutoutChange
         Position = 1000
@@ -448,10 +448,10 @@ object GLForm1: TGLForm1
         TabOrder = 0
       end
       object X2TrackBar: TTrackBar
-        Left = 116
-        Height = 30
+        Left = 87
+        Height = 22
         Top = 0
-        Width = 92
+        Width = 69
         Max = 1000
         OnChange = CutoutChange
         Position = 1000
@@ -459,10 +459,10 @@ object GLForm1: TGLForm1
         TabOrder = 1
       end
       object YTrackBar: TTrackBar
-        Left = 18
-        Height = 30
-        Top = 30
-        Width = 92
+        Left = 14
+        Height = 22
+        Top = 22
+        Width = 69
         Max = 1000
         OnChange = CutoutChange
         Position = 1000
@@ -470,10 +470,10 @@ object GLForm1: TGLForm1
         TabOrder = 2
       end
       object Y2TrackBar: TTrackBar
-        Left = 116
-        Height = 30
-        Top = 30
-        Width = 92
+        Left = 87
+        Height = 22
+        Top = 22
+        Width = 69
         Max = 1000
         OnChange = CutoutChange
         Position = 1000
@@ -481,10 +481,10 @@ object GLForm1: TGLForm1
         TabOrder = 3
       end
       object ZTrackBar: TTrackBar
-        Left = 18
-        Height = 30
-        Top = 60
-        Width = 92
+        Left = 14
+        Height = 22
+        Top = 45
+        Width = 69
         Max = 1000
         OnChange = CutoutChange
         Position = 1000
@@ -492,10 +492,10 @@ object GLForm1: TGLForm1
         TabOrder = 4
       end
       object Z2TrackBar: TTrackBar
-        Left = 116
-        Height = 30
-        Top = 60
-        Width = 92
+        Left = 87
+        Height = 22
+        Top = 45
+        Width = 69
         Max = 1000
         OnChange = CutoutChange
         Position = 1000
@@ -503,30 +503,30 @@ object GLForm1: TGLForm1
         TabOrder = 5
       end
       object NearBtn: TButton
-        Left = 210
-        Height = 25
-        Top = 12
-        Width = 48
+        Left = 158
+        Height = 19
+        Top = 9
+        Width = 36
         Caption = 'Near'
         OnClick = CutoutNearestSector
         TabOrder = 6
       end
       object NoneBtn: TButton
-        Left = 210
-        Height = 25
-        Top = 48
-        Width = 48
+        Left = 158
+        Height = 19
+        Top = 36
+        Width = 36
         Caption = 'None'
         OnClick = HideBtnClick
         TabOrder = 7
       end
     end
     object CollapseToolPanelBtn: TButton
-      Left = 252
-      Height = 16
+      Left = 189
+      Height = 12
       Hint = 'Click here to hide the tool panel'
       Top = 1
-      Width = 16
+      Width = 12
       OnClick = CollapsedToolPanelClick
       ParentShowHint = False
       ShowHint = True
@@ -534,20 +534,20 @@ object GLForm1: TGLForm1
     end
     object MosaicBox: TGroupBox
       Left = 1
-      Height = 265
-      Top = 256
-      Width = 270
+      Height = 199
+      Top = 192
+      Width = 202
       Align = alTop
       Caption = 'Mosaic'
-      ClientHeight = 243
-      ClientWidth = 262
+      ClientHeight = 177
+      ClientWidth = 194
       TabOrder = 5
       Visible = False
       object ColEdit: TSpinEdit
-        Left = 65
+        Left = 49
         Height = 16
         Top = 2
-        Width = 72
+        Width = 54
         MaxValue = 20
         MinValue = 1
         OnChange = UpdateMosaic
@@ -555,10 +555,10 @@ object GLForm1: TGLForm1
         Value = 3
       end
       object RowEdit: TSpinEdit
-        Left = 65
+        Left = 49
         Height = 16
-        Top = 32
-        Width = 72
+        Top = 24
+        Width = 54
         MaxValue = 20
         MinValue = 1
         OnChange = UpdateMosaic
@@ -566,15 +566,15 @@ object GLForm1: TGLForm1
         Value = 2
       end
       object Label3: TLabel
-        Left = 4
+        Left = 3
         Height = 16
-        Top = 32
+        Top = 24
         Width = 33
         Caption = 'Rows'
         ParentColor = False
       end
       object Label7: TLabel
-        Left = 4
+        Left = 3
         Height = 16
         Top = 2
         Width = 56
@@ -582,10 +582,10 @@ object GLForm1: TGLForm1
         ParentColor = False
       end
       object ColOverlap: TTrackBar
-        Left = 144
-        Height = 30
+        Left = 108
+        Height = 22
         Top = 0
-        Width = 118
+        Width = 88
         Max = 9
         Min = -9
         OnChange = UpdateMosaic
@@ -594,10 +594,10 @@ object GLForm1: TGLForm1
         TabOrder = 2
       end
       object RowOverlap: TTrackBar
-        Left = 144
-        Height = 30
-        Top = 30
-        Width = 118
+        Left = 108
+        Height = 22
+        Top = 22
+        Width = 88
         Max = 9
         Min = -9
         OnChange = UpdateMosaic
@@ -606,18 +606,18 @@ object GLForm1: TGLForm1
         TabOrder = 3
       end
       object Label8: TLabel
-        Left = 4
+        Left = 3
         Height = 16
-        Top = 62
+        Top = 46
         Width = 71
         Caption = 'Orientation'
         ParentColor = False
       end
       object OrientDrop: TComboBox
-        Left = 84
+        Left = 63
         Height = 20
-        Top = 60
-        Width = 100
+        Top = 45
+        Width = 75
         ItemHeight = 0
         ItemIndex = 0
         Items.Strings = (
@@ -633,9 +633,9 @@ object GLForm1: TGLForm1
       end
       object MosaicText: TMemo
         Left = 0
-        Height = 103
-        Top = 140
-        Width = 262
+        Height = 77
+        Top = 100
+        Width = 194
         Align = alBottom
         Lines.Strings = (
           'Memo1'
@@ -760,37 +760,37 @@ object GLForm1: TGLForm1
         TabOrder = 5
       end
       object CrossCheck: TCheckBox
-        Left = 4
+        Left = 3
         Height = 18
-        Top = 86
+        Top = 64
         Width = 87
         Caption = 'Cross slice'
         OnChange = UpdateMosaic
         TabOrder = 6
       end
       object LabelCheck: TCheckBox
-        Left = 120
+        Left = 90
         Height = 18
-        Top = 86
+        Top = 64
         Width = 91
         Caption = 'Label slices'
         OnChange = UpdateMosaic
         TabOrder = 7
       end
       object CopyScriptBtn: TButton
-        Left = 8
-        Height = 25
-        Top = 109
-        Width = 103
+        Left = 6
+        Height = 19
+        Top = 82
+        Width = 77
         Caption = 'Copy Script'
         OnClick = CopyScriptClick
         TabOrder = 8
       end
       object RunScriptBtn: TButton
-        Left = 152
-        Height = 25
-        Top = 109
-        Width = 103
+        Left = 114
+        Height = 19
+        Top = 82
+        Width = 77
         Caption = 'Run Script'
         OnClick = RunScriptClick
         TabOrder = 9
@@ -798,26 +798,26 @@ object GLForm1: TGLForm1
     end
     object OverlayBox: TGroupBox
       Left = 1
-      Height = 89
-      Top = 57
-      Width = 270
+      Height = 67
+      Top = 43
+      Width = 202
       Align = alTop
       Caption = 'Overlays'
-      ClientHeight = 67
-      ClientWidth = 262
+      ClientHeight = 45
+      ClientWidth = 194
       TabOrder = 6
       Visible = False
       object StringGrid1: TStringGrid
         Left = 0
-        Height = 67
+        Height = 45
         Top = 0
-        Width = 262
+        Width = 194
         Align = alClient
         AutoEdit = False
         BorderStyle = bsNone
         ColCount = 4
-        DefaultColWidth = 66
-        DefaultRowHeight = 23
+        DefaultColWidth = 50
+        DefaultRowHeight = 17
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goDrawFocusSelected, goEditing, goTabs, goAlwaysShowEditor, goSmoothScroll]
         ParentShowHint = False
         RowCount = 33
@@ -831,10 +831,10 @@ object GLForm1: TGLForm1
         OnSelectCell = StringGrid1SelectCell
       end
       object LUTdrop: TComboBox
-        Left = 88
+        Left = 66
         Height = 20
-        Top = 40
-        Width = 73
+        Top = 30
+        Width = 55
         DropDownCount = 22
         ItemHeight = 0
         Items.Strings = (
@@ -853,22 +853,86 @@ object GLForm1: TGLForm1
       end
     end
     object HideRenderToolsBtn: TButton
-      Left = 232
-      Height = 16
+      Left = 174
+      Height = 12
       Hint = 'Click to hide/show render tools (useful for small screens)'
       Top = 1
-      Width = 16
+      Width = 12
       OnClick = HideRenderToolsBtnClick
       ParentShowHint = False
       ShowHint = True
       TabOrder = 7
     end
+    object Slice2DBox: TGroupBox
+      Left = 1
+      Height = 73
+      Top = 473
+      Width = 202
+      Align = alTop
+      Caption = '2D Slices'
+      ClientHeight = 51
+      ClientWidth = 194
+      TabOrder = 8
+      object LeftBtn: TSpeedButton
+        Left = 4
+        Height = 22
+        Top = 16
+        Width = 23
+        Caption = 'L'
+        OnClick = OrientBtnClick
+      end
+      object AnteriorBtn: TSpeedButton
+        Tag = 3
+        Left = 32
+        Height = 22
+        Top = 0
+        Width = 23
+        Caption = 'A'
+        OnClick = OrientBtnClick
+      end
+      object PosteriorBtn: TSpeedButton
+        Tag = 2
+        Left = 32
+        Height = 22
+        Top = 28
+        Width = 23
+        Caption = 'P'
+        OnClick = OrientBtnClick
+      end
+      object RightBtn: TSpeedButton
+        Tag = 1
+        Left = 60
+        Height = 22
+        Top = 16
+        Width = 23
+        Caption = 'R'
+        OnClick = OrientBtnClick
+      end
+      object SuperiorBtn: TSpeedButton
+        Tag = 5
+        Left = 128
+        Height = 22
+        Top = 0
+        Width = 23
+        Caption = 'S'
+        OnClick = OrientBtnClick
+      end
+      object InferiorBtn: TSpeedButton
+        Tag = 4
+        Left = 128
+        Height = 22
+        Top = 28
+        Width = 23
+        Caption = 'I'
+        OnClick = OrientBtnClick
+      end
+    end
   end
   object CollapsedToolPanel: TPanel
-    Left = 272
-    Height = 771
+    Left = 204
+    Height = 716
     Top = 0
-    Width = 4
+    Width = 3
     Align = alLeft
     TabOrder = 1
     Visible = False
@@ -1218,6 +1282,7 @@ object GLForm1: TGLForm1
         end
         object PasteSlice1: TMenuItem
           Caption = 'Clone slice'
+          ShortCut = 16470
           OnClick = PasteSlice1Click
         end
         object CustomDrawColors1: TMenuItem

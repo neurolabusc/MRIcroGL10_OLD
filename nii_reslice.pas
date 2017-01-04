@@ -11,12 +11,14 @@ procedure NIFTIhdr_UnswapImg (var lHdr: TMRIcroHdr; var lImgBuffer: byteP); //en
 procedure NIFTIhdr_MinMaxImg (var lHdr: TMRIcroHdr; var lImgBuffer: byteP); //ensures image data is in native space
 procedure Int32ToFloat (var lHdr: TMRIcroHdr; var lImgBuffer: byteP);
 procedure Uint32ToFloat (var lHdr: TMRIcroHdr; var lImgBuffer: byteP);
+function ImgToUint8  (var lHdr: TMRIcroHdr; var lImgBuffer: byteP): boolean; //binarizes image <=0 -> 0, else 1
 procedure Float32RemoveNAN (var lHdr: TMRIcroHdr; var lImgBuffer: byteP);
-
 function Reslice2Targ (lSrcName: string; var lTargHdr: TNIFTIHdr; var lDestHdr: TMRIcroHdr; lTrilinearInterpolation: boolean; lVolume: integer): string;
 function Reslice2TargCore (var lSrcHdr: TMRIcroHdr; var lSrcBuffer: bytep;  var lTargHdr: TNIFTIHdr; var lDestHdr: TMRIcroHdr; lTrilinearInterpolation: boolean; lVolume: integer): string;
 
 implementation
+
+uses mainunit;
 
 function Hdr2Mat (lHdr:  TNIFTIhdr): TMatrix;
 begin
@@ -253,60 +255,91 @@ begin
     l64Buf := DoubleP(lImgBuffer );
     GetMem(l32TempBuf ,lInVox*sizeof(single));  *)
 
-
 function RGB24ToByte (var lHdr: TMRIcroHdr; var lImgBuffer: byteP; lVolume: integer): boolean;//RGB
+//planar configuration now handled by texture_3d_unit...
+
+var
+   lXY, lXYZ, lI, lJ: integer;
+   lP: bytep;
+begin
+   result := false;
+   if lHdr.NIFTIHdr.datatype <> kDT_RGB then
+     exit;
+   lXY := lHdr.NIFTIhdr.Dim[1]*lHdr.NIFTIhdr.Dim[2]; //slice size
+   lXYZ := lXY * lHdr.NIFTIhdr.Dim[3];
+   if lXYZ < 1 then exit;
+   getmem( lP, lXYZ * 3);
+   Move(lImgBuffer^,lP^, lXYZ * 3);
+   freemem(lImgBuffer);
+   GetMem(lImgBuffer,lXYZ);
+   lJ := lVolume;
+   if (lJ < 1) or (lJ > 3) then lJ := 1;
+   for lI := 1 to lXYZ do begin
+       lImgBuffer^[lI] := lP^[lJ];
+       lJ := lJ + 3;
+   end;
+   freemem(lP);
+   lHdr.NIFTIhdr.datatype := kDT_UNSIGNED_CHAR;
+   lHdr.RGB := true;
+   lHdr.NIFTIhdr.scl_slope := 1.0;
+   lHdr.NIFTIhdr.scl_inter:= 0.0;
+   lHdr.GlMinUnscaledS := 0;
+   lHdr.GlMaxUnscaledS := 255;
+   result := true;
+end;
+
+(*function RGB24ToByte (var lHdr: TMRIcroHdr; var lImgBuffer: byteP; lVolume: integer): boolean;//RGB
 //red green blue saved as contiguous planes...
 var
-  lInSlice,lOutSlice,lZ,lSliceSz,lSliceVox: integer;
+  lInSlice,lOutSlice,lX,lY,lZ,lI,lJ, lSliceSz,lSliceVox: integer;
   lP: bytep;
 begin
     result := false;
-        if lHdr.NIFTIHdr.datatype <> kDT_RGB then
+    if lHdr.NIFTIHdr.datatype <> kDT_RGB then
       exit;
     lSliceSz := lHdr.NIFTIhdr.Dim[1]*lHdr.NIFTIhdr.Dim[2];
-    lZ := lSliceSz * 3 * lHdr.NIFTIhdr.Dim[3];
+    lZ := lSliceSz * 4 * lHdr.NIFTIhdr.Dim[3];
     if lZ < 1 then exit;
     getmem( lP,lZ);
     Move(lImgBuffer^,lP^,lZ);
     freemem(lImgBuffer);
     lZ := lSliceSz  * lHdr.NIFTIhdr.Dim[3];
     GetMem(lImgBuffer,lZ);
-    if (lVolume mod 3) = 1 then //green
-      lInSlice := lSliceSz
-    else if (lVolume mod 3) = 2 then//blue
-      lInSlice := lSliceSz+lSliceSz
-    else
-      lInSlice := 0;
-    lOutSlice := 0;
-    for lZ := 1 to lHdr.NIFTIhdr.Dim[3] do begin
-      for lSliceVox := 1 to lSliceSz do
-        lImgBuffer^[lSliceVox+lOutSlice] := lP^[lSliceVox+lInSlice];
-      inc(lOutSlice,lSliceSz);
-      inc(lInSlice,lSliceSz+lSliceSz+lSliceSz);
+    if true then begin  //planar
+       Move(lP^[1 + ((lVolume-1)* lZ)],lImgBuffer^,lZ);
+       //Move(lP^,lImgBuffer^,lZ);
+       lJ := lVolume;
+       if (lJ < 1) or (lJ > 3) then lJ := 1;
+       for lI := 1 to lZ do begin
+          lImgBuffer^[lI] := lP^[lJ];
+          lJ := lJ + 3;
+
+       end;
+
+
+
+    end else begin
+      if (lVolume mod 3) = 1 then //green
+        lInSlice := lSliceSz
+      else if (lVolume mod 3) = 2 then//blue
+        lInSlice := lSliceSz+lSliceSz
+      else
+        lInSlice := 0;
+      lOutSlice := 0;
+      for lZ := 1 to lHdr.NIFTIhdr.Dim[3] do begin
+        for lSliceVox := 1 to lSliceSz do
+          lImgBuffer^[lSliceVox+lOutSlice] := lP^[lSliceVox+lInSlice];
+        inc(lOutSlice,lSliceSz);
+        inc(lInSlice,lSliceSz+lSliceSz+lSliceSz);
+      end;
     end;
     freemem(lP);
-    (*for lZ := 0 to 255 do begin
-			lHdr.LUT[lZ].rgbRed := 0;
-			lHdr.LUT[lZ].rgbGreen := 0;
-			lHdr.LUT[lZ].rgbBlue := 0;
-			lHdr.LUT[lZ].rgbReserved := kLUTalpha;
-		end;
-    if (lVolume mod 3) = 1 then begin//green
-      for lZ := 0 to 255 do
-			  lHdr.LUT[lZ].rgbGreen := lZ;
-    end else if (lVolume mod 3) = 2 then begin //blue
-      for lZ := 0 to 255 do
-			  lHdr.LUT[lZ].rgbBlue := lZ;
-    end else begin
-      for lZ := 0 to 255 do
-			  lHdr.LUT[lZ].rgbRed := lZ;
-    end;     *)
     lHdr.NIFTIhdr.datatype := kDT_UNSIGNED_CHAR;
     lHdr.RGB := true;
     lHdr.NIFTIhdr.scl_slope := 1.0;
     lHdr.NIFTIhdr.scl_inter:= 0.0;
     result := true;
-end;
+end; *)
 
 procedure Int32ToFloat (var lHdr: TMRIcroHdr; var lImgBuffer: byteP);
 var
@@ -345,6 +378,58 @@ begin
     lHdr.NIFTIHdr.datatype := kDT_FLOAT;
     lHdr.DiskDataNativeEndian := true;
 end;//Uint32ToFloat
+
+function ImgToUint8  (var lHdr: TMRIcroHdr; var lImgBuffer: byteP): boolean; //binarizes image <=0 -> 0, else 1
+var
+  lI, lInVox, lBPP: integer;
+  l32f : SingleP;
+  l16i : SmallIntP;
+  l8i: bytep;
+begin
+    result := false;
+    if (lHdr.NIFTIHdr.datatype <> kDT_FLOAT) and (lHdr.NIFTIHdr.datatype <> kDT_UNSIGNED_CHAR) and (lHdr.NIFTIHdr.datatype <> kDT_SIGNED_SHORT) then
+      exit; //unsupported datatype
+    if (not lHdr.DiskDataNativeEndian) and (lHdr.NIFTIHdr.datatype <> kDT_UNSIGNED_CHAR) then exit;
+    if (lImgBuffer = nil) then exit; //something is seriously wrong *)
+    result := true;
+    if (lHdr.NIFTIHdr.datatype = kDT_UNSIGNED_CHAR) and (not lHdr.RGB) then exit; //already in the correct format: no need to convert
+    lInVox :=  lHdr.NIFTIhdr.dim[1] *  lHdr.NIFTIhdr.dim[2] * lHdr.NIFTIhdr.dim[3];
+    if (lHdr.RGB) then
+       lBPP := 1
+    else if (lHdr.NIFTIHdr.datatype <> kDT_FLOAT) then
+      lBPP := 2 //uint16
+    else
+      lBPP := 4; //float
+    getmem( l8i,lInVox * lBPP);
+    Move(lImgBuffer^,l8i^,lInVox * lBPP);
+    freemem(lImgBuffer);
+    getmem( lImgBuffer,lInVox);
+    FillChar(lImgBuffer^,lInVox,0); //set all to zero: nothing drawn yet
+    if (lHdr.RGB) then begin
+         for lI := 1 to lInVox do
+             if (l8i^[lI] > 0) then
+                 lImgBuffer^[lI] := 1;
+    end else if (lHdr.NIFTIHdr.datatype <> kDT_FLOAT) then begin
+         l16i := SmallIntP(@l8i^);
+         for lI := 1 to lInVox do
+             if (l16i^[lI] > 0) then
+                 lImgBuffer^[lI] := 1;
+    end else begin
+      l32f := SingleP(@l8i^);
+      for lI := 1 to lInVox do
+          if (l32f^[lI] > 0) then
+              lImgBuffer^[lI] := 1;
+    end;
+    freemem(l8i);
+    lHdr.NIFTIHdr.datatype := kDT_UNSIGNED_CHAR;
+    lHdr.NIFTIHdr.bitpix:= 8;
+    lHdr.GlMinUnscaledS := 0;
+    lHdr.GlMaxUnscaledS := 1;
+    lHdr.NIFTIhdr.scl_slope := 1.0;
+    lHdr.NIFTIhdr.scl_inter:= 0.0;
+    lHdr.RGB := false;
+end;//Uint32ToFloat
+
 
 procedure Float32RemoveNAN (var lHdr: TMRIcroHdr; var lImgBuffer: byteP);
 //set "Not-A-Number" values to be zero... SPM uses NaN for voxels it can not compute

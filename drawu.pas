@@ -886,7 +886,7 @@ begin
          zHi := zLo + 1;
          while (isEmpty[zHi]) and (zHi < zMax) do
                zHi := zHi + 1;
-         s := s + inttostr(zLo)+'..'+inttostr(zHi);
+         //s := s + inttostr(zLo)+'..'+inttostr(zHi);
          //create smoothed copy of lower slice
          zOffset := zLo * nPix2D;
          for xy := 0 to (nPix2D-1) do

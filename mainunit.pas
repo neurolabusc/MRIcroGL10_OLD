@@ -28,7 +28,14 @@ Windows,{$IFDEF FPC}uscaledpi,{$ENDIF}{$ENDIF}
 type { TGLForm1 }
 TGLForm1 = class(TForm)
     CopyScriptBtn: TButton;
+    Slice2DBox: TGroupBox;
     InterpolateDrawMenu: TMenuItem;
+    LeftBtn: TSpeedButton;
+    AnteriorBtn: TSpeedButton;
+    PosteriorBtn: TSpeedButton;
+    RightBtn: TSpeedButton;
+    SuperiorBtn: TSpeedButton;
+    InferiorBtn: TSpeedButton;
     voiBinarize1: TMenuItem;
     RunScriptBtn: TButton;
     NearBtn: TButton;
@@ -201,6 +208,8 @@ TGLForm1 = class(TForm)
     procedure FormShow(Sender: TObject);
     procedure InterpolateMenuClick(Sender: TObject);
     procedure LUTdropChange(Sender: TObject);
+    procedure OrientBtnClick(Sender: TObject);
+    procedure OrientClick(lOrient: integer);
     procedure OrientMenuClick(Sender: TObject);
     procedure SetOverlayAlpha(Sender: TObject);
     procedure StringGridSetCaption(aRow: integer);
@@ -1473,6 +1482,7 @@ begin
         //Copy1.ShortCut := ShortCut(Word('C'), [ssMeta]);
         //SaveVOI1.ShortCut :=  ShortCut(Word('S'), [ssMeta]);
         HideVOI1.ShortCut := ShortCut(Word('H'), [ssMeta]);
+        PasteSlice1.ShortCut :=  ShortCut(Word('V'), [ssMeta]);
         UndoVOI1.ShortCut :=  ShortCut(Word('Z'), [ssMeta]);
         Eraser1.ShortCut :=  ShortCut(Word('E'), [ssMeta]);
         NoDraw1.ShortCut :=  ShortCut(Word('D'), [ssMeta]);
@@ -1964,10 +1974,12 @@ end;
    {$IFDEF Windows}str := str + ' Windows '; {$ENDIF}
    {$IFDEF LINUX}str := str + ' Linux '; {$ENDIF}
    {$IFDEF Darwin}str := str + ' OSX '; {$ENDIF}
+   {$IFDEF LCLQT}str := str + ' (QT) '; {$ENDIF}
+   {$IFDEF LCLGTK2}str := str + ' (GTK2) '; {$ENDIF}
    {$IFDEF LCLCocoa}str := str + ' (Cocoa) '; {$ENDIF}
    {$IFDEF LCLCarbon}str := str + ' (Carbon) '; {$ENDIF}
    {$IFDEF DGL} str := str +' (DGL) '; {$ENDIF}//the DGL library has more dependencies - report this if incompatibilities are found
-  str := 'MRIcroGL '+str+' 30 September 2016'
+  str := 'MRIcroGL '+str+' 25 December 2016'
    +kCR+' www.mricro.com :: BSD 2-Clause License (opensource.org/licenses/BSD-2-Clause)'
    +kCR+' Dimensions '+inttostr(gTexture3D.NIFTIhdr.dim[1])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[2])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[3])
    +kCR+' Bytes per voxel '+inttostr(gTexture3D.NIFTIhdr.bitpix div 8)
@@ -2152,12 +2164,18 @@ begin
   if  (length(OpenDialogVoi.Filename) < 1) or (not fileexists(OpenDialogVoi.Filename)) then begin
      exit;
   end;
-     if Reslice2Targ(OpenDialogVoi.Filename,gTexture3D.NIFTIhdr,lDestHdr,false,1 )='' then exit;
-     if (lDestHdr.ImgBufferBPP <> 1) then begin
-         freemem(lDestHdr.ImgBuffer);
-         showmessage('This version can only load 8-bit images for drawing');
-         exit;
-     end;
+  if Reslice2Targ(OpenDialogVoi.Filename,gTexture3D.NIFTIhdr,lDestHdr,false,1 )='' then begin
+       showmessage('Failed to load drawing '+OpenDialogVoi.Filename);
+       caption := 'Failed to load drawing'+ OpenDialogVoi.Filename;
+       exit;
+
+  end;
+  if not ImgToUint8  (lDestHdr,  lDestHdr.ImgBuffer) then begin//binarizes image <=0 -> 0, else 1
+      freemem(lDestHdr.ImgBuffer);
+      caption := 'datatype '+inttostr(lDestHdr.NIFTIHdr.datatype)+' bpp '+ inttostr(lDestHdr.ImgBufferBPP);
+      showmessage('This version can only load 8-bit images for drawing');
+      exit;
+  end;
 
      voiCreate(gTexture3D.FiltDim[1], gTexture3D.FiltDim[2],gTexture3D.FiltDim[3], ByteP0(@lDestHdr.ImgBuffer^));
      //voiBinarize;
@@ -3192,6 +3210,7 @@ begin
  InferiorMenu.Visible := ShowRenderTools;
  SuperiorMenu.Visible := ShowRenderTools; *)
  CutoutBox.visible := ShowRenderTools;
+ Slice2DBox.Visible := not ShowRenderTools;
  MosaicBox.Visible := gPrefs.SliceView = 5;
 end;
 
@@ -3434,7 +3453,6 @@ var
   lABytes: integer;
 begin
  if lAUnaligned <>  nil then begin
-
     lABytes := lH.ImgBufferItems * lH.ImgBufferBPP;
   GetMem(lH.ImgBufferUnaligned ,lABytes+15);
 
@@ -3497,7 +3515,7 @@ begin
   GLForm1.StringGrid1.Selection:=TGridRect(Rect(-1,-1,-1,-1));
 end;
 
-procedure TGLForm1.OrientMenuClick(Sender: TObject);
+procedure TGLForm1.OrientClick(lOrient: integer);
 var
   elev, azi: integer;
   X,Y,Z: single;
@@ -3506,7 +3524,7 @@ begin
  //Requires Form.KeyPreview := true;
  if gPrefs.SliceView > 0 then begin
     X := 0; Y := 0; Z := 0;
-    Case (Sender as TMenuItem).tag of
+    Case lOrient of
          0: X := -1.0; //LEFT
          1: X := +1.0; //RIGHT
          2: Y := -1.0; //POSTERIOR
@@ -3522,12 +3540,12 @@ begin
     exit;
  end;
  //if not GLForm1.Focused then exit; //disable when user is typing scripts
-  case (Sender as TMenuItem).tag  of
+  case lOrient  of
        4: elev := -90;
        5: elev := 90;
        else elev := 0;
   end;
-  case (Sender as TMenuItem).tag  of
+  case lOrient  of
        0: azi := 90;
        1: azi := 270;
        2,5: azi := 0;
@@ -3536,6 +3554,16 @@ begin
   gRayCast.Elevation := elev;
   gRayCast.Azimuth := azi;
   updateGL;
+end;
+
+procedure TGLForm1.OrientBtnClick(Sender: TObject);
+begin
+OrientClick( (Sender as TSpeedButton).tag);
+end;
+
+procedure TGLForm1.OrientMenuClick(Sender: TObject);
+begin
+ OrientClick( (Sender as TMenuItem).tag);
 end;
 
 procedure TGLForm1.InterpolateMenuClick(Sender: TObject);
@@ -3618,12 +3646,13 @@ begin
   if (gOverlayImg[gOpenOverlays].RGB)  then begin //RGB images
     gOverlayImg[gOpenOverlays].AutoBalMinUnscaled := 0.1;
     gOverlayImg[gOpenOverlays].AutoBalMaxUnscaled := 255;
-    if (lVolume mod 3) = 1 then //green
+    //Dec2016: texture_3d_unit now handles planar/RGB conversion, so following lines change:
+    if (lVolume mod 3) = 1 then //red
+      lL := 1   //TODO : check  with Windows/Linux: LOADIMAGE('avg152T1'); OVERLAYLOAD('visiblehuman');
+    else if (lVolume mod 3) = 2 then  //green
       lL := 2
-    else if (lVolume mod 3) = 2 then  //blue
-      lL := 3
-     else //Red
-      lL := 1;
+     else //blue
+      lL := 3;
     UpdateLUT(gOpenOverlays,lL,true);
   end else //not RGB
     UpdateLUT(gOpenOverlays,gOpenOverlays,true);

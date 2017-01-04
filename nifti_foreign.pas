@@ -499,7 +499,285 @@ begin
   sList.Free;
 end;
 
+function nii_readBVox (var fname: string; var nhdr: TNIFTIhdr; var gzBytes: int64; var swapEndian: boolean): boolean;
+//http://pythology.blogspot.com/2014/08/you-can-do-cool-stuff-with-manual.html
+Type
+  Tbv_header = packed record //Next: PIC Format Header structure
+        nx, ny, nz, nvol : LongInt; //  0,4,8,12
+  end; // Tbv_header;
+var
+   bhdr : Tbv_header;
+   lHdrFile: file;
+   nvox, nvoxswap, FSz : integer;
+begin
+  result := false;
+  {$I-}
+  AssignFile(lHdrFile, fname);
+  FileMode := 0;  //Set file access to read only
+  Reset(lHdrFile, 1);
+  {$I+}
+  if ioresult <> 0 then begin
+        NSLog('Error in reading BVox header.'+inttostr(IOResult));
+        FileMode := 2;
+        exit;
+  end;
+  FSz := Filesize(lHdrFile);
+  BlockRead(lHdrFile, bhdr, sizeof(Tbv_header));
+  CloseFile(lHdrFile);
+  swapEndian := false;
+  nVox := bhdr.nx * bhdr.ny * bhdr.nz * bhdr.nvol * 4; //*4 as 32-bpp
+  if (nVox + sizeof(Tbv_header) ) <> FSz then begin
+    swapEndian := true;
+    pswap4i(bhdr.nx);
+    pswap4i(bhdr.ny);
+    pswap4i(bhdr.nz);
+    pswap4i(bhdr.nvol);
+    nVoxSwap := bhdr.nx * bhdr.ny * bhdr.nz * bhdr.nvol * 4; //*4 as 32-bpp
+    if (nVoxSwap + sizeof(Tbv_header) ) <> FSz then begin
+       NSLog('Not a valid BVox file: expected filesize of '+inttostr(nVoxSwap)+' or '+inttostr(nVox)+' bytes');
+       exit;
+    end;
+
+  end;
+  if (bhdr.nvol > 1) then
+     nhdr.dim[0]:=4//4D
+  else
+      nhdr.dim[0]:=3;//3D
+  nhdr.dim[1]:=bhdr.nx;
+  nhdr.dim[2]:=bhdr.ny;
+  nhdr.dim[3]:=bhdr.nz;
+  nhdr.dim[4]:=bhdr.nvol;
+  nhdr.pixdim[1]:=1.0;
+  nhdr.pixdim[2]:=1.0;
+  nhdr.pixdim[3]:=1.0;
+  nhdr.datatype := kDT_FLOAT32;
+  nhdr.vox_offset := sizeof(Tbv_header);
+  nhdr.sform_code := 1;
+  nhdr.srow_x[0]:=nhdr.pixdim[1];nhdr.srow_x[1]:=0.0;nhdr.srow_x[2]:=0.0;nhdr.srow_x[3]:=0.0;
+  nhdr.srow_y[0]:=0.0;nhdr.srow_y[1]:=nhdr.pixdim[2];nhdr.srow_y[2]:=0.0;nhdr.srow_y[3]:=0.0;
+  nhdr.srow_z[0]:=0.0;nhdr.srow_z[1]:=0.0;nhdr.srow_z[2]:=-nhdr.pixdim[3];nhdr.srow_z[3]:=0.0;
+  convertForeignToNifti(nhdr);
+  //nhdr.scl_inter:= 1;
+  //nhdr.scl_slope := -1;
+  result := true;
+end; //nii_readBVox
+
+function nii_readDeltaVision (var fname: string; var nhdr: TNIFTIhdr; var gzBytes: int64; var swapEndian: boolean): boolean;
+const
+     kDV_HEADER_SIZE = 1024;
+     kSIG_NATIVE = 49312;
+     kSIG_SWAPPED = 41152;
+Type
+  Tdv_header = packed record //Next: PIC Format Header structure
+        nx, ny, nz, datatype : LongInt; //  0,4,8,12
+        pad0: array [1..24] of char; //padding 16..39
+        xDim,yDim,zDim : single; //40,44,48
+        pad1: array [1..40] of char; //padding 52..91
+        ExtendedHeaderSize: LongInt; //92
+        sig: word; //96
+        pad2: array [1..82] of char; //padding 98..179
+        numTimes : int32; //180
+        pad3: array [1..12] of char;//padding 184..195
+        numChannels : word; //196
+        pad4: array [1..10] of char;//padding 198..207
+        xOri, yOri, zOri: single; //208,212,216
+        pad5: array [1..804] of char;//padding 220..1024
+        //padding
+  end; // Tdv_header;
+var
+   bhdr : Tdv_header;
+   lHdrFile: file;
+   sizeZ, sizeT: integer;
+begin
+  result := false;
+  {$I-}
+  AssignFile(lHdrFile, fname);
+  FileMode := 0;  //Set file access to read only
+  Reset(lHdrFile, 1);
+  {$I+}
+  if ioresult <> 0 then begin
+        NSLog('Error in reading DeltaVision header.'+inttostr(IOResult));
+        FileMode := 2;
+        exit;
+  end;
+  BlockRead(lHdrFile, bhdr, sizeof(Tdv_header));
+  CloseFile(lHdrFile);
+  if (bhdr.sig <> kSIG_NATIVE) and (bhdr.sig <> kSIG_SWAPPED) then begin //signature not found!
+    NSLog('Error in reading DeltaVision file (signature not correct).');
+    exit;
+  end;
+  swapEndian := false;
+  if (bhdr.sig = kSIG_SWAPPED) then begin
+    swapEndian := true;
+    pswap4i(bhdr.nx);
+    pswap4i(bhdr.ny);
+    pswap4i(bhdr.nz);
+    pswap4r(bhdr.xDim);
+    pswap4r(bhdr.yDim);
+    pswap4r(bhdr.zDim);
+    pswap4i(bhdr.ExtendedHeaderSize);
+    bhdr.sig := swap(bhdr.sig);
+    pswap4i(bhdr.numTimes);
+    bhdr.numChannels := swap(bhdr.numChannels);
+    pswap4r(bhdr.xOri);
+    pswap4r(bhdr.yOri);
+    pswap4r(bhdr.zOri);
+  end;
+  sizeZ := bhdr.nz;
+  sizeT := 1;
+  if ( bhdr.nz mod (bhdr.numTimes * bhdr.numChannels) = 0 ) then begin
+        sizeZ := bhdr.nz div (bhdr.numTimes * bhdr.numChannels);
+        sizeT := bhdr.nz div sizeZ;
+  end;
+  if (sizeT > 1) then
+     nhdr.dim[0]:=4//4D
+  else
+      nhdr.dim[0]:=3;//3D
+  nhdr.dim[1]:=bhdr.nx;
+  nhdr.dim[2]:=bhdr.ny;
+  nhdr.dim[3]:=sizeZ;
+  nhdr.dim[4]:=sizeT;
+  nhdr.pixdim[1]:=1.0;
+  nhdr.pixdim[2]:=1.0;
+  nhdr.pixdim[3]:=1.0;
+  nhdr.datatype := kDT_UINT16;
+  nhdr.vox_offset := kDV_HEADER_SIZE + bhdr.ExtendedHeaderSize;
+  nhdr.sform_code := 1;
+  nhdr.srow_x[0]:=nhdr.pixdim[1];nhdr.srow_x[1]:=0.0;nhdr.srow_x[2]:=0.0;nhdr.srow_x[3]:=0.0;
+  nhdr.srow_y[0]:=0.0;nhdr.srow_y[1]:=nhdr.pixdim[2];nhdr.srow_y[2]:=0.0;nhdr.srow_y[3]:=0.0;
+  nhdr.srow_z[0]:=0.0;nhdr.srow_z[1]:=0.0;nhdr.srow_z[2]:=-nhdr.pixdim[3];nhdr.srow_z[3]:=0.0;
+  convertForeignToNifti(nhdr);
+  result := true;
+end; //nii_readDeltaVision
+
+procedure pswap4ui(var s : uint32);
+type
+  swaptype = packed record
+    case byte of
+      0:(Word1,Word2 : word); //word is 16 bit
+      1:(Long:uint32);
+  end;
+  swaptypep = ^swaptype;
+var
+  inguy:swaptypep;
+  outguy:swaptype;
+begin
+  inguy := @s; //assign address of s to inguy
+  outguy.Word1 := swap(inguy^.Word2);
+  outguy.Word2 := swap(inguy^.Word1);
+  s:=outguy.Long;
+end; //proc swap4
+
+function nii_readGipl (var fname: string; var nhdr: TNIFTIhdr; var gzBytes: int64; var swapEndian: boolean): boolean;
+const
+     kmagic_number =4026526128;
+Type
+  Tdv_header = packed record
+        dim: array [1..4] of Word;
+        data_type: word;
+        pixdim: array [1..4] of Single;
+        patient: array [1..80] of char;
+        matrix: array [1..20] of Single;
+        orientation, par2: byte;
+        voxmin, voxmax: Double;
+        origin: array [1..4] of Double;
+        pixval_offset, pixval_cal, interslicegap, user_def2 : single;
+        magic_number : uint32;
+  end; // Tdv_header;
+var
+   bhdr : Tdv_header;
+   lHdrFile: file;
+   i, FSz,FSzX: integer;
+begin
+  result := false;
+  {$I-}
+  AssignFile(lHdrFile, fname);
+  FileMode := 0;  //Set file access to read only
+  Reset(lHdrFile, 1);
+  {$I+}
+  if ioresult <> 0 then begin
+        NSLog('Error in reading GIPL header.'+inttostr(IOResult));
+        FileMode := 2;
+        exit;
+  end;
+  FSz := Filesize(lHdrFile);
+  BlockRead(lHdrFile, bhdr, sizeof(Tdv_header));
+  CloseFile(lHdrFile);
+  swapEndian := false;
+  {$IFNDEF ENDIAN_BIG} //GIPL is big endian, so byte swap on little endian
+  swapEndian := true;
+  for i := 1 to 4 do begin
+      bhdr.dim[i] := swap(bhdr.dim[i]);
+      pswap4r(bhdr.pixdim[i]);
+      bhdr.origin[i] := swap64r(bhdr.origin[i]);
+  end;
+  for i := 1 to 20 do
+      pswap4r(bhdr.matrix[i]);
+  bhdr.data_type := swap(bhdr.data_type);
+  bhdr.voxmin := swap64r(bhdr.voxmin);
+  bhdr.voxmax := swap64r(bhdr.voxmax);
+  pswap4r(bhdr.pixval_offset);
+  pswap4r(bhdr.pixval_cal);
+  pswap4r(bhdr.interslicegap);
+  pswap4r(bhdr.user_def2);
+  pswap4ui(bhdr.magic_number);
+  {$ENDIF}
+  //NSLog(format('%g %g %g %g ', [bhdr.matrix[1],bhdr.matrix[2],bhdr.matrix[3],bhdr.matrix[4]] ));
+  if bhdr.magic_number <> kmagic_number then begin
+     NSLog('Error in reading GIPL header signature '+inttostr(bhdr.magic_number)+' != '+inttostr(sizeof(Tdv_header)));
+     exit;
+  end;
+  if (bhdr.data_type = 1) then
+     nhdr.datatype := kDT_BINARY
+  else if (bhdr.data_type = 7) then
+       nhdr.datatype := kDT_INT8
+  else if (bhdr.data_type = 8) then
+       nhdr.datatype := kDT_UNSIGNED_CHAR
+  else if (bhdr.data_type = 15) then
+       nhdr.datatype := kDT_INT16
+  else if (bhdr.data_type = 16) then
+       nhdr.datatype := kDT_UINT16
+  else if (bhdr.data_type = 31) then
+       nhdr.datatype := kDT_UINT32
+  else if (bhdr.data_type = 32) then
+       nhdr.datatype := kDT_INT32
+  else if (bhdr.data_type = 64) then
+       nhdr.datatype := kDT_FLOAT32
+  else if (bhdr.data_type = 64) then
+       nhdr.datatype := kDT_DOUBLE
+  else begin
+    NSLog('Unsupported GIPL data type '+inttostr(nhdr.datatype));
+    exit;
+  end;
+  for i := 1 to 4 do begin
+      if bhdr.dim[i] < 1 then
+         bhdr.dim[i] := 1;
+       nhdr.dim[i]:=bhdr.dim[i];
+       nhdr.pixdim[i]:=bhdr.pixdim[i]
+  end;
+  if (bhdr.dim[4] > 1) then
+     nhdr.dim[0]:=4//4D
+  else
+     nhdr.dim[0]:=3;//3D
+  if bhdr.interslicegap > 0 then
+     nhdr.pixdim[3] := bhdr.pixdim[3] + bhdr.interslicegap;
+  nhdr.vox_offset := sizeof(Tdv_header);
+  nhdr.sform_code := 1;
+  nhdr.srow_x[0]:=nhdr.pixdim[1];nhdr.srow_x[1]:=0.0;nhdr.srow_x[2]:=0.0;nhdr.srow_x[3]:=0.0;
+  nhdr.srow_y[0]:=0.0;nhdr.srow_y[1]:=nhdr.pixdim[2];nhdr.srow_y[2]:=0.0;nhdr.srow_y[3]:=0.0;
+  nhdr.srow_z[0]:=0.0;nhdr.srow_z[1]:=0.0;nhdr.srow_z[2]:=nhdr.pixdim[3];nhdr.srow_z[3]:=0.0;
+  convertForeignToNifti(nhdr);
+  FSzX := sizeof(Tdv_header) + ( bhdr.dim[1]*bhdr.dim[2]*bhdr.dim[3]*bhdr.dim[4]*(nhdr.bitpix div 8));
+  if (nhdr.bitpix <> 1) and (FSz <> FSzX) then begin
+     NSLog('Error unexpected file size '+inttostr(FSz)+' != '+inttostr(FSzX));
+     exit;
+  end;
+  result := true;
+end; //nii_readGipl
+
+
 function nii_readpic (var fname: string; var nhdr: TNIFTIhdr; var gzBytes: int64; var swapEndian: boolean): boolean;
+//https://github.com/jefferis/pic2nifti/blob/master/libpic2nifti.c
 const
      kBIORAD_HEADER_SIZE  = 76;
      kBIORAD_NOTE_HEADER_SIZE = 16;
@@ -557,6 +835,13 @@ begin
     NSLog('Error in reading BioRad PIC header file ID not 12345.');
     exit;
   end;
+  {$IFDEF ENDIAN_BIG}
+  swapEndian := true;
+  bhdr.nx := swap(bhdr.nx);
+  bhdr.ny := swap(bhdr.ny);
+  bhdr.npic := swap(bhdr.npic);
+  bhdr.byte_format := swap(bhdr.byte_format);
+  {$ENDIF}
   nhdr.dim[0]:=3;//3D
   nhdr.dim[1]:=bhdr.nx;
   nhdr.dim[2]:=bhdr.ny;
@@ -576,6 +861,9 @@ begin
      seek(lHdrFile, bytesHdrImg);
      for i := 1 to nNotes do begin
          BlockRead(lHdrFile, nh, sizeof(Tbiorad_note_header));
+         {$IFDEF ENDIAN_BIG}
+         nh.note_type := swap(nh.note_type);
+         {$ENDIF}
          if(nh.note_type=1) then continue; // These are not interesting notes
          if AnsiStartsStr('AXIS_2 ', nh.note) then
              nhdr.pixdim[1]  := parsePicString(nh.note);
@@ -1535,10 +1823,18 @@ var
   lExt: string;
 begin
   NII_Clear (lHdr);
+  swapEndian := false;
+  //gzBytes := false;
   isDimPermute2341 := false;
   //result := false;
   lExt := UpCaseExt(lFilename);
-  if (lExt = '.PIC') then
+  if (lExt = '.DV') then
+     result := nii_readDeltaVision(lFilename, lHdr, gzBytes, swapEndian)
+  else if (lExt = '.BVOX') then
+       result := nii_readBVox(lFilename, lHdr, gzBytes, swapEndian)
+  else if (lExt = '.GIPL') then
+       result := nii_readGipl(lFilename, lHdr, gzBytes, swapEndian)
+  else if (lExt = '.PIC') then
     result := nii_readpic(lFilename, lHdr, gzBytes, swapEndian)
   else if (lExt = '.VTK') then
     result := readVTKHeader(lFilename, lHdr, gzBytes, swapEndian)
