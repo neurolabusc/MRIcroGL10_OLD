@@ -131,15 +131,16 @@ lT := ControlTop(N);
     aTrack.TickStyle := tsNone;
     aTrack.Visible := false;
     {$IFDEF LINUX}
-    aTrack.Top := lT-10;
+    aTrack.Top := lT-12;
+    aTrack.Width := 80;
     {$ELSE}
     aTrack.Top := lT;
+    aTrack.Width := 80;
     {$ENDIF}
     aTrack.Tag := N;
     aTrack.Left := kL2;
     aTrack.Min := 0;
     aTrack.Max := 100;
-    aTrack.Width := 140;
     {$IFDEF FPC}{$IFDEF WINDOWS}
     aTrack.Height := 30;
     {$ENDIF} {$ENDIF}
