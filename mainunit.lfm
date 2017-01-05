@@ -33,7 +33,7 @@ object GLForm1: TGLForm1
     object ClipBox: TGroupBox
       Left = 1
       Height = 88
-      Top = 123
+      Top = 125
       Width = 214
       Align = alTop
       Caption = 'Clipping'
@@ -108,12 +108,12 @@ object GLForm1: TGLForm1
     end
     object ShaderBox: TGroupBox
       Left = 1
-      Height = 142
-      Top = 573
+      Height = 125
+      Top = 590
       Width = 214
       Align = alClient
       Caption = 'Shader'
-      ClientHeight = 120
+      ClientHeight = 103
       ClientWidth = 206
       ParentFont = False
       TabOrder = 1
@@ -189,7 +189,7 @@ object GLForm1: TGLForm1
       object Memo1: TMemo
         Left = 0
         Height = 56
-        Top = 64
+        Top = 47
         Width = 206
         Align = alBottom
         Lines.Strings = (
@@ -375,20 +375,21 @@ object GLForm1: TGLForm1
     object IntensityBox: TGroupBox
       Tag = 270
       Left = 1
-      Height = 48
+      Height = 50
       Top = 1
       Width = 214
       Align = alTop
       Caption = 'Intensity Minimum..Maximum'
-      ClientHeight = 26
+      ClientHeight = 28
       ClientWidth = 206
       ParentFont = False
       TabOrder = 2
       object MinEdit: TEdit
         Left = 3
         Height = 22
-        Top = 2
+        Top = 1
         Width = 90
+        AutoSize = False
         OnKeyPress = MinMaxEditKeyPress
         OnKeyUp = MinMaxEditKeyUp
         TabOrder = 0
@@ -397,8 +398,9 @@ object GLForm1: TGLForm1
       object MaxEdit: TEdit
         Left = 104
         Height = 22
-        Top = 2
+        Top = 1
         Width = 90
+        AutoSize = False
         OnExit = MinMaxEditExit
         OnKeyPress = MinMaxEditKeyPress
         OnKeyUp = MinMaxEditKeyUp
@@ -409,7 +411,7 @@ object GLForm1: TGLForm1
     object CutoutBox: TGroupBox
       Left = 1
       Height = 90
-      Top = 410
+      Top = 412
       Width = 214
       Align = alTop
       Caption = 'Cutout'
@@ -540,7 +542,7 @@ object GLForm1: TGLForm1
     object MosaicBox: TGroupBox
       Left = 1
       Height = 199
-      Top = 211
+      Top = 213
       Width = 214
       Align = alTop
       Caption = 'Mosaic'
@@ -804,7 +806,7 @@ object GLForm1: TGLForm1
     object OverlayBox: TGroupBox
       Left = 1
       Height = 74
-      Top = 49
+      Top = 51
       Width = 214
       Align = alTop
       Caption = 'Overlays'
@@ -871,64 +873,65 @@ object GLForm1: TGLForm1
     end
     object Slice2DBox: TGroupBox
       Left = 1
-      Height = 73
-      Top = 500
+      Height = 88
+      Top = 502
       Width = 214
       Align = alTop
       Caption = '2D Slices'
-      ClientHeight = 50
+      ClientHeight = 65
       ClientWidth = 206
+      ParentFont = False
       TabOrder = 8
       object LeftBtn: TSpeedButton
         Left = 4
-        Height = 22
+        Height = 28
         Top = 16
-        Width = 23
+        Width = 28
         Caption = 'L'
         OnClick = OrientBtnClick
       end
       object AnteriorBtn: TSpeedButton
         Tag = 3
         Left = 32
-        Height = 22
+        Height = 28
         Top = 0
-        Width = 23
+        Width = 28
         Caption = 'A'
         OnClick = OrientBtnClick
       end
       object PosteriorBtn: TSpeedButton
         Tag = 2
         Left = 32
-        Height = 22
-        Top = 28
-        Width = 23
+        Height = 28
+        Top = 32
+        Width = 28
         Caption = 'P'
         OnClick = OrientBtnClick
       end
       object RightBtn: TSpeedButton
         Tag = 1
         Left = 60
-        Height = 22
+        Height = 28
         Top = 16
-        Width = 23
+        Width = 28
         Caption = 'R'
         OnClick = OrientBtnClick
       end
       object SuperiorBtn: TSpeedButton
         Tag = 5
         Left = 128
-        Height = 22
+        Height = 28
         Top = 0
-        Width = 23
+        Width = 28
         Caption = 'S'
         OnClick = OrientBtnClick
       end
       object InferiorBtn: TSpeedButton
         Tag = 4
         Left = 128
-        Height = 22
-        Top = 28
-        Width = 23
+        Height = 28
+        Top = 32
+        Width = 28
         Caption = 'I'
         OnClick = OrientBtnClick
       end
