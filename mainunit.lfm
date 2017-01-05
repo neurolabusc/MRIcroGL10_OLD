@@ -33,7 +33,7 @@ object GLForm1: TGLForm1
     object ClipBox: TGroupBox
       Left = 1
       Height = 88
-      Top = 119
+      Top = 123
       Width = 214
       Align = alTop
       Caption = 'Clipping'
@@ -108,12 +108,12 @@ object GLForm1: TGLForm1
     end
     object ShaderBox: TGroupBox
       Left = 1
-      Height = 146
-      Top = 569
+      Height = 142
+      Top = 573
       Width = 214
       Align = alClient
       Caption = 'Shader'
-      ClientHeight = 124
+      ClientHeight = 120
       ClientWidth = 206
       ParentFont = False
       TabOrder = 1
@@ -189,7 +189,7 @@ object GLForm1: TGLForm1
       object Memo1: TMemo
         Left = 0
         Height = 56
-        Top = 68
+        Top = 64
         Width = 206
         Align = alBottom
         Lines.Strings = (
@@ -375,12 +375,12 @@ object GLForm1: TGLForm1
     object IntensityBox: TGroupBox
       Tag = 270
       Left = 1
-      Height = 44
+      Height = 48
       Top = 1
       Width = 214
       Align = alTop
       Caption = 'Intensity Minimum..Maximum'
-      ClientHeight = 22
+      ClientHeight = 26
       ClientWidth = 206
       ParentFont = False
       TabOrder = 2
@@ -409,7 +409,7 @@ object GLForm1: TGLForm1
     object CutoutBox: TGroupBox
       Left = 1
       Height = 90
-      Top = 406
+      Top = 410
       Width = 214
       Align = alTop
       Caption = 'Cutout'
@@ -540,7 +540,7 @@ object GLForm1: TGLForm1
     object MosaicBox: TGroupBox
       Left = 1
       Height = 199
-      Top = 207
+      Top = 211
       Width = 214
       Align = alTop
       Caption = 'Mosaic'
@@ -804,18 +804,18 @@ object GLForm1: TGLForm1
     object OverlayBox: TGroupBox
       Left = 1
       Height = 74
-      Top = 45
+      Top = 49
       Width = 214
       Align = alTop
       Caption = 'Overlays'
-      ClientHeight = 51
+      ClientHeight = 52
       ClientWidth = 206
       ParentFont = False
       TabOrder = 6
       Visible = False
       object StringGrid1: TStringGrid
         Left = 0
-        Height = 51
+        Height = 52
         Top = 0
         Width = 206
         Align = alClient
@@ -872,7 +872,7 @@ object GLForm1: TGLForm1
     object Slice2DBox: TGroupBox
       Left = 1
       Height = 73
-      Top = 496
+      Top = 500
       Width = 214
       Align = alTop
       Caption = '2D Slices'
