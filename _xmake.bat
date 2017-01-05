@@ -18,4 +18,4 @@ make
 cp dcm2niix ~/mricrogl_lx/dcm2niix
 
 cd ~
-zip -r mricrogl_lx.zip mricrogl_lx
+zip -r mricrogl_linux.zip mricrogl_lx
