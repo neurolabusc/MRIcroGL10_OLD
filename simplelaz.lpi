@@ -129,7 +129,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="65">
+    <Units Count="50">
       <Unit0>
         <Filename Value="simplelaz.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -194,7 +194,7 @@
         <WindowIndex Value="1"/>
         <TopLine Value="664"/>
         <CursorPos X="20" Y="682"/>
-        <UsageCount Value="107"/>
+        <UsageCount Value="105"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit5>
       <Unit6>
@@ -222,7 +222,7 @@
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <CursorPos X="146" Y="6"/>
-        <UsageCount Value="94"/>
+        <UsageCount Value="92"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit8>
       <Unit9>
@@ -231,8 +231,8 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="116"/>
-        <CursorPos X="16" Y="122"/>
+        <TopLine Value="117"/>
+        <CursorPos X="8" Y="139"/>
         <UsageCount Value="224"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -242,7 +242,7 @@
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <CursorPos X="12" Y="6"/>
-        <UsageCount Value="99"/>
+        <UsageCount Value="97"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit10>
       <Unit11>
@@ -250,7 +250,7 @@
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <CursorPos X="52" Y="24"/>
-        <UsageCount Value="88"/>
+        <UsageCount Value="86"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit11>
       <Unit12>
@@ -259,7 +259,7 @@
         <WindowIndex Value="1"/>
         <TopLine Value="729"/>
         <CursorPos X="35" Y="742"/>
-        <UsageCount Value="81"/>
+        <UsageCount Value="79"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit12>
       <Unit13>
@@ -285,7 +285,7 @@
         <WindowIndex Value="1"/>
         <TopLine Value="8"/>
         <CursorPos X="6" Y="17"/>
-        <UsageCount Value="3"/>
+        <UsageCount Value="1"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit15>
       <Unit16>
@@ -300,7 +300,7 @@
         <Filename Value="rle.pas"/>
         <TopLine Value="32"/>
         <CursorPos X="22" Y="36"/>
-        <UsageCount Value="298"/>
+        <UsageCount Value="296"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit17>
       <Unit18>
@@ -309,7 +309,7 @@
         <WindowIndex Value="1"/>
         <TopLine Value="256"/>
         <CursorPos X="91" Y="265"/>
-        <UsageCount Value="45"/>
+        <UsageCount Value="56"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit18>
@@ -338,7 +338,7 @@
         <Filename Value="C:\usr\local\share\fpcsrc\rtl\objpas\classes\classesh.inc"/>
         <TopLine Value="689"/>
         <CursorPos X="39" Y="706"/>
-        <UsageCount Value="38"/>
+        <UsageCount Value="36"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit21>
       <Unit22>
@@ -357,7 +357,7 @@
         <WindowIndex Value="1"/>
         <TopLine Value="167"/>
         <CursorPos X="7" Y="195"/>
-        <UsageCount Value="40"/>
+        <UsageCount Value="38"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit23>
       <Unit24>
@@ -379,20 +379,11 @@
         <WindowIndex Value="1"/>
         <TopLine Value="713"/>
         <CursorPos X="63" Y="730"/>
-        <UsageCount Value="15"/>
+        <UsageCount Value="26"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit25>
       <Unit26>
-        <Filename Value="reorient.pas"/>
-        <EditorIndex Value="-1"/>
-        <WindowIndex Value="1"/>
-        <TopLine Value="689"/>
-        <CursorPos X="3" Y="703"/>
-        <UsageCount Value="2"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit26>
-      <Unit27>
         <Filename Value="clut.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
@@ -401,8 +392,8 @@
         <CursorPos X="19" Y="96"/>
         <UsageCount Value="201"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit27>
-      <Unit28>
+      </Unit26>
+      <Unit27>
         <Filename Value="autoroi.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="AutoROIForm"/>
@@ -414,35 +405,35 @@
         <CursorPos X="5" Y="115"/>
         <UsageCount Value="201"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit28>
-      <Unit29>
+      </Unit27>
+      <Unit28>
         <Filename Value="textfx.pas"/>
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <CursorPos X="6" Y="4"/>
-        <UsageCount Value="7"/>
+        <UsageCount Value="5"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit29>
-      <Unit30>
+      </Unit28>
+      <Unit29>
         <Filename Value="nifti_types.pas"/>
         <EditorIndex Value="6"/>
         <WindowIndex Value="1"/>
         <TopLine Value="58"/>
         <CursorPos X="11" Y="68"/>
-        <UsageCount Value="17"/>
+        <UsageCount Value="28"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit30>
-      <Unit31>
+      </Unit29>
+      <Unit30>
         <Filename Value="dglOpenGL.pas"/>
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="7347"/>
         <CursorPos X="56" Y="7365"/>
-        <UsageCount Value="5"/>
+        <UsageCount Value="3"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit31>
-      <Unit32>
+      </Unit30>
+      <Unit31>
         <Filename Value="extractui.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="ExtractForm"/>
@@ -453,32 +444,23 @@
         <CursorPos X="67" Y="13"/>
         <UsageCount Value="200"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit32>
-      <Unit33>
+      </Unit31>
+      <Unit32>
         <Filename Value="coordinates.pas"/>
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <CursorPos X="17"/>
-        <UsageCount Value="26"/>
+        <UsageCount Value="24"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit33>
-      <Unit34>
-        <Filename Value="yokesharemem.pas"/>
-        <EditorIndex Value="-1"/>
-        <WindowIndex Value="1"/>
-        <TopLine Value="28"/>
-        <CursorPos X="27" Y="16"/>
-        <UsageCount Value="2"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit34>
-      <Unit35>
+      </Unit32>
+      <Unit33>
         <Filename Value="C:\Developer\lazarus\lcl\grids.pas"/>
         <TopLine Value="9133"/>
         <CursorPos X="41" Y="9136"/>
-        <UsageCount Value="21"/>
+        <UsageCount Value="19"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit35>
-      <Unit36>
+      </Unit33>
+      <Unit34>
         <Filename Value="uscaledpi.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
@@ -487,251 +469,137 @@
         <CursorPos X="6" Y="44"/>
         <UsageCount Value="200"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit36>
-      <Unit37>
+      </Unit34>
+      <Unit35>
         <Filename Value="C:\Developer\lazarus\components\opengl\lazopenglcontext.pas"/>
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <CursorPos X="3" Y="10"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="8"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit37>
-      <Unit38>
-        <Filename Value="C:\Developer\lazarus\components\opengl\glcocoanscontext.pas"/>
-        <EditorIndex Value="-1"/>
-        <WindowIndex Value="1"/>
-        <TopLine Value="164"/>
-        <CursorPos X="7" Y="179"/>
-        <UsageCount Value="1"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit38>
-      <Unit39>
+      </Unit35>
+      <Unit36>
         <Filename Value="nii_mat.pas"/>
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="28"/>
         <CursorPos X="90" Y="101"/>
-        <UsageCount Value="22"/>
+        <UsageCount Value="20"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit39>
-      <Unit40>
+      </Unit36>
+      <Unit37>
         <Filename Value="userdir.pas"/>
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="236"/>
         <CursorPos X="8" Y="238"/>
-        <UsageCount Value="53"/>
+        <UsageCount Value="51"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit40>
-      <Unit41>
+      </Unit37>
+      <Unit38>
         <Filename Value="C:\Developer\lazarus\lcl\interfaces\carbon\carboncanvas.pp"/>
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="1571"/>
         <CursorPos X="29" Y="1580"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="8"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit41>
-      <Unit42>
-        <Filename Value="C:\usr\local\share\fpcsrc\packages\cocoaint\src\appkit\NSOpenGL.inc"/>
-        <EditorIndex Value="-1"/>
-        <WindowIndex Value="1"/>
-        <TopLine Value="169"/>
-        <CursorPos X="14" Y="180"/>
-        <UsageCount Value="1"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit42>
-      <Unit43>
-        <Filename Value="C:\usr\local\share\fpcsrc\rtl\unix\aliasctp.inc"/>
-        <EditorIndex Value="-1"/>
-        <WindowIndex Value="1"/>
-        <TopLine Value="16"/>
-        <CursorPos X="34" Y="27"/>
-        <UsageCount Value="1"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit43>
-      <Unit44>
-        <Filename Value="C:\usr\local\share\fpcsrc\rtl\inc\ctypes.pp"/>
-        <EditorIndex Value="-1"/>
-        <WindowIndex Value="1"/>
-        <TopLine Value="12"/>
-        <CursorPos X="6" Y="28"/>
-        <UsageCount Value="1"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit44>
-      <Unit45>
+      </Unit38>
+      <Unit39>
         <Filename Value="C:\usr\local\share\fpcsrc\packages\cocoaint\src\appkit\NSView.inc"/>
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="191"/>
         <CursorPos X="61" Y="205"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="8"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit45>
-      <Unit46>
-        <Filename Value="..\..\..\..\..\Developer\lazarus\components\opengl\openglcontext.pas"/>
-        <UnitName Value="OpenGLContext"/>
-        <EditorIndex Value="-1"/>
-        <WindowIndex Value="1"/>
-        <TopLine Value="534"/>
-        <CursorPos Y="550"/>
-        <UsageCount Value="2"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit46>
-      <Unit47>
+      </Unit39>
+      <Unit40>
         <Filename Value="options.inc"/>
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <CursorPos X="3" Y="3"/>
-        <UsageCount Value="7"/>
+        <UsageCount Value="5"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit47>
-      <Unit48>
+      </Unit40>
+      <Unit41>
         <Filename Value="..\..\..\..\..\Developer\lazarus\lcl\include\customform.inc"/>
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="1833"/>
         <CursorPos Y="1844"/>
-        <UsageCount Value="5"/>
+        <UsageCount Value="3"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit48>
-      <Unit49>
-        <Filename Value="..\surfice\mesh.pas"/>
-        <EditorIndex Value="-1"/>
-        <WindowIndex Value="1"/>
-        <TopLine Value="4331"/>
-        <CursorPos X="58" Y="4367"/>
-        <UsageCount Value="2"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit49>
-      <Unit50>
-        <Filename Value="..\..\..\..\..\Developer\lazarus\lcl\interfaces\lcl.pas"/>
-        <UnitName Value="LCL"/>
-        <EditorIndex Value="-1"/>
-        <WindowIndex Value="1"/>
-        <CursorPos X="132" Y="15"/>
-        <UsageCount Value="2"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit50>
-      <Unit51>
+      </Unit41>
+      <Unit42>
         <Filename Value="..\..\..\lazarus\components\opengl\openglcontext.pas"/>
         <UnitName Value="OpenGLContext"/>
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="523"/>
         <CursorPos X="23" Y="537"/>
-        <UsageCount Value="3"/>
-      </Unit51>
-      <Unit52>
+        <UsageCount Value="1"/>
+      </Unit42>
+      <Unit43>
         <Filename Value="lut.pas"/>
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <CursorPos X="22"/>
-        <UsageCount Value="3"/>
+        <UsageCount Value="1"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
-      </Unit52>
-      <Unit53>
-        <Filename Value="..\..\..\lazarus\lcl\interfaces\cocoa\cocoawsstdctrls.pp"/>
-        <UnitName Value="CocoaWSStdCtrls"/>
-        <EditorIndex Value="-1"/>
-        <WindowIndex Value="1"/>
-        <TopLine Value="257"/>
-        <CursorPos X="46" Y="268"/>
-        <UsageCount Value="2"/>
-      </Unit53>
-      <Unit54>
-        <Filename Value="..\..\..\lazarus\lcl\include\wincontrol.inc"/>
-        <EditorIndex Value="-1"/>
-        <WindowIndex Value="1"/>
-        <TopLine Value="5646"/>
-        <CursorPos X="32" Y="5658"/>
-        <UsageCount Value="2"/>
-      </Unit54>
-      <Unit55>
-        <Filename Value="..\..\..\lazarus\lcl\grids.pas"/>
-        <UnitName Value="Grids"/>
-        <EditorIndex Value="-1"/>
-        <WindowIndex Value="1"/>
-        <TopLine Value="10137"/>
-        <CursorPos X="44" Y="10148"/>
-        <UsageCount Value="2"/>
-      </Unit55>
-      <Unit56>
-        <Filename Value="..\..\..\lazarus\components\lazutils\lazlogger.pas"/>
-        <UnitName Value="LazLogger"/>
-        <EditorIndex Value="-1"/>
-        <WindowIndex Value="1"/>
-        <CursorPos X="42" Y="16"/>
-        <UsageCount Value="2"/>
-      </Unit56>
-      <Unit57>
-        <Filename Value="..\..\..\lazarus\lcl\interfaces\cocoa\cocoawinapi.inc"/>
-        <EditorIndex Value="-1"/>
-        <WindowIndex Value="1"/>
-        <TopLine Value="85"/>
-        <CursorPos X="9" Y="86"/>
-        <UsageCount Value="2"/>
-      </Unit57>
-      <Unit58>
+      </Unit43>
+      <Unit44>
         <Filename Value="..\..\..\..\..\usr\local\share\fpcsrc\packages\fcl-base\src\inifiles.pp"/>
         <UnitName Value="IniFiles"/>
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="59"/>
-        <UsageCount Value="55"/>
-      </Unit58>
-      <Unit59>
+        <UsageCount Value="53"/>
+      </Unit44>
+      <Unit45>
         <Filename Value="..\..\..\lazarus\components\lazutils\fileutil.pas"/>
         <UnitName Value="FileUtil"/>
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="153"/>
         <CursorPos X="35" Y="167"/>
-        <UsageCount Value="53"/>
-      </Unit59>
-      <Unit60>
+        <UsageCount Value="51"/>
+      </Unit45>
+      <Unit46>
         <Filename Value="..\..\..\lazarus\components\codetools\fileprocs.pas"/>
         <UnitName Value="FileProcs"/>
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="1342"/>
         <CursorPos X="66" Y="1346"/>
-        <UsageCount Value="53"/>
-      </Unit60>
-      <Unit61>
-        <Filename Value="..\..\..\..\..\usr\local\share\fpcsrc\rtl\objpas\sysutils\sysstrh.inc"/>
-        <EditorIndex Value="-1"/>
-        <WindowIndex Value="1"/>
-        <TopLine Value="66"/>
-        <CursorPos X="21" Y="79"/>
-        <UsageCount Value="2"/>
-      </Unit61>
-      <Unit62>
+        <UsageCount Value="51"/>
+      </Unit46>
+      <Unit47>
         <Filename Value="..\..\..\..\..\usr\local\share\fpcsrc\rtl\inc\objpash.inc"/>
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="177"/>
         <CursorPos X="8" Y="192"/>
-        <UsageCount Value="51"/>
-      </Unit62>
-      <Unit63>
+        <UsageCount Value="49"/>
+      </Unit47>
+      <Unit48>
         <Filename Value="..\..\..\lazarus\lcl\graphics.pp"/>
         <UnitName Value="Graphics"/>
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="2657"/>
         <CursorPos Y="2681"/>
-        <UsageCount Value="9"/>
-      </Unit63>
-      <Unit64>
+        <UsageCount Value="7"/>
+      </Unit48>
+      <Unit49>
         <Filename Value="..\..\..\lazarus\lcl\graphtype.pp"/>
         <UnitName Value="GraphType"/>
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="18"/>
         <CursorPos X="68" Y="20"/>
-        <UsageCount Value="9"/>
-      </Unit64>
+        <UsageCount Value="7"/>
+      </Unit49>
     </Units>
     <JumpHistory Count="29" HistoryIndex="28">
       <Position1>

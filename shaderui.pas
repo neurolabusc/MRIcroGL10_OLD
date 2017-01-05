@@ -11,7 +11,7 @@ interface
   Graphics,Classes, SysUtils, Forms,  Buttons,define_types,userdir,
 
   Dialogs, ComCtrls, Menus, raycastglsl,  Controls,
-  ExtCtrls, StdCtrls, shaderu;//, prefstextfx,;
+  ExtCtrls, StdCtrls, shaderu, uscaledpi;//, prefstextfx,;
 
 procedure SetShader(lFilename: string);
 function ShaderPanelHeight: integer;
@@ -29,6 +29,7 @@ var
    aLabel: array of TLabel;
    aTrack: array of TTrackbar;
   gUpdateGLSL: boolean = false;
+  kScale: single = 1.0;
 
 function Val2Percent (min,val,max: single): integer;
 var
@@ -72,22 +73,36 @@ begin
     kT := GLForm1.ElevTrack.top; //do this dynamically - if user adjusts text size in Windows7, the position of static controls changes!
 
    {$ELSE} //Linux
-   kT := GLForm1.ElevTrack.top+4; //do this dynamically - if user adjusts text size in Windows7, the position of static controls changes!
+   kT := GLForm1.Label2.top+4; //do this dynamically - if user adjusts text size in Windows7, the position of static controls changes!
    {$ENDIF}
  {$ENDIF}
  {$ELSE}
    kT := GLForm1.ElevTrack.top+1; //do this dynamically - if user adjusts text size in Windows7, the position of static controls changes!
 {$ENDIF}
-  result := kT+ (kH* N);
+  result := kT+ round(kScale * kH* N);
 end;
 
 function ShaderPanelHeight: integer;
+var
+  i: integer;
 begin
 {$IFDEF FPC}
  {$IFDEF WINDOWS}
    result := 3 + GLForm1.ElevTrack.top+round((GLForm1.ElevTrack.height+1)* (gShader.nUniform+1.5));
  {$ELSE}
+   {$IFDEF LINUX}
+    //result := controlTop(round(kScale * (gShader.nUniform+1)+(kH )));
+    i := gShader.nUniform+1;
+
+    if (i > kMaxUniform) then
+       i := kMaxUniform;
+    if (i < 1) then
+     result := aLabel[1].Top
+    else
+        result := aLabel[i].Top+aLabel[i].Height;
+   {$ELSE}
      result := controlTop(gShader.nUniform+1)+(kH div 2);
+    {$ENDIF}
  {$ENDIF}
 {$ELSE}
     result := controlTop(gShader.nUniform+1)+(kH div 2)-12;
@@ -357,6 +372,11 @@ begin
 end;
 
 
-
+initialization
+kScale := getFontScale;
+if kScale > 0 then
+   kScale := 1/kScale
+else
+    kScale := 1;
 end.
  

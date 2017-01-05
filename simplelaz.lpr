@@ -23,7 +23,7 @@ begin
   Application.CreateForm(Tdcm2niiForm, dcm2niiForm);
   Application.CreateForm(TAutoROIForm, AutoROIForm);
   Application.CreateForm(TExtractForm, ExtractForm);
- //{$IFDEF FPC}{$IFDEF LINUX} HighDPIfont(GetFontData(GLForm1.Font.Handle).Height); {$ENDIF} {$ENDIF}
+ {$IFDEF FPC}{$IFDEF LINUX} HighDPIfont(GetFontData(GLForm1.Font.Handle).Height); {$ENDIF} {$ENDIF}
   {$IFDEF FPC}{$IFNDEF UNIX}HighDPI(96);{$ENDIF}{$ENDIF}
   Application.Run;
 end.
