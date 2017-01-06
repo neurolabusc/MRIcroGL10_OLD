@@ -5,7 +5,7 @@ unit uscaledpi;
 interface
 
 uses
-   {$IFDEF Linux} FileUtil, Process, Classes,SysUtils, {$ENDIF}
+   {$IFDEF Linux} StrUtils, FileUtil, Process, Classes,SysUtils, {$ENDIF}
    Forms, Graphics, Controls, ComCtrls;
 
 procedure HighDPI(FromDPI: integer);
@@ -58,15 +58,35 @@ end;
 function getFontScale: single;
 var
   AProcess: TProcess;
-  Exe: String;
+  Exe, Str: String;
   AStringList: TStringList;
 begin
   result := 1.0;
+  if (Screen.PixelsPerInch > 48) then
+     result := Screen.PixelsPerInch / 96;
   Exe := FindDefaultExecutablePath('gsettings');
   if length(Exe) < 1 then exit;
   if not FileExists(Exe) then exit;
+  result := 1;
   AProcess := TProcess.Create(nil);
   AProcess.Executable:=Exe;
+  //get scaling factor - this is an uint32, e.g. 1,2,3
+  AProcess.Parameters.Add('get');
+  AProcess.Parameters.Add('org.gnome.desktop.interface');
+  AProcess.Parameters.Add('scaling-factor');
+  AProcess.Options := AProcess.Options + [poWaitOnExit, poUsePipes];
+  AProcess.Execute;
+  if (AProcess.ExitCode = 0) then begin
+     AStringList := TStringList.Create;
+     AStringList.LoadFromStream(AProcess.Output);
+     if AStringList.Count > 0 then begin  //"uint32 2"
+        Str := ExtractDelimited(2, AStringList.Strings[0],[' ']); //remove "uint32 "
+        result := result * strtofloatdef(Str, 1.0);
+     end;
+     AStringList.Free;
+  end;
+  //get fractional text-scaling-factor, range 1..1.9999, e.g. "1.5" - total zoom is scaling-factor*text-scaling-factor
+  AProcess.Parameters.Clear;
   AProcess.Parameters.Add('get');
   AProcess.Parameters.Add('org.gnome.desktop.interface');
   AProcess.Parameters.Add('text-scaling-factor');
@@ -76,7 +96,7 @@ begin
      AStringList := TStringList.Create;
      AStringList.LoadFromStream(AProcess.Output);
      if AStringList.Count > 0 then
-        result := strtofloatdef(AStringList.Strings[0], 1.0);
+        result := result * strtofloatdef(AStringList.Strings[0], 1.0);
      AStringList.Free;
   end;
   AProcess.Free;

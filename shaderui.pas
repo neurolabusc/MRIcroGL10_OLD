@@ -99,7 +99,7 @@ begin
     if (i < 1) then
      result := aLabel[1].Top
     else
-        result := aLabel[i].Top+aLabel[i].Height;
+        result := aLabel[i].Top+aLabel[i].Height + 2;
    {$ELSE}
      result := controlTop(gShader.nUniform+1)+(kH div 2);
     {$ENDIF}
@@ -379,4 +379,4 @@ if kScale > 0 then
 else
     kScale := 1;
 end.
- 
+
