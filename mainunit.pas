@@ -27,7 +27,20 @@ Windows,{$IFDEF FPC}uscaledpi,{$ENDIF}{$ENDIF}
     {$ENDIF}
 type { TGLForm1 }
 TGLForm1 = class(TForm)
+    ColEdit: TSpinEdit;
+    ColOverlap: TTrackBar;
     CopyScriptBtn: TButton;
+    CrossCheck: TCheckBox;
+    Label3: TLabel;
+    Label7: TLabel;
+    Label8: TLabel;
+    LabelCheck: TCheckBox;
+    MosaicText: TMemo;
+    OrientDrop: TComboBox;
+    Panel1: TPanel;
+    RowEdit: TSpinEdit;
+    RowOverlap: TTrackBar;
+    RunScriptBtn: TButton;
     Slice2DBox: TGroupBox;
     InterpolateDrawMenu: TMenuItem;
     LeftBtn: TSpeedButton;
@@ -37,10 +50,7 @@ TGLForm1 = class(TForm)
     SuperiorBtn: TSpeedButton;
     InferiorBtn: TSpeedButton;
     voiBinarize1: TMenuItem;
-    RunScriptBtn: TButton;
     NearBtn: TButton;
-  ColEdit: TSpinEdit;
-    Label8: TLabel;
   LUTdrop: TComboBox;
   Addoverlay1: TMenuItem;
   InterpolateMenu: TMenuItem;
@@ -72,17 +82,11 @@ TGLForm1 = class(TForm)
   Overlays1: TMenuItem;
   OverlayBox: TGroupBox;
   HideRenderToolsBtn: TButton;
-    ColOverlap: TTrackBar;
-    CrossCheck: TCheckBox;
   Extract1: TMenuItem;
   BET1: TMenuItem;
-  Label7: TLabel;
-    Label3: TLabel;
-  LabelCheck: TCheckBox;
   MosaicBox: TGroupBox;
   Import1: TMenuItem;
   ConvertDicom1: TMenuItem;
-  MosaicText: TMemo;
   MRU8: TMenuItem;
   MRU10: TMenuItem;
   MRU9: TMenuItem;
@@ -93,9 +97,6 @@ TGLForm1 = class(TForm)
   MRU3: TMenuItem;
   MRU2: TMenuItem;
   MRU1: TMenuItem;
-  OrientDrop: TComboBox;
-  RowEdit: TSpinEdit;
-  RowOverlap: TTrackBar;
   StringGrid1: TStringGrid;
 
   ToolPanel: TPanel;
@@ -1134,7 +1135,8 @@ begin
     for lCi := 1 to lC do begin
       inc(lI);
       if (lI = lRxC) and (CrossCheck.Checked) then
-        lStr := lStr + 'X '+lOrthoCh + ' 0.5'
+        lStr := lStr +lOrthoCh + ' 0.5' //maybe "X" used to disable text on cross slice? perhaps "L-"
+        //lStr := lStr + 'X '+lOrthoCh + ' 0.5'
       else
         lStr := lStr + FloatToStrF(lI * lInterval, ffFixed, 8, 4);
       if lCi < lC then
@@ -3210,7 +3212,7 @@ begin
  InferiorMenu.Visible := ShowRenderTools;
  SuperiorMenu.Visible := ShowRenderTools; *)
  CutoutBox.visible := ShowRenderTools;
- Slice2DBox.Visible := not ShowRenderTools;
+ Slice2DBox.Visible := ((not ShowRenderTools) and (gPrefs.SliceView <> 5));
  MosaicBox.Visible := gPrefs.SliceView = 5;
 end;
 

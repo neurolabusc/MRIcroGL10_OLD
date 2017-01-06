@@ -24,15 +24,21 @@ begin
   begin
     Left := ScaleX(Left, FromDPI);
 
-    //if (Height > 30) and (Height <= 36) then begin
+    {$IFDEF LINUX} //strange minimum size and height on Lazarus 1.6.2
     if Control is TTrackBar then begin
       i := 22;
-      Top := ScaleY(Top, FromDPI) ;
-       Height := ScaleY(i, FromDPI);
+      Height := ScaleY(i, FromDPI);
+      i := (Height - i) div 2;
+      Top := ScaleY(Top, FromDPI) - i ;
+
     end else begin
        Top :=ScaleY(Top, FromDPI);
        Height := ScaleY(Height, FromDPI);
     end;
+    {$ELSE}
+       Top :=ScaleY(Top, FromDPI);
+       Height := ScaleY(Height, FromDPI);
+    {$ENDIF}
     Width := ScaleX(Width, FromDPI);
 
 
@@ -73,7 +79,6 @@ begin
         result := strtofloatdef(AStringList.Strings[0], 1.0);
      AStringList.Free;
   end;
-  // Now that the output from the process is processed, it can be freed.
   AProcess.Free;
 end;
 {$ELSE}

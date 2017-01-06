@@ -26,7 +26,6 @@ object GLForm1: TGLForm1
     Align = alLeft
     ClientHeight = 716
     ClientWidth = 216
-    Font.Height = -1
     ParentFont = False
     TabOrder = 0
     OnClick = ToolPanelClick
@@ -108,12 +107,12 @@ object GLForm1: TGLForm1
     end
     object ShaderBox: TGroupBox
       Left = 1
-      Height = 125
-      Top = 590
+      Height = 65
+      Top = 650
       Width = 214
       Align = alClient
       Caption = 'Shader'
-      ClientHeight = 103
+      ClientHeight = 43
       ClientWidth = 206
       ParentFont = False
       TabOrder = 1
@@ -189,7 +188,7 @@ object GLForm1: TGLForm1
       object Memo1: TMemo
         Left = 0
         Height = 56
-        Top = 47
+        Top = -13
         Width = 206
         Align = alBottom
         Lines.Strings = (
@@ -411,7 +410,7 @@ object GLForm1: TGLForm1
     object CutoutBox: TGroupBox
       Left = 1
       Height = 90
-      Top = 412
+      Top = 472
       Width = 214
       Align = alTop
       Caption = 'Cutout'
@@ -511,18 +510,18 @@ object GLForm1: TGLForm1
       end
       object NearBtn: TButton
         Left = 156
-        Height = 19
+        Height = 22
         Top = 9
-        Width = 44
+        Width = 52
         Caption = 'Near'
         OnClick = CutoutNearestSector
         TabOrder = 6
       end
       object NoneBtn: TButton
         Left = 156
-        Height = 19
+        Height = 22
         Top = 36
-        Width = 44
+        Width = 52
         Caption = 'None'
         OnClick = HideBtnClick
         TabOrder = 7
@@ -541,266 +540,161 @@ object GLForm1: TGLForm1
     end
     object MosaicBox: TGroupBox
       Left = 1
-      Height = 199
+      Height = 259
       Top = 213
       Width = 214
       Align = alTop
       Caption = 'Mosaic'
-      ClientHeight = 176
+      ClientHeight = 237
       ClientWidth = 206
+      ParentFont = False
       TabOrder = 5
       Visible = False
-      object ColEdit: TSpinEdit
-        Left = 49
-        Height = 16
-        Top = 2
-        Width = 54
-        MaxValue = 20
-        MinValue = 1
-        OnChange = UpdateMosaic
-        TabOrder = 0
-        Value = 3
-      end
-      object RowEdit: TSpinEdit
-        Left = 49
-        Height = 16
-        Top = 24
-        Width = 54
-        MaxValue = 20
-        MinValue = 1
-        OnChange = UpdateMosaic
-        TabOrder = 1
-        Value = 2
-      end
-      object Label3: TLabel
-        Left = 3
-        Height = 1
-        Top = 24
-        Width = 3
-        Caption = 'Rows'
-        ParentColor = False
-      end
-      object Label7: TLabel
-        Left = 3
-        Height = 1
-        Top = 2
-        Width = 4
-        Caption = 'Columns'
-        ParentColor = False
-      end
-      object ColOverlap: TTrackBar
-        Left = 108
-        Height = 32
-        Top = 0
-        Width = 88
-        Max = 9
-        Min = -9
-        OnChange = UpdateMosaic
-        Position = -1
-        TickStyle = tsNone
-        TabOrder = 2
-      end
-      object RowOverlap: TTrackBar
-        Left = 108
-        Height = 32
-        Top = 22
-        Width = 88
-        Max = 9
-        Min = -9
-        OnChange = UpdateMosaic
-        Position = -3
-        TickStyle = tsNone
-        TabOrder = 3
-      end
-      object Label8: TLabel
-        Left = 3
-        Height = 1
-        Top = 46
-        Width = 5
-        Caption = 'Orientation'
-        ParentColor = False
-      end
-      object OrientDrop: TComboBox
-        Left = 74
-        Height = 20
-        Top = 45
-        Width = 75
-        ItemHeight = 0
-        ItemIndex = 0
-        Items.Strings = (
-          'Axial'
-          'Coronal'
-          'Sagittal+'
-          'Sagittal-'
-        )
-        OnChange = UpdateMosaic
-        Style = csDropDownList
-        TabOrder = 4
-        Text = 'Axial'
-      end
       object MosaicText: TMemo
         Left = 0
-        Height = 73
-        Top = 103
+        Height = 121
+        Top = 116
         Width = 206
-        Align = alBottom
+        Align = alClient
         Lines.Strings = (
-          'Memo1'
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
-          ''
+          'MosaicText'
         )
-        TabOrder = 5
+        TabOrder = 0
       end
-      object CrossCheck: TCheckBox
-        Left = 3
-        Height = 18
-        Top = 64
-        Width = 88
-        Caption = 'Cross slice'
-        OnChange = UpdateMosaic
-        TabOrder = 6
-      end
-      object LabelCheck: TCheckBox
-        Left = 90
-        Height = 18
-        Top = 64
-        Width = 93
-        Caption = 'Label slices'
-        OnChange = UpdateMosaic
-        TabOrder = 7
-      end
-      object CopyScriptBtn: TButton
-        Left = 6
-        Height = 19
-        Top = 82
-        Width = 84
-        Caption = 'Copy Script'
-        OnClick = CopyScriptClick
-        TabOrder = 8
-      end
-      object RunScriptBtn: TButton
-        Left = 114
-        Height = 19
-        Top = 82
-        Width = 84
-        Caption = 'Run Script'
-        OnClick = RunScriptClick
-        TabOrder = 9
+      object Panel1: TPanel
+        Left = 0
+        Height = 116
+        Top = 0
+        Width = 206
+        Align = alTop
+        BevelOuter = bvNone
+        ClientHeight = 116
+        ClientWidth = 206
+        TabOrder = 1
+        object ColOverlap: TTrackBar
+          Left = 126
+          Height = 22
+          Top = 0
+          Width = 66
+          Max = 9
+          Min = -9
+          OnChange = UpdateMosaic
+          Position = -1
+          TickStyle = tsNone
+          TabOrder = 0
+        end
+        object ColEdit: TSpinEdit
+          Left = 64
+          Height = 16
+          Top = 2
+          Width = 54
+          MaxValue = 20
+          MinValue = 1
+          OnChange = UpdateMosaic
+          TabOrder = 1
+          Value = 3
+        end
+        object Label7: TLabel
+          Left = 3
+          Height = 16
+          Top = 2
+          Width = 56
+          Caption = 'Columns'
+          ParentColor = False
+        end
+        object Label3: TLabel
+          Left = 3
+          Height = 16
+          Top = 26
+          Width = 33
+          Caption = 'Rows'
+          ParentColor = False
+        end
+        object RowEdit: TSpinEdit
+          Left = 64
+          Height = 16
+          Top = 26
+          Width = 54
+          MaxValue = 20
+          MinValue = 1
+          OnChange = UpdateMosaic
+          TabOrder = 2
+          Value = 2
+        end
+        object RowOverlap: TTrackBar
+          Left = 126
+          Height = 22
+          Top = 26
+          Width = 66
+          Max = 9
+          Min = -9
+          OnChange = UpdateMosaic
+          Position = -3
+          TickStyle = tsNone
+          TabOrder = 3
+        end
+        object OrientDrop: TComboBox
+          Left = 96
+          Height = 20
+          Top = 48
+          Width = 93
+          ItemHeight = 0
+          ItemIndex = 0
+          Items.Strings = (
+            'Axial'
+            'Coronal'
+            'Sagittal+'
+            'Sagittal-'
+          )
+          OnChange = UpdateMosaic
+          Style = csDropDownList
+          TabOrder = 4
+          Text = 'Axial'
+        end
+        object Label8: TLabel
+          Left = 3
+          Height = 16
+          Top = 50
+          Width = 71
+          Caption = 'Orientation'
+          ParentColor = False
+        end
+        object CrossCheck: TCheckBox
+          Left = 3
+          Height = 18
+          Top = 70
+          Width = 87
+          Caption = 'Cross slice'
+          OnChange = UpdateMosaic
+          TabOrder = 5
+        end
+        object CopyScriptBtn: TButton
+          Left = 6
+          Height = 22
+          Top = 90
+          Width = 92
+          Caption = 'Copy Script'
+          OnClick = CopyScriptClick
+          TabOrder = 6
+        end
+        object RunScriptBtn: TButton
+          Left = 110
+          Height = 22
+          Top = 90
+          Width = 92
+          Caption = 'Run Script'
+          OnClick = RunScriptClick
+          TabOrder = 7
+        end
+        object LabelCheck: TCheckBox
+          Left = 96
+          Height = 18
+          Top = 70
+          Width = 91
+          Caption = 'Label slices'
+          OnChange = UpdateMosaic
+          TabOrder = 8
+        end
       end
     end
     object OverlayBox: TGroupBox
@@ -874,45 +768,45 @@ object GLForm1: TGLForm1
     object Slice2DBox: TGroupBox
       Left = 1
       Height = 88
-      Top = 502
+      Top = 562
       Width = 214
       Align = alTop
       Caption = '2D Slices'
-      ClientHeight = 65
+      ClientHeight = 66
       ClientWidth = 206
       ParentFont = False
       TabOrder = 8
       object LeftBtn: TSpeedButton
         Left = 4
         Height = 28
-        Top = 16
+        Top = 18
         Width = 28
         Caption = 'L'
         OnClick = OrientBtnClick
       end
       object AnteriorBtn: TSpeedButton
         Tag = 3
-        Left = 32
+        Left = 36
         Height = 28
-        Top = 0
+        Top = 2
         Width = 28
         Caption = 'A'
         OnClick = OrientBtnClick
       end
       object PosteriorBtn: TSpeedButton
         Tag = 2
-        Left = 32
+        Left = 36
         Height = 28
-        Top = 32
+        Top = 34
         Width = 28
         Caption = 'P'
         OnClick = OrientBtnClick
       end
       object RightBtn: TSpeedButton
         Tag = 1
-        Left = 60
+        Left = 68
         Height = 28
-        Top = 16
+        Top = 18
         Width = 28
         Caption = 'R'
         OnClick = OrientBtnClick
@@ -921,7 +815,7 @@ object GLForm1: TGLForm1
         Tag = 5
         Left = 128
         Height = 28
-        Top = 0
+        Top = 2
         Width = 28
         Caption = 'S'
         OnClick = OrientBtnClick
@@ -930,7 +824,7 @@ object GLForm1: TGLForm1
         Tag = 4
         Left = 128
         Height = 28
-        Top = 32
+        Top = 34
         Width = 28
         Caption = 'I'
         OnClick = OrientBtnClick
