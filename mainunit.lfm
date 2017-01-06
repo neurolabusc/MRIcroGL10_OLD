@@ -1,12 +1,12 @@
 object GLForm1: TGLForm1
   Left = 560
-  Height = 716
+  Height = 845
   Top = 28
   Width = 977
   ActiveControl = ToolPanel
   AllowDropFiles = True
   Caption = 'MRIcroGL'
-  ClientHeight = 716
+  ClientHeight = 845
   ClientWidth = 977
   KeyPreview = True
   Menu = MainMenu1
@@ -20,11 +20,11 @@ object GLForm1: TGLForm1
   LCLVersion = '1.7'
   object ToolPanel: TPanel
     Left = 0
-    Height = 716
+    Height = 845
     Top = 0
     Width = 216
     Align = alLeft
-    ClientHeight = 716
+    ClientHeight = 845
     ClientWidth = 216
     ParentFont = False
     TabOrder = 0
@@ -107,12 +107,12 @@ object GLForm1: TGLForm1
     end
     object ShaderBox: TGroupBox
       Left = 1
-      Height = 65
+      Height = 194
       Top = 650
       Width = 214
       Align = alClient
       Caption = 'Shader'
-      ClientHeight = 43
+      ClientHeight = 172
       ClientWidth = 206
       ParentFont = False
       TabOrder = 1
@@ -151,8 +151,8 @@ object GLForm1: TGLForm1
         TabOrder = 0
       end
       object QualityTrack: TTrackBar
-        Left = 128
-        Height = 32
+        Left = 130
+        Height = 22
         Top = 0
         Width = 69
         Min = 1
@@ -163,7 +163,7 @@ object GLForm1: TGLForm1
       end
       object ElevTrack: TTrackBar
         Left = 39
-        Height = 32
+        Height = 22
         Top = 26
         Width = 69
         Max = 90
@@ -174,8 +174,8 @@ object GLForm1: TGLForm1
         TabOrder = 2
       end
       object AziTrack: TTrackBar
-        Left = 128
-        Height = 32
+        Left = 130
+        Height = 22
         Top = 26
         Width = 69
         Max = 180
@@ -188,7 +188,7 @@ object GLForm1: TGLForm1
       object Memo1: TMemo
         Left = 0
         Height = 56
-        Top = -13
+        Top = 116
         Width = 206
         Align = alBottom
         Lines.Strings = (
@@ -833,7 +833,7 @@ object GLForm1: TGLForm1
   end
   object CollapsedToolPanel: TPanel
     Left = 216
-    Height = 716
+    Height = 845
     Top = 0
     Width = 3
     Align = alLeft
