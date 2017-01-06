@@ -113,7 +113,7 @@ procedure CreateControl(N: integer; var aLabel: TLabel; var aCheck: TCheckbox; v
 const
   //kH = 30;//height
   kL1 = 6;
-  kL2 = 128;
+  kL2 = 132;
 var
   lT: integer;
   //kT: integer;
@@ -147,10 +147,10 @@ lT := ControlTop(N);
     aTrack.Visible := false;
     {$IFDEF LINUX}
     aTrack.Top := lT-12;
-    aTrack.Width := 80;
+    aTrack.Width := 76;
     {$ELSE}
     aTrack.Top := lT;
-    aTrack.Width := 80;
+    aTrack.Width := 76;
     {$ENDIF}
     aTrack.Tag := N;
     aTrack.Left := kL2;
