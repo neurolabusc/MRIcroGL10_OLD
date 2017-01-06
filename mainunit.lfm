@@ -43,7 +43,7 @@ object GLForm1: TGLForm1
       object Label4: TLabel
         Left = 3
         Height = 16
-        Top = 4
+        Top = 2
         Width = 38
         Caption = 'Depth'
         ParentColor = False
@@ -52,7 +52,7 @@ object GLForm1: TGLForm1
       object Label5: TLabel
         Left = 3
         Height = 16
-        Top = 26
+        Top = 24
         Width = 53
         Caption = 'Azimuth'
         ParentColor = False
@@ -61,7 +61,7 @@ object GLForm1: TGLForm1
       object Label6: TLabel
         Left = 3
         Height = 16
-        Top = 48
+        Top = 46
         Width = 57
         Caption = 'Elevation'
         ParentColor = False
@@ -159,7 +159,7 @@ object GLForm1: TGLForm1
         TabOrder = 1
       end
       object ElevTrack: TTrackBar
-        Left = 39
+        Left = 42
         Height = 22
         Top = 26
         Width = 66
@@ -418,7 +418,7 @@ object GLForm1: TGLForm1
       object Xx: TLabel
         Left = 3
         Height = 16
-        Top = 2
+        Top = 1
         Width = 8
         Caption = 'X'
         ParentColor = False
@@ -426,7 +426,7 @@ object GLForm1: TGLForm1
       object Yy: TLabel
         Left = 3
         Height = 16
-        Top = 24
+        Top = 23
         Width = 8
         Caption = 'Y'
         ParentColor = False
@@ -434,7 +434,7 @@ object GLForm1: TGLForm1
       object Zz: TLabel
         Left = 3
         Height = 16
-        Top = 46
+        Top = 45
         Width = 8
         Caption = 'Z'
         ParentColor = False
