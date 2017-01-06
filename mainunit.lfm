@@ -71,7 +71,7 @@ object GLForm1: TGLForm1
         OnClick = Label6Click
       end
       object ClipTrack: TTrackBar
-        Left = 64
+        Left = 72
         Height = 22
         Top = 0
         Width = 128
@@ -82,7 +82,7 @@ object GLForm1: TGLForm1
         TabOrder = 0
       end
       object AziTrack1: TTrackBar
-        Left = 64
+        Left = 72
         Height = 22
         Top = 22
         Width = 128
@@ -93,7 +93,7 @@ object GLForm1: TGLForm1
         TabOrder = 1
       end
       object ElevTrack1: TTrackBar
-        Left = 64
+        Left = 72
         Height = 22
         Top = 45
         Width = 128
@@ -121,7 +121,7 @@ object GLForm1: TGLForm1
         Left = 117
         Height = 16
         Hint = 'Lower quality renders faster, higher quality looks better'
-        Top = 2
+        Top = 4
         Width = 10
         Caption = 'Q'
         ParentColor = False
@@ -132,7 +132,7 @@ object GLForm1: TGLForm1
         Left = 3
         Height = 16
         Hint = 'Set the elevation and azimuth of the illumination'
-        Top = 27
+        Top = 29
         Width = 32
         Caption = 'Light'
         ParentColor = False
