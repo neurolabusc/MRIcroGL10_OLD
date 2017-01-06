@@ -6,11 +6,11 @@ interface
 
 uses
    {$IFDEF Linux} StrUtils, FileUtil, Process, Classes,SysUtils, {$ENDIF}
-   Forms, Graphics, Controls, ComCtrls;
+   Forms, Graphics, Controls, ComCtrls, Grids;
 
 procedure HighDPI(FromDPI: integer);
 procedure ScaleDPI(Control: TControl; FromDPI: integer);
-procedure HighDPIfont(fontSize: integer);
+procedure HighDPILinux;
 function getFontScale: single;
 
 implementation
@@ -40,10 +40,11 @@ begin
        Height := ScaleY(Height, FromDPI);
     {$ENDIF}
     Width := ScaleX(Width, FromDPI);
-
-
+    if (Control is TStringGrid) then begin
+       (Control as TStringGrid).DefaultColWidth := ScaleY((Control as TStringGrid).DefaultColWidth, FromDPI);
+      (Control as TStringGrid).DefaultRowHeight := ScaleY((Control as TStringGrid).DefaultRowHeight, FromDPI);
+    end;
   end;
-
   if Control is TWinControl then
   begin
     WinControl := TWinControl(Control);
@@ -83,8 +84,6 @@ begin
      if AStringList.Count > 0 then begin  //"uint32 2"
         Str := ExtractDelimited(2, AStringList.Strings[0],[' ']); //remove "uint32 "
         result := result * strtofloatdef(Str, 1.0);
-        if result <= 0 then
-        	result := 1;
      end;
      AStringList.Free;
   end;
@@ -100,8 +99,6 @@ begin
      AStringList.LoadFromStream(AProcess.Output);
      if AStringList.Count > 0 then
         result := result * strtofloatdef(AStringList.Strings[0], 1.0);
-     if result <= 0 then
-     	result := 1;
      AStringList.Free;
   end;
   AProcess.Free;
@@ -113,13 +110,11 @@ begin
 end;
 {$ENDIF}
 
-procedure HighDPIfont(fontSize: integer);
+procedure HighDPILinux;
 var
   i, FromDPI: integer;
   scale: single;
 begin
-  //if (fontSize <= 13) then exit;
-  //FromDPI :=  round(14/fontSize * 96);
   scale := getFontScale;
   if (scale = 1) or (scale = 0) then exit;
   FromDPI := round( 96/scale);
