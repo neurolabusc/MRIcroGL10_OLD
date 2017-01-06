@@ -42,39 +42,36 @@ object GLForm1: TGLForm1
       TabOrder = 0
       object Label4: TLabel
         Left = 3
-        Height = 19
+        Height = 16
         Top = 4
-        Width = 48
-        AutoSize = False
+        Width = 38
         Caption = 'Depth'
         ParentColor = False
         OnClick = Label4Click
       end
       object Label5: TLabel
         Left = 3
-        Height = 19
+        Height = 16
         Top = 26
-        Width = 65
-        AutoSize = False
+        Width = 53
         Caption = 'Azimuth'
         ParentColor = False
         OnClick = Label5Click
       end
       object Label6: TLabel
         Left = 3
-        Height = 19
+        Height = 16
         Top = 48
-        Width = 73
-        AutoSize = False
+        Width = 57
         Caption = 'Elevation'
         ParentColor = False
         OnClick = Label6Click
       end
       object ClipTrack: TTrackBar
-        Left = 72
+        Left = 74
         Height = 22
         Top = 0
-        Width = 128
+        Width = 124
         Max = 1000
         OnChange = ClipTrackChange
         Position = 0
@@ -82,10 +79,10 @@ object GLForm1: TGLForm1
         TabOrder = 0
       end
       object AziTrack1: TTrackBar
-        Left = 72
+        Left = 74
         Height = 22
         Top = 22
-        Width = 128
+        Width = 124
         Max = 360
         OnChange = ClipTrackChange
         Position = 180
@@ -93,10 +90,10 @@ object GLForm1: TGLForm1
         TabOrder = 1
       end
       object ElevTrack1: TTrackBar
-        Left = 72
+        Left = 74
         Height = 22
         Top = 45
-        Width = 128
+        Width = 124
         Max = 180
         Min = -180
         OnChange = ClipTrackChange
@@ -151,10 +148,10 @@ object GLForm1: TGLForm1
         TabOrder = 0
       end
       object QualityTrack: TTrackBar
-        Left = 130
+        Left = 132
         Height = 22
         Top = 0
-        Width = 69
+        Width = 66
         Min = 1
         OnChange = QualityTrackChange
         Position = 3
@@ -165,7 +162,7 @@ object GLForm1: TGLForm1
         Left = 39
         Height = 22
         Top = 26
-        Width = 69
+        Width = 66
         Max = 90
         Min = -90
         OnChange = AziElevChange
@@ -174,10 +171,10 @@ object GLForm1: TGLForm1
         TabOrder = 2
       end
       object AziTrack: TTrackBar
-        Left = 130
+        Left = 132
         Height = 22
         Top = 26
-        Width = 69
+        Width = 66
         Max = 180
         Min = -180
         OnChange = AziElevChange
