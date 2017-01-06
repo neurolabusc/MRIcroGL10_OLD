@@ -68,7 +68,7 @@ object GLForm1: TGLForm1
         OnClick = Label6Click
       end
       object ClipTrack: TTrackBar
-        Left = 82
+        Left = 86
         Height = 22
         Top = 0
         Width = 116
@@ -79,7 +79,7 @@ object GLForm1: TGLForm1
         TabOrder = 0
       end
       object AziTrack1: TTrackBar
-        Left = 82
+        Left = 86
         Height = 22
         Top = 22
         Width = 116
@@ -90,7 +90,7 @@ object GLForm1: TGLForm1
         TabOrder = 1
       end
       object ElevTrack1: TTrackBar
-        Left = 82
+        Left = 86
         Height = 22
         Top = 45
         Width = 116
@@ -159,7 +159,7 @@ object GLForm1: TGLForm1
         TabOrder = 1
       end
       object ElevTrack: TTrackBar
-        Left = 42
+        Left = 46
         Height = 22
         Top = 26
         Width = 66
@@ -631,7 +631,7 @@ object GLForm1: TGLForm1
           TabOrder = 3
         end
         object OrientDrop: TComboBox
-          Left = 96
+          Left = 104
           Height = 20
           Top = 48
           Width = 93
@@ -684,7 +684,7 @@ object GLForm1: TGLForm1
           TabOrder = 7
         end
         object LabelCheck: TCheckBox
-          Left = 96
+          Left = 104
           Height = 18
           Top = 70
           Width = 91

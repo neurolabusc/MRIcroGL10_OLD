@@ -113,7 +113,7 @@ procedure CreateControl(N: integer; var aLabel: TLabel; var aCheck: TCheckbox; v
 const
   //kH = 30;//height
   kL1 = 6;
-  kL2 = 118;
+  kL2 = 128;
 var
   lT: integer;
   //kT: integer;
