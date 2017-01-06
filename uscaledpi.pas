@@ -25,10 +25,10 @@ begin
     Left := ScaleX(Left, FromDPI);
 
     {$IFDEF LINUX} //strange minimum size and height on Lazarus 1.6.2
-    if Control is TTrackBar then begin
-      i := 22;
-      Height := ScaleY(i, FromDPI);
-      i := (Height - i) div 2;
+    if (Control is TTrackBar) then begin
+      //i := 22;
+      Height := ScaleY(Height, FromDPI);
+      i := (Height) div 3;
       Top := ScaleY(Top, FromDPI) - i ;
 
     end else begin
@@ -61,6 +61,7 @@ var
   Exe, Str: String;
   AStringList: TStringList;
 begin
+  //result := 1.5; exit;
   result := 1.0;
   if (Screen.PixelsPerInch > 48) then
      result := Screen.PixelsPerInch / 96;

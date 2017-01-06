@@ -1,12 +1,12 @@
 object GLForm1: TGLForm1
-  Left = 560
-  Height = 845
-  Top = 28
+  Left = 222
+  Height = 754
+  Top = 97
   Width = 977
   ActiveControl = ToolPanel
   AllowDropFiles = True
   Caption = 'MRIcroGL'
-  ClientHeight = 845
+  ClientHeight = 726
   ClientWidth = 977
   KeyPreview = True
   Menu = MainMenu1
@@ -17,52 +17,52 @@ object GLForm1: TGLForm1
   OnKeyDown = FormKeyDown
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '1.7'
+  LCLVersion = '1.6.2.0'
   object ToolPanel: TPanel
     Left = 0
-    Height = 845
+    Height = 726
     Top = 0
     Width = 216
     Align = alLeft
-    ClientHeight = 845
+    ClientHeight = 726
     ClientWidth = 216
     ParentFont = False
     TabOrder = 0
     OnClick = ToolPanelClick
     object ClipBox: TGroupBox
       Left = 1
-      Height = 88
+      Height = 92
       Top = 125
       Width = 214
       Align = alTop
       Caption = 'Clipping'
-      ClientHeight = 66
-      ClientWidth = 206
+      ClientHeight = 73
+      ClientWidth = 210
       ParentFont = False
       TabOrder = 0
       object Label4: TLabel
         Left = 3
-        Height = 16
+        Height = 22
         Top = 2
-        Width = 38
+        Width = 53
         Caption = 'Depth'
         ParentColor = False
         OnClick = Label4Click
       end
       object Label5: TLabel
         Left = 3
-        Height = 16
+        Height = 22
         Top = 24
-        Width = 53
+        Width = 72
         Caption = 'Azimuth'
         ParentColor = False
         OnClick = Label5Click
       end
       object Label6: TLabel
         Left = 3
-        Height = 16
+        Height = 22
         Top = 46
-        Width = 57
+        Width = 82
         Caption = 'Elevation'
         ParentColor = False
         OnClick = Label6Click
@@ -104,22 +104,22 @@ object GLForm1: TGLForm1
     end
     object ShaderBox: TGroupBox
       Left = 1
-      Height = 194
-      Top = 650
+      Height = 69
+      Top = 656
       Width = 214
       Align = alClient
       Caption = 'Shader'
-      ClientHeight = 172
-      ClientWidth = 206
+      ClientHeight = 50
+      ClientWidth = 210
       ParentFont = False
       TabOrder = 1
       OnResize = ShaderBoxResize
       object Label1: TLabel
         Left = 117
-        Height = 16
+        Height = 22
         Hint = 'Lower quality renders faster, higher quality looks better'
         Top = 4
-        Width = 10
+        Width = 14
         Caption = 'Q'
         ParentColor = False
         ParentShowHint = False
@@ -127,10 +127,10 @@ object GLForm1: TGLForm1
       end
       object Label2: TLabel
         Left = 3
-        Height = 16
+        Height = 22
         Hint = 'Set the elevation and azimuth of the illumination'
         Top = 29
-        Width = 32
+        Width = 44
         Caption = 'Light'
         ParentColor = False
         ParentShowHint = False
@@ -138,7 +138,7 @@ object GLForm1: TGLForm1
       end
       object ShaderDrop: TComboBox
         Left = 2
-        Height = 20
+        Height = 31
         Top = 0
         Width = 110
         DropDownCount = 24
@@ -149,7 +149,7 @@ object GLForm1: TGLForm1
       end
       object QualityTrack: TTrackBar
         Left = 132
-        Height = 22
+        Height = 43
         Top = 0
         Width = 66
         Min = 1
@@ -160,7 +160,7 @@ object GLForm1: TGLForm1
       end
       object ElevTrack: TTrackBar
         Left = 46
-        Height = 22
+        Height = 43
         Top = 26
         Width = 66
         Max = 90
@@ -172,7 +172,7 @@ object GLForm1: TGLForm1
       end
       object AziTrack: TTrackBar
         Left = 132
-        Height = 22
+        Height = 43
         Top = 26
         Width = 66
         Max = 180
@@ -185,8 +185,8 @@ object GLForm1: TGLForm1
       object Memo1: TMemo
         Left = 0
         Height = 56
-        Top = 116
-        Width = 206
+        Top = -6
+        Width = 210
         Align = alBottom
         Lines.Strings = (
           'Memo1'
@@ -376,8 +376,8 @@ object GLForm1: TGLForm1
       Width = 214
       Align = alTop
       Caption = 'Intensity Minimum..Maximum'
-      ClientHeight = 28
-      ClientWidth = 206
+      ClientHeight = 31
+      ClientWidth = 210
       ParentFont = False
       TabOrder = 2
       object MinEdit: TEdit
@@ -406,36 +406,36 @@ object GLForm1: TGLForm1
     end
     object CutoutBox: TGroupBox
       Left = 1
-      Height = 90
-      Top = 472
+      Height = 92
+      Top = 476
       Width = 214
       Align = alTop
       Caption = 'Cutout'
-      ClientHeight = 68
-      ClientWidth = 206
+      ClientHeight = 73
+      ClientWidth = 210
       ParentFont = False
       TabOrder = 3
       object Xx: TLabel
         Left = 3
-        Height = 16
+        Height = 22
         Top = 1
-        Width = 8
+        Width = 12
         Caption = 'X'
         ParentColor = False
       end
       object Yy: TLabel
         Left = 3
-        Height = 16
+        Height = 22
         Top = 23
-        Width = 8
+        Width = 11
         Caption = 'Y'
         ParentColor = False
       end
       object Zz: TLabel
         Left = 3
-        Height = 16
+        Height = 22
         Top = 45
-        Width = 8
+        Width = 12
         Caption = 'Z'
         ParentColor = False
       end
@@ -538,20 +538,20 @@ object GLForm1: TGLForm1
     object MosaicBox: TGroupBox
       Left = 1
       Height = 259
-      Top = 213
+      Top = 217
       Width = 214
       Align = alTop
       Caption = 'Mosaic'
-      ClientHeight = 237
-      ClientWidth = 206
+      ClientHeight = 240
+      ClientWidth = 210
       ParentFont = False
       TabOrder = 5
       Visible = False
       object MosaicText: TMemo
         Left = 0
-        Height = 121
+        Height = 124
         Top = 116
-        Width = 206
+        Width = 210
         Align = alClient
         Lines.Strings = (
           'MosaicText'
@@ -562,11 +562,11 @@ object GLForm1: TGLForm1
         Left = 0
         Height = 116
         Top = 0
-        Width = 206
+        Width = 210
         Align = alTop
         BevelOuter = bvNone
         ClientHeight = 116
-        ClientWidth = 206
+        ClientWidth = 210
         TabOrder = 1
         object ColOverlap: TTrackBar
           Left = 126
@@ -582,7 +582,7 @@ object GLForm1: TGLForm1
         end
         object ColEdit: TSpinEdit
           Left = 64
-          Height = 16
+          Height = 27
           Top = 2
           Width = 54
           MaxValue = 20
@@ -593,23 +593,23 @@ object GLForm1: TGLForm1
         end
         object Label7: TLabel
           Left = 3
-          Height = 16
+          Height = 22
           Top = 2
-          Width = 56
+          Width = 76
           Caption = 'Columns'
           ParentColor = False
         end
         object Label3: TLabel
           Left = 3
-          Height = 16
+          Height = 22
           Top = 26
-          Width = 33
+          Width = 45
           Caption = 'Rows'
           ParentColor = False
         end
         object RowEdit: TSpinEdit
           Left = 64
-          Height = 16
+          Height = 27
           Top = 26
           Width = 54
           MaxValue = 20
@@ -632,7 +632,7 @@ object GLForm1: TGLForm1
         end
         object OrientDrop: TComboBox
           Left = 104
-          Height = 20
+          Height = 27
           Top = 48
           Width = 93
           ItemHeight = 0
@@ -650,17 +650,17 @@ object GLForm1: TGLForm1
         end
         object Label8: TLabel
           Left = 3
-          Height = 16
+          Height = 22
           Top = 50
-          Width = 71
+          Width = 100
           Caption = 'Orientation'
           ParentColor = False
         end
         object CrossCheck: TCheckBox
           Left = 3
-          Height = 18
+          Height = 22
           Top = 70
-          Width = 87
+          Width = 95
           Caption = 'Cross slice'
           OnChange = UpdateMosaic
           TabOrder = 5
@@ -685,9 +685,9 @@ object GLForm1: TGLForm1
         end
         object LabelCheck: TCheckBox
           Left = 104
-          Height = 18
+          Height = 22
           Top = 70
-          Width = 91
+          Width = 100
           Caption = 'Label slices'
           OnChange = UpdateMosaic
           TabOrder = 8
@@ -701,16 +701,16 @@ object GLForm1: TGLForm1
       Width = 214
       Align = alTop
       Caption = 'Overlays'
-      ClientHeight = 52
-      ClientWidth = 206
+      ClientHeight = 55
+      ClientWidth = 210
       ParentFont = False
       TabOrder = 6
       Visible = False
       object StringGrid1: TStringGrid
         Left = 0
-        Height = 52
+        Height = 55
         Top = 0
-        Width = 206
+        Width = 210
         Align = alClient
         AutoEdit = False
         BorderStyle = bsNone
@@ -731,7 +731,7 @@ object GLForm1: TGLForm1
       end
       object LUTdrop: TComboBox
         Left = 66
-        Height = 20
+        Height = 27
         Top = 30
         Width = 55
         DropDownCount = 22
@@ -765,12 +765,12 @@ object GLForm1: TGLForm1
     object Slice2DBox: TGroupBox
       Left = 1
       Height = 88
-      Top = 562
+      Top = 568
       Width = 214
       Align = alTop
       Caption = '2D Slices'
-      ClientHeight = 66
-      ClientWidth = 206
+      ClientHeight = 69
+      ClientWidth = 210
       ParentFont = False
       TabOrder = 8
       object LeftBtn: TSpeedButton
@@ -830,7 +830,7 @@ object GLForm1: TGLForm1
   end
   object CollapsedToolPanel: TPanel
     Left = 216
-    Height = 845
+    Height = 726
     Top = 0
     Width = 3
     Align = alLeft
