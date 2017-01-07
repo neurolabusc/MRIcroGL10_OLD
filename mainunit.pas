@@ -1,7 +1,7 @@
 unit mainunit;
 {$IFDEF FPC}{$H+}{$mode delphi}   {$ENDIF}
 {$D-,O+,Q-,R-,S-}
-{$include options.inc}
+{$include opts.inc}
 interface
 //{$IFDEF FPC}
 {$DEFINE COMPILEYOKE}
@@ -27,6 +27,36 @@ Windows,{$IFDEF FPC}uscaledpi,{$ENDIF}{$ENDIF}
     {$ENDIF}
 type { TGLForm1 }
 TGLForm1 = class(TForm)
+    S1Check: TCheckBox;
+    S1Label: TLabel;
+    S1Track: TTrackBar;
+    S2Check: TCheckBox;
+    S2Label: TLabel;
+    S2Track: TTrackBar;
+    S3Check: TCheckBox;
+    S3Label: TLabel;
+    S3Track: TTrackBar;
+    S4Check: TCheckBox;
+    S4Label: TLabel;
+    S4Track: TTrackBar;
+    S5Check: TCheckBox;
+    S5Label: TLabel;
+    S5Track: TTrackBar;
+    S6Check: TCheckBox;
+    S6Label: TLabel;
+    S6Track: TTrackBar;
+    S7Check: TCheckBox;
+    S7Label: TLabel;
+    S7Track: TTrackBar;
+    S8Check: TCheckBox;
+    S8Label: TLabel;
+    S8Track: TTrackBar;
+    S9Check: TCheckBox;
+    S9Label: TLabel;
+    S9Track: TTrackBar;
+    S10Check: TCheckBox;
+    S10Label: TLabel;
+    S10Track: TTrackBar;
     ColEdit: TSpinEdit;
     ColOverlap: TTrackBar;
     CopyScriptBtn: TButton;
@@ -112,8 +142,8 @@ TGLForm1 = class(TForm)
   Label1: TLabel;
   Label2: TLabel;
   QualityTrack: TTrackBar;
-  ElevTrack: TTrackBar;
-  AziTrack: TTrackBar;
+  LightElevTrack: TTrackBar;
+  LightAziTrack: TTrackBar;
   Memo1: TMemo;
   IntensityBox: TGroupBox;
   MinEdit: TEdit;
@@ -2115,8 +2145,8 @@ begin
   //  else if (ShaderBox.Parent <> ToolPanel) then
   //    ShaderBox.Parent := ToolPanel;
   lDesiredControlSz := ShaderPanelHeight;
-     if ShaderBox.Height > (lDesiredControlSz+kMinMemoSz) then begin
-        Memo1.Height := ShaderBox.Height - lDesiredControlSz;
+     if ShaderBox.ClientHeight > (lDesiredControlSz+kMinMemoSz) then begin
+        Memo1.Height := ShaderBox.ClientHeight - lDesiredControlSz;
         Memo1.visible := true;
      end
      else
@@ -2315,8 +2345,8 @@ end;
 
 procedure TGLForm1.AziElevChange(Sender: TObject);
 begin
-  gRayCast.LightAzimuth := AziTrack.Position;
-  gRayCast.LightElevation := ElevTrack.Position;
+  gRayCast.LightAzimuth := LightAziTrack.Position;
+  gRayCast.LightElevation := LightElevTrack.Position;
   GLBox.Invalidate;
 end;
 
@@ -2333,7 +2363,10 @@ end;
 
 procedure TGLForm1.UniformChange(Sender: TObject);
 begin
-     ZUniformChange(Sender);
+//ZUniformChange(Sender);
+//GLbox.Invalidate;
+     GLForm1.memo1.lines.clear;
+     ReportUniformChange(Sender);
      GLbox.Invalidate;
 end;
 

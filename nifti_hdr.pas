@@ -1,5 +1,5 @@
 unit nifti_hdr;
-{$include options.inc}
+{$include opts.inc}
 {$D-,O+,Q-,R-,S-}
 interface
 uses

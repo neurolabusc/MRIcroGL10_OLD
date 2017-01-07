@@ -1,7 +1,7 @@
 unit histogram;
 
 interface
-{$include options.inc}
+{$include opts.inc}
 {$D-,L-,O+,Q-,R-,Y-,S-}
 uses
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unita, {$ELSE} texture_3d_unit,{$ENDIF}

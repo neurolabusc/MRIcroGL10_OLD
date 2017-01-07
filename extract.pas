@@ -3,7 +3,7 @@ unit extract;
 {$IFDEF FPC}{$mode delphi}{$ENDIF}
 
 interface
-{$include options.inc}
+{$include opts.inc}
 uses
  // LCLIntf,//<- only for gettickcount
   {$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF}

@@ -1,7 +1,7 @@
 unit colorbar2d;
 {$D-,L-,O+,Q-,R-,Y-,S-}
 interface
-{$include options.inc}
+{$include opts.inc}
 uses
 {$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF}
 define_types,  textfx,prefs, clut, math;

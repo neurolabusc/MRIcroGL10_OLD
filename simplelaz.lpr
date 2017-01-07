@@ -1,7 +1,7 @@
 program simplelaz;
 
 {$mode objfpc}{$H+}
-{$include options.inc}
+{$include opts.inc}
 uses
 {$IFDEF FPC}{$IFNDEF UNIX} uscaledpi, {$ENDIF}{$IFDEF LINUX} Graphics, uscaledpi, {$ENDIF}{$ENDIF}
   {$IFDEF UNIX}{$IFDEF UseCThreads}

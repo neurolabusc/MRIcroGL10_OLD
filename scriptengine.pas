@@ -1,5 +1,5 @@
 unit scriptengine;
-{$include options.inc}
+{$include opts.inc}
 {$H+}
 {$D-,O+,Q-,R-,S-}
 interface

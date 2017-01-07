@@ -1,7 +1,7 @@
 unit texture2raycast;
 {$IFDEF FPC}{$mode objfpc}{$H+}{$ENDIF}
 interface
-{$include options.inc}
+{$include opts.inc}
 uses
 {$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF}
   {$IFNDEF FPC} Windows, {$ENDIF}  raycastglsl,

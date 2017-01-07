@@ -1,5 +1,5 @@
 unit drawu;
-{$include options.inc}
+{$include opts.inc}
 {$IFDEF FPC}{$mode delphi}{$ENDIF}
 
 interface

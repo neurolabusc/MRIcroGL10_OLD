@@ -9,7 +9,7 @@ unit raycastglsl;
 //   Tips for Shaders from
 //      http://pages.cs.wisc.edu/~nowak/779/779ClassProject.html#bound
 interface
-{$include options.inc}
+{$include opts.inc}
 uses
   {$IFDEF FPC}
     {$IFDEF UNIX} LCLIntf,{$ELSE} Windows, {$ENDIF}
@@ -552,7 +552,7 @@ begin
   if (gRayCast.glslprogram <> 0) then begin glDeleteProgram(gRayCast.glslprogram); gRayCast.glslprogram := 0; end;
   gRayCast.glslprogram :=  initVertFrag(gShader.VertexProgram, gShader.FragmentProgram);
   if (gRayCast.glslprogram = 0) then begin //error: load default shader
-     gShader := LoadShader('');
+     LoadShader('', gShader);
      gRayCast.glslprogram :=  initVertFrag(gShader.VertexProgram, gShader.FragmentProgram);
   end;
 

@@ -1,7 +1,7 @@
 unit shaderu;
 {$IFDEF FPC}{$mode objfpc}{$H+}{$ENDIF}
 {$D-,L-,O+,Q-,R-,Y-,S-}
-{$include options.inc}
+{$include opts.inc}
 interface
 uses
  {$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF} sysutils,dialogs;
@@ -29,12 +29,11 @@ type
   end;
 var
   gShader: TShader;
-
-function LoadShader(lFilename: string): TShader;
+  function LoadShader(lFilename: string; var lShader: TShader): boolean;
 procedure AdjustShaders (lShader: TShader);
 
 implementation
-uses raycastglsl;
+uses raycastglsl, mainunit;
 
 
 procedure AdjustShaders (lShader: TShader);
@@ -44,6 +43,7 @@ var
 begin
   if (lShader.nUniform < 1) or (lShader.nUniform > kMaxUniform) then
     exit;
+  //GLForm1.caption := inttostr(random(888))+'  '+inttostr(lShader.nUniform);
   for i := 1 to lShader.nUniform do begin
     case lShader.Uniform[i].Widget of
       kFloat: uniform1f(lShader.Uniform[i].name,lShader.Uniform[i].defaultV);
@@ -185,7 +185,7 @@ begin
 
 end;
 
-function LoadShader(lFilename: string): TShader;
+function LoadShader(lFilename: string; var lShader: TShader): boolean;
 //modes
 const
   //kCR = chr (13)+chr(10); //UNIX end of line
@@ -200,16 +200,15 @@ var
   S: string;
   U: TUniform;
 begin
-  result.Note := '';
-  result.VertexProgram := '';
-  result.nUniform := 0;
-  result.OverlayVolume := 0;//false;
-  result.FragmentProgram := '';
+  Result := false;
+  lShader.Note := '';
+  lShader.VertexProgram := '';
+  lShader.nUniform := 0;
+  lShader.OverlayVolume := 0;//false;
+  lShader.FragmentProgram := '';
   if not fileexists(lFilename) then  lFilename := lFilename +'.txt';
   if not fileexists(lFilename) then begin
-  //if true  then begin
-       result := DefaultShader;
-      //showmessage('Can not find '+lFilename);
+      lShader := DefaultShader;
     exit;
   end;
   mode := knone;
@@ -227,33 +226,31 @@ begin
       U := StrToUniform(S);
       if U.Widget = kSet then begin
         if U.Name = 'overlayVolume' then
-          result.OverlayVolume:= round(U.min) ; //U.Bool;
+          lShader.OverlayVolume:= round(U.min) ; //U.Bool;
       end else if U.Widget = kNote then
-        result.Note := U.Name
+        lShader.Note := U.Name
       else if U.Widget <> kError then begin
-        if (result.nUniform < kMaxUniform) then begin
-          inc(result.nUniform);
-          result.Uniform[result.nUniform] := U;
+        if (lShader.nUniform < kMaxUniform) then begin
+          inc(lShader.nUniform);
+          lShader.Uniform[lShader.nUniform] := U;
         end else
           showmessage('Too many preferences');
       end ;
       //mode := kpref
     end else if mode = kfrag then
-      result.FragmentProgram := result.FragmentProgram + S+#13#10 //kCR
+      lShader.FragmentProgram := lShader.FragmentProgram + S+#13#10 //kCR
     else if mode = kvert then
-      result.VertexProgram := result.VertexProgram + S+#13#10;
+      lShader.VertexProgram := lShader.VertexProgram + S+#13#10;
   end;//EOF
   CloseFile(F);
-  if result.VertexProgram = '' then
-    result.VertexProgram := kDefaultVertex;
-  if result.FragmentProgram = '' then begin
-    result.nUniform := 0;
-    result.OverlayVolume := 0;//false;
-    result.FragmentProgram :=  kDefaultFragment;
+  if lShader.VertexProgram = '' then
+    lShader.VertexProgram := kDefaultVertex;
+  if lShader.FragmentProgram = '' then begin
+    lShader.nUniform := 0;
+    lShader.OverlayVolume := 0;//false;
+    lShader.FragmentProgram :=  kDefaultFragment;
   end;
+  result := true;
 end;
-
-
-
 end.
 

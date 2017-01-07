@@ -1,7 +1,7 @@
 BEGIN
 //	RESETDEFAULTS;
-//LOADIMAGE('mni152_2009bet');
-LOADIMAGE('avg152T1');
+LOADIMAGE('mni152_2009_256');
+//LOADIMAGE('avg152T1');
 //LOADDRAWING('visiblehuman');
 //OVERLAYLOAD('visiblehuman');
 

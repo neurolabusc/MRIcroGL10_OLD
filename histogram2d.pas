@@ -1,7 +1,7 @@
 unit histogram2d;
 {$IFDEF FPC}{$mode objfpc}{$H+}  {$ENDIF}
 {$D-,L-,O+,Q-,R-,Y-,S-}
-{$include options.inc}
+{$include opts.inc}
 interface
 uses
 {$IFNDEF FPC}windows, {$ENDIF}

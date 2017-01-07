@@ -4,7 +4,7 @@ Interface
 {$H+}
 {$DEFINE xLOADDUMMY}   //<-use LOADDUMMY to test with dynamically generated volume
 
-{$include options.inc}
+{$include opts.inc}
 uses
 {$DEFINE GZIP}
 

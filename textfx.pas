@@ -1,5 +1,5 @@
 unit textfx;
-{$include options.inc}
+{$include opts.inc}
 interface
 uses {$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF}  define_types;
 

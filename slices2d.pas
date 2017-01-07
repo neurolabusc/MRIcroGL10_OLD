@@ -1,6 +1,6 @@
 unit slices2d;
 interface
-{$include options.inc}
+{$include opts.inc}
 uses
  {$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF}
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unita, {$ELSE} texture_3d_unit,{$ENDIF}

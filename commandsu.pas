@@ -1,5 +1,5 @@
 unit commandsu;
-{$include options.inc}
+{$include opts.inc}
 {$D-,O+,Q-,R-,S-}
 {$H+}
 interface
@@ -889,8 +889,8 @@ end;
 procedure SHADERLIGHTAZIMUTHELEVATION (AZI, ELEV: integer);
 begin
   {$IFDEF ENABLESHADER}
-   GLForm1.ElevTrack.Position := Elev;
-   GLForm1.AziTrack.Position := Azi;
+   GLForm1.LightElevTrack.Position := Elev;
+   GLForm1.LightAziTrack.Position := Azi;
    GLForm1.AziElevChange(nil);
   {$ENDIF}
 end;
