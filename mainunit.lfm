@@ -1,13 +1,13 @@
 object GLForm1: TGLForm1
-  Left = 492
-  Height = 824
-  Top = 79
-  Width = 950
+  Left = 946
+  Height = 994
+  Top = 23
+  Width = 1032
   ActiveControl = ToolPanel
   AllowDropFiles = True
   Caption = 'MRIcroGL'
-  ClientHeight = 824
-  ClientWidth = 950
+  ClientHeight = 994
+  ClientWidth = 1032
   KeyPreview = True
   Menu = MainMenu1
   OnClose = FormClose
@@ -20,11 +20,11 @@ object GLForm1: TGLForm1
   LCLVersion = '1.7'
   object ToolPanel: TPanel
     Left = 0
-    Height = 824
+    Height = 994
     Top = 0
     Width = 216
     Align = alLeft
-    ClientHeight = 824
+    ClientHeight = 994
     ClientWidth = 216
     ParentFont = False
     TabOrder = 0
@@ -104,450 +104,22 @@ object GLForm1: TGLForm1
     end
     object ShaderBox: TGroupBox
       Left = 1
-      Height = 406
-      Top = 417
+      Height = 337
+      Top = 656
       Width = 214
       Align = alClient
       Caption = 'Shader'
-      ClientHeight = 384
+      ClientHeight = 315
       ClientWidth = 206
       ParentFont = False
       TabOrder = 1
       OnResize = ShaderBoxResize
-      object Label1: TLabel
-        Left = 117
-        Height = 16
-        Hint = 'Lower quality renders faster, higher quality looks better'
-        Top = 4
-        Width = 10
-        Caption = 'Q'
-        ParentColor = False
-        ParentShowHint = False
-        ShowHint = True
-      end
-      object Label2: TLabel
-        Left = 3
-        Height = 16
-        Hint = 'Set the elevation and azimuth of the illumination'
-        Top = 32
-        Width = 32
-        Caption = 'Light'
-        ParentColor = False
-        ParentShowHint = False
-        ShowHint = True
-      end
-      object ShaderDrop: TComboBox
-        Left = 2
-        Height = 20
-        Top = 0
-        Width = 110
-        DropDownCount = 24
-        ItemHeight = 0
-        OnChange = ShaderDropChange
-        Style = csDropDownList
-        TabOrder = 0
-      end
-      object QualityTrack: TTrackBar
-        Left = 132
-        Height = 43
-        Top = 0
-        Width = 66
-        Min = 1
-        OnChange = QualityTrackChange
-        Position = 3
-        TickStyle = tsNone
-        TabOrder = 1
-      end
-      object LightElevTrack: TTrackBar
-        Left = 46
-        Height = 30
-        Top = 30
-        Width = 66
-        Max = 90
-        Min = -90
-        OnChange = AziElevChange
-        Position = 5
-        TickStyle = tsNone
-        TabOrder = 2
-      end
-      object LightAziTrack: TTrackBar
-        Left = 132
-        Height = 30
-        Top = 30
-        Width = 66
-        Max = 180
-        Min = -180
-        OnChange = AziElevChange
-        Position = 0
-        TickStyle = tsNone
-        TabOrder = 3
-      end
-      object S1Track: TTrackBar
-        Tag = 1
-        Left = 132
-        Height = 30
-        Top = 60
-        Width = 66
-        Max = 100
-        OnChange = UniformChange
-        Position = 50
-        TickStyle = tsNone
-        TabOrder = 5
-      end
-      object S1Label: TLabel
-        Tag = 1
-        Left = 4
-        Height = 16
-        Top = 62
-        Width = 15
-        Caption = 'S1'
-        ParentColor = False
-        ParentShowHint = False
-      end
-      object S1Check: TCheckBox
-        Tag = 1
-        Left = 141
-        Height = 18
-        Hint = 'If checked, edge color varies'
-        Top = 62
-        Width = 20
-        Checked = True
-        OnChange = UniformChange
-        ParentShowHint = False
-        ShowHint = True
-        State = cbChecked
-        TabOrder = 6
-      end
-      object S2Label: TLabel
-        Tag = 2
-        Left = 4
-        Height = 16
-        Top = 92
-        Width = 15
-        Caption = 'S2'
-        ParentColor = False
-        ParentShowHint = False
-      end
-      object S2Check: TCheckBox
-        Tag = 2
-        Left = 141
-        Height = 18
-        Hint = 'If checked, edge color varies'
-        Top = 92
-        Width = 20
-        Checked = True
-        OnChange = UniformChange
-        ParentShowHint = False
-        ShowHint = True
-        State = cbChecked
-        TabOrder = 8
-      end
-      object S2Track: TTrackBar
-        Tag = 2
-        Left = 132
-        Height = 30
-        Top = 90
-        Width = 66
-        Max = 100
-        OnChange = UniformChange
-        Position = 50
-        TickStyle = tsNone
-        TabOrder = 7
-      end
-      object S3Track: TTrackBar
-        Tag = 3
-        Left = 132
-        Height = 30
-        Top = 120
-        Width = 66
-        Max = 100
-        OnChange = UniformChange
-        Position = 50
-        TickStyle = tsNone
-        TabOrder = 9
-      end
-      object S3Check: TCheckBox
-        Tag = 3
-        Left = 141
-        Height = 18
-        Hint = 'If checked, edge color varies'
-        Top = 122
-        Width = 20
-        Checked = True
-        OnChange = UniformChange
-        ParentShowHint = False
-        ShowHint = True
-        State = cbChecked
-        TabOrder = 10
-      end
-      object S3Label: TLabel
-        Tag = 3
-        Left = 4
-        Height = 16
-        Top = 122
-        Width = 15
-        Caption = 'S3'
-        ParentColor = False
-        ParentShowHint = False
-      end
-      object S4Label: TLabel
-        Tag = 4
-        Left = 4
-        Height = 16
-        Top = 152
-        Width = 15
-        Caption = 'S4'
-        ParentColor = False
-        ParentShowHint = False
-      end
-      object S4Check: TCheckBox
-        Tag = 4
-        Left = 141
-        Height = 18
-        Hint = 'If checked, edge color varies'
-        Top = 152
-        Width = 20
-        Checked = True
-        OnChange = UniformChange
-        ParentShowHint = False
-        ShowHint = True
-        State = cbChecked
-        TabOrder = 12
-      end
-      object S4Track: TTrackBar
-        Tag = 4
-        Left = 132
-        Height = 30
-        Top = 150
-        Width = 66
-        Max = 100
-        OnChange = UniformChange
-        Position = 50
-        TickStyle = tsNone
-        TabOrder = 11
-      end
-      object S5Label: TLabel
-        Tag = 5
-        Left = 4
-        Height = 16
-        Top = 182
-        Width = 15
-        Caption = 'S5'
-        ParentColor = False
-        ParentShowHint = False
-      end
-      object S5Check: TCheckBox
-        Tag = 5
-        Left = 141
-        Height = 18
-        Hint = 'If checked, edge color varies'
-        Top = 182
-        Width = 20
-        Checked = True
-        OnChange = UniformChange
-        ParentShowHint = False
-        ShowHint = True
-        State = cbChecked
-        TabOrder = 14
-      end
-      object S5Track: TTrackBar
-        Tag = 5
-        Left = 132
-        Height = 30
-        Top = 180
-        Width = 66
-        Max = 100
-        OnChange = UniformChange
-        Position = 50
-        TickStyle = tsNone
-        TabOrder = 13
-      end
-      object S6Label: TLabel
-        Tag = 6
-        Left = 4
-        Height = 16
-        Top = 212
-        Width = 15
-        Caption = 'S6'
-        ParentColor = False
-        ParentShowHint = False
-      end
-      object S7Label: TLabel
-        Tag = 7
-        Left = 4
-        Height = 16
-        Top = 242
-        Width = 15
-        Caption = 'S7'
-        ParentColor = False
-        ParentShowHint = False
-      end
-      object S8Label: TLabel
-        Tag = 8
-        Left = 4
-        Height = 16
-        Top = 272
-        Width = 15
-        Caption = 'S8'
-        ParentColor = False
-        ParentShowHint = False
-      end
-      object S9Label: TLabel
-        Tag = 9
-        Left = 4
-        Height = 16
-        Top = 302
-        Width = 15
-        Caption = 'S9'
-        ParentColor = False
-        ParentShowHint = False
-      end
-      object S10Label: TLabel
-        Tag = 10
-        Left = 4
-        Height = 16
-        Top = 332
-        Width = 23
-        Caption = 'S10'
-        ParentColor = False
-        ParentShowHint = False
-      end
-      object S6Check: TCheckBox
-        Tag = 6
-        Left = 141
-        Height = 18
-        Hint = 'If checked, edge color varies'
-        Top = 212
-        Width = 20
-        Checked = True
-        OnChange = UniformChange
-        ParentShowHint = False
-        ShowHint = True
-        State = cbChecked
-        TabOrder = 16
-      end
-      object S7Check: TCheckBox
-        Tag = 7
-        Left = 141
-        Height = 18
-        Hint = 'If checked, edge color varies'
-        Top = 242
-        Width = 20
-        Checked = True
-        OnChange = UniformChange
-        ParentShowHint = False
-        ShowHint = True
-        State = cbChecked
-        TabOrder = 18
-      end
-      object S8Check: TCheckBox
-        Tag = 8
-        Left = 141
-        Height = 18
-        Hint = 'If checked, edge color varies'
-        Top = 272
-        Width = 20
-        Checked = True
-        OnChange = UniformChange
-        ParentShowHint = False
-        ShowHint = True
-        State = cbChecked
-        TabOrder = 21
-      end
-      object S9Check: TCheckBox
-        Tag = 9
-        Left = 141
-        Height = 18
-        Hint = 'If checked, edge color varies'
-        Top = 302
-        Width = 20
-        Checked = True
-        OnChange = UniformChange
-        ParentShowHint = False
-        ShowHint = True
-        State = cbChecked
-        TabOrder = 24
-      end
-      object S10Check: TCheckBox
-        Tag = 10
-        Left = 141
-        Height = 18
-        Hint = 'If checked, edge color varies'
-        Top = 332
-        Width = 20
-        Checked = True
-        OnChange = UniformChange
-        ParentShowHint = False
-        ShowHint = True
-        State = cbChecked
-        TabOrder = 20
-      end
-      object S6Track: TTrackBar
-        Tag = 6
-        Left = 132
-        Height = 30
-        Top = 210
-        Width = 66
-        Max = 100
-        OnChange = UniformChange
-        Position = 50
-        TickStyle = tsNone
-        TabOrder = 15
-      end
-      object S7Track: TTrackBar
-        Tag = 7
-        Left = 132
-        Height = 30
-        Top = 240
-        Width = 66
-        Max = 100
-        OnChange = UniformChange
-        Position = 50
-        TickStyle = tsNone
-        TabOrder = 17
-      end
-      object S8Track: TTrackBar
-        Tag = 8
-        Left = 132
-        Height = 30
-        Top = 270
-        Width = 66
-        Max = 100
-        OnChange = UniformChange
-        Position = 50
-        TickStyle = tsNone
-        TabOrder = 19
-      end
-      object S9Track: TTrackBar
-        Tag = 9
-        Left = 132
-        Height = 30
-        Top = 300
-        Width = 66
-        Max = 100
-        OnChange = UniformChange
-        Position = 50
-        TickStyle = tsNone
-        TabOrder = 22
-      end
-      object S10Track: TTrackBar
-        Tag = 10
-        Left = 132
-        Height = 30
-        Top = 330
-        Width = 66
-        Max = 100
-        OnChange = UniformChange
-        Position = 50
-        TickStyle = tsNone
-        TabOrder = 23
-      end
-      object Memo1: TMemo
+      object ShaderMemo: TMemo
         Left = 0
-        Height = 56
-        Top = 328
+        Height = 195
+        Top = 120
         Width = 206
-        Align = alBottom
+        Align = alClient
         Lines.Strings = (
           'Memo1'
           ''
@@ -725,7 +297,446 @@ object GLForm1: TGLForm1
           ''
           ''
         )
-        TabOrder = 4
+        TabOrder = 0
+      end
+      object ShaderPanel: TPanel
+        Left = 0
+        Height = 120
+        Top = 0
+        Width = 206
+        Align = alTop
+        BevelOuter = bvNone
+        ClientHeight = 120
+        ClientWidth = 206
+        TabOrder = 1
+        object ShaderDrop: TComboBox
+          Left = 2
+          Height = 20
+          Top = 0
+          Width = 110
+          DropDownCount = 24
+          ItemHeight = 0
+          OnChange = ShaderDropChange
+          Style = csDropDownList
+          TabOrder = 0
+        end
+        object Label1: TLabel
+          Left = 117
+          Height = 16
+          Hint = 'Lower quality renders faster, higher quality looks better'
+          Top = 4
+          Width = 10
+          Caption = 'Q'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object QualityTrack: TTrackBar
+          Left = 132
+          Height = 43
+          Top = 0
+          Width = 66
+          Min = 1
+          OnChange = QualityTrackChange
+          Position = 3
+          TickStyle = tsNone
+          TabOrder = 1
+        end
+        object Label2: TLabel
+          Left = 3
+          Height = 16
+          Hint = 'Set the elevation and azimuth of the illumination'
+          Top = 32
+          Width = 32
+          Caption = 'Light'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+        object LightElevTrack: TTrackBar
+          Left = 46
+          Height = 30
+          Top = 30
+          Width = 66
+          Max = 90
+          Min = -90
+          OnChange = AziElevChange
+          Position = 5
+          TickStyle = tsNone
+          TabOrder = 2
+        end
+        object LightAziTrack: TTrackBar
+          Left = 132
+          Height = 30
+          Top = 30
+          Width = 66
+          Max = 180
+          Min = -180
+          OnChange = AziElevChange
+          Position = 0
+          TickStyle = tsNone
+          TabOrder = 3
+        end
+        object S1Label: TLabel
+          Tag = 1
+          Left = 4
+          Height = 16
+          Top = 62
+          Width = 15
+          Caption = 'S1'
+          ParentColor = False
+          ParentShowHint = False
+        end
+        object S2Label: TLabel
+          Tag = 2
+          Left = 4
+          Height = 16
+          Top = 92
+          Width = 15
+          Caption = 'S2'
+          ParentColor = False
+          ParentShowHint = False
+        end
+        object S3Label: TLabel
+          Tag = 3
+          Left = 4
+          Height = 16
+          Top = 122
+          Width = 15
+          Caption = 'S3'
+          ParentColor = False
+          ParentShowHint = False
+        end
+        object S4Label: TLabel
+          Tag = 4
+          Left = 4
+          Height = 16
+          Top = 152
+          Width = 15
+          Caption = 'S4'
+          ParentColor = False
+          ParentShowHint = False
+        end
+        object S5Label: TLabel
+          Tag = 5
+          Left = 4
+          Height = 16
+          Top = 182
+          Width = 15
+          Caption = 'S5'
+          ParentColor = False
+          ParentShowHint = False
+        end
+        object S6Label: TLabel
+          Tag = 6
+          Left = 4
+          Height = 16
+          Top = 212
+          Width = 15
+          Caption = 'S6'
+          ParentColor = False
+          ParentShowHint = False
+        end
+        object S7Label: TLabel
+          Tag = 7
+          Left = 4
+          Height = 16
+          Top = 242
+          Width = 15
+          Caption = 'S7'
+          ParentColor = False
+          ParentShowHint = False
+        end
+        object S8Label: TLabel
+          Tag = 8
+          Left = 4
+          Height = 16
+          Top = 272
+          Width = 15
+          Caption = 'S8'
+          ParentColor = False
+          ParentShowHint = False
+        end
+        object S9Label: TLabel
+          Tag = 9
+          Left = 4
+          Height = 16
+          Top = 302
+          Width = 15
+          Caption = 'S9'
+          ParentColor = False
+          ParentShowHint = False
+        end
+        object S10Label: TLabel
+          Tag = 10
+          Left = 4
+          Height = 16
+          Top = 332
+          Width = 23
+          Caption = 'S10'
+          ParentColor = False
+          ParentShowHint = False
+        end
+        object S1Track: TTrackBar
+          Tag = 1
+          Left = 132
+          Height = 30
+          Top = 60
+          Width = 66
+          Max = 100
+          OnChange = UniformChange
+          Position = 50
+          TickStyle = tsNone
+          TabOrder = 4
+        end
+        object S2Track: TTrackBar
+          Tag = 2
+          Left = 132
+          Height = 30
+          Top = 90
+          Width = 66
+          Max = 100
+          OnChange = UniformChange
+          Position = 50
+          TickStyle = tsNone
+          TabOrder = 5
+        end
+        object S3Track: TTrackBar
+          Tag = 3
+          Left = 132
+          Height = 30
+          Top = 120
+          Width = 66
+          Max = 100
+          OnChange = UniformChange
+          Position = 50
+          TickStyle = tsNone
+          TabOrder = 6
+        end
+        object S4Track: TTrackBar
+          Tag = 4
+          Left = 132
+          Height = 30
+          Top = 150
+          Width = 66
+          Max = 100
+          OnChange = UniformChange
+          Position = 50
+          TickStyle = tsNone
+          TabOrder = 7
+        end
+        object S5Track: TTrackBar
+          Tag = 5
+          Left = 132
+          Height = 30
+          Top = 180
+          Width = 66
+          Max = 100
+          OnChange = UniformChange
+          Position = 50
+          TickStyle = tsNone
+          TabOrder = 8
+        end
+        object S6Track: TTrackBar
+          Tag = 6
+          Left = 132
+          Height = 30
+          Top = 210
+          Width = 66
+          Max = 100
+          OnChange = UniformChange
+          Position = 50
+          TickStyle = tsNone
+          TabOrder = 9
+        end
+        object S7Track: TTrackBar
+          Tag = 7
+          Left = 132
+          Height = 30
+          Top = 240
+          Width = 66
+          Max = 100
+          OnChange = UniformChange
+          Position = 50
+          TickStyle = tsNone
+          TabOrder = 10
+        end
+        object S8Track: TTrackBar
+          Tag = 8
+          Left = 132
+          Height = 30
+          Top = 270
+          Width = 66
+          Max = 100
+          OnChange = UniformChange
+          Position = 50
+          TickStyle = tsNone
+          TabOrder = 11
+        end
+        object S9Track: TTrackBar
+          Tag = 9
+          Left = 132
+          Height = 30
+          Top = 300
+          Width = 66
+          Max = 100
+          OnChange = UniformChange
+          Position = 50
+          TickStyle = tsNone
+          TabOrder = 12
+        end
+        object S10Track: TTrackBar
+          Tag = 10
+          Left = 132
+          Height = 30
+          Top = 330
+          Width = 66
+          Max = 100
+          OnChange = UniformChange
+          Position = 50
+          TickStyle = tsNone
+          TabOrder = 13
+        end
+        object S1Check: TCheckBox
+          Tag = 1
+          Left = 141
+          Height = 18
+          Hint = 'If checked, edge color varies'
+          Top = 62
+          Width = 20
+          Checked = True
+          OnChange = UniformChange
+          ParentShowHint = False
+          ShowHint = True
+          State = cbChecked
+          TabOrder = 14
+        end
+        object S2Check: TCheckBox
+          Tag = 2
+          Left = 141
+          Height = 18
+          Hint = 'If checked, edge color varies'
+          Top = 92
+          Width = 20
+          Checked = True
+          OnChange = UniformChange
+          ParentShowHint = False
+          ShowHint = True
+          State = cbChecked
+          TabOrder = 15
+        end
+        object S3Check: TCheckBox
+          Tag = 3
+          Left = 141
+          Height = 18
+          Hint = 'If checked, edge color varies'
+          Top = 122
+          Width = 20
+          Checked = True
+          OnChange = UniformChange
+          ParentShowHint = False
+          ShowHint = True
+          State = cbChecked
+          TabOrder = 16
+        end
+        object S4Check: TCheckBox
+          Tag = 4
+          Left = 141
+          Height = 18
+          Hint = 'If checked, edge color varies'
+          Top = 152
+          Width = 20
+          Checked = True
+          OnChange = UniformChange
+          ParentShowHint = False
+          ShowHint = True
+          State = cbChecked
+          TabOrder = 17
+        end
+        object S5Check: TCheckBox
+          Tag = 5
+          Left = 141
+          Height = 18
+          Hint = 'If checked, edge color varies'
+          Top = 182
+          Width = 20
+          Checked = True
+          OnChange = UniformChange
+          ParentShowHint = False
+          ShowHint = True
+          State = cbChecked
+          TabOrder = 18
+        end
+        object S6Check: TCheckBox
+          Tag = 6
+          Left = 141
+          Height = 18
+          Hint = 'If checked, edge color varies'
+          Top = 212
+          Width = 20
+          Checked = True
+          OnChange = UniformChange
+          ParentShowHint = False
+          ShowHint = True
+          State = cbChecked
+          TabOrder = 19
+        end
+        object S7Check: TCheckBox
+          Tag = 7
+          Left = 141
+          Height = 18
+          Hint = 'If checked, edge color varies'
+          Top = 242
+          Width = 20
+          Checked = True
+          OnChange = UniformChange
+          ParentShowHint = False
+          ShowHint = True
+          State = cbChecked
+          TabOrder = 20
+        end
+        object S8Check: TCheckBox
+          Tag = 8
+          Left = 141
+          Height = 18
+          Hint = 'If checked, edge color varies'
+          Top = 272
+          Width = 20
+          Checked = True
+          OnChange = UniformChange
+          ParentShowHint = False
+          ShowHint = True
+          State = cbChecked
+          TabOrder = 21
+        end
+        object S9Check: TCheckBox
+          Tag = 9
+          Left = 141
+          Height = 18
+          Hint = 'If checked, edge color varies'
+          Top = 302
+          Width = 20
+          Checked = True
+          OnChange = UniformChange
+          ParentShowHint = False
+          ShowHint = True
+          State = cbChecked
+          TabOrder = 22
+        end
+        object S10Check: TCheckBox
+          Tag = 10
+          Left = 141
+          Height = 18
+          Hint = 'If checked, edge color varies'
+          Top = 332
+          Width = 20
+          Checked = True
+          OnChange = UniformChange
+          ParentShowHint = False
+          ShowHint = True
+          State = cbChecked
+          TabOrder = 23
+        end
       end
     end
     object IntensityBox: TGroupBox
@@ -767,7 +778,7 @@ object GLForm1: TGLForm1
     object CutoutBox: TGroupBox
       Left = 1
       Height = 92
-      Top = 237
+      Top = 476
       Width = 214
       Align = alTop
       Caption = 'Cutout'
@@ -897,36 +908,36 @@ object GLForm1: TGLForm1
     end
     object MosaicBox: TGroupBox
       Left = 1
-      Height = 20
+      Height = 259
       Top = 217
       Width = 214
       Align = alTop
       Caption = 'Mosaic'
-      ClientHeight = 0
-      ClientWidth = 0
+      ClientHeight = 237
+      ClientWidth = 206
       ParentFont = False
       TabOrder = 5
       Visible = False
       object MosaicText: TMemo
         Left = 0
-        Height = 0
-        Top = 0
-        Width = 0
+        Height = 121
+        Top = 116
+        Width = 206
         Align = alClient
         Lines.Strings = (
           'MosaicText'
         )
         TabOrder = 0
       end
-      object Panel1: TPanel
+      object MosaicPanel: TPanel
         Left = 0
         Height = 116
         Top = 0
-        Width = 0
+        Width = 206
         Align = alTop
         BevelOuter = bvNone
         ClientHeight = 116
-        ClientWidth = 0
+        ClientWidth = 206
         TabOrder = 1
         object ColOverlap: TTrackBar
           Left = 126
@@ -1125,7 +1136,7 @@ object GLForm1: TGLForm1
     object Slice2DBox: TGroupBox
       Left = 1
       Height = 88
-      Top = 329
+      Top = 568
       Width = 214
       Align = alTop
       Caption = '2D Slices'
@@ -1190,7 +1201,7 @@ object GLForm1: TGLForm1
   end
   object CollapsedToolPanel: TPanel
     Left = 216
-    Height = 824
+    Height = 994
     Top = 0
     Width = 3
     Align = alLeft

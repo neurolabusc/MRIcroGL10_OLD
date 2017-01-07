@@ -50,9 +50,9 @@ end;
 
 function ShaderPanelHeight: integer;
 begin
-  result := 1 + GLForm1.LightElevTrack.top+GLForm1.LightElevTrack.height;
+  result := 2 + GLForm1.LightElevTrack.top+GLForm1.LightElevTrack.height;
   if (gShader.nUniform < 1) or (gShader.nUniform > kMaxUniform) or (sTrack[gShader.nUniform] = 0) then exit;
-  result := 1 + (GLForm1.ShaderBox.Controls[sTrack[gShader.nUniform]] as TTrackBar).top + (GLForm1.ShaderBox.Controls[sTrack[gShader.nUniform]] as TTrackBar).height;
+  result := 2 + (GLForm1.ShaderPanel.Controls[sTrack[gShader.nUniform]] as TTrackBar).top + (GLForm1.ShaderPanel.Controls[sTrack[gShader.nUniform]] as TTrackBar).height;
 end;
 
 procedure CreateAllControls;
@@ -64,14 +64,14 @@ procedure CreateAllControls;
      sLabel[t] := 0;
      sTrack[t] := 0;
    end;
-   for i := 0 to GLForm1.ShaderBox.ControlCount - 1 do begin
-       t := GLForm1.ShaderBox.Controls[i].tag;
+   for i := 0 to GLForm1.ShaderPanel.ControlCount - 1 do begin
+       t := GLForm1.ShaderPanel.Controls[i].tag;
        if (t < 1) or (t > kMaxUniform) then continue;
-       if (GLForm1.ShaderBox.Controls[i] is TCheckBox) then
+       if (GLForm1.ShaderPanel.Controls[i] is TCheckBox) then
           sCheck[t] := i;
-       if (GLForm1.ShaderBox.Controls[i] is TLabel) then
+       if (GLForm1.ShaderPanel.Controls[i] is TLabel) then
           sLabel[t] := i;
-       if (GLForm1.ShaderBox.Controls[i] is TTrackBar) then
+       if (GLForm1.ShaderPanel.Controls[i] is TTrackBar) then
           sTrack[t] := i;
    end;
  end;
@@ -84,9 +84,9 @@ var
 begin
  if (n > kMaxUniform) or (n < 1) then
    exit;
- aCheck := (GLForm1.ShaderBox.Controls[sCheck[n]] as TCheckBox);
- aLabel := (GLForm1.ShaderBox.Controls[sLabel[n]] as TLabel);
- aTrack := (GLForm1.ShaderBox.Controls[sTrack[n]] as TTrackBar);
+ aCheck := (GLForm1.ShaderPanel.Controls[sCheck[n]] as TCheckBox);
+ aLabel := (GLForm1.ShaderPanel.Controls[sLabel[n]] as TLabel);
+ aTrack := (GLForm1.ShaderPanel.Controls[sTrack[n]] as TTrackBar);
  aLabel.Caption := U.Name;
  aLabel.Visible := true;
  if U.Widget = kBool then begin
@@ -113,9 +113,9 @@ begin
     exit;
   UpperName := UpperCase(lProperty);
   for i := 1 to gShader.nUniform do begin
-    aCheck := (GLForm1.ShaderBox.Controls[sCheck[i]] as TCheckBox);
-    aLabel := (GLForm1.ShaderBox.Controls[sLabel[i]] as TLabel);
-    aTrack := (GLForm1.ShaderBox.Controls[sTrack[i]] as TTrackBar);
+    aCheck := (GLForm1.ShaderPanel.Controls[sCheck[i]] as TCheckBox);
+    aLabel := (GLForm1.ShaderPanel.Controls[sLabel[i]] as TLabel);
+    aTrack := (GLForm1.ShaderPanel.Controls[sTrack[i]] as TTrackBar);
     if UpperName = upperCase(aLabel.Caption) then begin
       if aCheck.visible then
         aCheck.Checked := not (lVal = 0.0)
@@ -198,14 +198,14 @@ begin
       ShowUniform(i, gShader.Uniform[i]);
   if gShader.nUniform < kMaxUniform then begin
     for i :=   (gShader.nUniform+1) to kMaxUniform do begin
-      (GLForm1.ShaderBox.Controls[sCheck[i]] as TCheckBox).Visible := false;
-      (GLForm1.ShaderBox.Controls[sLabel[i]] as TLabel).Visible := false;
-      (GLForm1.ShaderBox.Controls[sTrack[i]] as TTrackBar).Visible := false;
+      (GLForm1.ShaderPanel.Controls[sCheck[i]] as TCheckBox).Visible := false;
+      (GLForm1.ShaderPanel.Controls[sLabel[i]] as TLabel).Visible := false;
+      (GLForm1.ShaderPanel.Controls[sTrack[i]] as TTrackBar).Visible := false;
     end;//for all unused
   end; //not max uniforms
   GLForm1.ShaderBoxResize(nil);
-  GLForm1.Memo1.Lines.Clear;
-  GLForm1.Memo1.Lines.Add(gShader.note);
+  GLForm1.ShaderMemo.Lines.Clear;
+  GLForm1.ShaderMemo.Lines.Add(gShader.note);
   {$IFDEF COREGL} UpdateTrackUniforms; {$ENDIF}
   {$IFDEF ENABLESHADER} //MRIcroGL
   M_refresh := true;
@@ -309,24 +309,24 @@ begin
   //GLForm1.updatetimer.enabled := true;
   if gShader.nUniform > 0  then
     for i := 1 to gShader.nUniform do begin
-      aCheck := (GLForm1.ShaderBox.Controls[sCheck[i]] as TCheckBox);
-      aTrack := (GLForm1.ShaderBox.Controls[sTrack[i]] as TTrackBar);
+      aCheck := (GLForm1.ShaderPanel.Controls[sCheck[i]] as TCheckBox);
+      aTrack := (GLForm1.ShaderPanel.Controls[sTrack[i]] as TTrackBar);
       case gShader.Uniform[i].Widget of
         kBool: begin
           if ACheck.visible then
             gShader.Uniform[i].Bool := ACheck.checked;
-          GLForm1.memo1.lines.add('Bool '+ gShader.Uniform[i].name+' '+boolstr(gShader.Uniform[i].Bool) );
+          GLForm1.ShaderMemo.lines.add('Bool '+ gShader.Uniform[i].name+' '+boolstr(gShader.Uniform[i].Bool) );
           end;
         kInt:begin
           if aTrack.visible then
             gShader.Uniform[i].DefaultV := Track2I(aTrack.Position, gShader.Uniform[i].Min,gShader.Uniform[i].Max) ;
-          GLForm1.memo1.lines.add('Int '+ gShader.Uniform[i].name+' '+ inttostr(round(gShader.Uniform[i].defaultV)) );
+          GLForm1.ShaderMemo.lines.add('Int '+ gShader.Uniform[i].name+' '+ inttostr(round(gShader.Uniform[i].defaultV)) );
           end;
         kFloat:
         begin
           if aTrack.visible then
             gShader.Uniform[i].DefaultV := Track2S(aTrack.Position, gShader.Uniform[i].Min,gShader.Uniform[i].Max) ;
-          GLForm1.memo1.lines.add('Float '+ gShader.Uniform[i].name+' '+ floattostrf(gShader.Uniform[i].defaultV,ffGeneral,4,4) );
+          GLForm1.ShaderMemo.lines.add('Float '+ gShader.Uniform[i].name+' '+ floattostrf(gShader.Uniform[i].defaultV,ffGeneral,4,4) );
           //GLForm1.memo1.lines.add('FloatZ '+ floattostrf(gShader.Uniform[i].Min,ffGeneral,4,4))+' '+floattostrf(gShader.Uniform[i].Max,ffGeneral,4,4)) );
           (*{$IFDEF COREGL}
               if AnsiCompareText(gShader.Uniform[i].name, 'Ambient') = 0 then gShader.TrackAmbient:= UnitBound(gShader.Uniform[i].defaultV);

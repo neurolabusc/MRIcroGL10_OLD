@@ -1,5 +1,5 @@
 program simple;
-{$include options.inc}
+{$include opts.inc}
 {$WARN SYMBOL_PLATFORM OFF}
 {$D-,L-,O+,Q-,R-,Y-,S-}
 uses

@@ -27,6 +27,15 @@ Windows,{$IFDEF FPC}uscaledpi,{$ENDIF}{$ENDIF}
     {$ENDIF}
 type { TGLForm1 }
 TGLForm1 = class(TForm)
+    Label1: TLabel;
+    Label2: TLabel;
+    LightAziTrack: TTrackBar;
+    LightElevTrack: TTrackBar;
+    ShaderPanel: TPanel;
+    QualityTrack: TTrackBar;
+    S10Check: TCheckBox;
+    S10Label: TLabel;
+    S10Track: TTrackBar;
     S1Check: TCheckBox;
     S1Label: TLabel;
     S1Track: TTrackBar;
@@ -53,10 +62,6 @@ TGLForm1 = class(TForm)
     S8Track: TTrackBar;
     S9Check: TCheckBox;
     S9Label: TLabel;
-    S9Track: TTrackBar;
-    S10Check: TCheckBox;
-    S10Label: TLabel;
-    S10Track: TTrackBar;
     ColEdit: TSpinEdit;
     ColOverlap: TTrackBar;
     CopyScriptBtn: TButton;
@@ -67,10 +72,12 @@ TGLForm1 = class(TForm)
     LabelCheck: TCheckBox;
     MosaicText: TMemo;
     OrientDrop: TComboBox;
-    Panel1: TPanel;
+    MosaicPanel: TPanel;
     RowEdit: TSpinEdit;
     RowOverlap: TTrackBar;
     RunScriptBtn: TButton;
+    S9Track: TTrackBar;
+    ShaderDrop: TComboBox;
     Slice2DBox: TGroupBox;
     InterpolateDrawMenu: TMenuItem;
     LeftBtn: TSpeedButton;
@@ -138,13 +145,7 @@ TGLForm1 = class(TForm)
   AziTrack1: TTrackBar;
   ElevTrack1: TTrackBar;
   ShaderBox: TGroupBox;
-  ShaderDrop: TComboBox;
-  Label1: TLabel;
-  Label2: TLabel;
-  QualityTrack: TTrackBar;
-  LightElevTrack: TTrackBar;
-  LightAziTrack: TTrackBar;
-  Memo1: TMemo;
+  ShaderMemo: TMemo;
   IntensityBox: TGroupBox;
   MinEdit: TEdit;
   MaxEdit: TEdit;
@@ -2134,7 +2135,13 @@ begin
 end;
 
 procedure TGLForm1.ShaderBoxResize(Sender: TObject);
-const
+begin
+  if not ShaderBox.Visible then exit;
+  if (ShaderPanel.Height <> ShaderPanelHeight) then
+    ShaderPanel.Height := ShaderPanelHeight;
+end;
+
+(*const
 kMinMemoSz= 32;
 var
    lDesiredControlSz: integer;//420;
@@ -2146,12 +2153,12 @@ begin
   //    ShaderBox.Parent := ToolPanel;
   lDesiredControlSz := ShaderPanelHeight;
      if ShaderBox.ClientHeight > (lDesiredControlSz+kMinMemoSz) then begin
-        Memo1.Height := ShaderBox.ClientHeight - lDesiredControlSz;
-        Memo1.visible := true;
+        ShaderMemo.Height := ShaderBox.ClientHeight - lDesiredControlSz;
+        ShaderMemo.visible := true;
      end
      else
-         Memo1.visible := false;//Memo1.Height := kMinMemoSz;
-end;
+         ShaderMemo.visible := false;//ShaderMemo.Height := kMinMemoSz;
+end;*)
 
 procedure TGLForm1.ShowOrthoSliceInfo (isYoke: boolean);
 //Updated Sept 2014 to include overlay information
@@ -2363,11 +2370,11 @@ end;
 
 procedure TGLForm1.UniformChange(Sender: TObject);
 begin
-//ZUniformChange(Sender);
-//GLbox.Invalidate;
-     GLForm1.memo1.lines.clear;
-     ReportUniformChange(Sender);
-     GLbox.Invalidate;
+  ShaderMemo.lines.BeginUpdate;
+  ShaderMemo.lines.clear;
+  ReportUniformChange(Sender);
+  ShaderMemo.Lines.EndUpdate;
+  GLbox.Invalidate;
 end;
 
 procedure TGLForm1.UpdateTimerTimer(Sender: TObject);

@@ -146,9 +146,10 @@
         <ComponentName Value="GLForm1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <IsVisibleTab Value="True"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="2343"/>
-        <CursorPos X="12" Y="2361"/>
+        <TopLine Value="2130"/>
+        <CursorPos X="12" Y="2137"/>
         <UsageCount Value="207"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -226,11 +227,10 @@
       <Unit9>
         <Filename Value="shaderui.pas"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="193"/>
-        <CursorPos X="11" Y="214"/>
+        <TopLine Value="316"/>
+        <CursorPos X="29" Y="329"/>
         <UsageCount Value="224"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -249,7 +249,7 @@
         <WindowIndex Value="1"/>
         <TopLine Value="230"/>
         <CursorPos X="5" Y="254"/>
-        <UsageCount Value="87"/>
+        <UsageCount Value="89"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit11>
@@ -622,131 +622,131 @@
         <EditorIndex Value="3"/>
         <WindowIndex Value="1"/>
         <CursorPos Y="5"/>
-        <UsageCount Value="11"/>
+        <UsageCount Value="13"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit53>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="154" Column="135" TopLine="132"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2311" Column="28" TopLine="2281"/>
       </Position1>
       <Position2>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="155" Column="137" TopLine="133"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2310" Column="28" TopLine="2280"/>
       </Position2>
       <Position3>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="289" Column="25" TopLine="268"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2309" Column="28" TopLine="2279"/>
       </Position3>
       <Position4>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="290" Column="40" TopLine="268"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2308" Column="28" TopLine="2278"/>
       </Position4>
       <Position5>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="291" Column="114" TopLine="269"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2318" Column="28" TopLine="2288"/>
       </Position5>
       <Position6>
-        <Filename Value="raycastglsl.pas"/>
-        <Caret Line="876" Column="16" TopLine="868"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2317" Column="28" TopLine="2287"/>
       </Position6>
       <Position7>
-        <Filename Value="shaderu.pas"/>
-        <Caret Line="47" Column="26" TopLine="36"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2316" Column="28" TopLine="2286"/>
       </Position7>
       <Position8>
-        <Filename Value="shaderu.pas"/>
-        <Caret Line="37" Column="29" TopLine="29"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2315" Column="28" TopLine="2285"/>
       </Position8>
       <Position9>
-        <Filename Value="shaderu.pas"/>
-        <Caret Line="40" Column="65" TopLine="37"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2314" Column="28" TopLine="2284"/>
       </Position9>
       <Position10>
-        <Filename Value="shaderu.pas"/>
-        <Caret Line="33" Column="45" TopLine="21"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2313" Column="28" TopLine="2283"/>
       </Position10>
       <Position11>
-        <Filename Value="shaderu.pas"/>
-        <Caret Line="189" Column="45" TopLine="176"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2312" Column="28" TopLine="2282"/>
       </Position11>
       <Position12>
-        <Filename Value="shaderu.pas"/>
-        <Caret Line="36" Column="7" TopLine="17"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2311" Column="28" TopLine="2281"/>
       </Position12>
       <Position13>
-        <Filename Value="shaderu.pas"/>
-        <Caret Line="324" TopLine="298"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2310" Column="28" TopLine="2280"/>
       </Position13>
       <Position14>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="169" Column="36" TopLine="153"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2309" Column="28" TopLine="2279"/>
       </Position14>
       <Position15>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="155" Column="137" TopLine="150"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2308" Column="28" TopLine="2278"/>
       </Position15>
       <Position16>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="17" Column="45"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2318" Column="28" TopLine="2288"/>
       </Position16>
       <Position17>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="190" TopLine="164"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="3240" Column="14" TopLine="3222"/>
       </Position17>
       <Position18>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="169" TopLine="168"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="3239" Column="28" TopLine="3222"/>
       </Position18>
       <Position19>
-        <Filename Value="shaderu.pas"/>
-        <Caret Line="32" Column="22" TopLine="14"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="3235" Column="5" TopLine="3222"/>
       </Position19>
       <Position20>
         <Filename Value="shaderui.pas"/>
-        <Caret Line="16"/>
+        <Caret Line="61" Column="39" TopLine="40"/>
       </Position20>
       <Position21>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="2369" Column="6" TopLine="2364"/>
+        <Filename Value="shaderui.pas"/>
+        <Caret Line="55" Column="37" TopLine="37"/>
       </Position21>
       <Position22>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="165" Column="3" TopLine="152"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="3235" Column="5" TopLine="3222"/>
       </Position22>
       <Position23>
         <Filename Value="shaderui.pas"/>
-        <Caret Line="17" Column="21"/>
+        <Caret Line="89" Column="32" TopLine="73"/>
       </Position23>
       <Position24>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="2361" Column="13" TopLine="2343"/>
+        <Filename Value="shaderui.pas"/>
+        <Caret Line="118" Column="35" TopLine="102"/>
       </Position24>
       <Position25>
         <Filename Value="shaderui.pas"/>
-        <Caret Line="17" Column="20"/>
+        <Caret Line="208" Column="17" TopLine="187"/>
       </Position25>
       <Position26>
         <Filename Value="shaderui.pas"/>
-        <Caret Line="23" Column="20"/>
+        <Caret Line="323" Column="29" TopLine="298"/>
       </Position26>
       <Position27>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="104" Column="21" TopLine="74"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="3240" Column="44" TopLine="3227"/>
       </Position27>
       <Position28>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="212" Column="26" TopLine="182"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="3272" Column="20" TopLine="3249"/>
       </Position28>
       <Position29>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="195" Column="3" TopLine="177"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="331" Column="30" TopLine="318"/>
       </Position29>
       <Position30>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="138" Column="5" TopLine="122"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="1294" Column="18" TopLine="1271"/>
       </Position30>
     </JumpHistory>
   </ProjectOptions>
