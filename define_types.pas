@@ -8,7 +8,7 @@ interface
                {$IFDEF GUI}LCLType,lclintf, {$ENDIF}
         {$ENDIF}
         {$IFNDEF Unix} Windows,{$ENDIF}
-        SysUtils,classes,graphics,userdir,
+        SysUtils,classes,graphics,userdir,math,
         {$IFDEF GUI} forms,dialogs,controls;{$ELSE} dialogsx;{$ENDIF}
 const
      NaN : double = 1/0;
@@ -181,8 +181,30 @@ function FloatMaxVal (lA,lB,lC: single): single;
 function FloatMinVal (lA,lB,lC: single): single;
 function ResetIniDefaults : boolean;
 procedure ShowDebug (lS: AnsiString);
+function float2str(Avalue:double; ADigits:integer):string; //e.g x:single=2.6; floattostrf(x,8,4);
 
 implementation
+
+function float2str(Avalue:double; ADigits:integer):string; //e.g x:single=2.6; floattostrf(x,8,4);
+//http://stackoverflow.com/questions/5650051/how-to-keep-2-decimal-places-in-delphi
+var v:double; p:integer; e:string;
+begin
+  if abs(Avalue)<1 then
+  begin
+    result:=floatTostr(Avalue);
+    p:=pos('E',result);
+    if p>0 then
+    begin
+      e:=copy(result,p,length(result));
+      setlength(result,p-1);
+      v:=RoundTo(StrToFloat(result),-Adigits);
+      result:=FloatToStr(v)+e;
+    end else
+      result:=FloatToStr(RoundTo(Avalue,-Adigits));
+  end
+  else
+    result:=FloatToStr(RoundTo(Avalue,-Adigits));
+end;
 
 procedure ShowDebug (lS: AnsiString);
 begin

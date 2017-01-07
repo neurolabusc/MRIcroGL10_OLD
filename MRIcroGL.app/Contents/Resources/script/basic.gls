@@ -1,9 +1,9 @@
-BEGIN
-//	RESETDEFAULTS;
-LOADIMAGE('mni152_2009_256');
-//LOADIMAGE('avg152T1');
-//LOADDRAWING('visiblehuman');
-//OVERLAYLOAD('visiblehuman');
-
-END.
+begin
+	LOADIMAGE('avg152T1');
+	//RESETDEFAULTS;
+	//LOADIMAGE('mni152_2009bet');
+	//CLIPAZIMUTHELEVATION(0.3, 0, 130);
+	//OVERLAYLOAD('motor');
+	//OVERLAYMINMAX(1, 2.6, 4);
+end.
 

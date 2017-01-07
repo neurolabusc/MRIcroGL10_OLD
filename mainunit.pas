@@ -8,7 +8,7 @@ interface
 //{$ENDIF}
 uses
 {$IFDEF COMPILEYOKE}
-yokesharemem, coordinates, nii_mat,
+yokesharemem, coordinates, nii_mat, math,
 {$ENDIF}
 {$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF} types,clipbrd,
 {$IFNDEF FPC} messages,ShellAPI, pngimage,JPEG,detectmsaa,{$ENDIF}Dialogs, ExtCtrls, Menus,  shaderu, texture2raycast,
@@ -272,7 +272,7 @@ TGLForm1 = class(TForm)
     procedure StringGrid1SelectCell(Sender: TObject; aCol, aRow: Integer;
       var CanSelect: Boolean);
     procedure UpdateImageIntensity (lOverlay: integer);
-    procedure UpdateImageIntensityMinMax (lOverlay: integer; lMinIn,lMaxIn: single);
+    procedure UpdateImageIntensityMinMax (lOverlay: integer; lMinIn,lMaxIn: double);
     procedure UpdateOverlaySpreadI (lIndex: integer);
     procedure UpdateLUT(lOverlay,lLUTIndex: integer; lChangeDrop: boolean);
     procedure Addoverlay1Click(Sender: TObject);
@@ -885,6 +885,28 @@ begin
   UpdateTimer.enabled := false;
 end;
 
+(*procedure TGLForm1.SelectIntensityMinMax(lMin,lMax: single);
+var
+  mn,mx,range: single;
+  lLog10: integer;
+begin
+    if lMin > lMax then begin
+      mn := lMax;
+      mx := lMin;
+    end else begin
+      mn := lMin;
+      mx := lMax;
+    end;
+    lLog10 := trunc(log10( mx-mn))-1;
+    mn := roundto(mn,lLog10);
+    mx := roundto(mx,lLog10);
+
+    gCLUTrec.min := mn;
+    gCLUTrec.max := mx;
+    MinEdit.text := float2str(mn, 3);
+    MaxEdit.text := float2str(mx,3);
+    M_refresh := true;
+end; *)
 procedure TGLForm1.SelectIntensityMinMax(lMin,lMax: single);
 var
   mn,mx,range: single;
@@ -2012,7 +2034,7 @@ end;
    {$IFDEF LCLCocoa}str := str + ' (Cocoa) '; {$ENDIF}
    {$IFDEF LCLCarbon}str := str + ' (Carbon) '; {$ENDIF}
    {$IFDEF DGL} str := str +' (DGL) '; {$ENDIF}//the DGL library has more dependencies - report this if incompatibilities are found
-  str := 'MRIcroGL '+str+' 25 December 2016'
+  str := 'MRIcroGL '+str+' 1 January 2017'
    +kCR+' www.mricro.com :: BSD 2-Clause License (opensource.org/licenses/BSD-2-Clause)'
    +kCR+' Dimensions '+inttostr(gTexture3D.NIFTIhdr.dim[1])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[2])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[3])
    +kCR+' Bytes per voxel '+inttostr(gTexture3D.NIFTIhdr.bitpix div 8)
@@ -2285,8 +2307,8 @@ begin
     if gRayCast.slices < 1 then
        gRayCast.slices := 100;
     AreaInitialized:=true;
-    MinEdit.Text := floattostr(gCLUTrec.min);
-    MaxEdit.Text := floattostr(gCLUTrec.max);
+    MinEdit.Text := float2str(gCLUTrec.min,3);
+    MaxEdit.Text := float2str(gCLUTrec.max,3);
     if (gPrefs.SliceView > 0) and (gPrefs.SliceView < 5)  then
        ShowOrthoSliceInfo (false);
     if gInitialSetup then begin
@@ -3301,8 +3323,7 @@ begin
     gOpenOverlays := 0;
 end;
 
-
-procedure TGLForm1.UpdateImageIntensityMinMax (lOverlay: integer; lMinIn,lMaxIn: single);
+procedure TGLForm1.UpdateImageIntensityMinMax (lOverlay: integer; lMinIn,lMaxIn: double);
 var
    lMin,lMax: single;
 begin
@@ -3316,8 +3337,12 @@ begin
     end;
    gOverlayImg[lOverlay].WindowScaledMin := lMin;
    gOverlayImg[lOverlay].WindowScaledMax := lMax;
-   StringGrid1.Cells[kMin,lOverlay] := floattostr(lMin);
-   StringGrid1.Cells[kMax,lOverlay] := floattostr(lMax);
+   StringGrid1.Cells[kMin,lOverlay] := float2str(lMin,3);
+   StringGrid1.Cells[kMax,lOverlay] := float2str(lMax,3);
+   //StringGrid1.Cells[kMin,lOverlay] := floattostrf(lMin, ffGeneral, 8, 3); //requires extended precision: lMin = 2.6 yields 2.5999999
+   //StringGrid1.Cells[kMax,lOverlay] := floattostrf(lMax, ffGeneral, 8, 3);
+   //StringGrid1.Cells[kMin,lOverlay] := floattostr(lMin);
+   //StringGrid1.Cells[kMax,lOverlay] := floattostr(lMax);
    UpdateImageIntensity(lOverlay);
 end;
 

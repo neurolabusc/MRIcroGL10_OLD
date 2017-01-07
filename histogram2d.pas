@@ -210,6 +210,11 @@ begin
   if x = 0 then x := 1; //aoid divide by zero
   nsz := (lCLUTrec.min-Tex.WindowScaledMin)/x*C.Width;
   nsz2 := (lCLUTrec.max-Tex.WindowScaledMin)/x*C.Width;
+  if (lCLUTrec.min > lCLUTrec.max) then begin
+     y := nsz;
+     nsz := nsz2;
+     nsz2 := y;
+  end;
   SetColor(C.rgba);
   glLineWidth(1);
   glBegin(GL_LINES);

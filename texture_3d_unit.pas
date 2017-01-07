@@ -16,7 +16,7 @@ uses
 //{$IFDEF Unix}LCLIntf, {$ELSE} Windows,{$ENDIF}
   SysUtils,
   Dialogs,clut,
-{$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF} nii_mat,
+{$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF} nii_mat, math,
   ExtCtrls,  nifti_hdr, define_types,nii_label, nifti_types, coordinates;
 Type
   TTexture =  RECORD //3D data
@@ -1092,7 +1092,7 @@ Function Load_From_NIfTI (var lTexture: TTexture; Const F_FileName : String; lPo
 var
   CalRange, ImgRange: double;
   lPadX,lPadY,lPadZ,lI,lZ,lY,lX,lSLiceStart,lLineStart,
-  lPos,lInVox,lOutVox: integer;
+  lPos,lInVox,lOutVox, lLog10: integer;
   lMinS,lMaxS: single;
   lFilename: string;
   lHdr: TMRIcroHdr;
@@ -1344,14 +1344,20 @@ begin //Proc Load_From_NIfTI
       lTexture.MaxThreshScaled := 100;
     end else if (CalRange < (1.2 * ImgRange)) and (lHdr.NIFTIHdr.cal_min < lHdr.NIFTIHdr.cal_max) and InRange(lTexture.WindowScaledMin,lTexture.WindowScaledMax,lHdr.NIFTIHdr.cal_min,lHdr.NIFTIHdr.cal_max) then begin
       //need to create histogram so user will see a CLUT in the 'Color&Transparency' window.... 1/2010
+
       CreateHistoThresh(lTexture, lTexture.WindowScaledMin, lTexture.WindowScaledMax, lTexture.UnscaledHisto, true,0,lTexture.MinThreshScaled,lTexture.MaxThreshScaled);
       lTexture.MinThreshScaled := lHdr.NIFTIHdr.cal_min;
       lTexture.MaxThreshScaled := lHdr.NIFTIHdr.cal_max;
+
       //fx(lTexture.MinThreshScaled,lTexture.MaxThreshScaled);
     //end else if lTexture.isMRA then begin
     //  CreateHistoThresh(lTexture, lTexture.WindowScaledMin, lTexture.WindowScaledMax, lTexture.UnscaledHisto, true,0,lTexture.MinThreshScaled,lTexture.MaxThreshScaled)
-    end else
+    end else begin
       CreateHistoThresh(lTexture, lTexture.WindowScaledMin, lTexture.WindowScaledMax, lTexture.UnscaledHisto, true,0.005,lTexture.MinThreshScaled,lTexture.MaxThreshScaled);
+      lLog10 := trunc(log10( lTexture.MaxThreshScaled-lTexture.MinThreshScaled))-1;
+      lTexture.MinThreshScaled := roundto(lTexture.MinThreshScaled,lLog10);
+      lTexture.MaxThreshScaled := roundto(lTexture.MaxThreshScaled,lLog10);
+    end;
     AutoContrast(gCLUTrec);
     RangeRec(lTexture.MinThreshScaled,lTexture.MaxThreshScaled);
     lTexture.NIFTIhdr := lHdr.NIFTIhdr;

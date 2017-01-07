@@ -62,13 +62,15 @@ end;
 procedure ComputeThreshM (var lM: TMRIcroHdr);
 var
   lT: TTexture;
+  lLog10: integer;
 begin
   if not M2T (lM,lT) then
     exit;
   ComputeMinMax(lT);
   CreateHistoThresh(lT, lT.WindowScaledMin, lT.WindowScaledMax, lT.UnscaledHisto, true,0.005,lT.MinThreshScaled,lT.MaxThreshScaled);
-  lM.WindowScaledMin := lT.MinThreshScaled;
-  lM.WindowScaledMax := lT.MaxThreshScaled;
+  lLog10 := trunc(log10( lT.MaxThreshScaled-lT.MinThreshScaled))-1;
+  lM.WindowScaledMin := roundto(lT.MinThreshScaled,lLog10);
+  lM.WindowScaledMax := roundto(lT.MaxThreshScaled,lLog10);
   lM.AutoBalMinUnscaled := lM.WindowScaledMin;
   lM.AutoBalMaxUnscaled := lM.WindowScaledMax;
 end;
