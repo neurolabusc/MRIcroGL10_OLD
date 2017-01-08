@@ -1353,8 +1353,10 @@ begin //Proc Load_From_NIfTI
     //end else if lTexture.isMRA then begin
     //  CreateHistoThresh(lTexture, lTexture.WindowScaledMin, lTexture.WindowScaledMax, lTexture.UnscaledHisto, true,0,lTexture.MinThreshScaled,lTexture.MaxThreshScaled)
     end else begin
-      CreateHistoThresh(lTexture, lTexture.WindowScaledMin, lTexture.WindowScaledMax, lTexture.UnscaledHisto, true,0.005,lTexture.MinThreshScaled,lTexture.MaxThreshScaled);
-      lLog10 := trunc(log10( lTexture.MaxThreshScaled-lTexture.MinThreshScaled))-1;
+      CreateHistoThresh(lTexture, lTexture.WindowScaledMin, lTexture.WindowScaledMax, lTexture.UnscaledHisto, true, 0.005,lTexture.MinThreshScaled,lTexture.MaxThreshScaled);
+      //GlForm1.IntensityBox.caption := format('%g  %g',[lTexture.MinThreshScaled,lTexture.MaxThreshScaled] );
+      lLog10 := trunc(log10( lTexture.MaxThreshScaled-lTexture.MinThreshScaled))-2;
+      lTexture.MinThreshScaled := lTexture.MinThreshScaled + (0.04999 * (lTexture.MaxThreshScaled-lTexture.MinThreshScaled)); //round up to get rid of haze
       lTexture.MinThreshScaled := roundto(lTexture.MinThreshScaled,lLog10);
       lTexture.MaxThreshScaled := roundto(lTexture.MaxThreshScaled,lLog10);
     end;

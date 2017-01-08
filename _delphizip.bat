@@ -13,13 +13,13 @@ c:\strip /B "C:\pas\MRIcroGL\simple.exe"
 move /Y "C:\pas\MRIcroGL\simple.exe" "c:\mricrogl\MRIcroGL.exe"
 REM copy new compilation to server
 del c:\mricrogl\*.ini
-c:\Progra~1\7-Zip\7z a -tzip c:\pas\windows.zip c:\mricrogl
+c:\Progra~1\7-Zip\7z a -tzip c:\pas\mricrogl_windows.zip c:\mricrogl
 REM copy c:\pas\windows.zip W:\mcbi\MCBI\CRNL\sw\mricrogl\windows.zip
 
- 
- 
+
+
 call _clean.bat
-c:\Progra~1\7-Zip\7z a -tzip c:\pas\source.zip c:\pas\MRIcroGL 
+c:\Progra~1\7-Zip\7z a -tzip c:\pas\mricrogl_source.zip c:\pas\MRIcroGL
 REM copy source to server
 REM copy c:\pas\source.zip W:\mcbi\MCBI\CRNL\sw\mricrogl\source.zip
 

@@ -147,8 +147,8 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="2298"/>
-        <CursorPos X="45" Y="2311"/>
+        <TopLine Value="905"/>
+        <CursorPos X="2" Y="909"/>
         <UsageCount Value="207"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -209,10 +209,11 @@
       </Unit6>
       <Unit7>
         <Filename Value="texture_3d_unit.pas"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="1337"/>
-        <CursorPos X="18" Y="1345"/>
+        <CursorPos X="7" Y="1357"/>
         <UsageCount Value="100"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -599,11 +600,10 @@
       </Unit49>
       <Unit50>
         <Filename Value="histogram2d.pas"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="4"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="199"/>
-        <CursorPos X="16" Y="216"/>
+        <TopLine Value="200"/>
+        <CursorPos X="13" Y="202"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -620,8 +620,8 @@
         <Filename Value="histogram.pas"/>
         <EditorIndex Value="3"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="485"/>
-        <CursorPos X="13" Y="490"/>
+        <TopLine Value="407"/>
+        <CursorPos X="58" Y="419"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -638,124 +638,124 @@
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="964" Column="33" TopLine="942"/>
+        <Filename Value="clut.pas"/>
+        <Caret Line="120" Column="12" TopLine="97"/>
       </Position1>
       <Position2>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="965" Column="38" TopLine="942"/>
+        <Filename Value="clut.pas"/>
+        <Caret Line="139" Column="12" TopLine="116"/>
       </Position2>
       <Position3>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="967" Column="32" TopLine="944"/>
+        <Filename Value="clut.pas"/>
+        <Caret Line="286" Column="20" TopLine="263"/>
       </Position3>
       <Position4>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="1218" Column="39" TopLine="1208"/>
+        <Caret Line="2283" Column="18" TopLine="2281"/>
       </Position4>
       <Position5>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="1224" Column="13" TopLine="1208"/>
+        <Caret Line="2308" Column="49" TopLine="2289"/>
       </Position5>
       <Position6>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="1226" Column="13" TopLine="1208"/>
+        <Filename Value="histogram2d.pas"/>
+        <Caret Line="221" Column="13" TopLine="204"/>
       </Position6>
       <Position7>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="1227" Column="56" TopLine="1208"/>
+        <Caret Line="2299" Column="28" TopLine="2298"/>
       </Position7>
       <Position8>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="1472" Column="11" TopLine="1450"/>
+        <Caret Line="891" Column="9" TopLine="877"/>
       </Position8>
       <Position9>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="2250" Column="20" TopLine="2227"/>
+        <Caret Line="900" Column="11" TopLine="877"/>
       </Position9>
       <Position10>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="2296" Column="25" TopLine="2281"/>
+        <Filename Value="texture_3d_unit.pas"/>
+        <Caret Line="1357" Column="24" TopLine="1337"/>
       </Position10>
       <Position11>
-        <Filename Value="texture_3d_unit.pas"/>
-        <Caret Line="32" Column="25" TopLine="23"/>
+        <Filename Value="histogram.pas"/>
+        <Caret Line="17" Column="25"/>
       </Position11>
       <Position12>
-        <Filename Value="texture_3d_unit.pas"/>
-        <Caret Line="1330" Column="41" TopLine="1308"/>
+        <Filename Value="histogram.pas"/>
+        <Caret Line="6" Column="24"/>
       </Position12>
       <Position13>
-        <Filename Value="texture_3d_unit.pas"/>
-        <Caret Line="1332" Column="150" TopLine="1310"/>
+        <Filename Value="histogram.pas"/>
+        <Caret Line="12" Column="28"/>
       </Position13>
       <Position14>
-        <Filename Value="texture_3d_unit.pas"/>
-        <Caret Line="1345" Column="160" TopLine="1323"/>
+        <Filename Value="histogram.pas"/>
+        <Caret Line="70" Column="20" TopLine="47"/>
       </Position14>
       <Position15>
-        <Filename Value="texture_3d_unit.pas"/>
-        <Caret Line="1095" Column="30" TopLine="1076"/>
+        <Filename Value="histogram.pas"/>
+        <Caret Column="28"/>
       </Position15>
       <Position16>
-        <Filename Value="texture_3d_unit.pas"/>
-        <Caret Line="1351" Column="64" TopLine="1330"/>
+        <Filename Value="histogram.pas"/>
+        <Caret Line="12" Column="28"/>
       </Position16>
       <Position17>
-        <Filename Value="texture_3d_unit.pas"/>
-        <Caret Line="16" Column="42"/>
+        <Filename Value="histogram.pas"/>
+        <Caret Line="17" Column="22"/>
       </Position17>
       <Position18>
-        <Filename Value="texture_3d_unit.pas"/>
-        <Caret Line="1095" Column="30" TopLine="1072"/>
+        <Filename Value="histogram.pas"/>
+        <Caret Line="70" Column="95" TopLine="46"/>
       </Position18>
       <Position19>
-        <Filename Value="texture_3d_unit.pas"/>
-        <Caret Line="1358" Column="9" TopLine="1337"/>
+        <Filename Value="histogram.pas"/>
+        <Caret Line="158" Column="81" TopLine="129"/>
       </Position19>
       <Position20>
-        <Filename Value="clut.pas"/>
-        <Caret Line="24" Column="21" TopLine="11"/>
+        <Filename Value="histogram2d.pas"/>
+        <Caret Line="202" Column="13" TopLine="200"/>
       </Position20>
       <Position21>
-        <Filename Value="clut.pas"/>
-        <Caret Line="143" Column="13" TopLine="120"/>
+        <Filename Value="histogram.pas"/>
+        <Caret Line="419" Column="67" TopLine="404"/>
       </Position21>
       <Position22>
         <Filename Value="texture_3d_unit.pas"/>
-        <Caret Line="1357" Column="12" TopLine="1337"/>
+        <Caret Line="1348" Column="122" TopLine="1334"/>
       </Position22>
       <Position23>
-        <Filename Value="clut.pas"/>
-        <Caret Line="37" Column="13" TopLine="12"/>
+        <Filename Value="histogram.pas"/>
+        <Caret Line="419" Column="21" TopLine="404"/>
       </Position23>
       <Position24>
-        <Filename Value="clut.pas"/>
-        <Caret Line="107" Column="12" TopLine="84"/>
+        <Filename Value="histogram.pas"/>
+        <Caret Line="12" Column="28"/>
       </Position24>
       <Position25>
-        <Filename Value="clut.pas"/>
-        <Caret Line="120" Column="12" TopLine="97"/>
+        <Filename Value="histogram.pas"/>
+        <Caret Line="70" Column="20" TopLine="46"/>
       </Position25>
       <Position26>
-        <Filename Value="clut.pas"/>
-        <Caret Line="139" Column="12" TopLine="116"/>
+        <Filename Value="texture_3d_unit.pas"/>
+        <Caret Line="1357" Column="9" TopLine="1343"/>
       </Position26>
       <Position27>
-        <Filename Value="clut.pas"/>
-        <Caret Line="286" Column="20" TopLine="263"/>
+        <Filename Value="texture_3d_unit.pas"/>
+        <Caret Line="1358" Column="97" TopLine="1342"/>
       </Position27>
       <Position28>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="2283" Column="18" TopLine="2281"/>
+        <Filename Value="histogram.pas"/>
+        <Caret Line="12" Column="101"/>
       </Position28>
       <Position29>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="2308" Column="49" TopLine="2289"/>
+        <Filename Value="histogram.pas"/>
+        <Caret Line="70" Column="87" TopLine="58"/>
       </Position29>
       <Position30>
-        <Filename Value="histogram2d.pas"/>
-        <Caret Line="221" Column="13" TopLine="204"/>
+        <Filename Value="histogram.pas"/>
+        <Caret Line="419" Column="58" TopLine="407"/>
       </Position30>
     </JumpHistory>
   </ProjectOptions>

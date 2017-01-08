@@ -67,7 +67,7 @@ begin
   if not M2T (lM,lT) then
     exit;
   ComputeMinMax(lT);
-  CreateHistoThresh(lT, lT.WindowScaledMin, lT.WindowScaledMax, lT.UnscaledHisto, true,0.005,lT.MinThreshScaled,lT.MaxThreshScaled);
+  CreateHistoThresh(lT, lT.WindowScaledMin, lT.WindowScaledMax, lT.UnscaledHisto, true, 0.005,lT.MinThreshScaled,lT.MaxThreshScaled);
   lLog10 := trunc(log10( lT.MaxThreshScaled-lT.MinThreshScaled))-1;
   lM.WindowScaledMin := roundto(lT.MinThreshScaled,lLog10);
   lM.WindowScaledMax := roundto(lT.MaxThreshScaled,lLog10);
@@ -148,10 +148,9 @@ begin
    if lImgBufferItems < 1 then
     exit;
    lRGBdata := false;
-
-	 if (lHdr.RawUnscaledImg8 = nil) and (lHdr.RawUnscaledImg16 =nil) and (lHdr.RawUnscaledImg32 = nil) and (lHdr.RawUnscaledImgRGBA = nil) then exit;
-	 for lC := 0 to kHistoBins do
-	     lHisto[lC] := 0;
+   if (lHdr.RawUnscaledImg8 = nil) and (lHdr.RawUnscaledImg16 =nil) and (lHdr.RawUnscaledImg32 = nil) and (lHdr.RawUnscaledImgRGBA = nil) then exit;
+      for lC := 0 to kHistoBins do
+          lHisto[lC] := 0;
 
    lMinU := Scaled2Unscaled(lMin,lHdr);
    lMaxU := Scaled2Unscaled(lMax,lHdr);
@@ -509,4 +508,4 @@ end;*)
 
 
 end.
- 
+
