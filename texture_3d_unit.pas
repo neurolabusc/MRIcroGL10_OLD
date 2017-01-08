@@ -1356,7 +1356,7 @@ begin //Proc Load_From_NIfTI
       CreateHistoThresh(lTexture, lTexture.WindowScaledMin, lTexture.WindowScaledMax, lTexture.UnscaledHisto, true, 0.005,lTexture.MinThreshScaled,lTexture.MaxThreshScaled);
       //GlForm1.IntensityBox.caption := format('%g  %g',[lTexture.MinThreshScaled,lTexture.MaxThreshScaled] );
       lLog10 := trunc(log10( lTexture.MaxThreshScaled-lTexture.MinThreshScaled))-2;
-      lTexture.MinThreshScaled := lTexture.MinThreshScaled + (0.05 * (lTexture.MaxThreshScaled-lTexture.MinThreshScaled)); //round up to get rid of haze
+      lTexture.MinThreshScaled := lTexture.MinThreshScaled + 0.49999*power(10,lLog10); //round up to get rid of haze
       lTexture.MinThreshScaled := roundto(lTexture.MinThreshScaled,lLog10);
       lTexture.MaxThreshScaled := roundto(lTexture.MaxThreshScaled,lLog10);
     end;
