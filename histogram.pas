@@ -7,7 +7,7 @@ uses
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unita, {$ELSE} texture_3d_unit,{$ENDIF}
 define_types, math,nifti_hdr, nifti_types;
 
-procedure ComputeThreshM (var lM: TMRIcroHdr);
+procedure ComputeThreshOverlay (var lM: TMRIcroHdr);
 procedure CreateHisto (var lHdr: TTexture; lMin, lMax: single; var lHisto: HistoRA; lLogarithm: boolean);
 procedure CreateHistoThresh (var lHdr: TTexture; lMin, lMax: single; var lHisto: HistoRA; lLogarithm: boolean; lThreshFrac: single; var lLoPct,lHiPct: single);
 procedure ComputeMinMax(var lHdr: TTexture);
@@ -59,17 +59,21 @@ begin
   result := true;
 end;
 
-procedure ComputeThreshM (var lM: TMRIcroHdr);
+procedure ComputeThreshOverlay (var lM: TMRIcroHdr);
 var
   lT: TTexture;
   lLog10: integer;
+  lMinPreRound: single;
 begin
   if not M2T (lM,lT) then
     exit;
   ComputeMinMax(lT);
   CreateHistoThresh(lT, lT.WindowScaledMin, lT.WindowScaledMax, lT.UnscaledHisto, true, 0.005,lT.MinThreshScaled,lT.MaxThreshScaled);
   lLog10 := trunc(log10( lT.MaxThreshScaled-lT.MinThreshScaled))-1;
+  lMinPreRound := (lM.WindowScaledMin);
   lM.WindowScaledMin := roundto(lT.MinThreshScaled,lLog10);
+  if (lMinPreRound > 0) and (lM.WindowScaledMin = 0) then
+    lM.WindowScaledMin := power(10,lLog10);
   lM.WindowScaledMax := roundto(lT.MaxThreshScaled,lLog10);
   lM.AutoBalMinUnscaled := lM.WindowScaledMin;
   lM.AutoBalMaxUnscaled := lM.WindowScaledMax;
