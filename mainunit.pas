@@ -3725,10 +3725,17 @@ begin
     UpdateLUT(gOpenOverlays,gOpenOverlays,true);
    gOverlayImg[gOpenOverlays].LUTvisible := true;
    if (gOverlayImg[gOpenOverlays].AutoBalMinUnscaled < 0) and (gOverlayImg[gOpenOverlays].AutoBalMaxUnscaled > 0) then begin
-      if (odd(gOpenOverlays)) and (abs(gOverlayImg[gOpenOverlays].AutoBalMinUnscaled) > gOverlayImg[gOpenOverlays].AutoBalMaxUnscaled) then
-         gOverlayImg[gOpenOverlays].AutoBalMaxUnscaled := gOverlayImg[gOpenOverlays].AutoBalMinUnscaled / 2
-      else
-        gOverlayImg[gOpenOverlays].AutoBalMinUnscaled := gOverlayImg[gOpenOverlays].AutoBalMaxUnscaled / 2;
+      if (odd(gOpenOverlays)) then begin
+         if (abs(gOverlayImg[gOpenOverlays].AutoBalMinUnscaled) > gOverlayImg[gOpenOverlays].AutoBalMaxUnscaled) then
+            gOverlayImg[gOpenOverlays].AutoBalMaxUnscaled := gOverlayImg[gOpenOverlays].AutoBalMinUnscaled / 2
+         else
+             gOverlayImg[gOpenOverlays].AutoBalMinUnscaled := gOverlayImg[gOpenOverlays].AutoBalMaxUnscaled / 2;
+      end else begin
+          if (abs(gOverlayImg[gOpenOverlays].AutoBalMinUnscaled) < gOverlayImg[gOpenOverlays].AutoBalMaxUnscaled) then
+             gOverlayImg[gOpenOverlays].AutoBalMaxUnscaled := gOverlayImg[gOpenOverlays].AutoBalMinUnscaled / 2
+          else
+              gOverlayImg[gOpenOverlays].AutoBalMinUnscaled := gOverlayImg[gOpenOverlays].AutoBalMaxUnscaled / 2;
+      end;
 
    end;
   gOverlayImg[gOpenOverlays].WindowScaledMin := gOverlayImg[gOpenOverlays].AutoBalMinUnscaled;
