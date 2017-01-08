@@ -1130,7 +1130,7 @@ begin //Proc Load_From_NIfTI
     lTexture.isLabels := IsLabels(lHdr.NIFTIHdr);
     if lTexture.isLabels then begin
       if (( lHdr.NIFTIhdr.vox_offset- lHdr.NIFTIhdr.HdrSz) > 128) then
-        LoadLabels(lFileName, lTexture.LabelRA, lHdr.NIFTIhdr.HdrSz, round( lHdr.NIFTIhdr.vox_offset)) 
+        LoadLabels(lFileName, lTexture.LabelRA, lHdr.NIFTIhdr.HdrSz, round( lHdr.NIFTIhdr.vox_offset))
       else
         LoadLabelsTxt(lFileName, lTexture.LabelRA);
     end else
@@ -1267,7 +1267,7 @@ begin //Proc Load_From_NIfTI
           end;//for Y
         end;//for Z
       end;//padded
-      //ComputeMinMax( lTexture); 
+      //ComputeMinMax( lTexture);
     end; //32-bit FLOAT datatype
     if lHdr.NIFTIHdr.datatype = kDT_RGB then begin
       lTexture.RawUnscaledImgRGBA := RGB2RGBA(lHdr.NIFTIHdr, lImgBuffer, lOutVox* lTexture.BytesPerVoxel, lTexture.FiltDim[1], lTexture.FiltDim[2]);
@@ -1356,7 +1356,7 @@ begin //Proc Load_From_NIfTI
       CreateHistoThresh(lTexture, lTexture.WindowScaledMin, lTexture.WindowScaledMax, lTexture.UnscaledHisto, true, 0.005,lTexture.MinThreshScaled,lTexture.MaxThreshScaled);
       //GlForm1.IntensityBox.caption := format('%g  %g',[lTexture.MinThreshScaled,lTexture.MaxThreshScaled] );
       lLog10 := trunc(log10( lTexture.MaxThreshScaled-lTexture.MinThreshScaled))-2;
-      lTexture.MinThreshScaled := lTexture.MinThreshScaled + (0.04999 * (lTexture.MaxThreshScaled-lTexture.MinThreshScaled)); //round up to get rid of haze
+      lTexture.MinThreshScaled := lTexture.MinThreshScaled + (0.05 * (lTexture.MaxThreshScaled-lTexture.MinThreshScaled)); //round up to get rid of haze
       lTexture.MinThreshScaled := roundto(lTexture.MinThreshScaled,lLog10);
       lTexture.MaxThreshScaled := roundto(lTexture.MaxThreshScaled,lLog10);
     end;
