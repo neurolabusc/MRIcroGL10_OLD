@@ -1,7 +1,7 @@
 object GLForm1: TGLForm1
-  Left = 248
+  Left = 318
   Height = 994
-  Top = 23
+  Top = 178
   Width = 1032
   ActiveControl = ToolPanel
   AllowDropFiles = True

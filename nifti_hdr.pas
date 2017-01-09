@@ -11,7 +11,7 @@ uses
   gzio2,
 {$ENDIF}
 {$IFNDEF FPC} Windows, {$ENDIF}
-{$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF}
+{$IFDEF DGL} dglOpenGL, {$ELSE} gl,  {$ENDIF}
  nifti_types,
 define_types,SysUtils,nii_mat,nifti_foreign, //GLMisc, //GLTexture, GLContext,
 {$IFDEF GUI}dialogs;{$ELSE} dialogsx;{$ENDIF}
