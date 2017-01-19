@@ -10,7 +10,7 @@ procedure DrawCLUT ( lU: TUnitRect;lBorder: single; lPrefs: TPrefs);
 function ColorBarPos(var  lU: TUnitRect): integer;
 
 implementation
-uses raycastglsl, mainunit,sysutils;
+uses {$IFDEF COREGL} raycast_core, {$ELSE} raycast_legacy, {$ENDIF} raycast_common, mainunit,sysutils;
 
 const
   kVertTextLeft = 1;

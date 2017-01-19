@@ -5,7 +5,7 @@ uses
  {$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF}
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unita, {$ELSE} texture_3d_unit,{$ENDIF}
    //types,
-   graphics, nii_mat, define_types, coordinates, sysutils, textfx, raycastglsl, drawu;
+   graphics, nii_mat, define_types, coordinates, sysutils, textfx, {$IFDEF COREGL} raycast_core, {$ELSE} raycast_legacy, {$ENDIF} raycast_common, drawu;
 const
   kMaxMosaicDim = 12; //e.g. if 12 then only able to draw up to 12x12 mosaics [=144 slices]
   kEmptyOrient = 0;

@@ -1,0 +1,69 @@
+//pref
+ambient|float|0.0|1|2
+diffuse|float|0.0|0.3|2
+specular|float|0.0|0.25|1
+shininess|float|0.01|10.0|30
+showGradient|bool|false
+//frag
+#version 330 core
+in vec3 TexCoord1;
+out vec4 FragColor;
+uniform float stepSize, sliceSize, viewWidth, viewHeight, clipPlaneDepth;
+uniform sampler3D intensityVol;
+uniform sampler3D gradientVol; //3DTexture containing gradient direction and magnitude
+uniform sampler2D backFace;
+uniform vec3 clearColor, clipPlane, lightPosition;
+uniform float ambient, diffuse, specular, shininess;
+uniform bool showGradient;
+void main() {
+	float opacityCorrection = stepSize/sliceSize;
+	// get normalized pixel coordinate in view port (e.g. [0,1]x[0,1])
+	vec3 backPosition = texture(backFace,vec2(gl_FragCoord.x/viewWidth,gl_FragCoord.y/viewHeight)).xyz;
+	if (backPosition == clearColor) discard;
+	vec3 start = TexCoord1.xyz; // starting position of the ray is stored in the texture coordinate
+	vec3 dir = normalize(backPosition - start);
+	float len = length(backPosition - start);
+	if (clipPlaneDepth > -0.5) { //if clip plane intersects ray
+		bool frontface = (dot(dir , clipPlane) > 0.0); //does clip plane face the camera?
+		//next, distance from ray origin to clip plane
+		float dis = dot(dir,clipPlane);
+		if (dis != 0.0  )  dis = (-clipPlaneDepth - dot(clipPlane, start.xyz-0.5)) / dis;
+		//test: "return" fails on 2006MacBookPro10.4ATI1900, "discard" fails on MacPro10.5NV8800
+		if (((frontface) && (dis >= len)) || ((!frontface) && (dis <= 0.0))) {
+		 FragColor.rgb = clearColor;
+		 return;
+		}
+		if ((dis > 0.0) && (dis < len)) {
+			if (frontface) {
+				start = start + dir * dis;
+			} else {
+				backPosition =  start + dir * (dis);
+			}
+			len = length(backPosition - start);
+		}
+	}
+	vec3 lightdir = dir;
+	dir = dir * stepSize;
+	vec4 colorSample,colAcc = vec4(0.0,0.0,0.0,0.0);
+	//jitter ray start to avoid wood grain aliasing
+	vec3 samplePos = start.xyz + dir* (fract(sin(gl_FragCoord.x * 12.9898 + gl_FragCoord.y * 78.233) * 43758.5453));
+	for(int i = 0; i < int(len / stepSize); i++) {
+		colorSample = texture(intensityVol, samplePos);
+		vec4 gradientSample= texture(gradientVol,samplePos); //interpolate gradient direction and magnitude
+		if (showGradient) colorSample.rgb = gradientSample.rgb;
+		gradientSample.rgb = normalize(gradientSample.rgb*2.0 - 1.0); //direction saved as 0..1, rescale to -1..1
+
+		float lightNormDot = dot(gradientSample.rgb, lightPosition); //with respect to light location
+		vec3 a = colorSample.rgb * ambient;
+		vec3 d = max(lightNormDot, 0.0) * colorSample.rgb * diffuse;
+		float s =   specular * pow(max(dot(reflect(lightPosition, gradientSample.rgb), lightdir), 0.0), shininess);
+		colorSample.rgb = a + d + s;
+
+		colorSample.a = 1.0-pow((1.0 - colorSample.a), opacityCorrection);
+		colorSample.rgb *= colorSample.a;
+		colAcc += (1.0 - colAcc.a) * colorSample; //accumulate color
+		if ( colAcc.a > 0.95 ) break; // terminate if opacity > 95%
+		samplePos += dir;
+	}
+	FragColor.rgb = mix(clearColor,colAcc.rgb,colAcc.a);
+}

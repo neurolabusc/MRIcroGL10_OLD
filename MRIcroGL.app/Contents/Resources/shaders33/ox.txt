@@ -1,0 +1,22 @@
+//pref
+doBackface|bool|false
+//frag
+#version 330 core
+in vec3 TexCoord1;
+out vec4 FragColor;
+uniform mat4 modelViewMatrixInverse;
+uniform int loops;
+uniform float stepSize, sliceSize, viewWidth, viewHeight;
+uniform sampler3D intensityVol;
+uniform sampler3D gradientVol;
+uniform sampler2D backFace;
+uniform vec3 clearColor,lightPosition, clipPlane;
+uniform float clipPlaneDepth;
+uniform bool doBackface;
+void main() {
+	vec3 backPosition = texture(backFace,vec2(gl_FragCoord.x/viewWidth,gl_FragCoord.y/viewHeight)).xyz;
+	vec3 start = TexCoord1.xyz;
+	if (backPosition == clearColor) discard;
+	FragColor = vec4(start, 1.0);
+	if (doBackface) FragColor = vec4(backPosition, 1.0);
+}

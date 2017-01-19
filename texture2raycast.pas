@@ -4,7 +4,7 @@ interface
 {$include opts.inc}
 uses
 {$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF}
-  {$IFNDEF FPC} Windows, {$ENDIF}  raycastglsl,
+  {$IFNDEF FPC} Windows, {$ENDIF}  raycast_common, {$IFDEF COREGL} raycast_core, {$ELSE} raycast_legacy, {$ENDIF}
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unita, {$ELSE} texture_3d_unit,{$ENDIF}
   shaderu, clut,dialogs,Classes,define_types, sysUtils;
 procedure CreateGradientVolume (var Tex: TTexture; var gradientVolume : GLuint; var inRGBA : Bytep0; isOverlay: boolean);

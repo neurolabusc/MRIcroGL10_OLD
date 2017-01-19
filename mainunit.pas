@@ -18,7 +18,7 @@ yokesharemem, coordinates, nii_mat, math,
 {$IFDEF UNIX}Process,  {$ELSE}//ShellApi,
 Windows,{$IFDEF FPC}uscaledpi,{$ENDIF}{$ENDIF}
   Graphics, Classes, SysUtils, Forms, Buttons, Spin, Grids, clut, define_types,
-  histogram2d, readint, raycastglsl, histogram, nifti_hdr, shaderui,
+  histogram2d, readint, {$IFDEF COREGL} raycast_core, {$ELSE} raycast_legacy, {$ENDIF} raycast_common, histogram, nifti_hdr, shaderui,
   prefs, userdir, slices2d, colorbar2d, autoroi, fsl_calls, drawU, dcm2nii, lut,
   extractui, scaleimageintensity;
 
@@ -1494,6 +1494,10 @@ begin
   {$IFDEF Darwin}Application.OnDropFiles:= AppDropFiles; {$ENDIF} //for OSX: respond if user drops icon on dock
   Application.ShowButtonGlyphs:= sbgNever;
   GLbox:= TOpenGLControl.Create(GLForm1);
+  {$IFDEF COREGL}
+  GLbox.OpenGLMajorVersion:= 3;
+  GLbox.OpenGLMinorVersion:= 3;
+  {$ENDIF}
   GLbox.AutoResizeViewport:= true;   // http://www.delphigl.com/forum/viewtopic.php?f=10&t=11311
   GLBox.Parent := GLForm1;
   GLBox.MultiSampling:= 4;
@@ -2332,9 +2336,10 @@ begin
   end;
   DisplayGL(gTexture3D);
   {$IFDEF FPC}
-  if ( gRayCast.WINDOW_WIDTH = GLbox.Width) and (gRayCast.WINDOW_HEIGHT = GLbox.Height) then
-     GLbox.SwapBuffers //DoubleBuffered
-  else begin
+  if ( gRayCast.WINDOW_WIDTH = GLbox.Width) and (gRayCast.WINDOW_HEIGHT = GLbox.Height) then begin
+    if gPrefs.isDoubleBuffer then
+       GLbox.SwapBuffers //DoubleBuffered
+  end else begin
         gRendering:=false;
         GLBox.Invalidate;
 

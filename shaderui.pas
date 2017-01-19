@@ -12,7 +12,7 @@ interface
   {$IFDEF FPC} FileUtil, GraphType, LCLProc,  LCLIntf,LResources,OpenGLContext,{$ELSE}Windows,glpanel, {$ENDIF}
   Graphics,Classes, SysUtils, Forms,  Buttons,userdir,
   Dialogs, ComCtrls, Menus, Controls,
-  ExtCtrls, StdCtrls, shaderu, raycastglsl;
+  ExtCtrls, StdCtrls, shaderu, {$IFDEF COREGL} raycast_core, {$ELSE} raycast_legacy, {$ENDIF} raycast_common;
 
 procedure SetShader(lFilename: string);
 function ShaderPanelHeight: integer;
@@ -132,7 +132,9 @@ begin
     {$IFDEF HEMISSAO}
     result := AppDir+'shader'
     {$ELSE}
-    result := AppDir+'shaders'
+
+    result := AppDir+'shaders33'
+
     {$ENDIF}
   {$ELSE}
     {$IFDEF ENABLESHADER} //MRIcroGL
@@ -143,7 +145,7 @@ begin
   {$ENDIF}
 end;
 
-{$IFDEF COREGL}
+(*{$IFDEF COREGL}
 procedure UpdateTrackUniforms;
 var
    i: integer;
@@ -156,7 +158,7 @@ begin
     end; //if kFloat
   end; //for i: each uniform
 end; //UpdateTrackUniforms()
-{$ENDIF}
+{$ENDIF}    *)
 
 (*procedure SetShader(lFilename: string);
 var
@@ -206,7 +208,7 @@ begin
   GLForm1.ShaderBoxResize(nil);
   GLForm1.ShaderMemo.Lines.Clear;
   GLForm1.ShaderMemo.Lines.Add(gShader.note);
-  {$IFDEF COREGL} UpdateTrackUniforms; {$ENDIF}
+  //{$IFDEF COREGL} UpdateTrackUniforms; {$ENDIF}
   {$IFDEF ENABLESHADER} //MRIcroGL
   M_refresh := true;
   GLForm1.updatetimer.enabled := true;
@@ -336,7 +338,7 @@ begin
           end;
       end;//case
     end;//cor each item
-  {$IFDEF COREGL} UpdateTrackUniforms; {$ENDIF}
+  //{$IFDEF COREGL} UpdateTrackUniforms; {$ENDIF}
 end;
 
 end.

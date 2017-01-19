@@ -18,8 +18,8 @@ type
          MaskOverlayWithBackground,  InterpolateOverlays,Perspective, FasterGradientCalculations,
          ShowToolbar,ColorbarText,Colorbar,ForcePowerOfTwo,  //InterpolateViewX,
          RayCastShowGLSLWarnings,RayCastViewCenteredLight,EnableYoke,//Show2DSlicesDuringRendering,
-         //IntelWarning,
-         NoveauWarning, StartupScript: boolean;
+         //IntelWarning,        dou
+         NoveauWarning, StartupScript, isDoubleBuffer: boolean;
          PlanarRGB,SliceView,DrawColor,RayCastQuality1to10,FormWidth,FormHeight,//RenderQuality,
          BackgroundAlpha,
          OverlayAlpha,CrosshairThick,MaxVox, BitmapZoom: integer;
@@ -171,6 +171,7 @@ begin
             CLUTWindowColor := RGBA2TColor (RGBA (92,92,132,255) );
             //IntelWarning := true;
             NoveauWarning := true;
+            isDoubleBuffer := false;
             ForcePowerOfTwo:= false;
             OverlayHideZeros := false;
             MaxVox := 2048;
@@ -430,6 +431,8 @@ begin
 	IniBool(lRead,lIniFile, 'StartScript',lPrefs.StartupScript);
 	//IniBool(lRead,lIniFile, 'IntelWarning',lPrefs.IntelWarning);
         IniBool(lRead,lIniFile, 'NoveauWarning',lPrefs.NoveauWarning);
+        IniBool(lRead,lIniFile, 'DoubleBuffer',lPrefs.isDoubleBuffer);
+
 	//IniBool(lRead,lIniFile, 'Show2DSlicesDuringRendering',lPrefs.Show2DSlicesDuringRendering);
 	IniBool(lRead,lIniFile, 'ColorBar',lPrefs.ColorBar);
 	IniBool(lRead,lIniFile, 'Perspective',lPrefs.Perspective);

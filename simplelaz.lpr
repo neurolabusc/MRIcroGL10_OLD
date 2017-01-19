@@ -9,7 +9,7 @@ uses
   {$ENDIF}{$ENDIF}
   Interfaces, Forms, lazopenglcontext, mainunit, autoroi, readint, scriptengine,
   nifti_dicom, clustering, savethreshold, reslice, drawu, dcm2nii, shaderui,
-  clut, raycastglsl, pascalscript, extractui;
+  clut, {$IFDEF COREGL} raycast_core, {$ELSE} raycast_legacy, {$ENDIF} raycast_common, pascalscript, extractui;
 
 {$IFNDEF UNIX}{$R simplelaz.res}{$ENDIF}
 

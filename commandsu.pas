@@ -10,7 +10,7 @@ uses
 {$IFDEF FPC}LResources,{$ENDIF}
 {$IFDEF Unix} LCLIntf,{$ELSE} Windows,{$ENDIF}
  {$IFNDEF USETRANSFERTEXTURE}  scaleimageintensity,{$ENDIF}ClipBrd, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  shaderui,ExtCtrls, define_types, Menus,histogram2d,extract,slices2d, raycastglsl, savethreshold;
+  shaderui,ExtCtrls, define_types, Menus,histogram2d,extract,slices2d, {$IFDEF COREGL} raycast_core, {$ELSE} raycast_legacy, {$ENDIF} raycast_common, savethreshold;
 function EXISTS(lFilename: string): boolean; //function
 function OVERLAYLOAD(lFilename: string): integer; //function
 function OVERLAYLOADVOL(lFilename: string; lVol: integer): integer; //function

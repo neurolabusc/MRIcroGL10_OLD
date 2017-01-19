@@ -33,7 +33,7 @@ var
 procedure AdjustShaders (lShader: TShader);
 
 implementation
-uses raycastglsl, mainunit;
+uses raycast_common, {$IFDEF COREGL} raycast_core, {$ELSE} raycast_legacy, {$ENDIF} mainunit;
 
 
 procedure AdjustShaders (lShader: TShader);
@@ -125,6 +125,106 @@ begin
   end;
 end;
 
+{$IFDEF COREGL}
+const  kDefaultVertex = '#version 330 core'
++#10'layout(location = 0) in vec3 vPos;'
++#10'out vec3 TexCoord1;'
++#10'uniform int zoom = 1;'
++#10'uniform mat4 modelViewProjectionMatrix;'
++#10'void main() {'
++#10'    TexCoord1 = vPos;'
++#10'    gl_Position = modelViewProjectionMatrix * vec4(vPos, 1.0);'
++#10'    gl_Position.xy *= zoom;'
++#10'}';
+
+const  kDefaultFragment = '#version 330 core'
++#10'in vec3 TexCoord1;'
++#10'out vec4 FragColor;'
++#10'uniform mat4 modelViewMatrixInverse;'
++#10'uniform int loops;'
++#10'uniform float stepSize, sliceSize, viewWidth, viewHeight;'
++#10'uniform sampler3D intensityVol;'
++#10'uniform sampler3D gradientVol;'
++#10'uniform sampler2D backFace;'
++#10'uniform vec3 clearColor,lightPosition, clipPlane;'
++#10'uniform float clipPlaneDepth;'
++#10'uniform float ambient = 1.0;'
++#10'uniform float diffuse = 0.3;'
++#10'uniform float specular = 0.25;'
++#10'uniform float shininess = 10.0;'
++#10'uniform float edgeThresh = 0.01;'
++#10'uniform float edgeExp = 0.15;'
++#10'uniform float boundExp = 0.0;'
++#10'void main() {'
++#10'	vec3 backPosition = texture(backFace,vec2(gl_FragCoord.x/viewWidth,gl_FragCoord.y/viewHeight)).xyz;'
++#10'	vec3 start = TexCoord1.xyz;'
++#10'	if (backPosition == clearColor) discard;'
++#10'	vec3 dir = backPosition - start;'
++#10'	float len = length(dir);'
++#10'	dir = normalize(dir);'
++#10'	if (clipPlaneDepth > -0.5) {'
++#10'		FragColor.rgb = vec3(1.0,0.0,0.0);'
++#10'		bool frontface = (dot(dir , clipPlane) > 0.0);'
++#10'		float dis = dot(dir,clipPlane);'
++#10'		if (dis != 0.0  )  dis = (-clipPlaneDepth - dot(clipPlane, start.xyz-0.5)) / dis;'
++#10'		if ((frontface) && (dis >= len)) len = 0.0;'
++#10'		if ((!frontface) && (dis <= 0.0)) len = 0.0;'
++#10'		if ((dis > 0.0) && (dis < len)) {'
++#10'			if (frontface) {'
++#10'				start = start + dir * dis;'
++#10'			} else {'
++#10'				backPosition =  start + dir * (dis);'
++#10'			}'
++#10'			dir = backPosition - start;'
++#10'			len = length(dir);'
++#10'			dir = normalize(dir);'
++#10'		}'
++#10'	}'
++#10'	vec3 deltaDir = dir * stepSize;'
++#10'	vec4 colorSample,gradientSample,colAcc = vec4(0.0,0.0,0.0,0.0);'
++#10'	float lengthAcc = 0.0;'
++#10'	vec3 samplePos = start.xyz + deltaDir* (fract(sin(gl_FragCoord.x * 12.9898 + gl_FragCoord.y * 78.233) * 43758.5453));'
++#10'	vec4 prevNorm = vec4(0.0,0.0,0.0,0.0);'
++#10'	vec3 lightDirHeadOn =  normalize(modelViewMatrixInverse * vec4(0.0,0.0,1.0,0.0)).xyz ;'
++#10'	float stepSizex2 = sliceSize * 2.0;'
++#10'	for(int i = 0; i < loops; i++) {'
++#10'		//colorSample = texture(gradientVol, samplePos);'
++#10'		colorSample = texture(intensityVol,samplePos);'
++#10'		if ((lengthAcc <= stepSizex2) && (colorSample.a > 0.01) )  colorSample.a = sqrt(colorSample.a);'
++#10'		colorSample.a = 1.0-pow((1.0 - colorSample.a), stepSize/sliceSize);'
++#10'		if ((colorSample.a > 0.01) && (lengthAcc > stepSizex2)  ) {'
++#10'			gradientSample= texture(gradientVol,samplePos);'
++#10'			gradientSample.rgb = normalize(gradientSample.rgb*2.0 - 1.0);'
++#10'			if (gradientSample.a < prevNorm.a)'
++#10'				gradientSample.rgb = prevNorm.rgb;'
++#10'			prevNorm = gradientSample;'
++#10'			float lightNormDot = dot(gradientSample.rgb, lightDirHeadOn);'
++#10'			float edgeVal = pow(1.0-abs(lightNormDot),edgeExp);'
++#10'			edgeVal = edgeVal * pow(gradientSample.a,0.3);'
++#10'	    	if (edgeVal >= edgeThresh)'
++#10'				colorSample.rgb = mix(colorSample.rgb, vec3(0.0,0.0,0.0), pow((edgeVal-edgeThresh)/(1.0-edgeThresh),4.0));'
++#10'			if (boundExp > 0.0)'
++#10'				colorSample.a = colorSample.a * pow(gradientSample.a,boundExp)*pow(1.0-abs(lightNormDot),6.0);'
++#10'			lightNormDot = dot(gradientSample.rgb, lightPosition);'
++#10'			vec3 a = colorSample.rgb * ambient;'
++#10'			vec3 d = max(lightNormDot, 0.0) * colorSample.rgb * diffuse;'
++#10'			float s =   specular * pow(max(dot(reflect(lightPosition, gradientSample.rgb), dir), 0.0), shininess);'
++#10'			colorSample.rgb = a + d + s;'
++#10'		}'
++#10'		colorSample.rgb *= colorSample.a;'
++#10'		colAcc= (1.0 - colAcc.a) * colorSample + colAcc;'
++#10'		samplePos += deltaDir;'
++#10'		lengthAcc += stepSize;'
++#10'		if ( lengthAcc >= len || colAcc.a > 0.95 )'
++#10'			break;'
++#10'	}'
++#10'	colAcc.a = colAcc.a/0.95;'
++#10'	if ( colAcc.a < 1.0 )'
++#10'		colAcc.rgb = mix(clearColor,colAcc.rgb,colAcc.a);'
++#10'	if (len == 0.0) colAcc.rgb = clearColor;'
++#10'	FragColor = colAcc;'
++#10'}';
+{$ELSE}
 const  kDefaultVertex =  'void main() { gl_TexCoord[1] = gl_MultiTexCoord1; gl_Position = ftransform();}' ;
 const  kDefaultFragment =  'uniform int loops;'
 +'uniform float stepSize, sliceSize, viewWidth, viewHeight, clipPlaneDepth;'
@@ -172,6 +272,7 @@ const  kDefaultFragment =  'uniform int loops;'
 +'	colAcc.rgb = mix(clearColor,colAcc.rgb,colAcc.a);'
 +'	gl_FragColor = colAcc;'
 +'}';
+{$ENDIF}
 
 function DefaultShader: TShader;
 begin

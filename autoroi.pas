@@ -11,7 +11,7 @@ uses
  {$ENDIF}
  {$IFNDEF FPC} Windows,{$ENDIF}
  SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  Buttons, StdCtrls,  ExtCtrls, raycastglsl;    //define_types,
+  Buttons, StdCtrls,  ExtCtrls, {$IFDEF COREGL} raycast_core, {$ELSE} raycast_legacy, {$ENDIF} raycast_common;    //define_types,
 
 type
 

@@ -7,7 +7,7 @@ procedure TextArrow (X,Y,Sz: single; NumStr: string; orient: integer;FontColor,A
 procedure Enter2D;
 
 implementation
-uses raycastglsl;
+uses {$IFDEF COREGL} raycast_core, {$ELSE} raycast_legacy, {$ENDIF} raycast_common;
 //uses SysUtils,classes, raycastglsl, mainunit;
 
 procedure Enter2D;
