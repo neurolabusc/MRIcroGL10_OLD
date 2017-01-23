@@ -482,105 +482,186 @@ end;
 {$ENDIF}
 
 {$IFDEF FPC}
-(*function TGLForm1.ScreenShot(Zoom: integer): TBitmap;
-//about 20% slower than version below , requires "uses fpimage, intfgraphics,"
-var
-  p: array of array[0..3] of byte;
-  c: TFPColor;
-  dummy:TLazIntfImage;
-  dummyHandle, dummyMaskHandle: HBitmap;
-  tile, w,h, wz,hz, x, y, tilex,tiley: integer;
-  z:longword;
+{$IFDEF COREGL}
+Type
+TFrameBuffer = record
+  depthBuf,frameBuf, tex: GLUint;
+  w, h: integer;
+end;
+
+procedure initFrame (var f : TFrameBuffer);
 begin
- gRayCast.ScreenCapture := true;
-  GLbox.MakeCurrent;
-  w := GLbox.Width;
-  h := GLbox.Height;
-  wz := w*Zoom;
-  hz := h*Zoom;
-  Result:=TBitmap.Create;
-  Result.Width:=wz;
-  Result.Height:=hz;
-  dummy:=TLazIntfImage.Create(0,0);
-  dummy.LoadFromBitmap(result.Handle, result.MaskHandle);
-  setlength(p, w* h);
-  for tile := 0 to ((Zoom * Zoom) - 1) do begin
-    tilex := (tile mod zoom) * w;
-    tiley := (tile div zoom) * h;
-    DisplayGLz(gTexture3D, Zoom, -tilex, -tiley);
-    glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, @p[0,0]);
-    z:=0;
-    for y:=0 to h-1 do begin
-      for x:=0 to w-1 do begin
-        c.Red:=p[z][0]*256;;
-        c.Green:=p[z][1]*256;;
-        c.Blue:=p[z][2]*256;;
-        dummy.Colors[x+tilex,Result.Height-1-y- tiley]:=c;
-        inc(z);
-      end;
-    end;
-  end;
-  dummy.CreateBitmaps(dummyHandle, dummyMaskHandle, false);
-  result.Handle := dummyHandle;
-  result.MaskHandle := dummyMaskHandle;
-  setlength(p,0);
-  dummy.free;
-  GLbox.ReleaseContext;
-  gRayCast.ScreenCapture := false;
-end;  *)
-(*function TGLForm1.ScreenShot(Zoom: integer): TBitmap;
+     f.tex := 0;
+     f.depthBuf := 0;
+     f.frameBuf := 0;
+end;
+
+procedure freeFrame (var f : TFrameBuffer);
+begin
+  //Delete resources
+  glDeleteTextures(1, @f.tex);
+  glDeleteTextures(1, @f.depthBuf);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glDeleteFramebuffers(1, @f.frameBuf);
+  //Bind 0, which means render to back buffer, as a result, frameBuf is unbound
+end;
+
+function setFrame (wid, ht: integer; var f : TFrameBuffer; isMultiSample: boolean) : boolean; //returns true if multi-sampling
+//http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
 var
-  p: bytep0;
-  tile, w,h, wz,hz, x, y, tilex,tiley, BytePerPixel, row: integer;
-  z:longword;
+   w,h: integer;
+   //drawBuf: GLenum;
+   drawBuf: array[0..1] of GLenum;
+
+begin
+     w := wid;
+     h := ht;
+     if isMultiSample then begin
+        w := w * 2;
+        h := h * 2;
+     end;
+     result := isMultiSample;
+     if (w = f.w) and (h = f.h) then begin
+         glBindFramebuffer(GL_FRAMEBUFFER_EXT, f.frameBuf);
+         exit;
+     end;
+     freeframe(f);
+     f.w := w;
+     f.h := h;
+     //https://www.opengl.org/wiki/Framebuffer_Object_Examples#Quick_example.2C_render_to_texture_.282D.29
+     glGenTextures(1, @f.tex);
+     glBindTexture(GL_TEXTURE_2D, f.tex);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+     glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA8, f.w, f.h, 0,GL_RGBA, GL_UNSIGNED_BYTE, nil); //RGBA16 for AO
+     glGenFramebuffers(1, @f.frameBuf);
+     glBindFramebuffer(GL_FRAMEBUFFER, f.frameBuf);
+     //Attach 2D texture to this FBO
+     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, f.tex, 0);
+
+     //glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, f.tex, 0);
+     // Create the depth buffer
+    glGenTextures(1, @f.depthBuf);
+    glBindTexture(GL_TEXTURE_2D, f.depthBuf);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, f.w, f.h, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nil);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, f.depthBuf, 0);
+     //glDrawBuffers(1, @drawBuf); // "1" is the size of DrawBuffers
+     drawBuf[0] := GL_COLOR_ATTACHMENT0;
+     drawBuf[1] := GL_COLOR_ATTACHMENT1;
+     glDrawBuffers(1, @drawBuf[0]); // draw colors only
+     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) <> GL_FRAMEBUFFER_COMPLETE) then begin
+       GLForm1.ShowmessageError('Frame buffer error 0x'+inttohex(glCheckFramebufferStatus(GL_FRAMEBUFFER),4) );
+       exit;
+     end;
+end;
+
+
+function TGLForm1.ScreenShot(Zoom: integer): TBitmap;
+var
   RawImage: TRawImage;
-  PixelPtr: PInteger;
+  p: array of byte;
+  zoom2, w, h, x, y, BytePerPixel: integer;
+  z:longword;
+  //fbuf, ftex: GLUint;
+  f : TFrameBuffer;
+  DestPtr: PInteger;
+  origSz : TPoint;
+  maxXY : array[0..1] of GLuint;
 begin
-  gRayCast.ScreenCapture := true;
-  GLBox.MakeCurrent;
+ GLBox.MakeCurrent;
+ glGetIntegerv(GL_MAX_VIEWPORT_DIMS, @maxXY);
+ //caption := inttostr(maxXY[0]) +'x'+inttostr(maxXY[1]);
+ zoom2 := Zoom;
+ origSz.X := gRayCast.WINDOW_WIDTH;
+ origSz.Y := gRayCast.WINDOW_HEIGHT;
+ w := GLbox.Width * zoom2;
+ h := GLbox.Height * zoom2;
+ if (w > maxXY[0]) or (h > maxXY[1]) then begin
   w := GLbox.Width;
   h := GLbox.Height;
-  wz := w*Zoom;
-  hz := h*Zoom;
+  zoom2 := 1
+ end;
   Result:=TBitmap.Create;
-  Result.Width:=wz;
-  Result.Height:=hz;
-  Result.PixelFormat := pf24bit;
-  Result.BeginUpdate(False);
+  Result.Width:=w;
+  Result.Height:=h;
+  Result.PixelFormat := pf24bit; //if pf32bit the background color is wrong, e.g. when alpha = 0
   RawImage := Result.RawImage;
   BytePerPixel := RawImage.Description.BitsPerPixel div 8;
-  GetMem(p, w*h*4);
-  for tile := 0 to ((Zoom * Zoom) - 1) do begin
-    tilex := (tile mod zoom) * w;
-    tiley := (tile div zoom) * h;
-    DisplayGLz(gTexture3D, Zoom, -tilex, -tiley);
-    glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, @p[0]);
-    z := 0;
-    for y:=0 to h-1 do begin
-      PixelPtr := PInteger(RawImage.Data);
-      row := (hz-1) - (Y+tiley); //[ Y+tiley];
-      if row > 0 then
-         Inc(PByte(PixelPtr), row * RawImage.Description.BytesPerLine) ;
-      //PixelPtr := Result.ScanLine[(hz-1) - (Y+tiley)]; //[ Y+tiley];
-      if tilex > 0 then
-        Inc(PByte(PixelPtr), tilex * BytePerPixel);
-      for x:=0 to w-1 do begin
-          {$IFDEF Darwin}
-          PixelPtr^ := (p^[z] shl 8)+(p^[z+1] shl 16)+(p^[z+2] shl 24);
-          {$ELSE}
-          PixelPtr^ := p^[z+2]+(p^[z+1] shl 8)+(p^[z] shl 16);
-          {$ENDIF}
-          Inc(PByte(PixelPtr), BytePerPixel);
-          z := z + 4;
-      end;
-    end;
+  setlength(p, 4*w* h);
+  //GLBox.MakeCurrent;
+  (*fbuf := 0;
+  ftex := 0;
+  glGenTextures(1, @ftex);
+  glBindTexture(GL_TEXTURE_2D, ftex);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA8, w, h, 0,GL_RGBA, GL_UNSIGNED_BYTE, nil); //RGBA16 for AO
+  glGenFramebuffers(1, @fbuf);
+  glBindFramebuffer(GL_FRAMEBUFFER, fbuf);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ftex, 0); *)
+  initFrame(f);
+  setFrame (w, h, f, false);
+  gRendering:=true;
+  //Attach 2D texture to this FBO
+  //gRayCast.ScreenCapture := true;
+  //gPrefs.RayCastQuality1to10 := 10;
+  gRayCast.WINDOW_WIDTH := w;
+  gRayCast.WINDOW_HEIGHT  := h;
+  //DisplayGLz(gTexture3D,fbuf);
+  DisplayGLz(gTexture3D,f.frameBuf);
+  glFlush;
+  glFinish;//<-this would pause until all jobs finished: generally a bad idea! required here
+  GLbox.SwapBuffers;
+  //CreateRender(w, h, false); //draw to framebuffer fScreenShot
+  {$IFDEF Darwin} //http://lists.apple.com/archives/mac-opengl/2006/Nov/msg00196.html
+  glReadPixels(0, 0, w, h, $80E1, $8035, @p[0]); //OSX-Darwin   GL_BGRA = $80E1;  GL_UNSIGNED_INT_8_8_8_8_EXT = $8035;
+  {$ELSE}
+   {$IFDEF Linux}
+     glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, @p[0]); //Linux-Windows   GL_RGBA = $1908; GL_UNSIGNED_BYTE
+   {$ELSE}
+    glReadPixels(0, 0, w, h, $80E1, GL_UNSIGNED_BYTE, @p[0]); //Linux-Windows   GL_RGBA = $1908; GL_UNSIGNED_BYTE
+   {$ENDIF}
+  {$ENDIF}
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  freeFrame(f);
+  //glDeleteFramebuffers(1, @fbuf);
+  //glDeleteTextures(1, @ftex);
+  gRendering:=false;
+  //gRayCast.ScreenCapture := false;
+  gRayCast.WINDOW_WIDTH := origSz.X;
+  gRayCast.WINDOW_HEIGHT  := origSz.Y;
+   GLbox.ReleaseContext;
+  z := 0;
+  if BytePerPixel <> 4 then begin
+    for y:= h-1 downto 0 do begin
+         DestPtr := PInteger(RawImage.Data);
+         Inc(PByte(DestPtr), y * RawImage.Description.BytesPerLine );
+         for x := 1 to w do begin
+             DestPtr^ := p[z] + (p[z+1] shl 8) + (p[z+2] shl 16);
+             Inc(PByte(DestPtr), BytePerPixel);
+             z := z + 4;
+         end;
+     end; //for y : each line in image
+  end else begin
+      for y:= h-1 downto 0 do begin
+          DestPtr := PInteger(RawImage.Data);
+          Inc(PByte(DestPtr), y * RawImage.Description.BytesPerLine );
+          System.Move(p[z], DestPtr^, w * BytePerPixel );
+          z := z + ( w * 4 );
+    end; //for y : each line in image
   end;
-  Result.EndUpdate(False);
-  FreeMem(p);
-  GLbox.ReleaseContext;
-  gRayCast.ScreenCapture := false;
-end;*)
-
+  setlength(p, 0);
+  GLbox.invalidate;
+end;
+{$ELSE} //not COREGL
 function TGLForm1.ScreenShot(Zoom: integer): TBitmap;
 var
   p: bytep0;
@@ -645,8 +726,9 @@ begin
   {$ENDIF}
   //clipbox.caption := inttostr(gettickcount - tic);
 end;
+{$ENDIF} //if COREGL else not CORE
 
-{$ELSE}
+{$ELSE} //If FPC else Delphi
 function TGLForm1.ScreenShot(Zoom: integer): TBitmap;
 var
   p: bytep0;
@@ -1468,6 +1550,7 @@ begin
     lQuality := SimpleGetInt('Set gradient calculation (0=slow[CPU], 1=fast[GPU])',0,lQuality,1);
     gPrefs.FasterGradientCalculations:= (lQuality <> 0);
   end;
+  //gPrefs.FasterGradientCalculations := true;
   OpenDialog1.filter := kImgPlusVOIFilter;
   M_reload := 0;
   InitTexture(gTexture3D);
@@ -2038,7 +2121,7 @@ end;
    {$IFDEF LCLCocoa}str := str + ' (Cocoa) '; {$ENDIF}
    {$IFDEF LCLCarbon}str := str + ' (Carbon) '; {$ENDIF}
    {$IFDEF DGL} str := str +' (DGL) '; {$ENDIF}//the DGL library has more dependencies - report this if incompatibilities are found
-  str := 'MRIcroGL '+str+' 1 January 2017'
+  str := 'MRIcroGL '+str+' 21 January 2017'
    +kCR+' www.mricro.com :: BSD 2-Clause License (opensource.org/licenses/BSD-2-Clause)'
    +kCR+' Dimensions '+inttostr(gTexture3D.NIFTIhdr.dim[1])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[2])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[3])
    +kCR+' Bytes per voxel '+inttostr(gTexture3D.NIFTIhdr.bitpix div 8)
@@ -2336,14 +2419,15 @@ begin
   end;
   DisplayGL(gTexture3D);
   {$IFDEF FPC}
-  if ( gRayCast.WINDOW_WIDTH = GLbox.Width) and (gRayCast.WINDOW_HEIGHT = GLbox.Height) then begin
+      if gPrefs.isDoubleBuffer then
+       GLbox.SwapBuffers; //DoubleBuffered
+  (*if ( gRayCast.WINDOW_WIDTH = GLbox.Width) and (gRayCast.WINDOW_HEIGHT = GLbox.Height) then begin
     if gPrefs.isDoubleBuffer then
        GLbox.SwapBuffers //DoubleBuffered
   end else begin
-        gRendering:=false;
         GLBox.Invalidate;
 
-  end;
+  end;*)
   {$ENDIF}
   gRendering:=false;
 end;

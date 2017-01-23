@@ -31,7 +31,7 @@ void main() {
 	pixelCoord.x /= viewWidth;
 	pixelCoord.y /= viewHeight;
 	// starting position of the ray is stored in the texture coordinate
-	vec3 start = TexCoord1.xyz;
+	vec3 start = TexCoord1;
 	vec3 backPosition = texture(backFace,pixelCoord).xyz;
 	if (backPosition == clearColor) discard;
 	vec3 dir = backPosition - start;
@@ -68,7 +68,7 @@ void main() {
 	if (!doPoor)
 		samplePos += deltaDir* (fract(sin(gl_FragCoord.x * 12.9898 + gl_FragCoord.y * 78.233) * 43758.5453));
 	vec4 prevNorm = vec4(0.0,0.0,0.0,0.0);
-	vec3 lightDirHeadOn =  normalize(modelViewMatrixInverse * vec4(0.0,0.0,1.0,0.0)).xyz ;
+	vec3 lightDirHeadOn =  abs(normalize(modelViewMatrixInverse * vec4(0.0,0.0,1.0,0.0)).xyz) ;
 	vec3 warmCol = vec3(1.0,1.0,0.0);//pure yellow
 	vec3 coolCol = vec3(0.0,0.0,1.0);//pure blue
 	vec3 toonCol = vec3(1.0,0.0,0.0);//pure red

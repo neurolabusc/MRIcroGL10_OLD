@@ -2,21 +2,43 @@ unit textfx;
 {$include opts.inc}
 interface
 uses {$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF}  define_types;
-
+{$IFNDEF COREGL} //coregl uses slices2D
 procedure TextArrow (X,Y,Sz: single; NumStr: string; orient: integer;FontColor,ArrowColor: TGLRGBQuad);
+procedure StartDraw2D;
+procedure EndDraw2D;
+{$ENDIF}
 procedure Enter2D;
 
 implementation
-uses {$IFDEF COREGL} raycast_core, {$ELSE} raycast_legacy, {$ENDIF} raycast_common;
+uses {$IFDEF COREGL} raycast_core, gl_core_matrix, {$ELSE} raycast_legacy, {$ENDIF} raycast_common;
 //uses SysUtils,classes, raycastglsl, mainunit;
+{$IFNDEF COREGL}
+procedure StartDraw2D;
+begin
+     //core only
+end;
+
+procedure EndDraw2D;
+begin
+  //core only
+end;
+{$ENDIF}
 
 procedure Enter2D;
 begin
+  {$IFDEF COREGL}
+  nglMatrixMode(nGL_PROJECTION);
+  nglLoadIdentity;
+  nglOrtho(0, gRayCast.WINDOW_WIDTH, 0, gRayCast.WINDOW_HEIGHT,-1,1);//<- same effect as previous line
+  nglMatrixMode(nGL_MODELVIEW);
+  nglLoadIdentity;
+  {$ELSE}
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity;
   glOrtho(0, gRayCast.WINDOW_WIDTH, 0, gRayCast.WINDOW_HEIGHT,-1,1);//<- same effect as previous line
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity;
+  {$ENDIF}
   glDisable(GL_DEPTH_TEST);
 end;
 

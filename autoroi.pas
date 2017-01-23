@@ -1,7 +1,7 @@
 unit autoroi;
 
 interface
-
+{$include opts.inc}
 uses
  {$IFNDEF FPC}
 
@@ -14,9 +14,7 @@ uses
   Buttons, StdCtrls,  ExtCtrls, {$IFDEF COREGL} raycast_core, {$ELSE} raycast_legacy, {$ENDIF} raycast_common;    //define_types,
 
 type
-
   { TAutoROIForm }
-
   TAutoROIForm = class(TForm)
     OriginLabel: TLabel;
     OriginBtn: TSpeedButton;

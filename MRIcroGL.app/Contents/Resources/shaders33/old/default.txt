@@ -106,7 +106,10 @@ void main() {
 	vec4 prevNorm = vec4(0.0,0.0,0.0,0.0);
 	vec4 oprevNorm = vec4(0.0,0.0,0.0,0.0);
 		float opacityCorrection = stepSize/sliceSize;
+	//vec3 lightDirHeadOn =  normalize(modelViewMatrixInverse * vec4(0.0,0.0,1.0,0.0)).xyz ;
+	//vec3 lightDirHeadOn = vec3(0.0,1.0,0.0);
 	vec3 lightDirHeadOn =  normalize(modelViewMatrixInverse * vec4(0.0,0.0,1.0,0.0)).xyz ;
+
 	float stepSizex2 = clipStart + ( sliceSize * 3.0);
 	float boundAcc = 0.0;
 	float boundAcc2 = 0.0;

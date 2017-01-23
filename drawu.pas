@@ -24,6 +24,7 @@ type
  end;
 
 var gDraw: TDraw;
+procedure StartDrawGLSL;
 procedure voiUndo;
 procedure voiCloseSlice;
 procedure voiInterpolate;
@@ -367,6 +368,7 @@ var
   nPix, nSlices, volOffset,i,j, k: integer;
 begin
      if (gDraw.view3d = nil) then exit;
+
      if ((gDraw.dim3d[1] * gDraw.dim3d[2]*gDraw.dim3d[3]) < 1) then exit;
      if (Color < 0) or (Color > 255) or (Xfrac < 0.0) or (Yfrac < 0.0) or (Zfrac < 0.0) or (Xfrac > 1.0) or (Yfrac > 1.0) or (Zfrac > 1.0) then exit;
      if (Orient < 1) or (Orient > 3) then exit; //accept Axial, Sag, Coro
@@ -706,29 +708,22 @@ begin
 end;
 
 procedure Redraw;
+{$IFDEF COREGL}
+const kA = GL_RED;
+{$ELSE}
+const kA = GL_ALPHA;
+{$ENDIF}
 begin
      if (gDraw.view3dId = 0) or ( gDraw.view2d = nil) then exit;
      glBindTexture(GL_TEXTURE_3D, gDraw.view3dId);
      if (gDraw.dim2d[0] = kOrient3D) then begin //insert 3D volume
-        glTexSubImage3D(GL_TEXTURE_3D,0,
-          0, 0,0,
-         gDraw.dim3d[1], gDraw.dim3d[2], gDraw.dim3d[3],
-         GL_ALPHA, GL_UNSIGNED_BYTE,@gDraw.view2d[0]);
+        glTexSubImage3D(GL_TEXTURE_3D,0, 0, 0,0, gDraw.dim3d[1], gDraw.dim3d[2], gDraw.dim3d[3], kA, GL_UNSIGNED_BYTE,@gDraw.view2d[0]);
      end else if (gDraw.dim2d[0] = kOrientSag) then begin//Sag  - insert slice in X dimension
-        glTexSubImage3D(GL_TEXTURE_3D,0,
-         gDraw.dim2d[3], 0,0,
-         1, gDraw.dim2d[1],gDraw.dim2d[2],
-         GL_ALPHA, GL_UNSIGNED_BYTE,@gDraw.view2d[0]);
+        glTexSubImage3D(GL_TEXTURE_3D,0, gDraw.dim2d[3], 0,0, 1, gDraw.dim2d[1],gDraw.dim2d[2], kA, GL_UNSIGNED_BYTE,@gDraw.view2d[0]);
      end else if (gDraw.dim2d[0] = kOrientCoro) then begin//Coro  - insert slice in Y dimension
-        glTexSubImage3D(GL_TEXTURE_3D,0,
-         0,gDraw.dim2d[3], 0,
-         gDraw.dim2d[1],1, gDraw.dim2d[2],
-         GL_ALPHA, GL_UNSIGNED_BYTE,@gDraw.view2d[0]);
+        glTexSubImage3D(GL_TEXTURE_3D,0,0,gDraw.dim2d[3], 0,gDraw.dim2d[1],1, gDraw.dim2d[2], kA, GL_UNSIGNED_BYTE,@gDraw.view2d[0]);
      end else  begin//Axial - insert slice in Z dimension
-       glTexSubImage3D(GL_TEXTURE_3D,0,
-         0, 0,gDraw.dim2d[3],
-        gDraw.dim2d[1],gDraw.dim2d[2],1,
-        GL_ALPHA, GL_UNSIGNED_BYTE,@gDraw.view2d[0]);
+       glTexSubImage3D(GL_TEXTURE_3D,0,0, 0,gDraw.dim2d[3],gDraw.dim2d[1],gDraw.dim2d[2],1, kA, GL_UNSIGNED_BYTE,@gDraw.view2d[0]);
      end;
 end;
 
@@ -991,9 +986,68 @@ begin
       glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
       glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
       glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
+      {$IFDEF COREGL} //Core OpenGL does not have GL_ALPHA, so we use RED here and in Fragment Shader
+      glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, gDraw.dim3d[1], gDraw.dim3d[2], gDraw.dim3d[3], 0, GL_RED, GL_UNSIGNED_BYTE,@gDraw.view3d[0]);
+      {$ELSE}
       glTexImage3D(GL_TEXTURE_3D, 0, GL_ALPHA8, gDraw.dim3d[1], gDraw.dim3d[2], gDraw.dim3d[3], 0, GL_ALPHA, GL_UNSIGNED_BYTE,@gDraw.view3d[0]);
+      {$ENDIF}
+
 end;
 
+{$IFDEF COREGL}
+const kVertCore2D = '#version 330 core'
++#10'layout(location = 0) in vec3 vPos;'
++#10'out vec3 TexCoord1;'
++#10'uniform mat4 modelViewProjectionMatrix;'
++#10'uniform vec4 XYWH = vec4(0.0, 0.0, 1.0, 1.0);'
++#10'void main() {'
++#10'    TexCoord1 = vPos;'
++#10'    vec2 px = vPos.xy;'
++#10'    px.x = (px.x * XYWH[2])+XYWH.x;'
++#10'    px.y = (px.y * XYWH[3])+XYWH.y;'
++#10'    gl_Position = modelViewProjectionMatrix * vec4(px, 0.0, 1.0);'
++#10'}';
+
+const kFragCore2D = '#version 330 core'
++#10'in vec3 TexCoord1;'
++#10'out vec4 FragColor;'
++#10'uniform float coordZ;'
++#10'uniform int orientAxCorSag, drawLoaded;'
++#10'uniform sampler3D drawVol, intensityVol;'
++#10'uniform sampler1D drawLUT;'
++#10'uniform vec3 clearColor;'
++#10'void main() {'
++#10'vec3 vox;'
++#10'if (orientAxCorSag == 2) vox = vec3(TexCoord1.x, coordZ, TexCoord1.y);'
++#10'else if (orientAxCorSag == 3) vox = vec3( coordZ, TexCoord1.xy);'
++#10'else if (orientAxCorSag == 4) vox = vec3( coordZ, 1.0 - TexCoord1.x, TexCoord1.y);'
++#10'else vox = vec3(TexCoord1.xy, coordZ);'
++#10'vec4 bg = texture(intensityVol, vox);'
++#10'//if (bg.a < 0.01) bg.rgb = clearColor;'
++#10'vec4 dr = vec4(0.0, 0.0, 0.0, 0.0);'
++#10'if (drawLoaded != 0) dr = texture(drawLUT, texture(drawVol, vox).r).rgba;'
++#10'if (max(bg.a,dr.a) < 0.01) discard;'
++#10'FragColor.rgb = mix(bg.rgb,dr.rgb,dr.a);'
++#10'}';
+(*const kFragCore2Dx = '#version 330 core'
++#10'in vec3 TexCoord1;'
++#10'out vec4 FragColor;'
++#10'uniform float coordZ;'
++#10'uniform int orientAxCorSag;'
++#10'uniform sampler3D drawVol, intensityVol;'
++#10'uniform sampler1D drawLUT;'
++#10'uniform vec3 clearColor;'
++#10'void main() {'
++#10'vec3 vox;'
++#10'if (orientAxCorSag == 2) vox = vec3(TexCoord1.x, coordZ, TexCoord1.y);'
++#10'else if (orientAxCorSag == 3) vox = vec3( coordZ, TexCoord1.xy);'
++#10'else vox = vec3(TexCoord1.xy, coordZ);'
++#10'vec4 bg = texture(intensityVol, vox);'
++#10'if (bg.a < 0.01) bg.rgb = clearColor;'
++#10'vec4 dr = texture(drawLUT, texture(drawVol, vox).a).rgba;'
++#10'FragColor.rgb = mix(bg.rgb,dr.rgb,dr.a);'
++#10'}';*)
+{$ELSE}
 const kMinimalShaderFrag = 'uniform float coordZ;'
 +#10'uniform int orientAxCorSag;'
 +#10'uniform sampler3D drawVol, intensityVol;'
@@ -1009,10 +1063,15 @@ const kMinimalShaderFrag = 'uniform float coordZ;'
 +#10'vec4 dr = texture1D(drawLUT, texture3D(drawVol, vox).a).rgba;'
 +#10'gl_FragColor.rgb = mix(bg.rgb,dr.rgb,dr.a);'
 +#10'}';
+{$ENDIF}
 
-procedure StartGLSL;
+procedure StartDrawGLSL;
 begin
+    {$IFDEF COREGL}
+    if (gDraw.glslprogramId = 0) then gDraw.glslprogramId := initVertFrag(kVertCore2D,kFragCore2D);
+    {$ELSE}
     if (gDraw.glslprogramId = 0) then gDraw.glslprogramId := initVertFrag('',kMinimalShaderFrag);
+    {$ENDIF}
     glUseProgram(gDraw.glslprogramId);
     glEnable(GL_BLEND);
     glActiveTexture( GL_TEXTURE0 );  //required if we will draw 2d slices next
@@ -1036,7 +1095,10 @@ begin
      result := 0;
      if (gDraw.view3d = nil) and (gDraw.view3dId <> 0) then voiCloseGL;
      if (gDraw.view3d <> nil) and ((gDraw.view3dId = 0) or (gDraw.isForceCreate)) then  voiCreateGL;
+
+     //{$IFNDEF COREGL}
      if gDraw.view3dId = 0 then exit;
+     //{$ENDIF}
      if gDraw.doAlpha then begin
         CreateColorTable;
         gDraw.doAlpha := false;
@@ -1045,7 +1107,7 @@ begin
         Redraw;
         gDraw.doRedraw := false;
      end;
-     StartGLSL;
+     StartDrawGLSL;
      result := gDraw.glslprogramId;
 end;
 

@@ -11348,6 +11348,7 @@ var
 begin
      result := true;
      //xl
+     glTexSubImage3D := wglGetProcAddress('glTexSubImage3D');
      glTexImage3D := wglGetProcAddress('glTexImage3D');
      glTexImage3DEXT := wglGetProcAddress('glTexImage3DEXT');
      glGenFramebuffersEXT := wglGetProcAddress('glGenFramebuffersEXT');

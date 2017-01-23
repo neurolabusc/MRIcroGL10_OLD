@@ -17,6 +17,7 @@ type
   TUniform = record
     Name: string;
     Widget: integer;
+    id: GLint;
     Min,DefaultV,Max: single;
     Bool: boolean;
   end;
@@ -25,7 +26,11 @@ type
          OverlayVolume: integer;
          nUniform: integer;
          Uniform: array [1..kMaxUniform] of
-          TUniform;
+         TUniform;
+         {$IFDEF COREGL}
+         nface, vao_point2d, vbo_face2d, program2d: GLuint;
+
+         {$ENDIF}
   end;
 var
   gShader: TShader;
@@ -43,7 +48,7 @@ var
 begin
   if (lShader.nUniform < 1) or (lShader.nUniform > kMaxUniform) then
     exit;
-  //GLForm1.caption := inttostr(random(888))+'  '+inttostr(lShader.nUniform);
+{$IFDEF SLOWSHADER} //always request ShaderID from name = slow
   for i := 1 to lShader.nUniform do begin
     case lShader.Uniform[i].Widget of
       kFloat: uniform1f(lShader.Uniform[i].name,lShader.Uniform[i].defaultV);
@@ -56,6 +61,22 @@ begin
         end;
     end;//case
   end; //for each uniform
+{$ELSE} //store ShaderID from name = fase
+for i := 1 to lShader.nUniform do begin
+  if lShader.Uniform[i].id = 0 then
+    lShader.Uniform[i].id := glGetUniformLocation(gRayCast.GLSLprogram, pAnsiChar(lShader.Uniform[i].name));
+  case lShader.Uniform[i].Widget of
+    kFloat: glUniform1f(lShader.Uniform[i].id,lShader.Uniform[i].defaultV);
+    kInt: glUniform1i(lShader.Uniform[i].id,round(lShader.Uniform[i].defaultV));
+    kBool: begin
+        if lShader.Uniform[i].bool then
+          glUniform1i(lShader.Uniform[i].id,1)
+        else
+          glUniform1i(lShader.Uniform[i].id,0);
+      end;
+  end;//case
+end; //for each uniform
+{$ENDIF}
 end; //AdjustShaders
 
 function strtofloat0 (lS:string): single;
@@ -79,6 +100,7 @@ var
 begin
   result.Name := '';
   result.Widget := kError;
+  result.id:= 0;
   lLen := length(lS);
   //read values
   lV := '';
@@ -89,7 +111,6 @@ begin
       exit;
     if lS[lP] <> '|' then
       lV := lV + lS[lP];
-
     if (lS[lP] = '|') or (lP = lLen) then begin
         inc(lN);
         case lN of
@@ -281,9 +302,6 @@ begin
   result.nUniform := 0;
   result.OverlayVolume := 0;//false;
   result.FragmentProgram :=  kDefaultFragment;
-
-  //
-
 end;
 
 function LoadShader(lFilename: string; var lShader: TShader): boolean;

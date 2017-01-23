@@ -1,8 +1,7 @@
 //pref
 overlayVolume|set|2
-boundThresh|float|0.0|0.5|0.95
-edgeBoundMix|float|0|0|1
-diffuse|float|0.0|0.2|1.0
+occlusion|float|0.0|0.25|0.5
+diffuse|float|0.0|1.6|3
 specular|float|0.0|0.3|1
 shininess|float|0.01|20.0|30
 backAlpha|float|0.0|0.95|1
@@ -10,14 +9,14 @@ overDistance|float|0.0|0.3|1
 overAlpha|float|0.0|1.6|2.0
 overShade|float|0.0|0.3|1.0
 clipThick|float|0.01|0.7|1.0
-Overlay transparency independent of background.|note
+Crevices dark due to ambient occlusion, diffuse lighting uses spherical harmonics.|note
 //frag
 #version 330 core
 in vec3 TexCoord1;
 out vec4 FragColor;
 uniform mat4 modelViewMatrixInverse;
 uniform int loops, overlays;
-uniform float diffuse, boundThresh, edgeBoundMix, clipThick, stepSize, sliceSize, viewWidth, viewHeight;
+uniform float occlusion, diffuse, clipThick, stepSize, sliceSize, viewWidth, viewHeight;
 uniform vec3 clearColor,lightPosition, clipPlane;
 uniform sampler3D overlayVol;
 uniform sampler3D overlayGradientVol;
@@ -25,7 +24,47 @@ uniform sampler3D intensityVol; //3DTexture containing brightness
 uniform sampler3D gradientVol; //3DTexture containing gradient direction and magnitude
 uniform sampler2D backFace;
 uniform float clipPlaneDepth, specular, shininess, overAlpha, overDistance, overShade, backAlpha;
-//uniform bool overClip;
+
+//Spherical harmonics constants
+const float C1 = 0.429043;
+const float C2 = 0.511664;
+const float C3 = 0.743125;
+const float C4 = 0.886227;
+const float C5 = 0.247708;
+
+//Spherical harmonics coefficients
+// Ramamoorthi, R., and P. Hanrahan. 2001b. "An Efficient Representation for Irradiance Environment Maps." In Proceedings of SIGGRAPH 2001, pp. 497–500.
+// https://github.com/eskimoblood/processingSketches/blob/master/data/shader/shinyvert.glsl
+// https://github.com/eskimoblood/processingSketches/blob/master/data/shader/shinyvert.glsl
+
+// Constants for Old Town Square lighting
+const vec3 L00 = vec3( 0.871297, 0.875222, 0.864470);
+const vec3 L1m1 = vec3( 0.175058, 0.245335, 0.312891);
+const vec3 L10 = vec3( 0.034675, 0.036107, 0.037362);
+const vec3 L11 = vec3(-0.004629, -0.029448, -0.048028);
+const vec3 L2m2 = vec3(-0.120535, -0.121160, -0.117507);
+const vec3 L2m1 = vec3( 0.003242, 0.003624, 0.007511);
+const vec3 L20 = vec3(-0.028667, -0.024926, -0.020998);
+const vec3 L21 = vec3(-0.077539, -0.086325, -0.091591);
+const vec3 L22 = vec3(-0.161784, -0.191783, -0.219152);
+
+
+vec3 SH(vec3 vNormal)
+{
+	vNormal = vec3(vNormal.x,vNormal.z,-vNormal.y);
+	vec3 diffuseColor =  C1 * L22 * (vNormal.x * vNormal.x - vNormal.y * vNormal.y) +
+                    C3 * L20 * vNormal.z * vNormal.z +
+                    C4 * L00 -
+                    C5 * L20 +
+                    2.0 * C1 * L2m2 * vNormal.x * vNormal.y +
+                    2.0 * C1 * L21  * vNormal.x * vNormal.z +
+                    2.0 * C1 * L2m1 * vNormal.y * vNormal.z +
+                    2.0 * C2 * L11  * vNormal.x +
+                    2.0 * C2 * L1m1 * vNormal.y +
+                    2.0 * C2 * L10  * vNormal.z;
+    return diffuseColor;
+}
+
 // for online GLSL optimizer see http://zz85.github.io/glsl-optimizer/
 void main() {
 	//const vec3 materialColor = vec3(1.0,1.0,1.0);
@@ -105,13 +144,15 @@ void main() {
 	vec3 samplePos = start.xyz + deltaDir* (fract(sin(gl_FragCoord.x * 12.9898 + gl_FragCoord.y * 78.233) * 43758.5453));
 	vec4 prevNorm = vec4(0.0,0.0,0.0,0.0);
 	vec4 oprevNorm = vec4(0.0,0.0,0.0,0.0);
-		float opacityCorrection = stepSize/sliceSize;
+	float opacityCorrection = stepSize/sliceSize;
 	vec3 lightDirHeadOn =  normalize(modelViewMatrixInverse * vec4(0.0,0.0,1.0,0.0)).xyz ;
 	float stepSizex2 = clipStart + ( sliceSize * 3.0);
 	float boundAcc = 0.0;
 	float boundAcc2 = 0.0;
 	float alphaTerminate = 0.95;
 	if ( overlays > 0 ) alphaTerminate = 2.0; //impossible value: no early termination with overlays
+	//vec3 lightDirRel =  normalize( transpose(gl_NormalMatrix) * lightPosition);
+//vec3 lightDirRel =  normalize( gl_NormalMatrix * lightPosition);
 	for(int i = 0; i < loops; i++) {
 		if ((lengthAcc <= clipStart) || (lengthAcc > clipEnd)) {
 			colorSample.a = 0.0;
@@ -128,45 +169,34 @@ void main() {
 				if (gradientSample.a < prevNorm.a)
 					gradientSample.rgb = prevNorm.rgb;
 				prevNorm = gradientSample;
-				//Edge shading - darken edges parallel with viewing direction
-				float lightNormDot = dot(gradientSample.rgb, lightDirHeadOn); //with respect to viewer
-				float edgeVal = pow(1.0-abs(lightNormDot),edgeExp) * pow(gradientSample.a,0.3);
-				if (edgeVal >= edgeThresh)
-					colorSample.rgb = mix(colorSample.rgb, vec3(0.0,0.0,0.0), pow((edgeVal-edgeThresh)/(1.0-edgeThresh),4.0));
-				//specular
-				lightNormDot = dot(gradientSample.rgb, lightPosition); //with respect to light location
-
-				if (lightNormDot > 0.0) {
-					colorSample.rgb += (lightNormDot * diffuse) - diffuseDiv;
-					colorSample.rgb +=   specular * pow(max(dot(reflect(lightPosition, gradientSample.rgb), dir), 0.0), shininess);
-				} else
-					colorSample.rgb -= diffuseDiv;
-				if (gradientSample.a > boundThresh) {
+				//if (gradientSample.a > occlusion) {
+					//Edge shading - darken edges parallel with viewing direction
 					float lightNormDot = dot(gradientSample.rgb, lightDirHeadOn); //with respect to viewer
-					float boundAlpha = pow(1.0-abs(lightNormDot),6.0);
-					boundAlpha = 1.0-pow((1.0 - boundAlpha), opacityCorrection);
-					boundAcc += (1.0 - boundAcc2) * boundAlpha;
-					boundAcc2 += (1.0 - boundAcc2) * boundAlpha;
-				}
-
+					float edgeVal = pow(1.0-abs(lightNormDot),edgeExp) * pow(gradientSample.a,0.3);
+					if (edgeVal >= edgeThresh)
+						colorSample.rgb = mix(colorSample.rgb, vec3(0.0,0.0,0.0), pow((edgeVal-edgeThresh)/(1.0-edgeThresh),4.0));
+					//specular
+					lightNormDot = dot(gradientSample.rgb, lightPosition); //with respect to light location
+					//vec3 n = gl_NormalMatrix * gradientSample.rgb;
+					vec3 n = reflect(lightPosition, gradientSample.rgb);
+					colorSample.rgb +=   specular *  pow(max(dot(n, dir), 0.0), shininess);
+					colorSample.rgb *= SH(-n  )* diffuse;
+				//} else
+				// colorSample.a = sqrt(colorSample.a);
+				float occlude = step(occlusion, gradientSample.a);
+				colorSample.a = mix(sqrt(colorSample.a), colorSample.a, occlude);
+				//if (gradientSample.a < occlusion) colorSample.a = sqrt(colorSample.a);
 			};
 		}
-
-
 		if ( overlays > 0 ) {
 			gradientSample= texture(overlayGradientVol,samplePos); //interpolate gradient direction and magnitude
 			if (gradientSample.a > 0.01) {
-
 				if (gradientSample.a < oprevNorm.a)
 					gradientSample.rgb = oprevNorm.rgb;
 				oprevNorm = gradientSample;
 				gradientSample.rgb = normalize(gradientSample.rgb*2.0 - 1.0); //direction saved as 0..1, rescale to -1..1
 				ocolorSample = texture(overlayVol,samplePos);
 				ocolorSample.a *= gradientSample.a; //modulate by gradient
-
-
-
-
 				ocolorSample.a = sqrt(ocolorSample.a);
 				//Edge shading - darken edges parallel with viewing direction
 				float lightNormDot = dot(gradientSample.rgb, lightDirHeadOn); //with respect to viewer
@@ -175,7 +205,6 @@ void main() {
 				ocolorSample.rgb = mix(ocolorSample.rgb, vec3(0.0,0.0,0.0), edgeVal);
 				//if (edgeVal >= edgeThresh)
 				//	ocolorSample.rgb = mix(ocolorSample.rgb, vec3(0.0,0.0,0.0), pow((edgeVal-edgeThresh)/(1.0-edgeThresh),4.0));
-
 				//specular
 				lightNormDot = dot(gradientSample.rgb, lightPosition); //with respect to light location
 				if (lightNormDot > 0.0)
@@ -218,10 +247,6 @@ void main() {
 			break;
 	}
 	colAcc.a*=backAlpha;
-	if ((edgeBoundMix > 0.0) && ((colAcc.a + boundAcc) > 0.0)) {
-		colAcc.rgb = mix(colAcc.rgb, vec3(0.0,0.0,0.0), (edgeBoundMix * boundAcc)/(colAcc.a+(edgeBoundMix * boundAcc)) );
-		colAcc.a = max(colAcc.a, boundAcc);
-	}
 	if ((overAcc.a > 0.01) && (overAlpha > 1.0))  {
 		colAcc.a=max(colAcc.a,overAcc.a);
 		if ( (overDistance > 0.0) && (overDepth > backDepthStart) && (backDepthEnd > backDepthStart)) {

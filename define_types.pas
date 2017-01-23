@@ -1,6 +1,7 @@
 unit define_types;
 {$D-,L-,O+,Q-,R-,Y-,S-}
 interface
+{$Include opts.inc}
 {$H+}
  {$DEFINE GUI}
         uses
@@ -35,6 +36,17 @@ const
 {$ENDIF}
 
 type
+  {$IFDEF COREGL}
+   TRGBA = packed record //Next: analyze Format Header structure
+    R,G,B,A : byte;
+  end;
+  TPoint3f = packed record
+    X: single;
+    Y: single;
+    Z: single
+  end;
+  TInts = array of integer;
+  {$ENDIF}
   TStrRA = Array of String;
   TPSPlot =  RECORD //peristimulus plot
     TRSec,BinWidthSec: single;

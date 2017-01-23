@@ -1,0 +1,14 @@
+//pref
+showBackface|bool|false
+//frag
+#version 330 core
+in vec3 TexCoord1;
+out vec4 FragColor;
+uniform float viewWidth, viewHeight;
+uniform sampler3D intensityVol;
+uniform sampler2D backFace;
+uniform bool showBackface;
+void main() {
+	FragColor = vec4(TexCoord1.xyz, 1.0);
+	if (showBackface) FragColor.rgb = texture(backFace,vec2(gl_FragCoord.x/viewWidth,gl_FragCoord.y/viewHeight)).xyz;
+}

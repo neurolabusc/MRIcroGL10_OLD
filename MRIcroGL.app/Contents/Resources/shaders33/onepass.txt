@@ -1,0 +1,61 @@
+//pref
+showBackface|bool|false
+showDir|bool|false
+showDir2|bool|true
+//frag
+#version 330 core
+in vec3 TexCoord1;
+out vec4 FragColor;
+uniform mat4 modelViewMatrixInverse;
+uniform float viewWidth, viewHeight;
+uniform sampler3D intensityVol;
+uniform sampler2D backFace;
+uniform bool showBackface, showDir, showDir2;
+
+struct Ray {
+    vec3 Origin;
+    vec3 Dir;
+};
+
+struct AABB {
+    vec3 Min;
+    vec3 Max;
+};
+
+bool IntersectBox(Ray r, AABB aabb, out float t0, out float t1)
+{
+    vec3 invR = 1.0 / r.Dir;
+    vec3 tbot = invR * (aabb.Min-r.Origin);
+    vec3 ttop = invR * (aabb.Max-r.Origin);
+    vec3 tmin = min(ttop, tbot);
+    vec3 tmax = max(ttop, tbot);
+    vec2 t = max(tmin.xx, tmin.yz);
+    t0 = max(t.x, t.y);
+    t = min(tmax.xx, tmax.yz);
+    t1 = min(t.x, t.y);
+    return t0 <= t1;
+}
+
+void main() {
+	vec3 eyeDir =  normalize(modelViewMatrixInverse * vec4(0.0,0.0,1.0,0.0)).xyz ;
+	vec3 rayDir =  -eyeDir;
+    Ray eye = Ray( TexCoord1.xyz, rayDir );
+    AABB aabb = AABB(vec3(-1.0), vec3(+1.0));
+
+    float tnear, tfar;
+    IntersectBox(eye, aabb, tnear, tfar);
+    //if (tnear == 0) {FragColor = vec4(0.5, tfar, tfar, 1.0); return; }
+    float dx = abs(tnear - tfar);
+	FragColor = vec4(0.5, dx, dx, 1.0); return;
+    if (tnear < 0.0) tnear = 0.0;
+
+    vec3 rayStart = TexCoord1.xyz;
+    vec3 rayStop = TexCoord1.xyz + rayDir * tfar;
+	rayStop = vec3(tfar, tfar, tfar);
+
+	//rayStop = vec3(tnear, tnear, tnear);
+	FragColor = vec4(TexCoord1.xyz, 1.0);
+	if (showBackface) FragColor.rgb = texture(backFace,vec2(gl_FragCoord.x/viewWidth,gl_FragCoord.y/viewHeight)).xyz;
+	if (showDir) FragColor.rgb = rayStart;
+	if (showDir2) FragColor.rgb = rayStop;
+}

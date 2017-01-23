@@ -517,6 +517,20 @@ begin
 	glEnd();
 end;
 
+procedure clipMat;
+var
+  lMgl: array[0..15] of  GLfloat;
+begin
+ (* glGetFloatv(GL_TRANSPOSE_MODELVIEW_MATRIX, @lMgl);
+
+     clipboard.AsText:= format('m=[%g %g %g %g; %g %g %g %g; %g %g %g %g; %g %g %g %g]',[
+       m[0,0], m[0,1], m[0,2], m[0,3],
+       m[1,0], m[1,1], m[1,2], m[1,3],
+       m[2,0], m[2,1], m[2,2], m[2,3],
+       m[3,0], m[3,1], m[3,2], m[3,3]]
+       ); *)
+end;
+
 procedure rayCasting (var lTex: TTexture);
 begin
      //glUseProgram(gRayCast.glslprogramGradient);
@@ -721,7 +735,6 @@ begin
     DrawNodes(gRayCast.WINDOW_HEIGHT,gRayCast.WINDOW_WIDTH, lTex, gPrefs);
   if gPrefs.Colorbar then
      DrawCLUT( gPrefs.ColorBarPos,0.01, gPrefs);//, gRayCast.WINDOW_WIDTH*zoom, gRayCast.WINDOW_HEIGHT*zoom, zoomOffsetX, zoomOffsetY);
-
   {$IFDEF ENABLEWATERMARK}
   if gWatermark.filename <> '' then
     LoadWatermark(gWatermark);

@@ -1,9 +1,9 @@
 //pref
 overlayVolume|set|2
 boundThresh|float|0.0|0.5|0.95
-edgeBoundMix|float|0|0|1
+edgeBoundMix|float|0|0.9|1
 diffuse|float|0.0|0.2|1.0
-specular|float|0.0|0.3|1
+specular|float|0.0|0.5|1
 shininess|float|0.01|20.0|30
 backAlpha|float|0.0|0.95|1
 overDistance|float|0.0|0.3|1
@@ -110,8 +110,6 @@ void main() {
 	float stepSizex2 = clipStart + ( sliceSize * 3.0);
 	float boundAcc = 0.0;
 	float boundAcc2 = 0.0;
-	float alphaTerminate = 0.95;
-	if ( overlays > 0 ) alphaTerminate = 2.0; //impossible value: no early termination with overlays
 	for(int i = 0; i < loops; i++) {
 		if ((lengthAcc <= clipStart) || (lengthAcc > clipEnd)) {
 			colorSample.a = 0.0;
@@ -214,7 +212,7 @@ void main() {
 		colAcc= (1.0 - colAcc.a) * colorSample + colAcc;
 		samplePos += deltaDir;
 		lengthAcc += stepSize;
-		if ( lengthAcc >= len || colAcc.a > alphaTerminate )
+		if ( lengthAcc >= len  )
 			break;
 	}
 	colAcc.a*=backAlpha;

@@ -6,24 +6,20 @@ unit raycast_core;
  This unit enabled OpenGL Core 3.3 support, instead of the legacy OpenGL 2.1 support
  The basic rendering and glsl gradient computation works. No performance benefits observed relative to legacy
 CORE still needs a lot of work:
- Overlays - separate volumes
- boundExp
- 2D slices (drawU's initVertFrag)
- 2D mosaics
  colorbar
- histogram
- orientation cube
  screenshots
-
+ drawing !!!
 *)
 interface
 
 uses
 	gl, glext, define_types, raycast_common, gl_core_matrix, dialogs,
-        texture_3d_unit, SysUtils,DateUtils;
+        texture_3d_unit, SysUtils,DateUtils,gl_2D, histogram2d, colorbar2d;
+procedure DrawSliceGL();
 procedure  InitGL (InitialSetup: boolean);
 procedure DisplayGL(var lTex: TTexture);
-procedure DisplayGLz(var lTex: TTexture; zoom, zoomOffsetX, zoomOffsetY: integer);
+//procedure DisplayGLz(var lTex: TTexture; zoom, zoomOffsetX, zoomOffsetY: integer);
+procedure DisplayGLz(var lTex: TTexture; framebuffer: TGLuint);
 
 implementation
 
@@ -34,7 +30,7 @@ type
 TCore = record
   vao, programBackface: GLuint;
   intensityVolLoc, gradientVolLoc,
-  zoomLocBackface, zoomXYLocBackface, zoomLoc, zoomXYLoc,
+  //zoomLocBackface, zoomXYLocBackface, zoomLoc, zoomXYLoc,
   mvpLocBackface, mvpLoc, imvLoc, flipLoc, backFaceLoc, viewHeightLoc, viewWidthLoc,
   lightPositionLoc, sliceSizeLoc, stepSizeLoc, loopsLoc, clearColorLoc, clipPlaneLoc, clipPlaneDepthLoc: GLint;
 
@@ -43,6 +39,13 @@ end;
 var
   gCore: TCore;
   gInit : boolean = false;
+
+procedure DrawSliceGL();
+begin
+
+  glBindVertexArray(gCore.vao);
+glDrawElements(GL_TRIANGLES, 2*3, GL_UNSIGNED_INT, nil);
+end;
 
 procedure performBlurSobel(var lTex: TTexture; lIsOverlay: boolean);
 //http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
@@ -203,7 +206,6 @@ begin
   end;
 end;
 
-
 procedure  FrameBufferGL(InitialSetup: boolean);
 begin
   // backFrameBuffer
@@ -355,7 +357,7 @@ begin
   glUniform1f(gCore.clipPlaneDepthLoc, lD);
 end;
 
-procedure clipMat(m : TnMat44);
+(*procedure clipMat(m : TnMat44);
 begin
      clipboard.AsText:= format('m=[%g %g %g %g; %g %g %g %g; %g %g %g %g; %g %g %g %g]',[
        m[0,0], m[0,1], m[0,2], m[0,3],
@@ -363,11 +365,13 @@ begin
        m[2,0], m[2,1], m[2,2], m[2,3],
        m[3,0], m[3,1], m[3,2], m[3,3]]
        );
-end;
+end;*)
 
-procedure drawRender(var lTex: TTexture; zoom, zoomOffsetX, zoomOffsetY: integer);
+//procedure drawRender(var lTex: TTexture; zoom, zoomOffsetX, zoomOffsetY: integer);
+procedure drawRender(var lTex: TTexture;  framebuffer : TGLuint);
 var
   mat44 : TnMat44;
+  i : integer;
 begin
     rotateGL(lTex);
     mat44 := ngl_ModelViewProjectionMatrix;
@@ -377,14 +381,16 @@ begin
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gRayCast.backFaceBuffer); //draw offscreen
     //glBindFramebuffer(GL_FRAMEBUFFER, 0); //draw to screen
     glUniformMatrix4fv(gCore.mvpLocBackface, 1, GL_FALSE, @mat44[0,0]);
-    glUniform1i(gCore.zoomLocBackface,zoom);
+    //glUniform1i(gCore.zoomLocBackface,zoom);
     //glUniform2i(gCore.zoomXYLocBackface, zoomOffsetX, zoomOffsetY);
     //gRayCast.WINDOW_WIDTH*zoom, gRayCast.WINDOW_HEIGHT*zoom, zoomOffsetX, zoomOffsetY
     //draw
     drawBox(false);
     //2nd pass: front
     glUseProgram(gRaycast.glslprogram);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0); //draw to screen
+    //XXXXXX
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer); //draw to screen
+    //glBindFramebuffer(GL_FRAMEBUFFER, gRayCast.frameBuffer);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, gRayCast.backTexture);
     glUniform1i(gCore.backFaceLoc, 1);
@@ -394,7 +400,7 @@ begin
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_3D, gRayCast.gradientTexture3D);
     glUniform1i(gCore.gradientVolLoc, 3);
-    glUniform1i(gCore.zoomLoc, zoom);
+    //glUniform1i(gCore.zoomLoc, zoom);
     glUniform1i(gCore.flipLoc,1 - b2i(false));
     //glUniform1i(gCore.zoomLoc,zoom);
     //glUniform2i(gCore.zoomXYLoc, zoomOffsetX, zoomOffsetY);
@@ -434,39 +440,57 @@ begin
     glUniform3f(gCore.clearColorLoc,gPrefs.BackColor.rgbRed/255,gPrefs.BackColor.rgbGreen/255,gPrefs.BackColor.rgbBlue/255);
     glUniformMatrix4fv(gCore.mvpLoc, 1, GL_FALSE, @mat44[0,0]);
     mat44 := inverseMat(ngl_ModelViewMatrix);
-    mat44 := transposeMat(mat44);
+    //mat44 := transposeMat(ngl_ModelViewMatrix);
+    //mat44 := inverseMat(ngl_ModelViewProjectionMatrix);
+    //mat44 := (ngl_ModelViewMatrix);
+
+    //mat44 := transposeMat(mat44);
     //clipMat(mat44);
     glUniformMatrix4fv(gCore.imvLoc, 1, GL_FALSE, @mat44[0,0]);
+
+    i := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('modelViewMatrix'));
+    mat44 := (ngl_ModelViewMatrix);
+    glUniformMatrix4fv(i, 1, GL_FALSE, @mat44[0,0]);
     drawBox(true);
+
+    if gPrefs.SliceDetailsCubeAndText then
+      drawCube(gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT, gRaycast.Azimuth, gRaycast.Elevation);
     glUseProgram(0);
 end;
 
-procedure DisplayGLz(var lTex: TTexture; zoom, zoomOffsetX, zoomOffsetY: integer);
+//procedure DisplayGLz(var lTex: TTexture; zoom, zoomOffsetX, zoomOffsetY: integer);
+procedure DisplayGLz(var lTex: TTexture;  framebuffer : TGLuint);
 begin
   if not gInit then exit;
   if (gPrefs.SliceView  <> 5) then  gRayCast.MosaicString := '';
   doShaderBlurSobel(lTex);
   glClearColor(gPrefs.BackColor.rgbRed/255,gPrefs.BackColor.rgbGreen/255,gPrefs.BackColor.rgbBlue/255, 0);
-  resizeGL(gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT,zoom, zoomOffsetX, zoomOffsetY);
-  //resize(gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT,1, 0, 0);
+  //resizeGL(gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT,zoom, zoomOffsetX, zoomOffsetY);
+  resizeGL(gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT,1, 0, 0);
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+  glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT );
+  glDisable(GL_CULL_FACE); //<-this is important, otherwise nodes and quads not filled
   if length(gRayCast.MosaicString)> 0 then begin //draw mosaics
-     glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT );
-     glDisable(GL_CULL_FACE); //<-this is important, otherwise nodes and quads not filled
      MosaicGL(gRayCast.MosaicString);
   end else if gPrefs.SliceView > 0  then begin //draw 2D orthogonal slices
-    glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT );
-    glDisable(GL_CULL_FACE); //<-this is important, otherwise nodes and quads not filled
     DrawOrtho(lTex);
   end else //else draw 3D rendering
-      drawRender(lTex, zoom, zoomOffsetX, zoomOffsetY);
+      drawRender(lTex, framebuffer);//zoom, zoomOffsetX, zoomOffsetY);
+  if gPrefs.ColorEditor then
+     DrawNodes(gRayCast.WINDOW_HEIGHT,gRayCast.WINDOW_WIDTH, lTex, gPrefs);
+  if gPrefs.Colorbar then
+     DrawCLUT( gPrefs.ColorBarPos,0.01, gPrefs);//, gRayCast.WINDOW_WIDTH*zoom, gRayCast.WINDOW_HEIGHT*zoom, zoomOffsetX, zoomOffsetY);
+
   glFlush;//<-this would pause until all jobs are SUBMITTED
   //
-  //GLbox.SwapBuffers;
+  //GLForm1.GLbox.SwapBuffers;
 end;
 
 procedure DisplayGL(var lTex: TTexture);
 begin
-  DisplayGLz(lTex,1,0,0);
+  DisplayGLz(lTex,0);
+  //DisplayGLz(lTex,1,0,0);
+  //disableRenderBuffers;
 end;
 
 (*const kVertBackface = '#version 330 core'
@@ -495,167 +519,6 @@ const kFragBackface = '#version 330 core'
 +#10'void main() {'
 +#10'    FragColor = vec4(TexCoord1, 1.0);'
 +#10'}';
- (*
-  const kFrag = '#version 330 core'
-+#10'in vec3 TexCoord1;'
-+#10'out vec4 FragColor;'
-+#10'uniform mat4 modelViewMatrixInverse;'
-+#10'uniform int loops;'
-+#10'uniform float stepSize, sliceSize, viewWidth, viewHeight;'
-+#10'uniform sampler3D intensityVol;'
-+#10'uniform sampler3D gradientVol;'
-+#10'uniform sampler2D backFace;'
-+#10'uniform vec3 clearColor,lightPosition, clipPlane;'
-+#10'uniform float clipPlaneDepth;'
-+#10'uniform float ambient = 1.0;'
-+#10'uniform float diffuse = 0.3;'
-+#10'uniform float specular = 0.25;'
-+#10'uniform float shininess = 10.0;'
-+#10'uniform float edgeThresh = 0.01;'
-+#10'uniform float edgeExp = 0.15;'
-+#10'uniform float boundExp = 0.0;'
-+#10'void main() {'
-+#10'	vec3 backPosition = texture(backFace,vec2(gl_FragCoord.x/viewWidth,gl_FragCoord.y/viewHeight)).xyz;'
-+#10'	vec3 start = TexCoord1.xyz;'
-+#10'	if (backPosition == clearColor) discard;'
-+#10'	vec3 dir = backPosition - start;'
-+#10'	float len = length(dir);'
-+#10'	dir = normalize(dir);'
-+#10'	if (clipPlaneDepth > -0.5) {'
-+#10'		FragColor.rgb = vec3(1.0,0.0,0.0);'
-+#10'		bool frontface = (dot(dir , clipPlane) > 0.0);'
-+#10'		float dis = dot(dir,clipPlane);'
-+#10'		if (dis != 0.0  )  dis = (-clipPlaneDepth - dot(clipPlane, start.xyz-0.5)) / dis;'
-+#10'		if ((frontface) && (dis >= len)) len = 0.0;'
-+#10'		if ((!frontface) && (dis <= 0.0)) len = 0.0;'
-+#10'		if ((dis > 0.0) && (dis < len)) {'
-+#10'			if (frontface) {'
-+#10'				start = start + dir * dis;'
-+#10'			} else {'
-+#10'				backPosition =  start + dir * (dis);'
-+#10'			}'
-+#10'			dir = backPosition - start;'
-+#10'			len = length(dir);'
-+#10'			dir = normalize(dir);'
-+#10'		}'
-+#10'	}'
-+#10''
-+#10'	vec3 deltaDir = dir * stepSize;'
-+#10'	vec4 colorSample,gradientSample,colAcc = vec4(0.0,0.0,0.0,0.0);'
-+#10'	float lengthAcc = 0.0;'
-+#10'	vec3 samplePos = start.xyz + deltaDir* (fract(sin(gl_FragCoord.x * 12.9898 + gl_FragCoord.y * 78.233) * 43758.5453));'
-+#10'	vec4 prevNorm = vec4(0.0,0.0,0.0,0.0);'
-+#10'	vec3 lightDirHeadOn =  normalize(modelViewMatrixInverse * vec4(0.0,0.0,1.0,0.0)).xyz ;'
-+#10'	float stepSizex2 = sliceSize * 2.0;'
-+#10'	for(int i = 0; i < loops; i++) {'
-+#10'		//colorSample = texture(gradientVol, samplePos);'
-+#10'		colorSample = texture(intensityVol,samplePos);'
-+#10'		if ((lengthAcc <= stepSizex2) && (colorSample.a > 0.01) )  colorSample.a = sqrt(colorSample.a);'
-+#10'		colorSample.a = 1.0-pow((1.0 - colorSample.a), stepSize/sliceSize);'
-+#10'		if ((colorSample.a > 0.01) && (lengthAcc > stepSizex2)  ) {'
-+#10'			gradientSample= texture(gradientVol,samplePos);'
-+#10'			gradientSample.rgb = normalize(gradientSample.rgb*2.0 - 1.0);'
-+#10'			if (gradientSample.a < prevNorm.a)'
-+#10'				gradientSample.rgb = prevNorm.rgb;'
-+#10'			prevNorm = gradientSample;'
-+#10'			float lightNormDot = dot(gradientSample.rgb, lightDirHeadOn);'
-+#10'			float edgeVal = pow(1.0-abs(lightNormDot),edgeExp);'
-+#10'			edgeVal = edgeVal * pow(gradientSample.a,0.3);'
-+#10'	    	if (edgeVal >= edgeThresh)'
-+#10'				colorSample.rgb = mix(colorSample.rgb, vec3(0.0,0.0,0.0), pow((edgeVal-edgeThresh)/(1.0-edgeThresh),4.0));'
-+#10'			if (boundExp > 0.0)'
-+#10'				colorSample.a = colorSample.a * pow(gradientSample.a,boundExp)*pow(1.0-abs(lightNormDot),6.0);'
-+#10'			lightNormDot = dot(gradientSample.rgb, lightPosition);'
-+#10'			vec3 a = colorSample.rgb * ambient;'
-+#10'			vec3 d = max(lightNormDot, 0.0) * colorSample.rgb * diffuse;'
-+#10'			float s =   specular * pow(max(dot(reflect(lightPosition, gradientSample.rgb), dir), 0.0), shininess);'
-+#10'			colorSample.rgb = a + d + s;'
-+#10'		}'
-+#10'		colorSample.rgb *= colorSample.a;'
-+#10'		colAcc= (1.0 - colAcc.a) * colorSample + colAcc;'
-+#10'		samplePos += deltaDir;'
-+#10'		lengthAcc += stepSize;'
-+#10'		if ( lengthAcc >= len || colAcc.a > 0.95 )'
-+#10'			break;'
-+#10'	}'
-+#10'	colAcc.a = colAcc.a/0.95;'
-+#10'	if ( colAcc.a < 1.0 )'
-+#10'		colAcc.rgb = mix(clearColor,colAcc.rgb,colAcc.a);'
-+#10'	if (len == 0.0) colAcc.rgb = clearColor;'
-+#10'	FragColor = colAcc;'
-+#10'}'; *)
-
-   (*
-  const kFragSimple = '#version 330 core'
-+#10'//texture2D -> texture'
-+#10'//gl_TexCoord[1].xyz -> TexCoord1 //front color: starting position'
-+#10'//gl_FragColor -> FragColor'
-+#10'uniform bool flip = false;'
-+#10'in vec3 TexCoord1;'
-+#10'out vec4 FragColor;'
-+#10'uniform float stepSize, sliceSize, viewWidth, viewHeight, clipPlaneDepth;'
-+#10'uniform sampler3D intensityVol;'
-+#10'uniform sampler3D gradientVol;'
-+#10'uniform sampler2D backFace;'
-+#10'uniform vec3 clearColor, clipPlane;'
-+#10'void main() {'
-+#10'	float opacityCorrection = stepSize/sliceSize;'
-+#10'	// get normalized pixel coordinate in view port (e.g. [0,1]x[0,1])'
-+#10'	vec3 backPosition = texture(backFace,vec2(gl_FragCoord.x/viewWidth,gl_FragCoord.y/viewHeight)).xyz;'
-+#10'	if (backPosition == clearColor) discard;'
-+#10'	//if (flip) { FragColor = vec4(backPosition, 1.0); return; } '
-+#10'	vec3 start = TexCoord1.xyz; // starting position of the ray is stored in the texture coordinate'
-+#10'	//FragColor = vec4(start, 1.0); return; '
-+#10'	vec3 dir = normalize(backPosition - start);'
-+#10'	float len = length(backPosition - start);'
-+#10'	if (clipPlaneDepth > -0.5) { //if clip plane intersects ray'
-+#10'		bool frontface = (dot(dir , clipPlane) > 0.0); //does clip plane face the camera?'
-+#10'		//next, distance from ray origin to clip plane'
-+#10'		float dis = dot(dir,clipPlane);'
-+#10'		if (dis != 0.0  )  dis = (-clipPlaneDepth - dot(clipPlane, start.xyz-0.5)) / dis;'
-+#10'		//test: "return" fails on 2006MacBookPro10.4ATI1900, "discard" fails on MacPro10.5NV8800'
-+#10'		if (((frontface) && (dis >= len)) || ((!frontface) && (dis <= 0.0))) {'
-+#10'		 FragColor.rgb = clearColor;'
-+#10'		 return;'
-+#10'		}'
-+#10'		if ((dis > 0.0) && (dis < len)) {'
-+#10'			if (frontface) {'
-+#10'				start = start + dir * dis;'
-+#10'			} else {'
-+#10'				backPosition =  start + dir * (dis); '
-+#10'			}	'
-+#10'			len = length(backPosition - start);'
-+#10'		}'
-+#10'	}	'
-+#10'	dir = dir * stepSize;'
-+#10'	vec4 colorSample,colAcc = vec4(0.0,0.0,0.0,0.0);'
-+#10'	//jitter ray start to avoid wood grain aliasing'
-+#10'	vec3 samplePos = start.xyz + dir* (fract(sin(gl_FragCoord.x * 12.9898 + gl_FragCoord.y * 78.233) * 43758.5453));'
-+#10'	//vec3 samplePos = start.xyz;'
-+#10'	for(int i = 0; i < int(len / stepSize); i++) {'
-+#10'		colorSample = texture(intensityVol, samplePos);'
-+#10'		//if (flip) colorSample.rgba = texture(gradientVol, samplePos);'
-+#10'		colorSample.a = 1.0-pow((1.0 - colorSample.a), opacityCorrection);		'
-+#10'		colorSample.rgb *= colorSample.a; '
-+#10'		colAcc += (1.0 - colAcc.a) * colorSample; //accumulate color'
-+#10'		if ( colAcc.a > 0.95 ) break; // terminate if opacity > 95%'
-+#10'		samplePos += dir;'
-+#10'	}'
-+#10'	FragColor.rgb = mix(clearColor,colAcc.rgb,colAcc.a);'
-+#10'}'; *)
-
- (* const kFrag = '#version 330 core'
-+#10'in vec3 TexCoord1;'
-+#10'out vec4 FragColor;'
-+#10'uniform sampler2D backFace;'
-+#10'uniform float clipPlaneDepth = -1.0;'
-+#10'uniform float stepSize, sliceSize, viewWidth, viewHeight;'
-+#10'uniform bool flip = false;'
-+#10'void main() {'
-+#10'    FragColor = vec4(TexCoord1, 1.0);'
-+#10'    vec3 backPosition = texture(backFace,vec2(gl_FragCoord.x/viewWidth,gl_FragCoord.y/viewHeight)).xyz;'
-+#10'    if (flip) FragColor.rgb = backPosition;'
-+#10'}';*)
 
 procedure  InitGL (InitialSetup: boolean);
 begin
@@ -667,22 +530,23 @@ begin
      gCore.vao:= 0;
      LoadBufferData(gCore.vao);
      gShader.Vendor:= gpuReport;
+     gShader.vao_point2d := 0;
+     gShader.vbo_face2d := 0;
+
+     gShader.program2d:= initVertFrag(kVert2D, kFrag2D)  ;
+
+     gRayCast.glslprogramBlur := initVertFrag(kSmoothSobelVert,kSmoothFrag); //initFragShader (kSmoothShaderFrag,gRayCast.glslprogramBlur);
+     gRayCast.glslprogramSobel := initVertFrag(kSmoothSobelVert,kSobelFrag);
+
+     gCore.programBackface :=  initVertFrag(kVert,  kFragBackface);
+     gCore.mvpLocBackface := glGetUniformLocation(gCore.programBackface, pAnsiChar('modelViewProjectionMatrix'));
+     //gCore.zoomLocBackface := glGetUniformLocation(gCore.programBackface, pAnsiChar('zoom'));
+     //gCore.zoomXYLocBackface := glGetUniformLocation(gCore.programBackface, pAnsiChar('zoomXY'));
+
+     //glGenFramebuffers(1, @gRayCast.frameBuffer);
+     //glGenRenderbuffers(1, @gRayCast.renderBuffer);
   end;
 
-  //GLForm1.caption := glGetString(GL_VENDOR)+'; OpenGL= '+glGetString(GL_VERSION)+'; Shader='+glGetString(GL_SHADING_LANGUAGE_VERSION);
-  //setup backface
-  //if (gRayCast.glslprogramBlur = 0) then
-  //   gRayCast.glslprogramBlur := initVertFrag(kSmoothVert,kSmoothFrag); //initFragShader (kSmoothShaderFrag,gRayCast.glslprogramBlur);
-  //gRayCast.glslprogramBlur := initVertFrag(kSmoothShaderVert,kSmoothShaderFrag); //initFragShader (kSmoothShaderFrag,gRayCast.glslprogramBlur);
-  //gRayCast.glslprogramSobel := initVertFrag(kSobelShaderVert,kSobelShaderFrag);
-  gRayCast.glslprogramBlur := initVertFrag(kSmoothSobelVert,kSmoothFrag); //initFragShader (kSmoothShaderFrag,gRayCast.glslprogramBlur);
-  gRayCast.glslprogramSobel := initVertFrag(kSmoothSobelVert,kSobelFrag);
-
-  gCore.programBackface :=  initVertFrag(kVert,  kFragBackface);
-  gCore.mvpLocBackface := glGetUniformLocation(gCore.programBackface, pAnsiChar('modelViewProjectionMatrix'));
-  gCore.imvLoc := glGetUniformLocation(gCore.programBackface, pAnsiChar('modelViewMatrixInverse'));
-  gCore.zoomLocBackface := glGetUniformLocation(gCore.programBackface, pAnsiChar('zoom'));
-  gCore.zoomXYLocBackface := glGetUniformLocation(gCore.programBackface, pAnsiChar('zoomXY'));
 
   //gCore.imvLoc := glGetUniformLocation(gCore.programBackface, pAnsiChar('ModelViewMatrixInverse'));
 
@@ -696,6 +560,7 @@ begin
      LoadShader('', gShader);
      gRayCast.glslprogram :=  initVertFrag(gShader.VertexProgram, gShader.FragmentProgram);
   end;
+  gCore.imvLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('modelViewMatrixInverse'));
   gCore.mvpLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('modelViewProjectionMatrix'));
   gCore.flipLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('flip'));
   gCore.backFaceLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('backFace'));
@@ -710,8 +575,8 @@ begin
   gCore.clipPlaneDepthLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('clipPlaneDepth'));
   gCore.intensityVolLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('intensityVol'));
   gCore.gradientVolLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('gradientVol'));
-  gCore.zoomLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('zoom'));
-  gCore.zoomXYLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('zoomXY'));
+  //gCore.zoomLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('zoom'));
+  //gCore.zoomXYLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('zoomXY'));
   gInit := true;
   //setup cube used for both front and backface
   //setup screen
@@ -754,8 +619,8 @@ with gRayCast do begin
   glslprogramBlur := 0;
   glslprogramSobel := 0;
   finalImage := 0;
-  renderBuffer := 0;
-  frameBuffer := 0;
+  //renderBuffer := 0;
+  //frameBuffer := 0;
   backFaceBuffer := 0;
 end;//set gRayCast defaults
 

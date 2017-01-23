@@ -1,0 +1,8 @@
+The following changes are required to convert legacy GLSL (version 120) to Core GLSL (330)
+
+gl_FragColor -> FragColor
+texture2D -> texture
+texture3D -> texture
+if (backPosition == clearColor) discard;
+gl_TexCoord[1].xyz -> TexCoord1 //front color: starting position
+gl_ModelViewMatrixInverse -> modelViewMatrixInverse

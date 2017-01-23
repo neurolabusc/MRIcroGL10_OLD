@@ -38,7 +38,8 @@ TRayCast =  RECORD
   intensityOverlay3D,
   gradientTexture3D,gradientOverlay3D,
   intensityTexture3D,finalImage,
-  renderBuffer, frameBuffer,backFaceBuffer: TGLuint;
+  renderBuffer, frameBuffer, //<--666 not needed {$IFNDEF COREGL} {$ENDIF}
+  backFaceBuffer: TGLuint;
   MosaicString,ModelessString: string;
  end;
 
@@ -301,13 +302,13 @@ begin
     lB := lZ;
     lC := lX;
     {$IFDEF COREGL}
-    lmv := ngl_ModelViewMatrix;
-    lX := defuzz(lA*lmv[0,0]+lB*lmv[0,1]+lC*lmv[0,2]);
+    lmv := transposeMat(ngl_ModelViewMatrix);
+    (*lX := defuzz(lA*lmv[0,0]+lB*lmv[0,1]+lC*lmv[0,2]);
     lY := defuzz(lA*lmv[1,0]+lB*lmv[1,1]+lC*lmv[1,2]);
-    lZ := defuzz(lA*lmv[2,0]+lB*lmv[2,1]+lC*lmv[2,2]);
-    (*lX := defuzz(lA*lmv[0,0]+lB*lmv[1,0]+lC*lmv[2,0]);
+    lZ := defuzz(lA*lmv[2,0]+lB*lmv[2,1]+lC*lmv[2,2]);  *)
+    lX := defuzz(lA*lmv[0,0]+lB*lmv[1,0]+lC*lmv[2,0]);
     lY := defuzz(lA*lmv[0,1]+lB*lmv[1,1]+lC*lmv[2,1]);
-    lZ := defuzz(lA*lmv[0,2]+lB*lmv[1,2]+lC*lmv[2,2]);  *)
+    lZ := defuzz(lA*lmv[0,2]+lB*lmv[1,2]+lC*lmv[2,2]);
     {$ELSE}
     glGetFloatv(GL_TRANSPOSE_MODELVIEW_MATRIX, @lMgl);
     lX := defuzz(lA*lMgl[0]+lB*lMgl[4]+lC*lMgl[8]);

@@ -29,11 +29,23 @@ type
   function ngl_ModelViewMatrix : TnMat44;
   function ngl_NormalMatrix: TnMat33;
   function ngl_ProjectionMatrix : TnMat44;
+  procedure nglPushMatrix;
+  procedure nglPopMatrix;
+
 var
-   gnGL: TnGL;
+   gnGL, gnGL2: TnGL;
 
 implementation
 
+procedure nglPushMatrix;
+begin
+  gnGL2 := gnGL;
+end;
+
+procedure nglPopMatrix;
+begin
+  gnGL := gnGL2;
+end;
 
 function multMat(a, b: TnMat44): TnMat44;
 var i,j: integer;

@@ -1,7 +1,6 @@
 //pref
 overlayVolume|set|2
-boundThresh|float|0.0|0.5|0.95
-edgeBoundMix|float|0|0|1
+occlusion|float|0.0|0.2|0.5
 diffuse|float|0.0|0.2|1.0
 specular|float|0.0|0.3|1
 shininess|float|0.01|20.0|30
@@ -17,7 +16,7 @@ in vec3 TexCoord1;
 out vec4 FragColor;
 uniform mat4 modelViewMatrixInverse;
 uniform int loops, overlays;
-uniform float diffuse, boundThresh, edgeBoundMix, clipThick, stepSize, sliceSize, viewWidth, viewHeight;
+uniform float occlusion, diffuse, clipThick, stepSize, sliceSize, viewWidth, viewHeight;
 uniform vec3 clearColor,lightPosition, clipPlane;
 uniform sampler3D overlayVol;
 uniform sampler3D overlayGradientVol;
@@ -128,27 +127,23 @@ void main() {
 				if (gradientSample.a < prevNorm.a)
 					gradientSample.rgb = prevNorm.rgb;
 				prevNorm = gradientSample;
-				//Edge shading - darken edges parallel with viewing direction
-				float lightNormDot = dot(gradientSample.rgb, lightDirHeadOn); //with respect to viewer
-				float edgeVal = pow(1.0-abs(lightNormDot),edgeExp) * pow(gradientSample.a,0.3);
-				if (edgeVal >= edgeThresh)
-					colorSample.rgb = mix(colorSample.rgb, vec3(0.0,0.0,0.0), pow((edgeVal-edgeThresh)/(1.0-edgeThresh),4.0));
-				//specular
-				lightNormDot = dot(gradientSample.rgb, lightPosition); //with respect to light location
-
-				if (lightNormDot > 0.0) {
-					colorSample.rgb += (lightNormDot * diffuse) - diffuseDiv;
-					colorSample.rgb +=   specular * pow(max(dot(reflect(lightPosition, gradientSample.rgb), dir), 0.0), shininess);
-				} else
-					colorSample.rgb -= diffuseDiv;
-				if (gradientSample.a > boundThresh) {
+					//Edge shading - darken edges parallel with viewing direction
 					float lightNormDot = dot(gradientSample.rgb, lightDirHeadOn); //with respect to viewer
-					float boundAlpha = pow(1.0-abs(lightNormDot),6.0);
-					boundAlpha = 1.0-pow((1.0 - boundAlpha), opacityCorrection);
-					boundAcc += (1.0 - boundAcc2) * boundAlpha;
-					boundAcc2 += (1.0 - boundAcc2) * boundAlpha;
-				}
+					float edgeVal = pow(1.0-abs(lightNormDot),edgeExp) * pow(gradientSample.a,0.3);
+					if (edgeVal >= edgeThresh)
+						colorSample.rgb = mix(colorSample.rgb, vec3(0.0,0.0,0.0), pow((edgeVal-edgeThresh)/(1.0-edgeThresh),4.0));
+					//specular
+					lightNormDot = dot(gradientSample.rgb, lightPosition); //with respect to light location
 
+					if (lightNormDot > 0.0) {
+						colorSample.rgb += (lightNormDot * diffuse) - diffuseDiv;
+						colorSample.rgb +=   specular * pow(max(dot(reflect(lightPosition, gradientSample.rgb), dir), 0.0), shininess);
+					} else
+						colorSample.rgb -= diffuseDiv;
+
+
+				float occlude = step(occlusion, gradientSample.a);
+				colorSample.a = mix(sqrt(colorSample.a), colorSample.a, occlude);
 			};
 		}
 
@@ -218,10 +213,6 @@ void main() {
 			break;
 	}
 	colAcc.a*=backAlpha;
-	if ((edgeBoundMix > 0.0) && ((colAcc.a + boundAcc) > 0.0)) {
-		colAcc.rgb = mix(colAcc.rgb, vec3(0.0,0.0,0.0), (edgeBoundMix * boundAcc)/(colAcc.a+(edgeBoundMix * boundAcc)) );
-		colAcc.a = max(colAcc.a, boundAcc);
-	}
 	if ((overAcc.a > 0.01) && (overAlpha > 1.0))  {
 		colAcc.a=max(colAcc.a,overAcc.a);
 		if ( (overDistance > 0.0) && (overDepth > backDepthStart) && (backDepthEnd > backDepthStart)) {

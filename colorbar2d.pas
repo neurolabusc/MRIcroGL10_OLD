@@ -10,7 +10,7 @@ procedure DrawCLUT ( lU: TUnitRect;lBorder: single; lPrefs: TPrefs);
 function ColorBarPos(var  lU: TUnitRect): integer;
 
 implementation
-uses {$IFDEF COREGL} raycast_core, {$ELSE} raycast_legacy, {$ENDIF} raycast_common, mainunit,sysutils;
+uses {$IFDEF COREGL} raycast_core, gl_2d, {$ELSE} raycast_legacy, {$ENDIF} raycast_common, mainunit,sysutils;
 
 const
   kVertTextLeft = 1;
@@ -112,6 +112,48 @@ begin
   end;
 end;
 
+{$IFDEF COREGL}
+procedure DrawCLUTxx (var lLUT: TLUT; lU: TUnitRect;lPrefs: TPrefs);
+var
+  lL,lT,lR,lB, lN: single;
+  lI: integer;
+begin
+  SetOrder(lU.L,lU.R,lL,lR);
+  SetOrder(lU.T,lU.B,lT,lB);
+  lL := lL*gRayCast.WINDOW_WIDTH;
+  lR := lR*gRayCast.WINDOW_WIDTH;
+  lT := lT*gRayCast.WINDOW_HEIGHT;
+  lB := lB*gRayCast.WINDOW_HEIGHT;
+  if (lR-lL) > (lB-lT) then begin
+    lN := lL;
+    nglBegin(GL_TRIANGLE_STRIP);
+     nglColor4ub (lLUT[0].rgbRed, lLUT[0].rgbgreen, lLUT[0].rgbblue,255);
+     nglVertex2f(lN,lT);
+     nglVertex2f(lN,lB);
+     for lI := 1 to (255) do begin
+        lN := (li/255 * (lR-lL))+lL;
+        nglColor4ub (lLUT[lI].rgbRed, lLUT[lI].rgbgreen, lLUT[lI].rgbblue,255);
+        nglVertex2f(lN,lT);
+        nglVertex2f(lN,lB);
+     end;
+    nglEnd;//STRIP
+  end else begin //If WIDE, else TALL
+     lN := lT;
+    nglBegin(GL_TRIANGLE_STRIP);
+    nglColor4ub (lLUT[0].rgbRed, lLUT[0].rgbgreen, lLUT[0].rgbblue,255);
+     nglVertex2f(lL, lN);
+     nglVertex2f(lR, lN);
+     for lI := 1 to (255) do begin
+        lN := (lI/255 * (lB-lT))+lT;
+         nglColor4ub (lLUT[lI].rgbRed, lLUT[lI].rgbgreen, lLUT[lI].rgbblue,255);
+         nglVertex2f(lL, lN);
+         nglVertex2f(lR, lN);
+
+     end;
+    nglEnd;//STRIP
+  end;
+end;
+{$ELSE}
 procedure DrawCLUTxx (var lLUT: TLUT; lU: TUnitRect;lPrefs: TPrefs);
 var
   lL,lT,lR,lB, lN: single;
@@ -145,12 +187,14 @@ begin
      for lI := 1 to (255) do begin
         lN := (lI/255 * (lB-lT))+lT;
          glColor4ub (lLUT[lI].rgbRed, lLUT[lI].rgbgreen, lLUT[lI].rgbblue,255);
-         glVertex2f(lR, lN);
          glVertex2f(lL, lN);
+         glVertex2f(lR, lN);
+
      end;
     glEnd;//STRIP
   end;
 end;
+{$ENDIF}
 
 (*procedure DrawCLUTx (var lCLUT: TCLUTrec; lU: TUnitRect;lPrefs: TPrefs);
 var
@@ -194,6 +238,24 @@ begin
   end;
 end;*)
 
+{$IFDEF COREGL}
+procedure DrawBorder (var lU: TUnitRect;lBorder: single; lPrefs: TPrefs);
+var
+    lL,lT,lR,lB: single;
+begin
+  if lBorder <= 0 then
+    exit;
+  SetOrder(lU.L,lU.R,lL,lR);
+  SetOrder(lU.T,lU.B,lT,lB);
+  nglColor4ub(lPrefs.GridAndBorder.rgbRed,lPrefs.GridAndBorder.rgbGreen,lPrefs.GridAndBorder.rgbBlue,lPrefs.GridAndBorder.rgbReserved);
+  nglBegin(GL_TRIANGLE_STRIP);
+      nglVertex3f((lL-lBorder)*gRayCast.WINDOW_WIDTH,(lB+lBorder)*gRayCast.WINDOW_HEIGHT,-0.5);
+      nglVertex3f((lL-lBorder)*gRayCast.WINDOW_WIDTH,(lT-lBorder)*gRayCast.WINDOW_HEIGHT,-0.5);
+      nglVertex3f((lR+lBorder)*gRayCast.WINDOW_WIDTH,(lB+lBorder)*gRayCast.WINDOW_HEIGHT,-0.5);
+      nglVertex3f((lR+lBorder)*gRayCast.WINDOW_WIDTH,(lT-lBorder)*gRayCast.WINDOW_HEIGHT,-0.5);
+    nglEnd;//In theory, a bit faster than GL_POLYGON
+end;
+{$ELSE}
 procedure DrawBorder (var lU: TUnitRect;lBorder: single; lPrefs: TPrefs);
 var
     lL,lT,lR,lB: single;
@@ -210,6 +272,7 @@ begin
       glVertex2f((lR+lBorder)*gRayCast.WINDOW_WIDTH,(lT-lBorder)*gRayCast.WINDOW_HEIGHT);
     glEnd;//In theory, a bit faster than GL_POLYGON
 end;
+{$ENDIF}
 
 function BarIndex (lBarNumber: integer; IsHorzBottom: boolean): integer;
 begin
@@ -240,6 +303,9 @@ begin
       lMax := 0;
 end;
 
+//var
+//    precalc: boolean = false;
+
 procedure DrawCLUT ( lU: TUnitRect;lBorder: single; lPrefs: TPrefs);
 var
   lU2:TUnitRect;
@@ -252,18 +318,33 @@ begin
   Enter2D;
   glEnable (GL_BLEND);//allow border to be translucent
   glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-{$IFDEF ENABLEOVERLAY}
+  //glDisable (GL_BLEND);//allow border to be translucent
+
+  StartDraw2D;
+    glDisable(GL_DEPTH_TEST);
+    (*if precalc then begin
+       ReDraw2D;
+       glDisable (GL_BLEND);
+       glEnable(GL_DEPTH_TEST);
+       exit;
+    end;*)
+    //precalc := true;
+    // glDisable(GL_DEPTH_TEST);
+    {$IFDEF ENABLEOVERLAY}
   if gOpenOverlays < 1 then begin
 {$ELSE}
   if true then begin
 {$ENDIF}
-    DrawBorder(lU,lBorder,lPrefs);
 
+    DrawBorder(lU,lBorder,lPrefs);
     GenerateLUT(gCLUTrec, lLUT);
     DrawCLUTxx(lLUT,lU,lPrefs);
+
     //DrawCLUTx(gCLUTrec,lU,lPrefs);
     if lPrefs.ColorbarText then
       DrawColorBarText(gCLUTrec.min,gCLUTrec.max, lU,lBorder,lPrefs);
+    EndDraw2D;
+    //precalc := true;
     glDisable (GL_BLEND);
     exit;
   end;
@@ -318,6 +399,7 @@ begin
     UOffset(lU2,lX,lY);
   end;
 {$ENDIF}
+EndDraw2D;
 glDisable (GL_BLEND);
 end;
 

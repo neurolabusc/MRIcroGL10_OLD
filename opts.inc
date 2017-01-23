@@ -1,5 +1,5 @@
 {$IFNDEF FPC}  {$DEFINE DGL} {$ENDIF}
-{$DEFINE COREGL}
+//{$DEFINE COREGL}
 //{$DEFINE DGL}  //comment for gl/glext, else use dglOpenGL
  {$DEFINE ENABLECLIP}
 {$DEFINE ENABLESHADER}

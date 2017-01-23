@@ -5,7 +5,7 @@ uses
  {$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF}
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unita, {$ELSE} texture_3d_unit,{$ENDIF}
    //types,
-   graphics, nii_mat, define_types, coordinates, sysutils, textfx, {$IFDEF COREGL} raycast_core, {$ELSE} raycast_legacy, {$ENDIF} raycast_common, drawu;
+   graphics, nii_mat, define_types, coordinates, sysutils, textfx, {$IFDEF COREGL} gl_2d, raycast_core, gl_core_matrix, {$ELSE} raycast_legacy, {$ENDIF} raycast_common, drawu;
 const
   kMaxMosaicDim = 12; //e.g. if 12 then only able to draw up to 12x12 mosaics [=144 slices]
   kEmptyOrient = 0;
@@ -336,9 +336,78 @@ begin
   //ReportMosaic(result);
 end; //proc ReadMosaicStr
 
+procedure DrawXYTex ( X,Y,W,H: single);
+begin
+{$IFDEF COREGL}
+glUniform4f(glGetUniformLocation(gDraw.glslprogramId, 'XYWH'), X,Y,W,H) ;
+DrawSliceGL();
 
+{$ELSE}
+glBegin(GL_QUADS);
+glTexCoord2f(0, 0);
+glVertex2f(X, Y);
+glTexCoord2f(1.0, 0);
+glVertex2f(X+W, Y);
+glTexCoord2f(1.0, 1.0);
+glVertex2f(X+W, Y+H);
+glTexCoord2f(0, 1.0);
+glVertex2f(X, Y+H);
+glEnd();
+{$ENDIF}
+end;
 
-procedure DrawXYCoro ( lX,lY,lW,lH, lSlice: single {; var lTex: TTexture});
+{$IFDEF COREGL}
+procedure PrepTexDraw;
+var
+  mat44: TnMat44;
+begin
+  //voiOpenGLDraw;
+  StartDrawGLSL;
+//glDisable (GL_BLEND); //e.g. colorbar can leave blending on
+   // glBlendFunc (GL_ONE, GL_ZERO);
+
+  glDisable (GL_BLEND); //e.g. colorbar can leave blending on
+  glUniform3f(glGetUniformLocation(gDraw.glslprogramId, pAnsiChar('clearColor')), gPrefs.BackColor.rgbRed/255,gPrefs.BackColor.rgbGreen/255,gPrefs.BackColor.rgbBlue/255) ;
+  glUniform1ix(gDraw.glslprogramId, 'drawLoaded', gDraw.view3dId );
+  mat44 := ngl_ModelViewProjectionMatrix;
+  glUniformMatrix4fv(glGetUniformLocation(gDraw.glslprogramId, 'modelViewProjectionMatrix'), 1, GL_FALSE, @mat44[0,0]);
+end;
+
+procedure DrawXYCoro ( lX,lY,lW,lH, lSlice: single);
+begin
+  PrepTexDraw;
+  glUniform1ix(gDraw.glslprogramId, 'orientAxCorSag', 2);
+  glUniform1fx(gDraw.glslprogramId, 'coordZ', lSlice);
+  DrawXYTex(lX,lY,lW,lH);
+end;
+
+procedure DrawXYAx ( lX,lY,lW,lH, lSlice: single);
+begin
+  PrepTexDraw;
+  glUniform1ix(gDraw.glslprogramId, 'orientAxCorSag', 1);
+  glUniform1fx(gDraw.glslprogramId, 'coordZ', lSlice);
+  DrawXYTex(lX,lY,lW,lH);
+end;
+
+procedure DrawXYSag ( lX,lY,lW,lH, lSlice: single);
+begin
+  PrepTexDraw;
+  glUniform1ix(gDraw.glslprogramId, 'orientAxCorSag', 3);
+  glUniform1fx(gDraw.glslprogramId, 'coordZ', lSlice);
+  DrawXYTex(lX,lY,lW,lH);
+end;
+
+procedure DrawXYSagMirror ( lX,lY,lW,lH, lSlice: single);
+begin
+  PrepTexDraw;
+  glUniform1ix(gDraw.glslprogramId, 'orientAxCorSag', 4);
+  glUniform1fx(gDraw.glslprogramId, 'coordZ', lSlice);
+  DrawXYTex(lX,lY,lW,lH);
+
+end;
+
+{$ELSE}
+procedure DrawXYCoro ( lX,lY,lW,lH, lSlice: single);
 begin
   glBegin(GL_QUADS);
       glTexCoord3d (0, lSlice, 1);
@@ -352,7 +421,7 @@ begin
   glend;
 end;
 
-procedure DrawXYAx ( lX,lY,lW,lH, lSlice: single {; var lTex: TTexture});
+procedure DrawXYAx ( lX,lY,lW,lH, lSlice: single);
 begin
   glBegin(GL_QUADS);
       glTexCoord3d (0, 1, lSlice);
@@ -366,7 +435,7 @@ begin
   glend;
 end;
 
-procedure DrawXYSag ( lX,lY,lW,lH, lSlice: single {; var lTex: TTexture});
+procedure DrawXYSag ( lX,lY,lW,lH, lSlice: single);
 begin
   glBegin(GL_QUADS);
       glTexCoord3d (lSlice,0,1);
@@ -380,7 +449,7 @@ begin
   glend;
 end;
 
-procedure DrawXYSagMirror ( lX,lY,lW,lH, lSlice: single {; var lTex: TTexture});
+procedure DrawXYSagMirror ( lX,lY,lW,lH, lSlice: single);
 begin
   glBegin(GL_QUADS);
       glTexCoord3d (lSlice,0,1);
@@ -393,6 +462,7 @@ begin
       glVertex2f(lX,lY+lH);
   glend;
 end;
+{$ENDIF}
 
 function FracToVox (Xf,Yf,Zf: single; Xdim, Ydim,Zdim: integer): integer;
 var
@@ -538,6 +608,7 @@ begin
     else
       lRow := 1;
     Enter2D ;//x22;
+    StartDraw2D;
     while (lRow >= 1) and (lRow <= lMosaic.Rows) do begin
       if lMosaic.HOverlap < 0 then
         lCol := lMosaic.Cols
@@ -551,6 +622,7 @@ begin
       lRow := lRow+lRowInc;
   end;//row
     glLoadIdentity();
+  EndDraw2D;
 end;
 
 procedure MosaicGL ( lMosaicString: string);
@@ -621,25 +693,12 @@ begin
     glLoadIdentity();
 end;
 
-procedure DrawXYTex ( X,Y,W,H: single);
-begin
-//glClear(GL_DEPTH_BUFFER_BIT);
-glBegin(GL_QUADS);
-glTexCoord2f(0, 0);
-glVertex2f(X, Y);
-glTexCoord2f(1.0, 0);
-glVertex2f(X+W, Y);
-glTexCoord2f(1.0, 1.0);
-glVertex2f(X+W, Y+H);
-glTexCoord2f(0, 1.0);
-glVertex2f(X, Y+H);
-glEnd();
-end;
-
 procedure DrawOrtho(var lTex: TTexture);
 var
   scale,X,Y,Z,Yshift, W, H:single;
   drawID : GLuint;
+  {$IFDEF COREGL} lineWid: single;
+  mat44: TnMat44;{$ENDIF}
 begin
   Enter2D;
   SetZooms(X,Y,Z,lTex);
@@ -673,20 +732,37 @@ begin
   Y := Y * scale;
   Z := Z * scale;
   drawID :=  voiOpenGLDraw;
+  {$IFDEF COREGL}
+  if true then begin
+  {$ELSE}
   if (drawID > 0) then begin //display drawing and background image using GLSL
-     glDisable (GL_BLEND); //e.g. colorbar can leave blending on
+  {$ENDIF}
+    glDisable (GL_BLEND); //e.g. colorbar can leave blending on
+    glBlendFunc (GL_ONE, GL_ZERO);
     //uniform3fv('clearColor',gPrefs.BackColor.rgbRed/255,gPrefs.BackColor.rgbGreen/255,gPrefs.BackColor.rgbBlue/255);
-    glUniform3f(glGetUniformLocation(drawID, pAnsiChar('clearColor')), gPrefs.BackColor.rgbRed/255,gPrefs.BackColor.rgbGreen/255,gPrefs.BackColor.rgbBlue/255) ;
+    {$IFDEF COREGL}
+    StartDrawGLSL;
+    glUniform1ix(gDraw.glslprogramId, 'drawLoaded', gDraw.view3dId );
+
+    //mat44 := ngl_ModelViewProjectionMatrix;
+    //gCore.mvpLocBackface := glGetUniformLocation(gCore.programBackface, pAnsiChar('modelViewProjectionMatrix'));
+    //glUniformMatrix4fv(glGetUniformLocation(gDraw.glslprogramId, 'modelViewProjectionMatrix'), 1, GL_FALSE, @mat44[0,0]);
+    //GLForm1.Caption := format('XY %g %g Screen %d %d ',[X,Y, gRayCast.WINDOW_WIDTH,gRayCast.WINDOW_HEIGHT]  );
+    mat44 := ngl_ModelViewProjectionMatrix;
+    glUniformMatrix4fv(glGetUniformLocation(gDraw.glslprogramId, 'modelViewProjectionMatrix'), 1, GL_FALSE, @mat44[0,0]);
+
+    {$ENDIF}
+    glUniform3f(glGetUniformLocation(gDraw.glslprogramId, pAnsiChar('clearColor')), gPrefs.BackColor.rgbRed/255,gPrefs.BackColor.rgbGreen/255,gPrefs.BackColor.rgbBlue/255) ;
     //draw axial
     if (gPrefs.SliceView = 1) or (gPrefs.SliceView = 4) then begin
-       glUniform1ix(drawID, 'orientAxCorSag', 1);
-       glUniform1fx(drawID, 'coordZ', gRayCast.OrthoZ);
+       glUniform1ix(gDraw.glslprogramId, 'orientAxCorSag', 1);
+       glUniform1fx(gDraw.glslprogramId, 'coordZ', gRayCast.OrthoZ);
        DrawXYTex(0,YShift,X,Y);
     end;
     //draw coronal
     if (gPrefs.SliceView = 2) or (gPrefs.SliceView = 4) then begin
-       glUniform1ix(drawID, 'orientAxCorSag', 2);
-       glUniform1fx(drawID, 'coordZ', gRayCast.OrthoY);
+       glUniform1ix(gDraw.glslprogramId, 'orientAxCorSag', 2);
+       glUniform1fx(gDraw.glslprogramId, 'coordZ', gRayCast.OrthoY);
        if (gPrefs.SliceView = 4) then
          DrawXYTex(0,Y+YShift,X,Z)
        else
@@ -694,8 +770,8 @@ begin
     end;
     //draw sagittal
     if (gPrefs.SliceView > 2) then begin
-       glUniform1ix(drawID, 'orientAxCorSag', 3);
-       glUniform1fx(drawID, 'coordZ', gRayCast.OrthoX);
+       glUniform1ix(gDraw.glslprogramId, 'orientAxCorSag', 3);
+       glUniform1fx(gDraw.glslprogramId, 'coordZ', gRayCast.OrthoX);
        if (gPrefs.SliceView = 4) then
           DrawXYTex(X,Y+YShift,Y,Z)
        else
@@ -724,10 +800,74 @@ begin
          end;
     end;
   end;
+  StartDraw2D;
+  //Enter2D;
+  gPrefs.CrosshairThick := 1;
   glPopAttrib;
-  //glColor4f(1,0,0,1);
   if gPrefs.CrosshairThick > 0 then begin
-    glColor4f(gPrefs.CrosshairColor.rgbRed/255,gPrefs.CrosshairColor.rgbGreen/255,gPrefs.CrosshairColor.rgbBlue/255,255{gPrefs.CrosshairColor.rgbReserved/255});
+    {$IFDEF COREGL}
+    nglColor4f(gPrefs.CrosshairColor.rgbRed/255,gPrefs.CrosshairColor.rgbGreen/255,gPrefs.CrosshairColor.rgbBlue/255,1{gPrefs.CrosshairColor.rgbReserved/255});
+    lineWid := gPrefs.CrosshairThick / 2;
+    if (gPrefs.SliceView <> 3) then begin //vertical LR line
+         nglBegin(GL_TRIANGLE_STRIP); //with OpenGL Core, lines are limited to 1 pixel...
+         nglVertex3f(X*gRayCast.OrthoX-lineWid, YShift, 0);
+         nglVertex3f(X*gRayCast.OrthoX-lineWid, Y+Z+YShift, 0);
+         nglVertex3f(X*gRayCast.OrthoX+lineWid, YShift, 0);
+         nglVertex3f(X*gRayCast.OrthoX+lineWid, Y+Z+YShift, 0);
+         nglEnd;
+    end;
+    //vertical line cutting sag
+    if (gPrefs.SliceView = 4) then begin //MPR
+       nglBegin(GL_TRIANGLE_STRIP);
+       nglVertex3f(X+ Y*gRayCast.OrthoY-lineWid, Y+YShift, 0);
+       nglVertex3f(X+ Y*gRayCast.OrthoY-lineWid, Y+Z+YShift, 0);
+       nglVertex3f(X+ Y*gRayCast.OrthoY+lineWid, Y+YShift, 0);
+       nglVertex3f(X+ Y*gRayCast.OrthoY+lineWid, Y+Z+YShift, 0);
+       nglEnd;
+    //on sag
+    end else if (gPrefs.SliceView = 3) then begin
+         nglBegin(GL_TRIANGLE_STRIP);
+         nglVertex3f(0,Z*gRayCast.OrthoZ+YShift-lineWid, 0);
+         nglVertex3f(Y,Z*gRayCast.OrthoZ+YShift-lineWid, 0);
+         nglVertex3f(0,Z*gRayCast.OrthoZ+YShift+lineWid, 0);
+         nglVertex3f(Y,Z*gRayCast.OrthoZ+YShift+lineWid, 0);
+          nglEnd;
+    end;
+    //horizontal line on AX
+    if (gPrefs.SliceView = 1)  or (gPrefs.SliceView = 4) then begin
+         nglBegin(GL_TRIANGLE_STRIP); //with OpenGL Core, lines are limited to 1 pixel...
+         nglVertex3f(0, Y*gRayCast.OrthoY+YShift-lineWid, 0);
+         nglVertex3f(X,Y*gRayCast.OrthoY+YShift-lineWid, 0);
+         nglVertex3f(0, Y*gRayCast.OrthoY+YShift+lineWid, 0);
+         nglVertex3f(X,Y*gRayCast.OrthoY+YShift+lineWid, 0);
+         nglEnd;
+    end;
+    if (gPrefs.SliceView = 4) then begin //MPR
+      nglBegin(GL_TRIANGLE_STRIP); //with OpenGL Core, lines are limited to 1 pixel...
+       nglVertex3f(0, Y+Z*gRayCast.OrthoZ+YShift-lineWid, 0);
+       nglVertex3f(X+Y,Y+Z*gRayCast.OrthoZ+YShift-lineWid, 0);
+       nglVertex3f(0, Y+Z*gRayCast.OrthoZ+YShift+lineWid, 0);
+       nglVertex3f(X+Y,Y+Z*gRayCast.OrthoZ+YShift+lineWid, 0);
+       nglEnd;
+    end else if (gPrefs.SliceView = 2) then begin //cor
+      nglBegin(GL_TRIANGLE_STRIP); //with OpenGL Core, lines are limited to 1 pixel...
+        nglVertex3f(0, Z*gRayCast.OrthoZ+YShift-lineWid, 0);
+        nglVertex3f(X,Z*gRayCast.OrthoZ+YShift-lineWid, 0);
+        nglVertex3f(0, Z*gRayCast.OrthoZ+YShift+lineWid, 0);
+        nglVertex3f(X,Z*gRayCast.OrthoZ+YShift+lineWid, 0);
+        nglEnd;
+    end else if (gPrefs.SliceView = 3) then begin  //sag
+      nglBegin(GL_TRIANGLE_STRIP);
+      nglVertex3f(Y*gRayCast.OrthoY-lineWid, YShift, 0);
+      nglVertex3f(Y*gRayCast.OrthoY-lineWid, Z+YShift, 0);
+      nglVertex3f(Y*gRayCast.OrthoY+lineWid, YShift, 0);
+      nglVertex3f(Y*gRayCast.OrthoY+lineWid, Z+YShift, 0);
+      nglEnd;
+    end;
+    {$ELSE}
+    //glColor4f(gPrefs.CrosshairColor.rgbRed/255,gPrefs.CrosshairColor.rgbGreen/255,gPrefs.CrosshairColor.rgbBlue/255,1{gPrefs.CrosshairColor.rgbReserved/255});
+    glColor4ub(gPrefs.CrosshairColor.rgbRed,gPrefs.CrosshairColor.rgbGreen,gPrefs.CrosshairColor.rgbBlue,255);
+
     glLineWidth(gPrefs.CrosshairThick);
     glBegin(GL_LINES);
       //vertical bar cutting ax and cor
@@ -760,6 +900,7 @@ begin
           glVertex3f(Y,Z*gRayCast.OrthoZ+YShift, 0);
       end;
     glEnd;
+    {$ENDIF}
   end; //if CrosshairThick > 0
   if gPrefs.SliceDetailsCubeAndText then begin
      if (gPrefs.SliceView = 2) then Y := 0;
@@ -768,6 +909,7 @@ begin
     else
         ShowOrthoSliceText(X/2,X+Y/2,Y+Z+YShift,Y+YShift);
   end;
+  EndDraw2D;
 end;
 
 
