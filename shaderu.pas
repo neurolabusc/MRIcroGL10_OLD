@@ -23,7 +23,7 @@ type
   end;
   TShader = record
          FragmentProgram,VertexProgram,Note, Vendor: String;
-         OverlayVolume: integer;
+         OverlayVolume, SinglePass: integer;
          nUniform: integer;
          Uniform: array [1..kMaxUniform] of
          TUniform;
@@ -301,6 +301,7 @@ begin
   result.VertexProgram := kDefaultVertex;
   result.nUniform := 0;
   result.OverlayVolume := 0;//false;
+  result.SinglePass := 0;
   result.FragmentProgram :=  kDefaultFragment;
 end;
 
@@ -324,6 +325,7 @@ begin
   lShader.VertexProgram := '';
   lShader.nUniform := 0;
   lShader.OverlayVolume := 0;//false;
+  lShader.SinglePass := 0;
   lShader.FragmentProgram := '';
   if not fileexists(lFilename) then  lFilename := lFilename +'.txt';
   if not fileexists(lFilename) then begin
@@ -344,6 +346,8 @@ begin
     else if mode = kpref then begin
       U := StrToUniform(S);
       if U.Widget = kSet then begin
+        if U.Name = 'singlePass' then
+          lShader.SinglePass:= round(U.min) ;
         if U.Name = 'overlayVolume' then
           lShader.OverlayVolume:= round(U.min) ; //U.Bool;
       end else if U.Widget = kNote then

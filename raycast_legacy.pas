@@ -285,6 +285,16 @@ begin
 	glEnd();
 end;
 
+procedure drawQuadX(x,y: single); //NO IDEA WHY THIS IS REQUIRED!
+begin
+    glBegin(GL_TRIANGLES);
+    	glNormal3f(0.0, 0.0, -1.0);
+	drawVertex(0.0, 0.0, 0.0);
+	drawVertex(0.0, y, 0.0);
+	drawVertex(x, y, 0.0);
+ 	glEnd();
+end;
+
 function LoadStr (lFilename: string): string;
 var
   myFile : TextFile;
@@ -533,13 +543,18 @@ end;
 
 procedure rayCasting (var lTex: TTexture);
 begin
+          glUseProgram(gRayCast.glslprogram);
      //glUseProgram(gRayCast.glslprogramGradient);
      glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, gRayCast.finalImage, 0);
 	glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT );
 	//glEnable(GL_TEXTURE_2D);
-	glActiveTexture( GL_TEXTURE0 );
-	glBindTexture(GL_TEXTURE_2D, gRayCast.backFaceBuffer);
-	glActiveTexture( GL_TEXTURE1 );
+        if gShader.SinglePass <> 1 then  begin
+           glActiveTexture( GL_TEXTURE0 );
+	   glBindTexture(GL_TEXTURE_2D, gRayCast.backFaceBuffer);
+           glUniform1i( gRayCast.backFaceLoc, 0 );		// backFaceBuffer -> texture0
+        end;
+
+        glActiveTexture( GL_TEXTURE1 );
 	glBindTexture(GL_TEXTURE_3D,gRayCast.gradientTexture3D);
 {$IFDEF USETRANSFERTEXTURE}
         glActiveTexture(GL_TEXTURE2);
@@ -555,7 +570,6 @@ begin
              glBindTexture(GL_TEXTURE_3D,gRayCast.gradientOverlay3D);
           end;
         end;
-        glUseProgram(gRayCast.glslprogram);
         glUniform1i( gRayCast.LoopsLoc,round(gRayCast.slices*2.2));
         if gRayCast.ScreenCapture then
             glUniform1f( gRayCast.stepSizeLoc, ComputeStepSize(10) )
@@ -564,7 +578,7 @@ begin
         glUniform1f( gRayCast.sliceSizeLoc, 1/gRayCast.slices );
         glUniform1f( gRayCast.viewWidthLoc, gRayCast.WINDOW_WIDTH );
         glUniform1f( gRayCast.viewHeightLoc, gRayCast.WINDOW_HEIGHT );
-        glUniform1i( gRayCast.backFaceLoc, 0 );		// backFaceBuffer -> texture0
+
         glUniform1i( gRayCast.gradientVolLoc, 1 );	// gradientTexture -> texture2
   {$IFDEF USETRANSFERTEXTURE}
   uniform1i( 'TransferTexture',2); //used when render volumes are scalar, not RGBA{$ENDIF}
@@ -576,80 +590,17 @@ begin
   AdjustShaders(gShader);
   LightUniforms;
   ClipUniforms;
-  uniform3fv('clearColor',gPrefs.BackColor.rgbRed/255,gPrefs.BackColor.rgbGreen/255,gPrefs.BackColor.rgbBlue/255);
+  glUniform3f(gRayCast.clearColorLoc,gPrefs.BackColor.rgbRed/255,gPrefs.BackColor.rgbGreen/255,gPrefs.BackColor.rgbBlue/255);
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
-  glMatrixMode(GL_MODELVIEW);
-  glScalef(1,1,1);
+  //glMatrixMode(GL_MODELVIEW);
+  //glScalef(1,1,1);
   drawQuads(1.0,1.0,1.0);
   glDisable(GL_CULL_FACE);
   glUseProgram(0);
   glActiveTexture( GL_TEXTURE0 );
   //glDisable(GL_TEXTURE_2D);
 end;
-
-(*procedure rayCasting (var lTex: TTexture);
-begin
-     //glUseProgram(gRayCast.glslprogramGradient);
-     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, gRayCast.finalImage, 0);
-	glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT );
-	//glEnable(GL_TEXTURE_2D);
-	glActiveTexture( GL_TEXTURE0 );
-	glBindTexture(GL_TEXTURE_2D, gRayCast.backFaceBuffer);
-	glActiveTexture( GL_TEXTURE1 );
-	glBindTexture(GL_TEXTURE_3D,gRayCast.gradientTexture3D);
-{$IFDEF USETRANSFERTEXTURE}
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_1D, gRayCast.TransferTexture1);
-{$ENDIF}
-        glActiveTexture( GL_TEXTURE3 );
-	glBindTexture(GL_TEXTURE_3D,gRayCast.intensityTexture3D);
-        if  (gShader.OverlayVolume > 0) then begin
-          glActiveTexture(GL_TEXTURE4);
-          glBindTexture(GL_TEXTURE_3D,gRayCast.intensityOverlay3D);
-          if (gShader.OverlayVolume > 1) then begin
-             glActiveTexture(GL_TEXTURE5);
-             glBindTexture(GL_TEXTURE_3D,gRayCast.gradientOverlay3D);
-          end;
-        end;
-        glUseProgram(gRayCast.glslprogram);
-  glUniform1i( gRayCast.LoopsLoc,round(gRayCast.slices*2.2));
-  if gRayCast.ScreenCapture then
-      glUniform1f( gRayCast.stepSizeLoc, ComputeStepSize(10) )
-  else
-      glUniform1f( gRayCast.stepSizeLoc, ComputeStepSize(gPrefs.RayCastQuality1to10) );
-  glUniform1f( gRayCast.sliceSizeLoc, 1/gRayCast.slices );
-  glUniform1f( gRayCast.viewWidthLoc, gRayCast.WINDOW_WIDTH );
-  glUniform1f( gRayCast.viewHeightLoc, gRayCast.WINDOW_HEIGHT );
-  glUniform1f( gRayCast.backFaceLoc, 0 );		// backFaceBuffer -> texture0
-  glUniform1f( gRayCast.gradientVolLoc, 1 );	// gradientTexture -> texture2
-  {$IFDEF USETRANSFERTEXTURE}
-  uniform1i( 'TransferTexture',2); //used when render volumes are scalar, not RGBA{$ENDIF}
-  if lTex.DataType = GL_RGBA then
-    uniform1i( 'useTransferTexture',0)
-  else
-    uniform1i( 'useTransferTexture',1);
-  {$ENDIF}
-  glUniform1i( gRayCast.intensityVolLoc, 3 );
-  glUniform1i( gRayCast.overlayVolLoc, 4 );
-  glUniform1i( gRayCast.overlayGradientVolLoc, 5 );
-  glUniform1i( gRayCast.overlaysLoc, gOpenOverlays);
-  AdjustShaders(gShader);
-  LightUniforms;
-  ClipUniforms;
-  //uniform3fv('clearColor',gPrefs.BackColor.rgbRed/255,gPrefs.BackColor.rgbGreen/255,gPrefs.BackColor.rgbBlue/255);
-  glUniform3f(gRayCast.clearColorLoc,gPrefs.BackColor.rgbRed/255,gPrefs.BackColor.rgbGreen/255,gPrefs.BackColor.rgbBlue/255);
-
-  glEnable(GL_CULL_FACE);
-  glCullFace(GL_BACK);
-  glMatrixMode(GL_MODELVIEW);
-  glScalef(1,1,1);
-  drawQuads(1.0,1.0,1.0);
-  glDisable(GL_CULL_FACE);
-  glUseProgram(0);
-  glActiveTexture( GL_TEXTURE0 );
-  //glDisable(GL_TEXTURE_2D);
-end; *)
 
 procedure MakeCube(sz: single);
 var
@@ -733,30 +684,6 @@ begin
   //glDisable(GL_CULL_FACE); // <- required for Cocoa
 end;
 
-(*procedure DisplayGLz(var lTex: TTexture; zoom, zoomOffsetX, zoomOffsetY: integer);  //Redraw image using ray casting
-begin
-  //these next lines only required when switching from texture slicing
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,  gRayCast.frameBuffer);
-  glMatrixMode( GL_TEXTURE );
-  glLoadIdentity();
-  glDisable(GL_TEXTURE_3D);
-  //raycasting follows
-  glClearColor(gPrefs.BackColor.rgbRed/255,gPrefs.BackColor.rgbGreen/255,gPrefs.BackColor.rgbBlue/255, 0);
-  resizeGL(gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT,zoom, zoomOffsetX, zoomOffsetY);
-  glBindFramebufferEXT (GL_FRAMEBUFFER_EXT,  gRayCast.frameBuffer);
-  glBindRenderbufferEXT(GL_RENDERBUFFER_EXT,  gRayCast.renderBuffer);
-  glTranslatef(0,0,-gRayCast.Distance);
-  glRotatef(90-gRayCast.Elevation,-1,0,0);
-  glRotatef(gRayCast.Azimuth,0,0,1);
-  glTranslatef(-lTex.Scale[1]/2,-lTex.Scale[2]/2,-lTex.Scale[3]/2);
-  //glScalef(Zoom,Zoom,Zoom);
-  renderBackFace(lTex);
-  rayCasting(lTex);
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);//disable framebuffer
-  renderBufferToScreen();
-  //next, you will need to execute SwapBuffers
-end; *)
-
 procedure DisplayGLz(var lTex: TTexture; zoom, zoomOffsetX, zoomOffsetY: integer);
 begin
   //if (gPrefs.SliceView  = 5) and (length(gRayCast.MosaicString) < 1) then exit; //we need to draw something, otherwise swapbuffer crashes
@@ -782,7 +709,13 @@ begin
     glRotatef(90-gRayCast.Elevation,-1,0,0);
     glRotatef(gRayCast.Azimuth,0,0,1);
     glTranslatef(-lTex.Scale[1]/2,-lTex.Scale[2]/2,-lTex.Scale[3]/2);
-    renderBackFace(lTex);
+    if gShader.SinglePass <> 1 then
+       renderBackFace(lTex)
+    else begin
+      glMatrixMode(GL_MODELVIEW);
+      glScalef(lTex.Scale[1],lTex.Scale[2],lTex.Scale[3]);
+      drawQuadX(1.0,1.0); //no idea why this is required!
+    end;
     rayCasting(lTex);
     disableRenderBuffers();
     renderBufferToScreen();
