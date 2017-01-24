@@ -31,6 +31,7 @@ TGLForm1 = class(TForm)
     Label2: TLabel;
     LightAziTrack: TTrackBar;
     LightElevTrack: TTrackBar;
+    voiDescriptives1: TMenuItem;
     ShaderPanel: TPanel;
     QualityTrack: TTrackBar;
     S10Check: TCheckBox;
@@ -389,6 +390,7 @@ function MouseUpVOI (Shift: TShiftState; X, Y: Integer): boolean;
     procedure UpdateGL;
     procedure GradientsIdleTimerReset;
     procedure voiBinarize1Click(Sender: TObject);
+    procedure voiDescriptives1Click(Sender: TObject);
     procedure YokeMenuClick(Sender: TObject);
     procedure YokeTimerTimer(Sender: TObject);
   private
@@ -2121,7 +2123,7 @@ end;
    {$IFDEF LCLCocoa}str := str + ' (Cocoa) '; {$ENDIF}
    {$IFDEF LCLCarbon}str := str + ' (Carbon) '; {$ENDIF}
    {$IFDEF DGL} str := str +' (DGL) '; {$ENDIF}//the DGL library has more dependencies - report this if incompatibilities are found
-  str := 'MRIcroGL '+str+' 21 January 2017'
+  str := 'MRIcroGL '+str+' 24 January 2017'
    +kCR+' www.mricro.com :: BSD 2-Clause License (opensource.org/licenses/BSD-2-Clause)'
    +kCR+' Dimensions '+inttostr(gTexture3D.NIFTIhdr.dim[1])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[2])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[3])
    +kCR+' Bytes per voxel '+inttostr(gTexture3D.NIFTIhdr.bitpix div 8)
@@ -2803,6 +2805,11 @@ begin
  voiBinarize(1);
  //voiInterpolate;
  GLForm1.UpdateGL;
+end;
+
+procedure TGLForm1.voiDescriptives1Click(Sender: TObject);
+begin
+  voiDescriptives;
 end;
 
 procedure TGLForm1.GradientsIdleTimerTimer(Sender: TObject);

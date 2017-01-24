@@ -1576,6 +1576,10 @@ object GLForm1: TGLForm1
           Caption = 'Interpolate between slices'
           OnClick = InterpolateDrawMenuClick
         end
+        object voiDescriptives1: TMenuItem
+          Caption = 'Descriptives'
+          OnClick = voiDescriptives1Click
+        end
       end
     end
     object Display1: TMenuItem

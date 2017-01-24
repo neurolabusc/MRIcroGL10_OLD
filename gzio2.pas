@@ -2,7 +2,9 @@ Unit gzio2;
 
 {
   Pascal unit based on gzio.c -- IO on .gz files
-  Copyright (C) 1995-1998 Jean-loup Gailly.
+  Copyright (C) 1995-1998 Jean-loup Gailly
+    the C code provides the same license as the Pascal translation
+    provided below (http://www.zlib.net/zlib_license.html)
 
   Define NO_DEFLATE to compile this file without the compression code
 
@@ -21,7 +23,7 @@ Unit gzio2;
 	2. Altered source versions must be plainly marked as such, and must not be
 		misrepresented as being the original software.
 	3. This notice may not be removed or altered from any source distribution.
-	
+
 This version was altered by Chris Rorden to allow extracting to memory (e.g. GZipBuffer) and retains the same license.
 }
 {$H+}

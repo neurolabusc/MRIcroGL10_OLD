@@ -29,10 +29,7 @@ uses
 type
 TCore = record
   vao, programBackface: GLuint;
-  intensityVolLoc, gradientVolLoc,
-  //zoomLocBackface, zoomXYLocBackface, zoomLoc, zoomXYLoc,
-  mvpLocBackface, mvpLoc, imvLoc, flipLoc, backFaceLoc, viewHeightLoc, viewWidthLoc,
-  lightPositionLoc, sliceSizeLoc, stepSizeLoc, loopsLoc, clearColorLoc, clipPlaneLoc, clipPlaneDepthLoc: GLint;
+  mvpLocBackface, mvpLoc, imvLoc: GLint;
 
 end;
 
@@ -320,14 +317,6 @@ begin
   nglScalef(lTex.Scale[1],lTex.Scale[2],lTex.Scale[3]);
 end;
 
-function b2i(b: boolean): integer;
-begin
-  if b then
-     result := 1
-  else
-      result := 0;
-end;
-
 procedure drawBox(isFront: boolean);
 begin
   glViewport(0, 0, gRayCast.WINDOW_Width, gRayCast.WINDOW_HEIGHT);
@@ -342,19 +331,6 @@ begin
   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nil);
   glDisable(GL_CULL_FACE);
   //glUseProgram(0);
-end;
-
-procedure ClipUniforms;
-var
-  lD,lX,lY,lZ: single;
-begin
-  sph2cartDeg90x(gRayCast.ClipAzimuth,gRayCast.ClipElevation,1,lX,lY,lZ);
-  glUniform3f(gCore.clipPlaneLoc,-lX,-lY,-lZ);
-  if gRaycast.ClipDepth < 1 then
-     lD := -1
-  else
-    lD := 0.5-(gRayCast.ClipDepth/1000);
-  glUniform1f(gCore.clipPlaneDepthLoc, lD);
 end;
 
 (*procedure clipMat(m : TnMat44);
@@ -393,41 +369,45 @@ begin
     //glBindFramebuffer(GL_FRAMEBUFFER, gRayCast.frameBuffer);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, gRayCast.backTexture);
-    glUniform1i(gCore.backFaceLoc, 1);
+    glUniform1i(gRayCast.backFaceLoc, 1);
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_3D, gRayCast.intensityTexture3D);
-    glUniform1i(gCore.intensityVolLoc, 2);
+    glUniform1i(gRayCast.intensityVolLoc, 2);
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_3D, gRayCast.gradientTexture3D);
-    glUniform1i(gCore.gradientVolLoc, 3);
+    glUniform1i(gRayCast.gradientVolLoc, 3);
     //glUniform1i(gCore.zoomLoc, zoom);
-    glUniform1i(gCore.flipLoc,1 - b2i(false));
-    //glUniform1i(gCore.zoomLoc,zoom);
+   //glUniform1i(gCore.zoomLoc,zoom);
     //glUniform2i(gCore.zoomXYLoc, zoomOffsetX, zoomOffsetY);
-    glUniform1f(gCore.viewHeightLoc, gRaycast.WINDOW_HEIGHT);
-    glUniform1f(gCore.viewWidthLoc, gRaycast.WINDOW_WIDTH);
-    glUniform1f(gCore.viewHeightLoc, gRaycast.WINDOW_HEIGHT);
-    glUniform1f(gCore.viewWidthLoc, gRaycast.WINDOW_WIDTH);
-    glUniform1f(gCore.viewWidthLoc, gRaycast.WINDOW_WIDTH);
-    glUniform1f(gCore.viewWidthLoc, gRaycast.WINDOW_WIDTH);
+    glUniform1f(gRayCast.viewHeightLoc, gRaycast.WINDOW_HEIGHT);
+    glUniform1f(gRayCast.viewWidthLoc, gRaycast.WINDOW_WIDTH);
+    //glUniform1f(gRayCast.viewHeightLoc, gRaycast.WINDOW_HEIGHT);
+    //glUniform1f(gRayCast.viewWidthLoc, gRaycast.WINDOW_WIDTH);
+    //glUniform1f(gRayCast.viewWidthLoc, gRaycast.WINDOW_WIDTH);
+    //glUniform1f(gRayCast.viewWidthLoc, gRaycast.WINDOW_WIDTH);
     if gRayCast.ScreenCapture then
-       glUniform1f(gCore.stepSizeLoc, 10)
+       glUniform1f(gRayCast.stepSizeLoc, 10)
     else
-        glUniform1f(gCore.stepSizeLoc, ComputeStepSize(gPrefs.RayCastQuality1to10)) ;
-    glUniform1f(gCore.sliceSizeLoc, 1/gRayCast.slices);
-    glUniform1i( gCore.loopsLoc,round(gRayCast.slices*2.2));
-    glUniform3f(gCore.lightPositionLoc, 0.0,0.0,1.0);
+        glUniform1f(gRayCast.stepSizeLoc, ComputeStepSize(gPrefs.RayCastQuality1to10)) ;
+    glUniform1f(gRayCast.sliceSizeLoc, 1/gRayCast.slices);
+    glUniform1i( gRayCast.loopsLoc,round(gRayCast.slices*2.2));
+    glUniform3f(gRayCast.lightPositionLoc, 0.0,0.0,1.0);
     //next: overlays
-    uniform1i( 'overlays', gOpenOverlays);
+    //uniform1i( 'overlays', gOpenOverlays);
+    glUniform1i( gRayCast.overlaysLoc, gOpenOverlays);
+
     if  (gShader.OverlayVolume > 0) then begin
         glActiveTexture(GL_TEXTURE4);
         glBindTexture(GL_TEXTURE_3D,gRayCast.intensityOverlay3D);
-        uniform1i( 'overlayVol', 4 );
+        //uniform1i( 'overlayVol', 4 );
+        glUniform1i( gRayCast.overlayVolLoc, 4 );
         //GLForm1.caption :=  inttostr(gOpenOverlays)+' -> '+inttostr(gRayCast.intensityOverlay3D);
         if (gShader.OverlayVolume > 1) then begin
            glActiveTexture(GL_TEXTURE5);
            glBindTexture(GL_TEXTURE_3D,gRayCast.gradientOverlay3D);
-           uniform1i( 'overlayGradientVol', 5 );
+           //uniform1i( 'overlayGradientVol', 5 );
+           glUniform1i( gRayCast.overlayGradientVolLoc, 5 );
+
         end;
     end;
 
@@ -437,7 +417,7 @@ begin
 
     AdjustShaders(gShader);
 
-    glUniform3f(gCore.clearColorLoc,gPrefs.BackColor.rgbRed/255,gPrefs.BackColor.rgbGreen/255,gPrefs.BackColor.rgbBlue/255);
+    glUniform3f(gRayCast.clearColorLoc,gPrefs.BackColor.rgbRed/255,gPrefs.BackColor.rgbGreen/255,gPrefs.BackColor.rgbBlue/255);
     glUniformMatrix4fv(gCore.mvpLoc, 1, GL_FALSE, @mat44[0,0]);
     mat44 := inverseMat(ngl_ModelViewMatrix);
     //mat44 := transposeMat(ngl_ModelViewMatrix);
@@ -560,23 +540,9 @@ begin
      LoadShader('', gShader);
      gRayCast.glslprogram :=  initVertFrag(gShader.VertexProgram, gShader.FragmentProgram);
   end;
+  getUniformLocations;
   gCore.imvLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('modelViewMatrixInverse'));
   gCore.mvpLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('modelViewProjectionMatrix'));
-  gCore.flipLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('flip'));
-  gCore.backFaceLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('backFace'));
-  gCore.viewHeightLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('viewHeight'));
-  gCore.viewWidthLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('viewWidth'));
-  gCore.sliceSizeLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('sliceSize'));
-  gCore.stepSizeLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('stepSize'));
-  gCore.loopsLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('loops'));
-  gCore.clearColorLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('clearColor'));
-  gCore.lightPositionLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('lightPosition'));
-  gCore.clipPlaneLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('clipPlane'));
-  gCore.clipPlaneDepthLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('clipPlaneDepth'));
-  gCore.intensityVolLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('intensityVol'));
-  gCore.gradientVolLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('gradientVol'));
-  //gCore.zoomLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('zoom'));
-  //gCore.zoomXYLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('zoomXY'));
   gInit := true;
   //setup cube used for both front and backface
   //setup screen

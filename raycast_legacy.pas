@@ -380,7 +380,7 @@ begin
      LoadShader('', gShader);
      gRayCast.glslprogram :=  initVertFrag(gShader.VertexProgram, gShader.FragmentProgram);
   end;
-
+  getUniformLocations;
   // Create the to FBO's one for the backside of the volumecube and one for the finalimage rendering
   if InitialSetup then begin
     glGenFramebuffersEXT(1, @gRayCast.frameBuffer);
@@ -556,27 +556,23 @@ begin
           end;
         end;
         glUseProgram(gRayCast.glslprogram);
-  uniform1i( 'loops',round(gRayCast.slices*2.2));
-  if gRayCast.ScreenCapture then
-      uniform1f( 'stepSize', ComputeStepSize(10) )
-  else
-      uniform1f( 'stepSize', ComputeStepSize(gPrefs.RayCastQuality1to10) );
-  uniform1f( 'sliceSize', 1/gRayCast.slices );
-  uniform1f( 'viewWidth', gRayCast.WINDOW_WIDTH );
-  uniform1f( 'viewHeight', gRayCast.WINDOW_HEIGHT );
-  uniform1i( 'backFace', 0 );		// backFaceBuffer -> texture0
-  uniform1i( 'gradientVol', 1 );	// gradientTexture -> texture2
+        glUniform1i( gRayCast.LoopsLoc,round(gRayCast.slices*2.2));
+        if gRayCast.ScreenCapture then
+            glUniform1f( gRayCast.stepSizeLoc, ComputeStepSize(10) )
+        else
+            glUniform1f( gRayCast.stepSizeLoc, ComputeStepSize(gPrefs.RayCastQuality1to10) );
+        glUniform1f( gRayCast.sliceSizeLoc, 1/gRayCast.slices );
+        glUniform1f( gRayCast.viewWidthLoc, gRayCast.WINDOW_WIDTH );
+        glUniform1f( gRayCast.viewHeightLoc, gRayCast.WINDOW_HEIGHT );
+        glUniform1i( gRayCast.backFaceLoc, 0 );		// backFaceBuffer -> texture0
+        glUniform1i( gRayCast.gradientVolLoc, 1 );	// gradientTexture -> texture2
   {$IFDEF USETRANSFERTEXTURE}
   uniform1i( 'TransferTexture',2); //used when render volumes are scalar, not RGBA{$ENDIF}
   {$ENDIF}
-  uniform1i( 'intensityVol', 3 );
-  uniform1i( 'overlayVol', 4 );
-  uniform1i( 'overlayGradientVol', 5 );
-  uniform1i( 'overlays', gOpenOverlays);
-  if lTex.DataType = GL_RGBA then
-    uniform1i( 'useTransferTexture',0)
-  else
-    uniform1i( 'useTransferTexture',1);
+    glUniform1i( gRayCast.intensityVolLoc, 3 );
+    glUniform1i( gRayCast.overlayVolLoc, 4 );
+    glUniform1i( gRayCast.overlayGradientVolLoc, 5 );
+    glUniform1i( gRayCast.overlaysLoc, gOpenOverlays);
   AdjustShaders(gShader);
   LightUniforms;
   ClipUniforms;
@@ -591,6 +587,69 @@ begin
   glActiveTexture( GL_TEXTURE0 );
   //glDisable(GL_TEXTURE_2D);
 end;
+
+(*procedure rayCasting (var lTex: TTexture);
+begin
+     //glUseProgram(gRayCast.glslprogramGradient);
+     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, gRayCast.finalImage, 0);
+	glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT );
+	//glEnable(GL_TEXTURE_2D);
+	glActiveTexture( GL_TEXTURE0 );
+	glBindTexture(GL_TEXTURE_2D, gRayCast.backFaceBuffer);
+	glActiveTexture( GL_TEXTURE1 );
+	glBindTexture(GL_TEXTURE_3D,gRayCast.gradientTexture3D);
+{$IFDEF USETRANSFERTEXTURE}
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_1D, gRayCast.TransferTexture1);
+{$ENDIF}
+        glActiveTexture( GL_TEXTURE3 );
+	glBindTexture(GL_TEXTURE_3D,gRayCast.intensityTexture3D);
+        if  (gShader.OverlayVolume > 0) then begin
+          glActiveTexture(GL_TEXTURE4);
+          glBindTexture(GL_TEXTURE_3D,gRayCast.intensityOverlay3D);
+          if (gShader.OverlayVolume > 1) then begin
+             glActiveTexture(GL_TEXTURE5);
+             glBindTexture(GL_TEXTURE_3D,gRayCast.gradientOverlay3D);
+          end;
+        end;
+        glUseProgram(gRayCast.glslprogram);
+  glUniform1i( gRayCast.LoopsLoc,round(gRayCast.slices*2.2));
+  if gRayCast.ScreenCapture then
+      glUniform1f( gRayCast.stepSizeLoc, ComputeStepSize(10) )
+  else
+      glUniform1f( gRayCast.stepSizeLoc, ComputeStepSize(gPrefs.RayCastQuality1to10) );
+  glUniform1f( gRayCast.sliceSizeLoc, 1/gRayCast.slices );
+  glUniform1f( gRayCast.viewWidthLoc, gRayCast.WINDOW_WIDTH );
+  glUniform1f( gRayCast.viewHeightLoc, gRayCast.WINDOW_HEIGHT );
+  glUniform1f( gRayCast.backFaceLoc, 0 );		// backFaceBuffer -> texture0
+  glUniform1f( gRayCast.gradientVolLoc, 1 );	// gradientTexture -> texture2
+  {$IFDEF USETRANSFERTEXTURE}
+  uniform1i( 'TransferTexture',2); //used when render volumes are scalar, not RGBA{$ENDIF}
+  if lTex.DataType = GL_RGBA then
+    uniform1i( 'useTransferTexture',0)
+  else
+    uniform1i( 'useTransferTexture',1);
+  {$ENDIF}
+  glUniform1i( gRayCast.intensityVolLoc, 3 );
+  glUniform1i( gRayCast.overlayVolLoc, 4 );
+  glUniform1i( gRayCast.overlayGradientVolLoc, 5 );
+  glUniform1i( gRayCast.overlaysLoc, gOpenOverlays);
+  AdjustShaders(gShader);
+  LightUniforms;
+  ClipUniforms;
+  //uniform3fv('clearColor',gPrefs.BackColor.rgbRed/255,gPrefs.BackColor.rgbGreen/255,gPrefs.BackColor.rgbBlue/255);
+  glUniform3f(gRayCast.clearColorLoc,gPrefs.BackColor.rgbRed/255,gPrefs.BackColor.rgbGreen/255,gPrefs.BackColor.rgbBlue/255);
+
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_BACK);
+  glMatrixMode(GL_MODELVIEW);
+  glScalef(1,1,1);
+  drawQuads(1.0,1.0,1.0);
+  glDisable(GL_CULL_FACE);
+  glUseProgram(0);
+  glActiveTexture( GL_TEXTURE0 );
+  //glDisable(GL_TEXTURE_2D);
+end; *)
 
 procedure MakeCube(sz: single);
 var

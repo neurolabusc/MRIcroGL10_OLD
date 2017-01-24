@@ -25,8 +25,11 @@ uses
     sysutils, histogram2d, math, colorbar2d;
 type
 TRayCast =  RECORD
-   backTexture,
-  glslprogram, glslprogramSobel, glslprogramBlur: GLuint;
+   loopsLoc, stepSizeLoc, sliceSizeLoc, viewWidthLoc, viewHeightLoc, backFaceLoc,
+   gradientVolLoc, intensityVolLoc, overlayVolLoc, overlayGradientVolLoc, overlaysLoc,
+   useTransferTextureLoc, clearColorLoc,
+lightPositionLoc, clipPlaneDepthLoc, clipPlaneLoc: GLint; //glint not gluint: allow to be negative if not found!
+   backTexture,glslprogram, glslprogramSobel, glslprogramBlur: GLuint;
   ModelessColor: TGLRGBQuad;
   ScreenCapture: boolean;
   ClipAzimuth,ClipElevation,ClipDepth,
@@ -61,6 +64,7 @@ var
   procedure ClipUniforms;
   function bindBlankGL(var lTex: TTexture): GLuint;
   function  initVertFrag(vert, frag: string): GLuint;
+  procedure getUniformLocations;
   procedure uniform1i( name: AnsiString; value: integer);
   function ComputeStepSize (Quality1to10: integer): single;
 function WarningIfNoveau: boolean;
@@ -69,6 +73,28 @@ function gpuReport: string; //warning: must be called while in OpenGL context!
 implementation
 uses
   shaderu, mainunit,slices2d;
+
+
+procedure getUniformLocations;
+begin
+  gRayCast.loopsLoc:= glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('loops'));
+  gRayCast.stepSizeLoc:= glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('stepSize'));
+  gRayCast.sliceSizeLoc:= glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('sliceSize'));
+  gRayCast.viewWidthLoc:= glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('viewWidth'));
+  gRayCast.viewHeightLoc:= glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('viewHeight'));
+  gRayCast.backFaceLoc:= glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('backFace'));
+  gRayCast.gradientVolLoc:= glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('gradientVol'));
+
+  gRayCast.intensityVolLoc:= glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('intensityVol'));
+  gRayCast.overlayVolLoc:= glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('overlayVol'));
+  gRayCast.overlayGradientVolLoc:= glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('overlayGradientVol'));
+  gRayCast.overlaysLoc:= glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('overlays'));
+  gRayCast.useTransferTextureLoc:= glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('useTransferTexture'));
+  gRayCast.clearColorLoc:= glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('clearColor'));
+  gRayCast.lightPositionLoc:= glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('lightPosition'));
+  gRayCast.clipPlaneDepthLoc:= glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('clipPlaneDepth'));
+  gRayCast.clipPlaneLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('clipPlane'));
+end;
 
 function WarningIfNoveau: boolean;
 var
@@ -324,7 +350,9 @@ begin
     lY := lY/lA;
     lZ := lZ/lA;
   end;
-  uniform3fv('lightPosition',lX,lY,lZ);
+  //uniform3fv('lightPosition',lX,lY,lZ);
+  glUniform3f(gRayCast.lightPositionLoc,lX,lY,lZ);
+
 end;
 
 procedure sph2cartDeg90x(Azimuth,Elevation,R: single; var lX,lY,lZ: single);
@@ -357,11 +385,13 @@ var
 begin
   sph2cartDeg90x(gRayCast.ClipAzimuth,gRayCast.ClipElevation,1,lX,lY,lZ);
   uniform3fv('clipPlane',-lX,-lY,-lZ);
+  //glUniform3f(gRayCast.clipPlaneLoc,-lX,-lY,-lZ);
   if gRaycast.ClipDepth < 1 then
      lD := -1
   else
     lD := 0.5-(gRayCast.ClipDepth/1000);
-  uniform1f( 'clipPlaneDepth', lD);
+  //uniform1f( 'clipPlaneDepth', lD);
+  glUniform1f(gRayCast.clipPlaneDepthLoc, lD);
 end;
 
 

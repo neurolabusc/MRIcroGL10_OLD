@@ -24,6 +24,7 @@ type
  end;
 
 var gDraw: TDraw;
+  procedure voiDescriptives;
 procedure StartDrawGLSL;
 procedure voiUndo;
 procedure voiCloseSlice;
@@ -59,6 +60,24 @@ uses
 procedure voiSetModified(b: boolean);
 begin
        gDraw.isModified := b;  //2015
+end;
+
+procedure voiDescriptives;
+var
+  i, nPix, nPixDraw: integer;
+begin
+     if not voiIsOpen then begin
+        showmessage('Unable to generate descriptives: no open drawing');
+     end;
+     nPix := gDraw.dim3d[1] * gDraw.dim3d[2]*gDraw.dim3d[3];
+     if nPix < 1 then exit;
+     nPixDraw := 0;
+     for i := 0 to (nPix -1) do begin
+         if gDraw.view3d[i] <> 0 then
+            inc(nPixDraw);
+     end;
+     showmessage('Volume of drawing is '+inttostr(nPixDraw)+' pixels.');
+
 end;
 
 function numThresh (v: singlep0; lStart,lEnd: integer; thresh: single): integer; //how many members of the array are >= thresh?
