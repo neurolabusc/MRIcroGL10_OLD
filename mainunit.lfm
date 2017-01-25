@@ -324,7 +324,7 @@ object GLForm1: TGLForm1
           Left = 117
           Height = 16
           Hint = 'Lower quality renders faster, higher quality looks better'
-          Top = 4
+          Top = 9
           Width = 10
           Caption = 'Q'
           ParentColor = False
@@ -333,7 +333,7 @@ object GLForm1: TGLForm1
         end
         object QualityTrack: TTrackBar
           Left = 132
-          Height = 43
+          Height = 30
           Top = 0
           Width = 66
           Min = 1
@@ -346,7 +346,7 @@ object GLForm1: TGLForm1
           Left = 3
           Height = 16
           Hint = 'Set the elevation and azimuth of the illumination'
-          Top = 32
+          Top = 35
           Width = 32
           Caption = 'Light'
           ParentColor = False
@@ -789,7 +789,7 @@ object GLForm1: TGLForm1
       object Xx: TLabel
         Left = 3
         Height = 16
-        Top = 1
+        Top = 3
         Width = 8
         Caption = 'X'
         ParentColor = False
@@ -797,7 +797,7 @@ object GLForm1: TGLForm1
       object Yy: TLabel
         Left = 3
         Height = 16
-        Top = 23
+        Top = 25
         Width = 8
         Caption = 'Y'
         ParentColor = False
@@ -805,7 +805,7 @@ object GLForm1: TGLForm1
       object Zz: TLabel
         Left = 3
         Height = 16
-        Top = 45
+        Top = 47
         Width = 8
         Caption = 'Z'
         ParentColor = False

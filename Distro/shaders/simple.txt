@@ -6,7 +6,8 @@ shininess|float|0.01|10.0|30
 edgeThresh|float|0.0|0.01|1
 edgeExp|float|0.0|0.15|1
 boundExp|float|0.0|0.0|3
-Classic BLinn-Phong shading. Based on 'marcus'.|note
+xray|float|0.0|1|1
+Classic Blinn-Phong shading. Based on 'marcus'.|note
 //frag
 uniform int loops;
 uniform float stepSize, sliceSize, viewWidth, viewHeight;
@@ -15,7 +16,7 @@ uniform sampler3D gradientVol; //3DTexture containing gradient direction and mag
 uniform sampler2D backFace;
 uniform vec3 clearColor,lightPosition, clipPlane;
 uniform float clipPlaneDepth;
-uniform float ambient, diffuse, specular, shininess, edgeThresh, edgeExp, boundExp;
+uniform float ambient, diffuse, specular, shininess, edgeThresh, edgeExp, boundExp, xray;
 void main() {
 	// get normalized pixel coordinate in view port (e.g. [0,1]x[0,1])
 	vec2 pixelCoord = gl_FragCoord.st;
@@ -66,7 +67,8 @@ void main() {
 		colorSample.a = 1.0-pow((1.0 - colorSample.a), stepSize/sliceSize);//opacity correction
 		if ((colorSample.a > 0.01) && (lengthAcc > stepSizex2)  ) {
 			gradientSample= texture3D(gradientVol,samplePos); //interpolate gradient direction and magnitude
-			gradientSample.rgb = normalize(gradientSample.rgb*2.0 - 1.0); //direction saved as 0..1, rescale to -1..1
+			//gradientSample.rgb = normalize(gradientSample.rgb*2.0 - 1.0); //direction saved as 0..1, rescale to -1..1
+			gradientSample.rgb = gradientSample.rgb*2.0 - 1.0; //do not normalize due to vec3(0.0,0.0,0.0)
 			//re-use previous normal if it has larger magnitude
 			if (gradientSample.a < prevNorm.a)
 				gradientSample.rgb = prevNorm.rgb;
@@ -86,6 +88,7 @@ void main() {
 			float s =   specular * pow(max(dot(reflect(lightPosition, gradientSample.rgb), dir), 0.0), shininess);
 			colorSample.rgb = a + d + s;
 		}
+		colorSample.a *= xray;
 		colorSample.rgb *= colorSample.a;
 		//accumulate color
 		colAcc= (1.0 - colAcc.a) * colorSample + colAcc;

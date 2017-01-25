@@ -364,7 +364,11 @@ begin
       glViewport(0, 0, w, h);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
+  {$IFDEF DGL}
   if gPrefs.Perspective then
+  {$ELSE}
+  if false then
+  {$ENDIF}
     gluPerspective(40.0, w/h, 0.01, kMaxDistance{Distance})
   else begin
        if gRayCast.Distance = 0 then

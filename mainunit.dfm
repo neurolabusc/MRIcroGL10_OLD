@@ -2,12 +2,12 @@ object GLForm1: TGLForm1
   Left = 812
   Top = 28
   Width = 1045
-  Height = 1038
+  Height = 916
   Caption = 'MRIcroGL'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -14
+  Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   KeyPreview = True
@@ -20,51 +20,51 @@ object GLForm1: TGLForm1
   OnKeyDown = FormKeyDown
   OnMouseWheel = GLboxMouseWheel
   OnResize = GLboxResize
-  PixelsPerInch = 120
-  TextHeight = 16
+  PixelsPerInch = 96
+  TextHeight = 14
   object ToolPanel: TPanel
     Left = 0
     Top = 0
-    Width = 325
-    Height = 966
+    Width = 284
+    Height = 857
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 0
     OnClick = ToolPanelClick
     object CutoutBox: TGroupBox
       Left = 0
-      Top = 568
-      Width = 325
-      Height = 135
+      Top = 497
+      Width = 284
+      Height = 118
       Align = alTop
       Caption = 'Cutout'
       TabOrder = 0
       object xX: TLabel
-        Left = 15
-        Top = 25
-        Width = 8
-        Height = 16
+        Left = 13
+        Top = 22
+        Width = 7
+        Height = 14
         Caption = 'X'
       end
       object yY: TLabel
-        Left = 15
-        Top = 63
-        Width = 9
-        Height = 16
+        Left = 13
+        Top = 55
+        Width = 8
+        Height = 14
         Caption = 'Y'
       end
       object zZ: TLabel
-        Left = 15
-        Top = 101
-        Width = 8
-        Height = 16
+        Left = 13
+        Top = 88
+        Width = 7
+        Height = 14
         Caption = 'Z'
       end
       object XTrackBar: TTrackBar
-        Left = 25
-        Top = 20
-        Width = 113
-        Height = 37
+        Left = 22
+        Top = 18
+        Width = 99
+        Height = 32
         Max = 1000
         Position = 1000
         TabOrder = 0
@@ -72,10 +72,10 @@ object GLForm1: TGLForm1
         OnChange = CutoutChange
       end
       object YTrackBar: TTrackBar
-        Left = 25
-        Top = 58
-        Width = 113
-        Height = 37
+        Left = 22
+        Top = 51
+        Width = 99
+        Height = 32
         Max = 1000
         Position = 1000
         TabOrder = 1
@@ -83,59 +83,59 @@ object GLForm1: TGLForm1
         OnChange = CutoutChange
       end
       object ZTrackBar: TTrackBar
-        Left = 25
-        Top = 96
-        Width = 113
-        Height = 37
+        Left = 22
+        Top = 84
+        Width = 99
+        Height = 32
         Max = 1000
         TabOrder = 2
         TickStyle = tsNone
         OnChange = CutoutChange
       end
       object X2TrackBar: TTrackBar
-        Left = 135
-        Top = 20
-        Width = 114
-        Height = 37
+        Left = 118
+        Top = 18
+        Width = 100
+        Height = 32
         Max = 1000
         TabOrder = 3
         TickStyle = tsNone
         OnChange = CutoutChange
       end
       object Y2TrackBar: TTrackBar
-        Left = 135
-        Top = 58
-        Width = 114
-        Height = 37
+        Left = 118
+        Top = 51
+        Width = 100
+        Height = 32
         Max = 1000
         TabOrder = 4
         TickStyle = tsNone
         OnChange = CutoutChange
       end
       object Z2TrackBar: TTrackBar
-        Left = 135
-        Top = 96
-        Width = 114
-        Height = 37
+        Left = 118
+        Top = 84
+        Width = 100
+        Height = 32
         Max = 1000
         TabOrder = 5
         TickStyle = tsNone
         OnChange = CutoutChange
       end
       object NearBtn: TButton
-        Left = 246
-        Top = 39
-        Width = 73
-        Height = 31
+        Left = 215
+        Top = 34
+        Width = 64
+        Height = 27
         Caption = 'Near'
         TabOrder = 6
         OnClick = CutoutNearestSector
       end
       object NoneBtn: TButton
-        Left = 246
-        Top = 81
-        Width = 73
-        Height = 31
+        Left = 215
+        Top = 71
+        Width = 64
+        Height = 27
         Caption = 'None'
         TabOrder = 7
         OnClick = HideBtnClick
@@ -143,17 +143,17 @@ object GLForm1: TGLForm1
     end
     object ShaderBox: TGroupBox
       Left = 0
-      Top = 791
-      Width = 325
-      Height = 175
+      Top = 692
+      Width = 284
+      Height = 165
       Align = alClient
       Caption = 'Shader'
       TabOrder = 1
       object ShaderMemo: TMemo
         Left = 2
-        Top = 145
-        Width = 321
-        Height = 28
+        Top = 127
+        Width = 280
+        Height = 36
         Align = alClient
         BevelOuter = bvNone
         Lines.Strings = (
@@ -162,27 +162,27 @@ object GLForm1: TGLForm1
       end
       object ShaderPanel: TPanel
         Left = 2
-        Top = 18
-        Width = 321
-        Height = 127
+        Top = 16
+        Width = 280
+        Height = 111
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 1
         object Label1: TLabel
-          Left = 180
-          Top = 9
-          Width = 10
-          Height = 16
+          Left = 158
+          Top = 8
+          Width = 8
+          Height = 14
           Hint = 'Higher quality looks nicer but is slower to render'
           Caption = 'Q'
           ParentShowHint = False
           ShowHint = True
         end
         object Label2: TLabel
-          Left = 7
-          Top = 40
-          Width = 28
-          Height = 16
+          Left = 6
+          Top = 35
+          Width = 23
+          Height = 14
           Hint = 'Set the elevation and azimuth of the illumination'
           Caption = 'Light'
           ParentShowHint = False
@@ -190,122 +190,122 @@ object GLForm1: TGLForm1
         end
         object S1Label: TLabel
           Tag = 1
-          Left = 7
-          Top = 72
-          Width = 16
-          Height = 16
+          Left = 6
+          Top = 63
+          Width = 13
+          Height = 14
           Caption = 'S1'
           ParentShowHint = False
           ShowHint = False
         end
         object S2Label: TLabel
           Tag = 2
-          Left = 7
-          Top = 104
-          Width = 16
-          Height = 16
+          Left = 6
+          Top = 91
+          Width = 13
+          Height = 14
           Caption = 'S2'
           ParentShowHint = False
           ShowHint = False
         end
         object S3Label: TLabel
           Tag = 3
-          Left = 7
-          Top = 136
-          Width = 16
-          Height = 16
+          Left = 6
+          Top = 119
+          Width = 13
+          Height = 14
           Caption = 'S3'
           ParentShowHint = False
           ShowHint = False
         end
         object S4Label: TLabel
           Tag = 4
-          Left = 7
-          Top = 168
-          Width = 16
-          Height = 16
+          Left = 6
+          Top = 147
+          Width = 13
+          Height = 14
           Caption = 'S4'
           ParentShowHint = False
           ShowHint = False
         end
         object S5Label: TLabel
           Tag = 5
-          Left = 7
-          Top = 200
-          Width = 16
-          Height = 16
+          Left = 6
+          Top = 175
+          Width = 13
+          Height = 14
           Caption = 'S5'
           ParentShowHint = False
           ShowHint = False
         end
         object S6Label: TLabel
           Tag = 6
-          Left = 7
-          Top = 232
-          Width = 16
-          Height = 16
+          Left = 6
+          Top = 203
+          Width = 13
+          Height = 14
           Caption = 'S6'
           ParentShowHint = False
           ShowHint = False
         end
         object S7Label: TLabel
           Tag = 7
-          Left = 7
-          Top = 264
-          Width = 16
-          Height = 16
+          Left = 6
+          Top = 231
+          Width = 13
+          Height = 14
           Caption = 'S7'
           ParentShowHint = False
           ShowHint = False
         end
         object S8Label: TLabel
           Tag = 8
-          Left = 7
-          Top = 296
-          Width = 16
-          Height = 16
+          Left = 6
+          Top = 259
+          Width = 13
+          Height = 14
           Caption = 'S8'
           ParentShowHint = False
           ShowHint = False
         end
         object S9Label: TLabel
           Tag = 9
-          Left = 7
-          Top = 328
-          Width = 16
-          Height = 16
+          Left = 6
+          Top = 287
+          Width = 13
+          Height = 14
           Caption = 'S9'
           ParentShowHint = False
           ShowHint = False
         end
         object S10Label: TLabel
           Tag = 10
-          Left = 7
-          Top = 360
-          Width = 23
-          Height = 16
+          Left = 6
+          Top = 315
+          Width = 19
+          Height = 14
           Caption = 'S10'
           ParentShowHint = False
           ShowHint = False
         end
         object ShaderDrop: TComboBox
-          Left = 5
+          Left = 4
           Top = 4
-          Width = 162
-          Height = 24
+          Width = 142
+          Height = 22
           Style = csDropDownList
           DropDownCount = 24
-          ItemHeight = 16
+          ItemHeight = 14
           TabOrder = 0
           OnChange = ShaderDropChange
           Items.Strings = (
             'none')
         end
         object QualityTrack: TTrackBar
-          Left = 199
+          Left = 174
           Top = 4
-          Width = 119
-          Height = 30
+          Width = 104
+          Height = 26
           Min = 1
           Position = 3
           TabOrder = 1
@@ -313,10 +313,10 @@ object GLForm1: TGLForm1
           OnChange = QualityTrackChange
         end
         object LightElevTrack: TTrackBar
-          Left = 54
-          Top = 36
-          Width = 118
-          Height = 30
+          Left = 47
+          Top = 32
+          Width = 104
+          Height = 26
           Max = 90
           Min = -90
           Position = 5
@@ -325,10 +325,10 @@ object GLForm1: TGLForm1
           OnChange = AziElevChange
         end
         object LightAziTrack: TTrackBar
-          Left = 199
-          Top = 36
-          Width = 119
-          Height = 30
+          Left = 174
+          Top = 32
+          Width = 104
+          Height = 26
           Max = 180
           Min = -180
           TabOrder = 3
@@ -337,10 +337,10 @@ object GLForm1: TGLForm1
         end
         object S1Track: TTrackBar
           Tag = 1
-          Left = 199
-          Top = 68
-          Width = 118
-          Height = 30
+          Left = 174
+          Top = 60
+          Width = 103
+          Height = 26
           Max = 100
           Position = 50
           TabOrder = 4
@@ -349,28 +349,28 @@ object GLForm1: TGLForm1
         end
         object S1Check: TCheckBox
           Tag = 1
-          Left = 176
-          Top = 72
-          Width = 25
-          Height = 17
+          Left = 154
+          Top = 63
+          Width = 22
+          Height = 15
           TabOrder = 5
           OnClick = UniformChange
         end
         object S2Check: TCheckBox
           Tag = 2
-          Left = 176
-          Top = 104
-          Width = 25
-          Height = 17
+          Left = 154
+          Top = 91
+          Width = 22
+          Height = 15
           TabOrder = 6
           OnClick = UniformChange
         end
         object S2Track: TTrackBar
           Tag = 2
-          Left = 199
-          Top = 100
-          Width = 118
-          Height = 30
+          Left = 174
+          Top = 88
+          Width = 103
+          Height = 26
           Max = 100
           Position = 50
           TabOrder = 7
@@ -379,10 +379,10 @@ object GLForm1: TGLForm1
         end
         object S3Track: TTrackBar
           Tag = 3
-          Left = 199
-          Top = 132
-          Width = 118
-          Height = 30
+          Left = 174
+          Top = 116
+          Width = 103
+          Height = 26
           Max = 100
           Position = 50
           TabOrder = 8
@@ -391,19 +391,19 @@ object GLForm1: TGLForm1
         end
         object S3Check: TCheckBox
           Tag = 3
-          Left = 176
-          Top = 136
-          Width = 25
-          Height = 17
+          Left = 154
+          Top = 119
+          Width = 22
+          Height = 15
           TabOrder = 9
           OnClick = UniformChange
         end
         object S4Track: TTrackBar
           Tag = 4
-          Left = 199
-          Top = 164
-          Width = 118
-          Height = 30
+          Left = 174
+          Top = 144
+          Width = 103
+          Height = 26
           Max = 100
           Position = 50
           TabOrder = 10
@@ -412,19 +412,19 @@ object GLForm1: TGLForm1
         end
         object S4Check: TCheckBox
           Tag = 4
-          Left = 176
-          Top = 168
-          Width = 25
-          Height = 17
+          Left = 154
+          Top = 147
+          Width = 22
+          Height = 15
           TabOrder = 11
           OnClick = UniformChange
         end
         object S5Track: TTrackBar
           Tag = 5
-          Left = 199
-          Top = 196
-          Width = 118
-          Height = 30
+          Left = 174
+          Top = 172
+          Width = 103
+          Height = 26
           Max = 100
           Position = 50
           TabOrder = 12
@@ -433,19 +433,19 @@ object GLForm1: TGLForm1
         end
         object S5Check: TCheckBox
           Tag = 5
-          Left = 176
-          Top = 200
-          Width = 25
-          Height = 17
+          Left = 154
+          Top = 175
+          Width = 22
+          Height = 15
           TabOrder = 13
           OnClick = UniformChange
         end
         object S6Track: TTrackBar
           Tag = 6
-          Left = 199
-          Top = 228
-          Width = 118
-          Height = 30
+          Left = 174
+          Top = 200
+          Width = 103
+          Height = 26
           Max = 100
           Position = 50
           TabOrder = 14
@@ -454,28 +454,28 @@ object GLForm1: TGLForm1
         end
         object S6Check: TCheckBox
           Tag = 6
-          Left = 176
-          Top = 232
-          Width = 25
-          Height = 17
+          Left = 154
+          Top = 203
+          Width = 22
+          Height = 15
           TabOrder = 15
           OnClick = UniformChange
         end
         object S7Check: TCheckBox
           Tag = 7
-          Left = 176
-          Top = 264
-          Width = 25
-          Height = 17
+          Left = 154
+          Top = 231
+          Width = 22
+          Height = 15
           TabOrder = 16
           OnClick = UniformChange
         end
         object S7Track: TTrackBar
           Tag = 7
-          Left = 199
-          Top = 260
-          Width = 118
-          Height = 30
+          Left = 174
+          Top = 228
+          Width = 103
+          Height = 26
           Max = 100
           Position = 50
           TabOrder = 17
@@ -484,10 +484,10 @@ object GLForm1: TGLForm1
         end
         object S8Track: TTrackBar
           Tag = 8
-          Left = 199
-          Top = 292
-          Width = 118
-          Height = 30
+          Left = 174
+          Top = 256
+          Width = 103
+          Height = 26
           Max = 100
           Position = 50
           TabOrder = 18
@@ -496,19 +496,19 @@ object GLForm1: TGLForm1
         end
         object S8Check: TCheckBox
           Tag = 8
-          Left = 176
-          Top = 296
-          Width = 25
-          Height = 17
+          Left = 154
+          Top = 259
+          Width = 22
+          Height = 15
           TabOrder = 19
           OnClick = UniformChange
         end
         object S9Track: TTrackBar
           Tag = 9
-          Left = 199
-          Top = 324
-          Width = 118
-          Height = 30
+          Left = 174
+          Top = 284
+          Width = 103
+          Height = 26
           Max = 100
           Position = 50
           TabOrder = 20
@@ -517,19 +517,19 @@ object GLForm1: TGLForm1
         end
         object S9Check: TCheckBox
           Tag = 9
-          Left = 176
-          Top = 328
-          Width = 25
-          Height = 17
+          Left = 154
+          Top = 287
+          Width = 22
+          Height = 15
           TabOrder = 21
           OnClick = UniformChange
         end
         object S10Track: TTrackBar
           Tag = 10
-          Left = 199
-          Top = 356
-          Width = 118
-          Height = 30
+          Left = 174
+          Top = 312
+          Width = 103
+          Height = 26
           Max = 100
           Position = 50
           TabOrder = 22
@@ -538,10 +538,10 @@ object GLForm1: TGLForm1
         end
         object S10Check: TCheckBox
           Tag = 10
-          Left = 176
-          Top = 360
-          Width = 25
-          Height = 17
+          Left = 154
+          Top = 315
+          Width = 22
+          Height = 15
           TabOrder = 23
           OnClick = UniformChange
         end
@@ -549,51 +549,51 @@ object GLForm1: TGLForm1
     end
     object ClipBox: TGroupBox
       Left = 0
-      Top = 146
-      Width = 325
-      Height = 133
+      Top = 128
+      Width = 284
+      Height = 116
       Align = alTop
       Caption = 'Clipping'
       TabOrder = 2
       object Label4: TLabel
-        Left = 7
-        Top = 25
-        Width = 36
-        Height = 16
+        Left = 6
+        Top = 22
+        Width = 28
+        Height = 14
         Caption = 'Depth'
         OnClick = Label4Click
       end
       object Label5: TLabel
-        Left = 7
-        Top = 100
-        Width = 56
-        Height = 16
+        Left = 6
+        Top = 88
+        Width = 43
+        Height = 14
         Caption = 'Elevation'
         OnClick = Label6Click
       end
       object Label6: TLabel
-        Left = 7
-        Top = 63
-        Width = 46
-        Height = 16
+        Left = 6
+        Top = 55
+        Width = 39
+        Height = 14
         Caption = 'Azimuth'
         OnClick = Label5Click
       end
       object ClipTrack: TTrackBar
-        Left = 79
-        Top = 20
-        Width = 211
-        Height = 37
+        Left = 69
+        Top = 18
+        Width = 185
+        Height = 32
         Max = 999
         TabOrder = 0
         TickStyle = tsNone
         OnChange = ClipTrackChange
       end
       object ElevTrack1: TTrackBar
-        Left = 79
-        Top = 94
-        Width = 211
-        Height = 36
+        Left = 69
+        Top = 82
+        Width = 185
+        Height = 32
         Max = 180
         Min = -180
         Frequency = 45
@@ -602,10 +602,10 @@ object GLForm1: TGLForm1
         OnChange = ClipTrackChange
       end
       object AziTrack1: TTrackBar
-        Left = 79
-        Top = 57
-        Width = 211
-        Height = 37
+        Left = 69
+        Top = 50
+        Width = 185
+        Height = 32
         Max = 360
         PageSize = 1
         Frequency = 45
@@ -618,24 +618,24 @@ object GLForm1: TGLForm1
     object IntensityBox: TGroupBox
       Left = 0
       Top = 0
-      Width = 325
-      Height = 54
+      Width = 284
+      Height = 47
       Align = alTop
       Caption = 'Intensity Minimum...Maximum'
       TabOrder = 3
       object MaxEdit: TEdit
-        Left = 167
-        Top = 20
-        Width = 148
+        Left = 146
+        Top = 18
+        Width = 130
         Height = 24
         TabOrder = 0
         OnKeyPress = MinMaxEditKeyPress
         OnKeyUp = MinMaxEditKeyUp
       end
       object MinEdit: TEdit
-        Left = 10
-        Top = 20
-        Width = 148
+        Left = 9
+        Top = 18
+        Width = 129
         Height = 24
         TabOrder = 1
         OnKeyPress = MinMaxEditKeyPress
@@ -643,10 +643,10 @@ object GLForm1: TGLForm1
       end
     end
     object CollapseToolPanelBtn: TButton
-      Left = 305
+      Left = 267
       Top = 2
-      Width = 15
-      Height = 15
+      Width = 13
+      Height = 13
       Hint = 'Hide tool panel'
       ParentShowHint = False
       ShowHint = True
@@ -655,53 +655,53 @@ object GLForm1: TGLForm1
     end
     object MosaicBox: TGroupBox
       Left = 0
-      Top = 279
-      Width = 325
-      Height = 289
+      Top = 244
+      Width = 284
+      Height = 253
       Align = alTop
       Caption = 'Mosaic'
       TabOrder = 5
       object MosaicText: TMemo
         Left = 2
-        Top = 190
-        Width = 321
-        Height = 97
+        Top = 166
+        Width = 280
+        Height = 85
         Align = alClient
         TabOrder = 0
       end
       object MosaicPanel: TPanel
         Left = 2
-        Top = 18
-        Width = 321
-        Height = 172
+        Top = 16
+        Width = 280
+        Height = 150
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 1
         object Label7: TLabel
-          Left = 7
-          Top = 11
-          Width = 52
-          Height = 16
+          Left = 6
+          Top = 10
+          Width = 41
+          Height = 14
           Caption = 'Columns'
         end
         object Label3: TLabel
-          Left = 7
-          Top = 43
-          Width = 34
-          Height = 16
+          Left = 6
+          Top = 38
+          Width = 29
+          Height = 14
           Caption = 'Rows'
         end
         object Label8: TLabel
-          Left = 7
-          Top = 85
-          Width = 64
-          Height = 16
+          Left = 6
+          Top = 74
+          Width = 52
+          Height = 14
           Caption = 'Orientation'
         end
         object ColEdit: TSpinEdit
-          Left = 59
+          Left = 52
           Top = 4
-          Width = 119
+          Width = 104
           Height = 26
           MaxValue = 20
           MinValue = 1
@@ -710,9 +710,9 @@ object GLForm1: TGLForm1
           OnChange = UpdateMosaic
         end
         object RowEdit: TSpinEdit
-          Left = 59
-          Top = 43
-          Width = 119
+          Left = 52
+          Top = 38
+          Width = 104
           Height = 26
           MaxValue = 20
           MinValue = 1
@@ -721,10 +721,10 @@ object GLForm1: TGLForm1
           OnChange = UpdateMosaic
         end
         object ColOverlap: TTrackBar
-          Left = 182
+          Left = 159
           Top = 4
-          Width = 138
-          Height = 37
+          Width = 121
+          Height = 32
           Max = 9
           Min = -9
           Position = -1
@@ -733,10 +733,10 @@ object GLForm1: TGLForm1
           OnChange = UpdateMosaic
         end
         object RowOverlap: TTrackBar
-          Left = 182
-          Top = 42
-          Width = 138
-          Height = 37
+          Left = 159
+          Top = 37
+          Width = 121
+          Height = 32
           Max = 9
           Min = -9
           Position = -3
@@ -745,9 +745,9 @@ object GLForm1: TGLForm1
           OnChange = UpdateMosaic
         end
         object OrientDrop: TComboBox
-          Left = 79
-          Top = 80
-          Width = 178
+          Left = 69
+          Top = 70
+          Width = 156
           Height = 22
           Style = csOwnerDrawFixed
           ItemHeight = 16
@@ -762,37 +762,37 @@ object GLForm1: TGLForm1
             'Sagittal-')
         end
         object CrossCheck: TCheckBox
-          Left = 7
-          Top = 112
-          Width = 112
-          Height = 21
+          Left = 6
+          Top = 98
+          Width = 98
+          Height = 18
           Caption = 'Cross slice'
           TabOrder = 5
           OnClick = UpdateMosaic
         end
         object LabelCheck: TCheckBox
-          Left = 177
-          Top = 112
-          Width = 138
-          Height = 21
+          Left = 155
+          Top = 98
+          Width = 121
+          Height = 18
           Caption = 'Label slice number'
           TabOrder = 6
           OnClick = UpdateMosaic
         end
         object CopyScriptBtn: TButton
-          Left = 10
-          Top = 140
-          Width = 119
-          Height = 30
+          Left = 9
+          Top = 123
+          Width = 104
+          Height = 26
           Caption = 'Copy Script'
           TabOrder = 7
           OnClick = CopyScriptClick
         end
         object RunScriptBtn: TButton
-          Left = 177
-          Top = 140
-          Width = 120
-          Height = 30
+          Left = 155
+          Top = 123
+          Width = 105
+          Height = 26
           Caption = 'Run Script'
           TabOrder = 8
           OnClick = RunScriptClick
@@ -800,10 +800,10 @@ object GLForm1: TGLForm1
       end
     end
     object HideRenderToolsBtn: TButton
-      Left = 281
+      Left = 246
       Top = 2
-      Width = 14
-      Height = 15
+      Width = 12
+      Height = 13
       Hint = 'Show or hide rendering tools (useful for small screens)'
       ParentShowHint = False
       ShowHint = True
@@ -812,18 +812,18 @@ object GLForm1: TGLForm1
     end
     object OverlayBox: TGroupBox
       Left = 0
-      Top = 54
-      Width = 325
-      Height = 92
+      Top = 47
+      Width = 284
+      Height = 81
       Align = alTop
       Caption = 'Overlays'
       TabOrder = 7
       Visible = False
       object StringGrid1: TStringGrid
         Left = 2
-        Top = 18
-        Width = 321
-        Height = 72
+        Top = 16
+        Width = 280
+        Height = 63
         Align = alClient
         BorderStyle = bsNone
         ColCount = 4
@@ -841,9 +841,9 @@ object GLForm1: TGLForm1
           24)
       end
       object LUTdrop: TComboBox
-        Left = 30
-        Top = 89
-        Width = 89
+        Left = 26
+        Top = 78
+        Width = 78
         Height = 19
         Style = csOwnerDrawFixed
         DropDownCount = 36
@@ -855,66 +855,66 @@ object GLForm1: TGLForm1
     end
     object Slice2DBox: TGroupBox
       Left = 0
-      Top = 703
-      Width = 325
-      Height = 88
+      Top = 615
+      Width = 284
+      Height = 77
       Align = alTop
       Caption = '2D Slices'
       TabOrder = 8
       object LeftBtn: TSpeedButton
-        Left = 8
-        Top = 40
-        Width = 28
-        Height = 28
+        Left = 7
+        Top = 35
+        Width = 25
+        Height = 25
         Caption = 'L'
       end
       object AnteriorBtn: TSpeedButton
         Tag = 3
-        Left = 48
-        Top = 16
-        Width = 28
-        Height = 28
+        Left = 42
+        Top = 14
+        Width = 25
+        Height = 25
         Caption = 'A'
       end
       object PosteriorBtn: TSpeedButton
         Tag = 2
-        Left = 48
-        Top = 52
-        Width = 28
-        Height = 28
+        Left = 42
+        Top = 46
+        Width = 25
+        Height = 24
         Caption = 'P'
       end
       object RightBtn: TSpeedButton
         Tag = 1
-        Left = 88
-        Top = 40
-        Width = 28
-        Height = 28
+        Left = 77
+        Top = 35
+        Width = 25
+        Height = 25
         Caption = 'R'
       end
       object SuperiorBtn: TSpeedButton
         Tag = 5
-        Left = 200
-        Top = 16
-        Width = 28
-        Height = 28
+        Left = 175
+        Top = 14
+        Width = 25
+        Height = 25
         Caption = 'S'
       end
       object InferiorBtn: TSpeedButton
         Tag = 4
-        Left = 200
-        Top = 52
-        Width = 28
-        Height = 28
+        Left = 175
+        Top = 46
+        Width = 25
+        Height = 24
         Caption = 'I'
       end
     end
   end
   object CollapsedToolPanel: TPanel
-    Left = 325
+    Left = 284
     Top = 0
     Width = 5
-    Height = 966
+    Height = 857
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 1
@@ -1273,6 +1273,9 @@ object GLForm1: TGLForm1
         object interpolateDrawMenu: TMenuItem
           Caption = 'Interpolate between slices'
           OnClick = InterpolateDrawMenuClick
+        end
+        object voiDescriptives1: TMenuItem
+          Caption = 'Descriptives'
         end
       end
     end

@@ -10,8 +10,8 @@ uses
 
 procedure HighDPI(FromDPI: integer);
 procedure ScaleDPI(Control: TControl; FromDPI: integer);
-procedure HighDPILinux;
-function getFontScale: single;
+procedure HighDPILinux(FontSz: integer);
+//function getFontScale(FontSz: integer): single;
 
 implementation
 
@@ -56,15 +56,16 @@ begin
 end;
 
 {$IFDEF LINUX}
-function getFontScale: single;
+function getFontScale(FontSz: integer): single;
 var
   AProcess: TProcess;
   Exe, Str: String;
   AStringList: TStringList;
 begin
-  //result := 1.5; exit;
-  if (Screen.PixelsPerInch > 48) then
-     result := Screen.PixelsPerInch / 96;
+  result := 1.0;
+  if (Screen.PixelsPerInch > 48) and (FontSz > 10) then
+     result := (FontSz/10) * (72/Screen.PixelsPerInch);
+     //result := Screen.PixelsPerInch / 96;
   Exe := FindDefaultExecutablePath('gsettings');
   if length(Exe) < 1 then exit;
   if not FileExists(Exe) then exit;
@@ -104,19 +105,16 @@ begin
   end;
   AProcess.Free;
 end;
-{$ELSE}
-function getFontScale: single;
-begin
-     result := 1.0;
-end;
 {$ENDIF}
 
-procedure HighDPILinux;
+procedure HighDPILinux(FontSz: integer);
 var
   i, FromDPI: integer;
-  scale: single;
+  scale: single = 1;
 begin
-  scale := getFontScale;
+  {$IFDEF LINUX}
+  scale := getFontScale(FontSz);
+  {$ENDIF}
   if (scale = 1) or (scale = 0) then exit;
   FromDPI := round( 96/scale);
   for i := 0 to Screen.FormCount - 1 do

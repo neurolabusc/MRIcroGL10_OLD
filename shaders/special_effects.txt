@@ -1,7 +1,7 @@
 //pref
 lightAmount|float|0.0|0.0|1
 boundExp|float|0.0|0.0|3
-goochAmount|float|0.0|0.0|1 
+goochAmount|float|0.0|0.0|1
 showGradient|bool|false
 doToon|bool|false
 doPoor|bool|false
@@ -18,14 +18,14 @@ uniform float boundExp, lightAmount, goochAmount;
 uniform bool doPoor, doToon,  showGradient;
 void main() {
 	float edgeThresh = 0.0;
-	float edgeExp = 0.0; 
+	float edgeExp = 0.0;
 	float stepSizeX = stepSize;
-	if (doPoor) 
+	if (doPoor)
 		stepSizeX = 20.0 * stepSize;
 	// get normalized pixel coordinate in view port (e.g. [0,1]x[0,1])
 	vec2 pixelCoord = gl_FragCoord.st;
 	pixelCoord.x /= viewWidth;
-	pixelCoord.y /= viewHeight;	
+	pixelCoord.y /= viewHeight;
 	// starting position of the ray is stored in the texture coordinate
 	vec3 start = gl_TexCoord[1].xyz;
 	vec3 backPosition = texture2D(backFace,pixelCoord).xyz;
@@ -47,13 +47,13 @@ void main() {
 			if (frontface) {
 				start = start + dir * dis;
 			} else {
-				backPosition =  start + dir * (dis); 
+				backPosition =  start + dir * (dis);
 			}
 			dir = backPosition - start;
 			len = length(dir);
-			dir = normalize(dir);		
+			dir = normalize(dir);
 		}
-	}	
+	}
 
 	vec3 deltaDir = dir * stepSizeX;
 	vec4 colorSample,gradientSample,colAcc = vec4(0.0,0.0,0.0,0.0);
@@ -72,9 +72,10 @@ void main() {
 		colorSample = texture3D(intensityVol,samplePos);
 		if ((lengthAcc <= stepSizex2) && (colorSample.a > 0.01) )  colorSample.a = sqrt(colorSample.a); //opaque clipping surface
 		colorSample.a = 1.0-pow((1.0 - colorSample.a), stepSizeX/sliceSize);//opacity correction
-		if ((colorSample.a > 0.01) && (lengthAcc > stepSizex2)  ) {	
+		if ((colorSample.a > 0.01) && (lengthAcc > stepSizex2)  ) {
 			gradientSample= texture3D(gradientVol,samplePos); //interpolate gradient direction and magnitude
-			gradientSample.rgb = normalize(gradientSample.rgb*2.0 - 1.0); //direction saved as 0..1, rescale to -1..1
+			//gradientSample.rgb = normalize(gradientSample.rgb*2.0 - 1.0); //direction saved as 0..1, rescale to -1..1
+			gradientSample.rgb = gradientSample.rgb*2.0 - 1.0; //do not normalize: vec3(0,0,0)!!
 			//re-use previous normal if it has larger magnitude
 			if (gradientSample.a < prevNorm.a)
 				gradientSample.rgb = prevNorm.rgb;
@@ -90,15 +91,15 @@ void main() {
 			float lightNormDot = dot(gradientSample.rgb, lightDirHeadOn); //with respect to viewer
 			float edgeVal = pow(1.0-abs(lightNormDot),edgeExp);
 			edgeVal = edgeVal * pow(gradientSample.a,0.3);
-	    		if (edgeVal >= edgeThresh) 
+	    		if (edgeVal >= edgeThresh)
 				colorSample.rgb = mix(colorSample.rgb, vec3(0.0,0.0,0.0), pow((edgeVal-edgeThresh)/(1.0-edgeThresh),4.0));
 			if (boundExp > 0.0)
-				colorSample.a = colorSample.a * pow(gradientSample.a,boundExp);		  	
+				colorSample.a = colorSample.a * pow(gradientSample.a,boundExp);
 			//specular
 		  	if (lightAmount > 0.0)
 				colorSample.rgb += lightAmount*dot(normalize(lightPosition), gradientSample.rgb);
-				
-		  	if(doToon) {	
+
+		  	if(doToon) {
 				float toonLight = dot(normalize(lightPosition), gradientSample.rgb);
 				//...create a set of 4 colors that go from bright
 				//to the specified toon color
@@ -107,7 +108,7 @@ void main() {
 				vec4 color2 = vec4(toonCol - .5*col, colorSample.a);
 				vec4 color3 = vec4(toonCol - .25*col, colorSample.a);
 				vec4 color4 = vec4(toonCol, colorSample.a);
-	
+
 				//and then assign different ranges of the diffuse
 				//coefficient to one of the 4 colors
 				if (toonLight > 0.95)
@@ -117,11 +118,11 @@ void main() {
 				else if (toonLight > 0.25)
 					colorSample= color3;
 				else
-					colorSample= color4;	
+					colorSample= color4;
 			}
 		}
 
-		colorSample.rgb *= colorSample.a; 
+		colorSample.rgb *= colorSample.a;
 		//accumulate color
 		colAcc= (1.0 - colAcc.a) * colorSample + colAcc;
 		samplePos += deltaDir;

@@ -13,13 +13,15 @@ const
 type
   TMRU =  array [1..knMRU] of string;
   TPrefs = record
+         {$IFDEF Darwin}isDoubleBuffer,{$ENDIF}
          SliceDetailsCubeAndText,
          FormMaximized,Debug,ColorEditor,ProportionalStretch,OverlayColorFromZero, OverlayHideZeros,SkipPrefWriting,
-         MaskOverlayWithBackground,  InterpolateOverlays,Perspective, FasterGradientCalculations,
+         MaskOverlayWithBackground,  InterpolateOverlays, Perspective,
+         FasterGradientCalculations,
          ShowToolbar,ColorbarText,Colorbar,ForcePowerOfTwo,  //InterpolateViewX,
          RayCastShowGLSLWarnings,RayCastViewCenteredLight,EnableYoke,//Show2DSlicesDuringRendering,
          //IntelWarning,        dou
-         NoveauWarning, StartupScript, isDoubleBuffer: boolean;
+         NoveauWarning, StartupScript : boolean;
          PlanarRGB,SliceView,DrawColor,RayCastQuality1to10,FormWidth,FormHeight,//RenderQuality,
          BackgroundAlpha,
          OverlayAlpha,CrosshairThick,MaxVox, BitmapZoom: integer;
@@ -171,7 +173,7 @@ begin
             CLUTWindowColor := RGBA2TColor (RGBA (92,92,132,255) );
             //IntelWarning := true;
             NoveauWarning := true;
-            isDoubleBuffer := false;
+            {$IFDEF Darwin} isDoubleBuffer := false; {$ENDIF}
             ForcePowerOfTwo:= false;
             OverlayHideZeros := false;
             MaxVox := 2048;
@@ -431,8 +433,7 @@ begin
 	IniBool(lRead,lIniFile, 'StartScript',lPrefs.StartupScript);
 	//IniBool(lRead,lIniFile, 'IntelWarning',lPrefs.IntelWarning);
         IniBool(lRead,lIniFile, 'NoveauWarning',lPrefs.NoveauWarning);
-        IniBool(lRead,lIniFile, 'DoubleBuffer',lPrefs.isDoubleBuffer);
-
+        {$IFDEF Darwin}IniBool(lRead,lIniFile, 'DoubleBuffer',lPrefs.isDoubleBuffer);{$ENDIF}
 	//IniBool(lRead,lIniFile, 'Show2DSlicesDuringRendering',lPrefs.Show2DSlicesDuringRendering);
 	IniBool(lRead,lIniFile, 'ColorBar',lPrefs.ColorBar);
 	IniBool(lRead,lIniFile, 'Perspective',lPrefs.Perspective);

@@ -130,7 +130,8 @@ void main() {
 		colorSample.a = 1.0-pow((1.0 - colorSample.a), stepSize/sliceSize);//opacity correction
 		if ((colorSample.a > 0.01) && (lengthAcc > stepSizex2)  ) {
 			gradientSample= texture3D(gradientVol,samplePos); //interpolate gradient direction and magnitude
-			gradientSample.rgb = normalize(gradientSample.rgb*2.0 - 1.0); //direction saved as 0..1, rescale to -1..1
+			//gradientSample.rgb = normalize(gradientSample.rgb*2.0 - 1.0); //direction saved as 0..1, rescale to -1..1
+			gradientSample.rgb = gradientSample.rgb*2.0 - 1.0; //avoid normalize(0,0,0)
 			//re-use previous normal if it has larger magnitude
 			if (gradientSample.a < prevNorm.a)
 				gradientSample.rgb = prevNorm.rgb;

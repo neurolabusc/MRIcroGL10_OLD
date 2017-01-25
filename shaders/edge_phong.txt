@@ -26,11 +26,11 @@ vec3 shading(vec3 N,vec3 V,vec3 L)
 	vec3 final_color = vec3(ambient,ambient,ambient);
 	float lambertTerm = dot(N,L);
 	if (lambertTerm > 0.0) {
-		final_color += lightColor * materialColor * lambertTerm * diffuse;			
+		final_color += lightColor * materialColor * lambertTerm * diffuse;
 		vec3 E = normalize(V);
 		vec3 R = reflect(-L, N);
 		float specularTerm = pow( max(dot(R, E), 0.0),shininess );
-		final_color += lightColor * specularTerm * specular;	
+		final_color += lightColor * specularTerm * specular;
 	}
 	return final_color;
 }
@@ -39,7 +39,7 @@ void main() {
 	// get normalized pixel coordinate in view port (e.g. [0,1]x[0,1])
 	vec2 pixelCoord = gl_FragCoord.st;
 	pixelCoord.x /= viewWidth;
-	pixelCoord.y /= viewHeight;	
+	pixelCoord.y /= viewHeight;
 	// starting position of the ray is stored in the texture coordinate
 	vec3 start = gl_TexCoord[1].xyz;
 	vec3 backPosition = texture2D(backFace,pixelCoord).xyz;
@@ -61,13 +61,13 @@ void main() {
 			if (frontface) {
 				start = start + dir * dis;
 			} else {
-				backPosition =  start + dir * (dis); 
+				backPosition =  start + dir * (dis);
 			}
 			dir = backPosition - start;
 			len = length(dir);
-			dir = normalize(dir);		
+			dir = normalize(dir);
 		}
-	}	
+	}
 
 	vec3 deltaDir = dir * stepSize;
 	vec4 colorSample,gradientSample,colAcc = vec4(0.0,0.0,0.0,0.0);
@@ -75,7 +75,7 @@ void main() {
 	//We need to calculate the ray's starting position. We add a random
 	//fraction of the stepsize to the original starting point to dither the output
 	vec3 samplePos = start.xyz + deltaDir* (fract(sin(gl_FragCoord.x * 12.9898 + gl_FragCoord.y * 78.233) * 43758.5453));
-	//float specularColor = 1.0; //pure white, for red... vec3 specularColor= vec3(1.0,0.0,0.0); 
+	//float specularColor = 1.0; //pure white, for red... vec3 specularColor= vec3(1.0,0.0,0.0);
 	vec4 prevNorm = vec4(0.0,0.0,0.0,0.0);
 	vec3 lightDirHeadOn =  normalize(gl_ModelViewMatrixInverse * vec4(0.0,0.0,1.0,0.0)).xyz ;
 	float stepSizex2 = sliceSize * 2.0;
@@ -83,9 +83,10 @@ void main() {
 		colorSample = texture3D(intensityVol,samplePos);
 		if ((lengthAcc <= stepSizex2) && (colorSample.a > 0.01) )  colorSample.a = sqrt(colorSample.a); //opaque clipping surface
 		colorSample.a = 1.0-pow((1.0 - colorSample.a), stepSize/sliceSize);//opacity correction
-		if ((colorSample.a > 0.01) && (lengthAcc > stepSizex2)  ) {	
+		if ((colorSample.a > 0.01) && (lengthAcc > stepSizex2)  ) {
 			gradientSample= texture3D(gradientVol,samplePos); //interpolate gradient direction and magnitude
-			gradientSample.rgb = normalize(gradientSample.rgb*2.0 - 1.0); //direction saved as 0..1, rescale to -1..1
+			//gradientSample.rgb = normalize(gradientSample.rgb*2.0 - 1.0); //direction saved as 0..1, rescale to -1..1
+			gradientSample.rgb = gradientSample.rgb*2.0 - 1.0; //do not normalize: vec3(0,0,0)!!
 			//re-use previous normal if it has larger magnitude
 			if (gradientSample.a < prevNorm.a)
 				gradientSample.rgb = prevNorm.rgb;
@@ -94,10 +95,10 @@ void main() {
 			float lightNormDot = dot(gradientSample.rgb, lightDirHeadOn); //with respect to viewer
 			float edgeVal = pow(1.0-abs(lightNormDot),edgeExp);
 			edgeVal = edgeVal * pow(gradientSample.a,0.3);
-	    		if (edgeVal >= edgeThresh) 
+	    		if (edgeVal >= edgeThresh)
 				colorSample.rgb = mix(colorSample.rgb, vec3(0.0,0.0,0.0), pow((edgeVal-edgeThresh)/(1.0-edgeThresh),4.0));
 			if (boundExp > 0.0)
-				colorSample.a = colorSample.a * pow(gradientSample.a,boundExp);		  	
+				colorSample.a = colorSample.a * pow(gradientSample.a,boundExp);
 			//specular
 			if (lightAmount > 0.0) {
 		  		vec3 N = normalize(vec3(gradientSample.r,gradientSample.g,gradientSample.b));
@@ -108,11 +109,11 @@ void main() {
 				} else {
 					colorSample.rgb = phong;
 				}
-			
+
 		  	}
 		}
 
-		colorSample.rgb *= colorSample.a; 
+		colorSample.rgb *= colorSample.a;
 		//accumulate color
 		colAcc= (1.0 - colAcc.a) * colorSample + colAcc;
 		samplePos += deltaDir;

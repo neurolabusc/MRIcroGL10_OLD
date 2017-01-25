@@ -117,7 +117,8 @@ void main() {
 				if (backDepthStart == loops) backDepthStart = i;
 				backDepthEnd = i;
 				gradientSample= texture3D(gradientVol,samplePos); //interpolate gradient direction and magnitude
-				gradientSample.rgb = normalize(gradientSample.rgb*2.0 - 1.0); //direction saved as 0..1, rescale to -1..1
+				//gradientSample.rgb = normalize(gradientSample.rgb*2.0 - 1.0); //direction saved as 0..1, rescale to -1..1
+				gradientSample.rgb = gradientSample.rgb*2.0 - 1.0; //do not normalize: vec3(0,0,0)!!
 				//re-use previous normal if it has larger magnitude
 				if (gradientSample.a < prevNorm.a)
 					gradientSample.rgb = prevNorm.rgb;

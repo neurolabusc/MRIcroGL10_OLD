@@ -11,7 +11,9 @@ uses
 yokesharemem, coordinates, nii_mat, math,
 {$ENDIF}
 {$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF} types,clipbrd,
-{$IFNDEF FPC} messages,ShellAPI, pngimage,JPEG,detectmsaa,{$ENDIF}Dialogs, ExtCtrls, Menus,  shaderu, texture2raycast,
+{$IFNDEF FPC}
+  messages,ShellAPI, detectmsaa,{$IFDEF PNG}pngimage, JPEG,{$ENDIF}
+{$ENDIF}Dialogs, ExtCtrls, Menus,  shaderu, texture2raycast,
   StdCtrls, Controls, ComCtrls, Reslice,
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unita, {$ELSE} texture_3d_unit,extract,{$ENDIF}
   {$IFDEF FPC} FileUtil, GraphType, LCLProc,LCLtype,  LCLIntf,LResources,OpenGLContext,{$ELSE}glpanel, {$ENDIF}
@@ -31,7 +33,7 @@ TGLForm1 = class(TForm)
     Label2: TLabel;
     LightAziTrack: TTrackBar;
     LightElevTrack: TTrackBar;
-    voiDescriptives1: TMenuItem;
+    //voiDescriptives1: TMenuItem;
     ShaderPanel: TPanel;
     QualityTrack: TTrackBar;
     S10Check: TCheckBox;
@@ -234,6 +236,7 @@ TGLForm1 = class(TForm)
     AnteriorMenu: TMenuItem;
     InferiorMenu: TMenuItem;
     SuperiorMenu: TMenuItem;
+    voiDescriptives1: TMenuItem;
     procedure InterpolateDrawMenuClick(Sender: TObject);
     function OpenVOI(lFilename: string): boolean;
     procedure BackgroundMaskMenuClick(Sender: TObject);
@@ -2421,7 +2424,7 @@ begin
   end;
   DisplayGL(gTexture3D);
   {$IFDEF FPC}
-      if gPrefs.isDoubleBuffer then
+      {$IFDEF Darwin} if gPrefs.isDoubleBuffer then {$ENDIF}
        GLbox.SwapBuffers; //DoubleBuffered
   (*if ( gRayCast.WINDOW_WIDTH = GLbox.Width) and (gRayCast.WINDOW_HEIGHT = GLbox.Height) then begin
     if gPrefs.isDoubleBuffer then
@@ -2913,6 +2916,7 @@ begin
   PrefForm.Caption:='Preferences';
   PrefForm.Position := poScreenCenter;
   PrefForm.BorderStyle := bsDialog;
+  PrefForm.AutoSize := true;
   //Bitmap Scale
   bmpLabel:=TLabel.create(PrefForm);
   bmpLabel.Left := 8;
@@ -3025,6 +3029,8 @@ begin
 end; *)
 
 {$IFNDEF FPC}
+{$IFDEF PNG} //proprietary PNGIMAGE IN PATH
+
 procedure SaveImgAsPNGCore (var lImage: TBitmap; lFilename: string);
 var
   PNG: TPNGObject;
@@ -3041,6 +3047,17 @@ begin
     PNG.Free;
   end
 end;
+{$ELSE}
+procedure SaveImgAsPNGCore (var lImage: TBitmap; lFilename: string);
+begin
+	if (lImage = nil) then begin
+		Showmessage('No image found to save.');
+		exit;
+	end;
+  lImage.SaveToFile(ChangeFileExt(lFilename,'.bmp'));
+end;
+
+{$ENDIF}
 {$ELSE}
 procedure SaveImgAsPNGCore (lImage: TBitmap; lFilename: string);
 var
@@ -3060,6 +3077,7 @@ begin
 end;
 {$ENDIF}
 
+{$IFDEF FPC}
 procedure SaveImgAsJPGCore (lImage: TBitmap; lFilename: string);
 var
   JpegImg : TJpegImage;
@@ -3072,6 +3090,12 @@ begin
     JpegImg.Free
    end;
 end;
+{$ELSE}
+procedure SaveImgAsJPGCore (lImage: TBitmap; lFilename: string);
+begin
+  lImage.SaveToFile(ChangeFileExt(lFilename,'.bmp'));
+end;
+{$ENDIF}
 
 procedure TGLForm1.SavePicture(lFilename: string);
 var bmp: TBitmap;
@@ -3089,7 +3113,10 @@ procedure TGLForm1.Save1Click(Sender: TObject);
 begin
  if (ssShift in KeyDataToShiftState(vk_Shift)) then
     setBitmapZoom;
-
+ {$IFNDEF FPC}{$IFNDEF PNG}
+ SaveDialog1.DefaultExt := '*.bmp';
+ SaveDialog1.Filter := 'Bitmap|*.bmp';
+ {$ENDIF}{$ENDIF}
  if (SaveDialog1.initialDir = '') and fileexists(OpenDialog1.Filename) then
     SaveDialog1.initialDir := ExtractFileDirWithPathDelim(OpenDialog1.Filename);
   if not SaveDialog1.execute then
