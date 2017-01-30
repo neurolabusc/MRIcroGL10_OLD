@@ -10,12 +10,12 @@ http://www.mccauslandcenter.sc.edu/mricrogl/
 
 ##### Recent Versions
 
+30-January-2017
+ - Looks better on Linux high-DPI screens
 30-September-2016
  - Ensure colorbars show active overlay colors. Improvements for macOS 10.11.
-
 6-June-2016
  - Fix some shaders to ensure variable colorSample initialized to zero.
-
 9-September-2015
  - Add retina and 64-bit support for macOS (aka OSX). Better compatibility with VirtualBox. New shaders. Retina quality screen captures.
 
