@@ -5,7 +5,7 @@ unit drawu;
 interface
 
 uses
-   {$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF}
+   {$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL}glcorearb, {$ELSE} gl,glext, {$ENDIF}  {$ENDIF DGL}
   {$IFNDEF FPC} Windows, {$ENDIF}  {$IFDEF COREGL} raycast_core, {$ELSE} raycast_legacy, {$ENDIF} raycast_common,
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unita, {$ELSE} {$ENDIF}
   shaderu,dialogs,Classes,define_types, sysUtils;  //clut, texture_3d_unit,
@@ -795,7 +795,11 @@ begin
   glGenTextures(1, @gDraw.colorLutId);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glBindTexture(GL_TEXTURE_1D, gDraw.colorLutId);
+  {$IFDEF COREGL}
+  glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  {$ELSE}
   glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+  {$ENDIF}
   glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, @gDraw.colorLut[0]);
@@ -999,7 +1003,7 @@ begin
       glPixelStorei(GL_UNPACK_ALIGNMENT,1);
       glGenTextures(1, @gDraw.view3dId);
       glBindTexture(GL_TEXTURE_3D, gDraw.view3dId);
-      glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+      {$IFNDEF COREGL}glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);{$ENDIF}
       glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
       glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);

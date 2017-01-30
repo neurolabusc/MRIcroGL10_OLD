@@ -3,7 +3,7 @@ unit reorient;
 interface
 
 uses
-  SysUtils,define_types,nii_mat,nifti_hdr,dialogs, nifti_types;
+  SysUtils,define_types,nii_mat,nifti_hdr,dialogs, nifti_types, clipbrd;
 
 //function ReorientNIfTI(lFilename: string; lPrefs: TPrefs): string; //returns output filename if successful
 function ReorientCore(var lHdr: TNIFTIhdr; lBufferIn: bytep): boolean;
@@ -595,6 +595,14 @@ begin
      ShrinkLarge24(lHdr, lBuffer, lMaxDim);
 end;
 
+(*procedure showmat(lMat: TMatrix);
+begin
+ clipboard.AsText:= format('o=[%g %g %g %g; %g %g %g %g; %g %g %g %g; 0 0 0 1]',[
+      lMat.matrix[1,1], lMat.matrix[1,2], lMat.matrix[1,3], lMat.matrix[1,4],
+      lMat.matrix[2,1], lMat.matrix[2,2], lMat.matrix[2,3], lMat.matrix[2,4],
+      lMat.matrix[3,1], lMat.matrix[3,2], lMat.matrix[3,3], lMat.matrix[3,4]
+      ]);
+end;*)
 
 function ReorientCore(var lHdr: TNIFTIhdr; lBufferIn: bytep): boolean;
 var

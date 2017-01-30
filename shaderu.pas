@@ -4,7 +4,8 @@ unit shaderu;
 {$include opts.inc}
 interface
 uses
- {$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF} sysutils,dialogs;
+{$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL} glcorearb, {$ELSE} gl, glext, {$ENDIF}  {$ENDIF DGL}
+sysutils,dialogs;
 const
   kMaxUniform = 10;
   kError = 666;

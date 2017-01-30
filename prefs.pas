@@ -14,6 +14,7 @@ type
   TMRU =  array [1..knMRU] of string;
   TPrefs = record
          {$IFDEF Darwin}isDoubleBuffer,{$ENDIF}
+         FlipYZ,
          SliceDetailsCubeAndText,
          FormMaximized,Debug,ColorEditor,ProportionalStretch,OverlayColorFromZero, OverlayHideZeros,SkipPrefWriting,
          MaskOverlayWithBackground,  InterpolateOverlays, Perspective,
@@ -173,6 +174,7 @@ begin
             CLUTWindowColor := RGBA2TColor (RGBA (92,92,132,255) );
             //IntelWarning := true;
             NoveauWarning := true;
+            FlipYZ := false;
             {$IFDEF Darwin} isDoubleBuffer := false; {$ENDIF}
             ForcePowerOfTwo:= false;
             OverlayHideZeros := false;
@@ -433,6 +435,7 @@ begin
 	IniBool(lRead,lIniFile, 'StartScript',lPrefs.StartupScript);
 	//IniBool(lRead,lIniFile, 'IntelWarning',lPrefs.IntelWarning);
         IniBool(lRead,lIniFile, 'NoveauWarning',lPrefs.NoveauWarning);
+        IniBool(lRead,lIniFile, 'FlipYZ',lPrefs.FlipYZ);
         {$IFDEF Darwin}IniBool(lRead,lIniFile, 'DoubleBuffer',lPrefs.isDoubleBuffer);{$ENDIF}
 	//IniBool(lRead,lIniFile, 'Show2DSlicesDuringRendering',lPrefs.Show2DSlicesDuringRendering);
 	IniBool(lRead,lIniFile, 'ColorBar',lPrefs.ColorBar);

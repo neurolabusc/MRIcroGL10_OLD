@@ -325,7 +325,8 @@ var
   written : integer;
   buf  : packed array [0..BUFLEN-1] of byte; { Global uses BSS instead of stack }
 begin
-  infile := gzopenZ (lFName, 'r', 0,Skip);
+  infile := gzopenZ(lFName,'r',0);
+  //infile := gzopenZ (lFName, 'r', 0,Skip);
   written := 0;
   if lOffset > 0 then begin
      Len := lOffset div BUFLEN;

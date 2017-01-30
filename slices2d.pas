@@ -2,7 +2,7 @@ unit slices2d;
 interface
 {$include opts.inc}
 uses
- {$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF}
+ {$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL}glcorearb, {$ELSE} gl, glext, {$ENDIF}  {$ENDIF DGL}
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unita, {$ELSE} texture_3d_unit,{$ENDIF}
    //types,
    graphics, nii_mat, define_types, coordinates, sysutils, textfx, {$IFDEF COREGL} gl_2d, raycast_core, gl_core_matrix, {$ELSE} raycast_legacy, {$ENDIF} raycast_common, drawu;
@@ -568,11 +568,13 @@ begin
   if (gRayCast.WINDOW_HEIGHT/(lMosaic.MaxHt)) < scale then
     scale := gRayCast.WINDOW_HEIGHT/(lMosaic.MaxHt);
   //scale := 2;
-  glPushAttrib (GL_ENABLE_BIT);
+  {$IFNDEF COREGL}glPushAttrib (GL_ENABLE_BIT); {$ENDIF}
   glEnable (GL_TEXTURE_3D);
   glDisable (GL_BLEND);
+  {$IFNDEF COREGL}
   glEnable(GL_ALPHA_TEST);
   glAlphaFunc(GL_GEQUAL,1/255);
+  {$ENDIF}
   if lMosaic.HOverlap < 0 then
     lColInc := -1
   else
@@ -601,7 +603,7 @@ begin
     end;//col
     lRow := lRow+lRowInc;
   end;//row
-  glPopAttrib;
+  {$IFNDEF COREGL}glPopAttrib; {$ENDIF}
   lDec := ComputeDecimals(lMosaic);
     if lMosaic.VOverlap < 0 then
       lRow := lMosaic.Rows
@@ -621,7 +623,7 @@ begin
       end;//col
       lRow := lRow+lRowInc;
   end;//row
-    glLoadIdentity();
+  {$IFNDEF COREGL}  glLoadIdentity(); {$ENDIF}
   EndDraw2D;
 end;
 
@@ -690,7 +692,7 @@ begin
     lA := SliceMM (gRayCast.OrthoZ,kAxialOrient); //Axial
     if (gPrefs.SliceView = 1) or (gPrefs.SliceView = 4) then
        TextArrow (Col1L,Row2T,1, realtostr(lA,0), 5,gPrefs.TextColor, gPrefs.TextBorder);
-    glLoadIdentity();
+    {$IFNDEF COREGL}glLoadIdentity();{$ENDIF}
 end;
 
 procedure DrawOrtho(var lTex: TTexture);
@@ -783,11 +785,13 @@ begin
     glUseProgram(0);
     glActiveTexture( GL_TEXTURE0 );  //required if we will draw 2d slices next
     glBindTexture(GL_TEXTURE_3D,gRayCast.intensityTexture3D);
-    glPushAttrib (GL_ENABLE_BIT);
+    {$IFNDEF COREGL}glPushAttrib (GL_ENABLE_BIT); {$ENDIF}
     glEnable (GL_TEXTURE_3D);
     glDisable (GL_BLEND);
+    {$IFNDEF COREGL}
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GEQUAL,1/255);// 2015*)
+    {$ENDIF}
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     case gPrefs.SliceView of
          1 : DrawXYAx  (0, YShift,X,Y, gRayCast.OrthoZ);
@@ -803,7 +807,7 @@ begin
   StartDraw2D;
   //Enter2D;
   gPrefs.CrosshairThick := 1;
-  glPopAttrib;
+  {$IFNDEF COREGL}glPopAttrib;{$ENDIF}
   if gPrefs.CrosshairThick > 0 then begin
     {$IFDEF COREGL}
     nglColor4f(gPrefs.CrosshairColor.rgbRed/255,gPrefs.CrosshairColor.rgbGreen/255,gPrefs.CrosshairColor.rgbBlue/255,1{gPrefs.CrosshairColor.rgbReserved/255});

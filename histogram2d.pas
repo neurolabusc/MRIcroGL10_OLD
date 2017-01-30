@@ -6,7 +6,8 @@ interface
 uses
 {$IFNDEF FPC}windows, {$ENDIF}
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unita, {$ELSE} texture_3d_unit,{$ENDIF}
-{$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF}
+{$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL}glcorearb, {$ELSE} gl, {$ENDIF}  {$ENDIF DGL}
+
  clut, define_types, Forms, Classes, Controls, prefs;
 
   procedure DrawNodes(WINDOW_HEIGHT,WINDOW_WIDTH: integer; Tex: TTexture; var lPrefs: TPrefs);

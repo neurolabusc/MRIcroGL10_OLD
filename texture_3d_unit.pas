@@ -16,7 +16,8 @@ uses
 //{$IFDEF Unix}LCLIntf, {$ELSE} Windows,{$ENDIF}
   SysUtils,
   Dialogs,clut,
-{$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF} nii_mat, math,
+  {$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL}glcorearb, {$ELSE} gl, {$ENDIF}  {$ENDIF DGL}
+  nii_mat, math,
   ExtCtrls,  nifti_hdr, define_types,nii_label, nifti_types, coordinates;
 Type
   TTexture =  RECORD //3D data
@@ -541,7 +542,11 @@ procedure Data_Type_To_Texel_Byte_Size (var lTexture: TTexture);
 Begin
  with lTexture do begin
   Case lTexture.DataType Of
+    {$IFNDEF COREGL}
     GL_COLOR_INDEX : BytesPerVoxel := 1;
+    GL_LUMINANCE : BytesPerVoxel := 1;
+    GL_LUMINANCE_ALPHA : BytesPerVoxel := 2;
+    {$ENDIF}
     GL_STENCIL_INDEX : BytesPerVoxel := 1;
     GL_DEPTH_COMPONENT :BytesPerVoxel := 1;
     GL_RED : BytesPerVoxel := 1;
@@ -550,8 +555,6 @@ Begin
     GL_ALPHA : BytesPerVoxel := 1;
     GL_RGB : BytesPerVoxel := 3;
     GL_RGBA : BytesPerVoxel := 4;
-    GL_LUMINANCE : BytesPerVoxel := 1;
-    GL_LUMINANCE_ALPHA : BytesPerVoxel := 2;
     Else BytesPerVoxel := 4;
   End; //Case
  end;//with lTexture
@@ -689,7 +692,7 @@ var
    lInF: File;
 begin
     result := false;
-    if not NIFTIhdr_LoadHdr (lFilename, lHdr) then
+    if not NIFTIhdr_LoadHdr (lFilename, lHdr, gPrefs.FlipYZ) then
         exit;
    if lHdr.NIFTIhdr.dim[4] < 1 then
     lHdr.NIFTIhdr.dim[4] := 1;

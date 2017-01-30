@@ -13,13 +13,14 @@ CORE still needs a lot of work:
 interface
 
 uses
-	gl, glext, define_types, raycast_common, gl_core_matrix, dialogs,
+{$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL}glcorearb, gl_core_matrix,{$ELSE} gl, {$ENDIF}  {$ENDIF DGL}
+	define_types, raycast_common,  dialogs,
         texture_3d_unit, SysUtils,DateUtils,gl_2D, histogram2d, colorbar2d;
 procedure DrawSliceGL();
 procedure  InitGL (InitialSetup: boolean);
 procedure DisplayGL(var lTex: TTexture);
 //procedure DisplayGLz(var lTex: TTexture; zoom, zoomOffsetX, zoomOffsetY: integer);
-procedure DisplayGLz(var lTex: TTexture; framebuffer: TGLuint);
+procedure DisplayGLz(var lTex: TTexture; framebuffer: GLuint);
 
 implementation
 
@@ -55,7 +56,7 @@ begin
   glGenFramebuffers(1, @fb);
   glBindFramebuffer(GL_FRAMEBUFFER, fb);
   //glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,gRayCast.frameBuffer);
-  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);// <- REQUIRED
+  {$IFNDEF COREGL}glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);{$ENDIF}// <- REQUIRED
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -344,7 +345,7 @@ begin
 end;*)
 
 //procedure drawRender(var lTex: TTexture; zoom, zoomOffsetX, zoomOffsetY: integer);
-procedure drawRender(var lTex: TTexture;  framebuffer : TGLuint);
+procedure drawRender(var lTex: TTexture;  framebuffer : GLuint);
 var
   mat44 : TnMat44;
   i : integer;
@@ -439,7 +440,7 @@ begin
 end;
 
 //procedure DisplayGLz(var lTex: TTexture; zoom, zoomOffsetX, zoomOffsetY: integer);
-procedure DisplayGLz(var lTex: TTexture;  framebuffer : TGLuint);
+procedure DisplayGLz(var lTex: TTexture;  framebuffer : GLuint);
 begin
   if not gInit then exit;
   if (gPrefs.SliceView  <> 5) then  gRayCast.MosaicString := '';
@@ -503,7 +504,7 @@ const kFragBackface = '#version 330 core'
 procedure  InitGL (InitialSetup: boolean);
 begin
   if InitialSetup then begin
-     if (not  Load_GL_version_3_3_CORE) then begin //requires new glext.pp in path with core supprt
+     if (not  Load_GL_version_3_3_CORE) then begin //requires new glcorearb in path with core supprt
         showmessage('System does not support OpenGL 3.3');
         halt;
      end;

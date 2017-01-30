@@ -6,8 +6,8 @@ interface
 {$include opts.inc}
 uses
  // LCLIntf,//<- only for gettickcount
-  {$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF}
-  {$IFDEF USETRANSFERTEXTURE}texture_3d_unita,texture2raycast, {$ELSE} texture_3d_unit,{$ENDIF}
+  {$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL}gl_core_matrix, glcorearb, {$ELSE} gl, {$ENDIF}  {$ENDIF DGL}
+{$IFDEF USETRANSFERTEXTURE}texture_3d_unita,texture2raycast, {$ELSE} texture_3d_unit,{$ENDIF}
    histogram, clut,
   Classes, SysUtils, define_types, otsuml;
  procedure DilateSphere (var lImg: Bytep; lXi,lYi,lZi: integer; lVoxDistance: single; lChange: byte  );

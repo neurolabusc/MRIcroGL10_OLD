@@ -10,7 +10,8 @@ uses
 {$IFDEF COMPILEYOKE}
 yokesharemem, coordinates, nii_mat, math,
 {$ENDIF}
-{$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF} types,clipbrd,
+{$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL}glcorearb, {$ELSE} gl,glext, {$ENDIF}  {$ENDIF DGL}
+types,clipbrd,
 {$IFNDEF FPC}
   messages,ShellAPI, detectmsaa,{$IFDEF PNG}pngimage, JPEG,{$ENDIF}
 {$ENDIF}Dialogs, ExtCtrls, Menus,  shaderu, texture2raycast,
@@ -527,7 +528,11 @@ begin
      end;
      result := isMultiSample;
      if (w = f.w) and (h = f.h) then begin
+        {$IFDEF COREGL}
+         glBindFramebuffer(GL_FRAMEBUFFER, f.frameBuf);
+        {$ELSE}
          glBindFramebuffer(GL_FRAMEBUFFER_EXT, f.frameBuf);
+        {$ENDIF}
          exit;
      end;
      freeframe(f);
@@ -2126,7 +2131,7 @@ end;
    {$IFDEF LCLCocoa}str := str + ' (Cocoa) '; {$ENDIF}
    {$IFDEF LCLCarbon}str := str + ' (Carbon) '; {$ENDIF}
    {$IFDEF DGL} str := str +' (DGL) '; {$ENDIF}//the DGL library has more dependencies - report this if incompatibilities are found
-  str := 'MRIcroGL '+str+' 24 January 2017'
+  str := 'MRIcroGL '+str+' 30 January 2017'
    +kCR+' www.mricro.com :: BSD 2-Clause License (opensource.org/licenses/BSD-2-Clause)'
    +kCR+' Dimensions '+inttostr(gTexture3D.NIFTIhdr.dim[1])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[2])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[3])
    +kCR+' Bytes per voxel '+inttostr(gTexture3D.NIFTIhdr.bitpix div 8)
@@ -2364,13 +2369,18 @@ begin
     InitOpenGL;
     ReadExtensions;
     ReadImplementationProperties;
-    {$ELSE}
+    {$ELSE DGL}
+    {$IFDEF COREGL}
+    if not  Load_GL_VERSION_3_3_CORE then
+       GLForm1.ShowmessageError('Unable to load OpenGL v3.3 Core: '+gpuReport);
+    {$ELSE COREGL}
     if not  Load_GL_version_2_1 then
        GLForm1.ShowmessageError('Unable to load OpenGL v2.1: '+gpuReport);
     Load_GL_EXT_framebuffer_object;
     //Load_GL_ARB_framebuffer_object;
     Load_GL_EXT_texture_object;
-    {$ENDIF}
+    {$ENDIF COREGL}
+    {$ENDIF DGL}
     gRayCast.WINDOW_WIDTH := GLbox.Width;
     gRayCast.WINDOW_HEIGHT := GLbox.Height;
     LoadStartupImage;
@@ -2907,16 +2917,17 @@ procedure PrefMenuClick;
 var
   PrefForm: TForm;
   bmpEdit: TEdit;
+  flipCheck: TCheckBox;
   OkBtn, AdvancedBtn: TButton;
   bmpLabel: TLabel;
-  isAdvancedPrefs: boolean;
+  isFlipChange,isAdvancedPrefs: boolean;
 begin
   PrefForm:=TForm.Create(nil);
-  PrefForm.SetBounds(100, 100, 520, 100);
+  PrefForm.SetBounds(100, 100, 520, 132);
   PrefForm.Caption:='Preferences';
   PrefForm.Position := poScreenCenter;
   PrefForm.BorderStyle := bsDialog;
-  PrefForm.AutoSize := true;
+  {$IFNDEF FPC}PrefForm.AutoSize := true;{$ENDIF}
   //Bitmap Scale
   bmpLabel:=TLabel.create(PrefForm);
   bmpLabel.Left := 8;
@@ -2931,12 +2942,20 @@ begin
   bmpEdit.Width := 60;
   bmpEdit.Text := inttostr(gPrefs.BitmapZoom);
   bmpEdit.Parent:=PrefForm;
+  //flipCheck
+  //Bitmap Alpha
+  flipCheck:=TCheckBox.create(PrefForm);
+  flipCheck.Checked := gPrefs.FlipYZ;
+  flipCheck.Caption:='Flip Y/Z axis (animal scans)';
+  flipCheck.Left := 8;
+  flipCheck.Top := 48;
+  flipCheck.Parent:=PrefForm;
   //OK button
   OkBtn:=TButton.create(PrefForm);
   OkBtn.Caption:='OK';
   OkBtn.Left := PrefForm.Width - 128;
   OkBtn.Width:= 100;
-  OkBtn.Top := 64;
+  OkBtn.Top := 94;
   OkBtn.Parent:=PrefForm;
   OkBtn.ModalResult:= mrOK;
   //Advanced button
@@ -2944,19 +2963,23 @@ begin
   AdvancedBtn.Caption:='Advanced';
   AdvancedBtn.Left := PrefForm.Width - 256;
   AdvancedBtn.Width:= 100;
-  AdvancedBtn.Top := 64;
+  AdvancedBtn.Top := 94;
   AdvancedBtn.Parent:=PrefForm;
   AdvancedBtn.ModalResult:= mrYesToAll;
   {$IFDEF Windows} ScaleDPI(PrefForm, 96);  {$ENDIF}
   PrefForm.ShowModal;
   if (PrefForm.ModalResult <> mrOK) and (PrefForm.ModalResult <> mrYesToAll) then exit; //if user closes window with out pressing "OK"
+  isFlipChange := (gPrefs.FlipYZ <> FlipCheck.Checked);
+  gPrefs.FlipYZ:= FlipCheck.Checked;
   gPrefs.BitmapZoom:= strtointdef(bmpEdit.Text,1);
   if gPrefs.BitmapZoom < 1 then gPrefs.BitmapZoom := 1;
   if gPrefs.BitmapZoom > 10 then gPrefs.BitmapZoom := 10;
   isAdvancedPrefs := (PrefForm.ModalResult = mrYesToAll);
   FreeAndNil(PrefForm);
   if  isAdvancedPrefs then
-     GLForm1.Quit2TextEditor;
+     GLForm1.Quit2TextEditor
+  else if isFlipChange then
+       GLForm1.OpenMRU(nil);
 end; // PrefMenuClick()
 
 procedure SetBitmapZoom;

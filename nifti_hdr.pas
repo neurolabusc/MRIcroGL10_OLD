@@ -12,7 +12,7 @@ uses
 {$ENDIF}
 {$IFNDEF FPC} Windows, {$ENDIF}
 {$IFDEF DGL} dglOpenGL, {$ELSE} gl,  {$ENDIF}
- nifti_types,
+ nifti_types, clipbrd,
 define_types,SysUtils,nii_mat,nifti_foreign, //GLMisc, //GLTexture, GLContext,
 {$IFDEF GUI}dialogs;{$ELSE} dialogsx;{$ENDIF}
 type
@@ -41,7 +41,7 @@ function FixDataType (var lHdr: TMRIcroHdr): boolean; overload;
  procedure NIFTIhdr_SwapBytes (var lAHdr: TNIFTIhdr); //Swap Byte order for the Analyze type
  //procedure NIFTIhdr_ClearHdr (var lHdr: TNIfTIHdr); overload; //set all values of header to something reasonable
  procedure NIFTIhdr_ClearHdr (var lHdr: TMRIcroHdr); overload;//set all values of header to something reasonable
- function NIFTIhdr_LoadHdr (var lFilename: string; var lHdr: TMRIcroHdr): boolean;
+ function NIFTIhdr_LoadHdr (var lFilename: string; var lHdr: TMRIcroHdr; lFlipYZ: boolean): boolean;
  function NIFTIhdr_SaveHdr (var lFilename: string; var lHdr: TMRIcroHdr; lAllowOverwrite: boolean): boolean; overload;
  function NIFTIhdr_SaveHdr (var lFilename: string; var lHdr: TNIFTIHdr; lAllowOverwrite,lSPM2: boolean): boolean; overload;
  //procedure NIFTIhdr_SetIdentityMatrix (var lHdr: TMRIcroHdr); //create neutral rotation matrix
@@ -67,7 +67,7 @@ function NIFTIvolumes (var lFilename: string): integer;
 var lHdr: TMRIcroHdr;
 begin
   result := -1;
-    if not NIFTIhdr_LoadHdr (lFilename, lHdr) then
+    if not NIFTIhdr_LoadHdr (lFilename, lHdr, gPrefs.FlipYZ) then
       exit;
   result := lHdr.NIFTIhdr.dim[4];
   if (result < 1) then result := 1;
@@ -658,6 +658,33 @@ begin
  end;
 end;
 
+procedure Mat2Hdr(var lMat: TMatrix; var lHdr: TNIFTIhdr);
+begin
+  lHdr.srow_x[0]:= lMat.matrix[1,1]; lHdr.srow_x[1] := lMat.matrix[1,2]; lHdr.srow_x[2] := lMat.matrix[1,3]; lHdr.srow_x[3] := lMat.matrix[1,4];
+  lHdr.srow_y[0]:= lMat.matrix[2,1]; lHdr.srow_y[1] := lMat.matrix[2,2]; lHdr.srow_y[2] := lMat.matrix[2,3]; lHdr.srow_y[3] := lMat.matrix[2,4];
+  lHdr.srow_z[0]:= lMat.matrix[3,1]; lHdr.srow_z[1] := lMat.matrix[3,2]; lHdr.srow_z[2] := lMat.matrix[3,3]; lHdr.srow_z[3] := lMat.matrix[3,4];
+end;
+
+procedure MatFlipYZ(var lMat: TMatrix; var lHdr: TNIFTIhdr);
+var
+   lRot: TMatrix;
+   lOrigin: TVector;
+
+begin
+    lOrigin := Vec3D  (lMat.matrix[1,4], lMat.matrix[2,4], lMat.matrix[3,4]);
+    lMat.matrix[1,4] := 0; lMat.matrix[2,4] := 0; lMat.matrix[3,4] := 0; //
+    lRot := Matrix3D(1,0,0,0,  0,0,1,0,  0,1,0,0);
+    lMat := multiplymatrices(lMat, lRot);
+    lMat.matrix[1,4] := lOrigin.vector[1]; lMat.matrix[2,4] := lOrigin.vector[3]; lMat.matrix[3,4] := lOrigin.vector[2]; //
+    //GLForm1.Caption := 'xxx'+inttostr(random(888));
+    (*clipboard.AsText:= format('x=[%g %g %g %g; %g %g %g %g; %g %g %g %g; 0 0 0 1]',[
+      lMat.matrix[1,1], lMat.matrix[1,2], lMat.matrix[1,3], lMat.matrix[1,4],
+      lMat.matrix[2,1], lMat.matrix[2,2], lMat.matrix[2,3], lMat.matrix[2,4],
+      lMat.matrix[3,1], lMat.matrix[3,2], lMat.matrix[3,3], lMat.matrix[3,4]
+      ]); *)
+    Mat2Hdr(lMat,lHdr);
+end;
+
 function FixDataType (var lHdr: TNIFTIhdr): boolean;  overload;
 label
   191;
@@ -737,7 +764,7 @@ begin
   GLForm1.ShowmessageError(result);
 end; *)
 
-function NIFTIhdr_LoadHdr (var lFilename: string; var lHdr: TMRIcroHdr): boolean;
+function NIFTIhdr_LoadHdr (var lFilename: string; var lHdr: TMRIcroHdr; lFlipYZ: boolean): boolean;
 var
   lHdrFile: file;
   lOri: array [1..3] of single;
@@ -911,7 +938,10 @@ begin
 		0,0,lHdr.NIFTIhdr.pixdim[3],(lOri[3]-1)*-lHdr.NIFTIhdr.pixdim[3]);
   end;
     FixCrapMat(lHdr.Mat);
-    //lHdr.NIFTIhdr.descrip := cleanstr(lHdr.NIFTIhdr.descrip);
+    if (lFlipYZ) then
+       MatFlipYZ(lHdr.Mat, lHdr.NIFTIhdr)
+    else
+        Mat2Hdr(lHdr.Mat, lHdr.NIFTIhdr);
 end; //func NIFTIhdr_LoadHdr
 
 procedure NIFTIhdr_SetIdentityMatrix (var lHdr: TMRIcroHdr); //create neutral rotation matrix

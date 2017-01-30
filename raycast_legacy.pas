@@ -20,7 +20,7 @@ uses
   {$IFDEF ENABLEWATERMARK}watermark,{$ENDIF}
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unita, {$ELSE} texture_3d_unit,{$ENDIF}
            graphics,
-  {$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF}
+{$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL}glcorearb, {$ELSE} gl,glext, {$ENDIF}  {$ENDIF DGL}
  define_types,
     sysutils, histogram2d, math, colorbar2d, raycast_common;
 
@@ -329,7 +329,7 @@ begin
   glMatrixMode(GL_MODELVIEW);//?
 end;
 
-{$IFNDEF DGL}  //glext does not link to the glu functions, so we will write our own
+{$IFNDEF DGL}  //gl does not link to the glu functions, so we will write our own
 procedure gluPerspective (fovy, aspect, zNear, zFar: single);
 //https://www.opengl.org/sdk/docs/man2/xhtml/gluPerspective.xml
 var

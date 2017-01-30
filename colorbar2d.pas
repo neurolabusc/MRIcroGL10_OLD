@@ -3,7 +3,7 @@ unit colorbar2d;
 interface
 {$include opts.inc}
 uses
-{$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF}
+{$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL}glcorearb, {$ELSE} gl, {$ENDIF}  {$ENDIF DGL}
 define_types,  textfx,prefs, clut, math;
 
 procedure DrawCLUT ( lU: TUnitRect;lBorder: single; lPrefs: TPrefs);
@@ -97,7 +97,7 @@ begin
       else
          TextArrow (lScrnL+ lStepPosScrn,lScrnT,lTextZoom,lS,lOrient,lPrefs.TextColor, lPrefs.TextBorder);
 		end;
-    glLoadIdentity();
+    {$IFNDEF COREGL}glLoadIdentity();{$ENDIF}
 end; //DrawColorBarText
 
 procedure SetOrder (l1,l2: single; var lSmall,lLarge: single);
@@ -404,4 +404,4 @@ glDisable (GL_BLEND);
 end;
 
 end.
- 
+

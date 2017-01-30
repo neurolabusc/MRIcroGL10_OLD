@@ -5,8 +5,7 @@ unit gl_2d;
 interface
 {$Include opts.inc}
 uses
-    {$IFDEF COREGL}gl_core_matrix, {$ENDIF}
-    {$IFDEF DGL}dglOpenGL, {$ELSE}  gl,  glext, {$ENDIF}
+{$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL}gl_core_matrix, glcorearb, {$ELSE} gl, {$ENDIF}  {$ENDIF DGL}
    //colorTable,
     //matmath,
     raycast_common,
@@ -284,7 +283,7 @@ begin
   glEnable(GL_DEPTH_TEST);
   glDisable(GL_CULL_FACE); // glEnable(GL_CULL_FACE); //check on pyramid
   glEnable(GL_BLEND);
-  glEnable(GL_NORMALIZE);
+  {$IFNDEF COREGL}glEnable(GL_NORMALIZE);{$ENDIF}
   glClearColor(r/255, g/255, b/255, 0.0); //Set background
   glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT or GL_STENCIL_BUFFER_BIT);
   glViewport( 0, 0, w, h); //required when bitmap zoom <> 1
@@ -767,7 +766,7 @@ begin
       else
          TextArrow (lScrnL+ lStepPosScrn,lScrnT,lTextZoom,lS,lOrient,lPrefs.TextColor, lPrefs.TextBorder);
 		end;
-    glLoadIdentity();
+    {$IFNDEF COREGL}glLoadIdentity();{$ENDIF}
 end; //DrawColorBarText
 
 type
@@ -849,7 +848,7 @@ begin
  glEnable(GL_DEPTH_TEST);
  glDisable(GL_CULL_FACE); // glEnable(GL_CULL_FACE); //check on pyramid
  glEnable(GL_BLEND);
- glEnable(GL_NORMALIZE);
+ {$IFNDEF COREGL}glEnable(GL_NORMALIZE); {$ENDIF}
  glViewport( 0, 0, gRayCast.WINDOW_WIDTH,gRayCast.WINDOW_Height); //required when bitmap zoom <> 1
 
    nglMatrixMode(nGL_MODELVIEW);

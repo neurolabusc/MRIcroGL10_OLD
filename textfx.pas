@@ -1,7 +1,9 @@
 unit textfx;
 {$include opts.inc}
 interface
-uses {$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF}  define_types;
+uses
+   {$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL} glcorearb, {$ELSE} gl, {$ENDIF}  {$ENDIF DGL}
+	 define_types;
 {$IFNDEF COREGL} //coregl uses slices2D
 procedure TextArrow (X,Y,Sz: single; NumStr: string; orient: integer;FontColor,ArrowColor: TGLRGBQuad);
 procedure StartDraw2D;
@@ -42,7 +44,7 @@ begin
   glDisable(GL_DEPTH_TEST);
 end;
 
-
+{$IFNDEF COREGL}
 procedure Ndec;
 begin
   glBegin(GL_TRIANGLE_STRIP);
@@ -157,19 +159,6 @@ begin
   glVertex2f(7,14);
   glVertex2f(7,0);
   glEnd();
-(*  glBegin(GL_TRIANGLE_STRIP);
-    glVertex2f(0,14);
-    glVertex2f(2,14);
-    glVertex2f(0,8);
-    glVertex2f(2,8);
-    glVertex2f(2,6);
-    glVertex2f(9,8);
-    glVertex2f(9,6);
-    glVertex2f(9,14);
-    glVertex2f(9,0);
-    glVertex2f(7,14);
-    glVertex2f(7,0);
-  glEnd();*)
 end;
 
 procedure N5;
@@ -452,5 +441,7 @@ begin
   end;//case
       //GLForm1.caption := floattostr(Sz);
 end;
+
+{$ENDIF COREGL}
 
 end.

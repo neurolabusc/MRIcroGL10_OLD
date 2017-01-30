@@ -20,7 +20,7 @@ uses
   {$IFDEF ENABLEWATERMARK}watermark,{$ENDIF}
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unita, {$ELSE} texture_3d_unit,{$ENDIF}
            graphics,
-  {$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF} {$IFDEF COREGL}gl_core_matrix, {$ENDIF}
+{$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL}gl_core_matrix, glcorearb, {$ELSE} gl, glext, {$ENDIF}  {$ENDIF DGL}
  define_types,
     sysutils, histogram2d, math, colorbar2d;
 type
@@ -42,7 +42,7 @@ lightPositionLoc, clipPlaneDepthLoc, clipPlaneLoc: GLint; //glint not gluint: al
   gradientTexture3D,gradientOverlay3D,
   intensityTexture3D,finalImage,
   renderBuffer, frameBuffer, //<--666 not needed {$IFNDEF COREGL} {$ENDIF}
-  backFaceBuffer: TGLuint;
+  backFaceBuffer: GLuint;
   MosaicString,ModelessString: string;
  end;
 

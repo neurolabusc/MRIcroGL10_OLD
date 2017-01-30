@@ -3,7 +3,7 @@ unit texture2raycast;
 interface
 {$include opts.inc}
 uses
-{$IFDEF DGL} dglOpenGL, {$ELSE} gl, glext, {$ENDIF}
+{$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL}gl_core_matrix, glcorearb, {$ELSE} gl,glext, {$ENDIF}  {$ENDIF DGL}
   {$IFNDEF FPC} Windows, {$ENDIF}  raycast_common, {$IFDEF COREGL} raycast_core, {$ELSE} raycast_legacy, {$ENDIF}
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unita, {$ELSE} texture_3d_unit,{$ENDIF}
   shaderu, clut,dialogs,Classes,define_types, sysUtils;
@@ -278,7 +278,11 @@ begin
   //Note the pixels parameter is NULL, because OpenGL doesn't load texel data when the target parameter is GL_PROXY_TEXTURE_2D. Instead, OpenGL merely considers whether it can accommodate a texture of the specified size and description. If the specified texture can't be accommodated, the width and height texture values will be set to zero. After making a texture proxy call, you'll want to query these values as follows:
   result := false;
   if not isRGBA then
-    glTexImage3D(GL_PROXY_TEXTURE_3D, 0, GL_ALPHA8, Tex.FiltDim[1], Tex.FiltDim[2], Tex.FiltDim[3], 0,GL_ALPHA, GL_UNSIGNED_BYTE, nil)
+  {$IFDEF COREGL}
+  glTexImage3D(GL_PROXY_TEXTURE_3D, 0, GL_RED, Tex.FiltDim[1], Tex.FiltDim[2], Tex.FiltDim[3], 0,GL_RED, GL_UNSIGNED_BYTE, nil)
+  {$ELSE}
+  glTexImage3D(GL_PROXY_TEXTURE_3D, 0, GL_ALPHA8, Tex.FiltDim[1], Tex.FiltDim[2], Tex.FiltDim[3], 0,GL_ALPHA, GL_UNSIGNED_BYTE, nil)
+  {$ENDIF}
   else
     glTexImage3D (GL_PROXY_TEXTURE_3D, 0, GL_RGBA8, Tex.FiltDim[1], Tex.FiltDim[2], Tex.FiltDim[3], 0,GL_RGBA, GL_UNSIGNED_BYTE, nil);
   glGetTexLevelParameteriv(GL_PROXY_TEXTURE_3D, 0, GL_TEXTURE_WIDTH, @i);
@@ -302,7 +306,7 @@ begin
   glPixelStorei(GL_UNPACK_ALIGNMENT,1);
   glGenTextures(1, @gradientVolume);
   glBindTexture(GL_TEXTURE_3D, gradientVolume);
-  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+  {$IFNDEF COREGL}glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE); {$ENDIF}
   //glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   //glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //FCX
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -426,8 +430,11 @@ begin
     {$ENDIF}
   end else begin
     {$IFDEF Darwin}
-    //glTexImage3D   (GL_TEXTURE_3D, 0, GL_ALPHA8, Tex.FiltDim[1], Tex.FiltDim[2], Tex.FiltDim[3], 0, GL_ALPHA, GL_UNSIGNED_BYTE, PChar(Tex.FiltImg));
-    glTexImage3D   (GL_TEXTURE_3D, 0, GL_ALPHA8, Tex.FiltDim[1], Tex.FiltDim[2], Tex.FiltDim[3], 0, GL_ALPHA, GL_UNSIGNED_BYTE, ptr);
+     {$IFDEF COREGL}
+     glTexImage3D   (GL_TEXTURE_3D, 0, GL_RED, Tex.FiltDim[1], Tex.FiltDim[2], Tex.FiltDim[3], 0, GL_RED, GL_UNSIGNED_BYTE, ptr);
+     {$ELSE}
+     glTexImage3D   (GL_TEXTURE_3D, 0, GL_ALPHA8, Tex.FiltDim[1], Tex.FiltDim[2], Tex.FiltDim[3], 0, GL_ALPHA, GL_UNSIGNED_BYTE, ptr);
+     {$ENDIF}
     {$ELSE}
     glTexImage3D(GL_TEXTURE_3D, 0, GL_INTENSITY, Tex.FiltDim[1], Tex.FiltDim[2], Tex.FiltDim[3], 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, ptr);
 
