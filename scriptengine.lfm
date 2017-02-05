@@ -9,8 +9,10 @@ object ScriptForm: TScriptForm
   ClientHeight = 375
   ClientWidth = 387
   Menu = ScriptMenu1
+  OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
+  OnDeactivate = FormDeactivate
   Position = poScreenCenter
   LCLVersion = '1.7'
   object Splitter1: TSplitter

@@ -179,15 +179,15 @@ procedure SortInt (var lMin,lMax: integer);
 function Bound (lDefault,lMin,lMax: integer): integer;
 function IsNiftiExt(lStr: string): boolean;
 function IsVOIExt(lStr: string): boolean;
-function StrToUnitRect (lS: string; var lU: TUnitRect): boolean;
+function StrToUnitRect (lS: string; out lU: TUnitRect): boolean;
 function UnitRectToStr (lU: TUnitRect) : string;
 function CreateUnitRect (L,T,R,B: single) : TUnitRect;
 procedure SensibleUnitRect (var U: TUnitRect);
-function StrToRGBA(lS: string; var lU: glRGBaQUAD): boolean;
+function StrToRGBA(lS: string; out lU: glRGBaQUAD): boolean;
 function RGBAToStr (lU: glRGBaQUAD) : string;
 function RGBA(lR,lG,lB,lA: byte): TGLRGBQuad;
 function RGBA2TColor ( lRGBA: TGLRGBQuad): TColor;
-procedure TColor2RGBA (lColor: TColor; var lRGBA: TGLRGBQuad);
+procedure TColor2RGBA (lColor: TColor; out lRGBA: TGLRGBQuad);
 procedure EnsureDirExists (var lFilename: string);
 function FloatMaxVal (lA,lB,lC: single): single;
 function FloatMinVal (lA,lB,lC: single): single;
@@ -300,7 +300,7 @@ begin
   result := lRGBA.rgbRed + lRGBA.rgbGreen shl 8 +lRGBA.rgbBlue shl 16;
 end;
 
-procedure TColor2RGBA (lColor: TColor; var lRGBA: TGLRGBQuad);
+procedure TColor2RGBA (lColor: TColor; out lRGBA: TGLRGBQuad);
 begin
   lRGBA.rgbRed := lColor and 255;
   lRGBA.rgbGreen := (lColor shr 8) and 255;
@@ -332,7 +332,7 @@ begin
   else
     result := lV;
 end;
-function StrToRGBA(lS: string; var lU: glRGBaQUAD): boolean;
+function StrToRGBA(lS: string; out lU: glRGBaQUAD): boolean;
 var
   lV: string;
   lI: byte;
@@ -419,7 +419,7 @@ begin
   result := UnitToByteStr(lU.L)+ kStrSep+UnitToByteStr(lU.T)+ kStrSep+UnitToByteStr(lU.R)+ kStrSep+UnitToByteStr(lU.B);
 end;
 
-function StrToUnitRect (lS: string; var lU: TUnitRect): boolean;
+function StrToUnitRect (lS: string; out lU: TUnitRect): boolean;
 var
   lQ : glRGBaQUAD;
 begin
@@ -904,12 +904,7 @@ end; //proc SortSingle
 {$IFDEF FPC}
    {$IFDEF UNIX} //FPC and Unix
    function DiskFreeEx (DriveStr: String): Int64;
-   var
-      lOutDisk: Integer;
    begin
-
-     //lOutDisk :=  AddDisk(DriveStr);
-     //result := DiskFree(lOutDisk);
      result := maxint;
    end;
    {$ELSE} //FPC and Windows

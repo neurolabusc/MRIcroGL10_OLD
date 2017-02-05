@@ -52,7 +52,7 @@ Procedure Calculate_Transfer_Function;
 Implementation
 uses
 {$IFDEF ENABLEEDGE}edgeenhanceu, {$ENDIF}
-  texture2raycast, nii_reslice,reorient,histogram, mainunit,{$IFDEF COREGL} raycast_core, {$ELSE} raycast_legacy, {$ENDIF} raycast_common;
+  texture2raycast, nii_reslice,reorient,histogram, mainunit,{$IFDEF COREGL} raycast_core, {$ENDIF} raycast_common;
 
 
 (*function AdjustTransparencyRGBA (var lTexture: TTexture): boolean;

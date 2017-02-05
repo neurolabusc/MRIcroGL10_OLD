@@ -128,8 +128,10 @@ type
     xbarthick1: TMenuItem;
     overlayloadcluster1: TMenuItem;
     procedure Compile1Click(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Exit1Click(Sender: TObject);
+    procedure FormDeactivate(Sender: TObject);
     procedure New1Click(Sender: TObject);
     procedure Open1Click(Sender: TObject);
     procedure Save1Click(Sender: TObject);
@@ -278,6 +280,11 @@ begin
     PSScript1.ExecErrorToString);
     VideoEnd;
   end;
+end;
+
+procedure TScriptForm.FormActivate(Sender: TObject);
+begin
+     GLForm1.Display1.enabled := false;
 end;
 
 
@@ -476,6 +483,11 @@ end;
 procedure TScriptForm.Exit1Click(Sender: TObject);
 begin
   Close;
+end;
+
+procedure TScriptForm.FormDeactivate(Sender: TObject);
+begin
+     GLForm1.Display1.Enabled:= true;
 end;
 
 procedure TScriptForm.Stop1Click(Sender: TObject);

@@ -40,8 +40,8 @@ function FixDataType (var lHdr: TMRIcroHdr): boolean; overload;
  function ComputeImageDataBytes32bpp (var lHdr: TMRIcroHdr): longint; //size of image as 32-bit per voxel data in bytes
  procedure NIFTIhdr_SwapBytes (var lAHdr: TNIFTIhdr); //Swap Byte order for the Analyze type
  //procedure NIFTIhdr_ClearHdr (var lHdr: TNIfTIHdr); overload; //set all values of header to something reasonable
- procedure NIFTIhdr_ClearHdr (var lHdr: TMRIcroHdr); overload;//set all values of header to something reasonable
- function NIFTIhdr_LoadHdr (var lFilename: string; var lHdr: TMRIcroHdr; lFlipYZ: boolean): boolean;
+ procedure NIFTIhdr_ClearHdr (out lHdr: TMRIcroHdr); overload;//set all values of header to something reasonable
+ function NIFTIhdr_LoadHdr (var lFilename: string; out lHdr: TMRIcroHdr; lFlipYZ: boolean): boolean;
  function NIFTIhdr_SaveHdr (var lFilename: string; var lHdr: TMRIcroHdr; lAllowOverwrite: boolean): boolean; overload;
  function NIFTIhdr_SaveHdr (var lFilename: string; var lHdr: TNIFTIHdr; lAllowOverwrite,lSPM2: boolean): boolean; overload;
  //procedure NIFTIhdr_SetIdentityMatrix (var lHdr: TMRIcroHdr); //create neutral rotation matrix
@@ -164,7 +164,7 @@ begin
  end; //with lHdr
 end;
 
-procedure FromMatrix (M: TMatrix; var  m11,m12,m13, m21,m22,m23,
+procedure FromMatrix (M: TMatrix; out  m11,m12,m13, m21,m22,m23,
 						   m31,m32,m33:  DOUBLE)  ;
   BEGIN
 
@@ -343,7 +343,7 @@ begin
   result := true;
 end;
 
-procedure nifti_quatern_to_mat44( var lR :TMatrix;
+procedure nifti_quatern_to_mat44( out lR :TMatrix;
                              var qb, qc, qd,
                              qx, qy, qz,
                              dx, dy, dz, qfac : single);
@@ -764,7 +764,7 @@ begin
   GLForm1.ShowmessageError(result);
 end; *)
 
-function NIFTIhdr_LoadHdr (var lFilename: string; var lHdr: TMRIcroHdr; lFlipYZ: boolean): boolean;
+function NIFTIhdr_LoadHdr (var lFilename: string; out lHdr: TMRIcroHdr; lFlipYZ: boolean): boolean;
 var
   lHdrFile: file;
   lOri: array [1..3] of single;
@@ -775,6 +775,7 @@ var
   swapEndian, isDimPermute2341: boolean;
 begin
   Result := false; //assume error
+  swapEndian := false;
   isDimPermute2341 := false;
   NIFTIhdr_ClearHdr(lHdr);
   if lFilename = '' then exit;
@@ -1030,7 +1031,7 @@ begin
     end; //with the NIfTI header...
 end; //proc NIFTIhdr_ClearHdr  *)
 
-procedure NIFTIhdr_ClearHdr (var lHdr: TMRIcroHdr); overload;//put sensible default values into header
+procedure NIFTIhdr_ClearHdr (out lHdr: TMRIcroHdr); overload;//put sensible default values into header
 begin
     lHdr.UsesCustomPalette := false;
     lHdr.RGB := false;

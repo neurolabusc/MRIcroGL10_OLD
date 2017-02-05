@@ -143,7 +143,7 @@ begin
     RangeRec(gTexture3D.MinThreshScaled,gTexture3D.MaxThreshScaled);
 end;
 
-procedure FindColorSchemes(var lS: TStringList);
+procedure FindColorSchemes(out lS: TStringList);
 var
 	lSearchRec: TSearchRec;
         lStr : string;

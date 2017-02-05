@@ -1468,6 +1468,11 @@ object GLForm1: TGLForm1
         Caption = 'Convert DICOM to NIfTI'
         OnClick = ConvertDicom1Click
       end
+      object ConvertForeign1: TMenuItem
+        Caption = 'Convert foreign to NIfTI'
+        Hint = 'Convert MGH, LSM,  NRRD, PIC, TIFF'
+        OnClick = ConvertForeign1Click
+      end
     end
     object Draw1: TMenuItem
       Caption = 'Draw'
@@ -1599,7 +1604,7 @@ object GLForm1: TGLForm1
         Caption = 'Axial'
         GroupIndex = 212
         RadioItem = True
-        ShortCut = 65
+        ShortCut = 16449
         OnClick = SetViewClick
       end
       object Coronal1: TMenuItem
@@ -1608,6 +1613,7 @@ object GLForm1: TGLForm1
         Caption = 'Coronal'
         GroupIndex = 212
         RadioItem = True
+        ShortCut = 16451
         OnClick = SetViewClick
       end
       object Sagittal1: TMenuItem
@@ -1616,7 +1622,7 @@ object GLForm1: TGLForm1
         Caption = 'Sagittal'
         GroupIndex = 212
         RadioItem = True
-        ShortCut = 83
+        ShortCut = 16467
         OnClick = SetViewClick
       end
       object MPR1: TMenuItem

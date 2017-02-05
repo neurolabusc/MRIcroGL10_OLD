@@ -8,7 +8,7 @@ interface
 //{$ENDIF}
 uses
 {$IFDEF COMPILEYOKE}
-yokesharemem, coordinates, nii_mat, math,
+yokesharemem, coordinates, nii_mat, math, nifti_tiff,
 {$ENDIF}
 {$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL}glcorearb, {$ELSE} gl,glext, {$ENDIF}  {$ENDIF DGL}
 types,clipbrd,
@@ -34,6 +34,7 @@ TGLForm1 = class(TForm)
     Label2: TLabel;
     LightAziTrack: TTrackBar;
     LightElevTrack: TTrackBar;
+    ConvertForeign1: TMenuItem;
     //voiDescriptives1: TMenuItem;
     ShaderPanel: TPanel;
     QualityTrack: TTrackBar;
@@ -238,6 +239,7 @@ TGLForm1 = class(TForm)
     InferiorMenu: TMenuItem;
     SuperiorMenu: TMenuItem;
     voiDescriptives1: TMenuItem;
+    procedure ConvertForeign1Click(Sender: TObject);
     procedure InterpolateDrawMenuClick(Sender: TObject);
     function OpenVOI(lFilename: string): boolean;
     procedure BackgroundMaskMenuClick(Sender: TObject);
@@ -2131,7 +2133,7 @@ end;
    {$IFDEF LCLCocoa}str := str + ' (Cocoa) '; {$ENDIF}
    {$IFDEF LCLCarbon}str := str + ' (Carbon) '; {$ENDIF}
    {$IFDEF DGL} str := str +' (DGL) '; {$ENDIF}//the DGL library has more dependencies - report this if incompatibilities are found
-  str := 'MRIcroGL '+str+' 30 January 2017'
+  str := 'MRIcroGL '+str+' 2 February 2017'
    +kCR+' www.mricro.com :: BSD 2-Clause License (opensource.org/licenses/BSD-2-Clause)'
    +kCR+' Dimensions '+inttostr(gTexture3D.NIFTIhdr.dim[1])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[2])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[3])
    +kCR+' Bytes per voxel '+inttostr(gTexture3D.NIFTIhdr.bitpix div 8)
@@ -3294,6 +3296,27 @@ begin
  GLForm1.UpdateGL;
 end;
 
+procedure TGLForm1.ConvertForeign1Click(Sender: TObject);
+var
+  Opt : TOpenOptions;
+  lF: integer;
+begin
+  Opt := OpenDialog1.Options;
+  OpenDialog1.filter := 'Images|*.*';
+  OpenDialog1.Options := [ofAllowMultiSelect,ofFileMustExist {,ofNoChangeDir}];
+  if not OpenDialog1.Execute then begin
+    OpenDialog1.Options := Opt;
+    OpenDialog1.filter := kImgPlusVOIFilter;
+    exit;
+  end;
+  OpenDialog1.filter := kImgPlusVOIFilter;
+  OpenDialog1.Options := Opt;
+  if OpenDialog1.Files.Count < 1 then
+    exit;
+  for lF := 0 to (OpenDialog1.Files.Count-1) do
+    SaveForeignAsNifti(OpenDialog1.Files[lF]);
+end;
+
 procedure TGLForm1.OpenVOI1Click(Sender: TObject);
 begin
   OpenDialogVoi.filter := kImgPlusVOIFilter;
@@ -3746,7 +3769,7 @@ begin
          5: Z := +1.0; //SUPERIOR
     end; //case Key
     if (X = 0) and (Y = 0) and (Z = 0) then exit;
-    caption := format('%g %g %g',[X,Y,Z]) ;
+    //caption := format('%g %g %g',[X,Y,Z]) ;
 
     OrthoCoordMidSlice(X,Y,Z);
     updateGL;

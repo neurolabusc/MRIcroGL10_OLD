@@ -285,16 +285,6 @@ begin
 	glEnd();
 end;
 
-procedure drawQuadX(x,y: single); //NO IDEA WHY THIS IS REQUIRED!
-begin
-    glBegin(GL_TRIANGLES);
-    	glNormal3f(0.0, 0.0, -1.0);
-	drawVertex(0.0, 0.0, 0.0);
-	drawVertex(0.0, y, 0.0);
-	drawVertex(x, y, 0.0);
- 	glEnd();
-end;
-
 function LoadStr (lFilename: string): string;
 var
   myFile : TextFile;
@@ -346,6 +336,10 @@ begin
    m[2,2] := (zFar+zNear)/(zNear-zFar) ;
    m[3,2] := (2*zFar*zNear)/(zNear-zFar);
    m[2,3] := -1;
+
+   //m[2,3] := (2*zFar*zNear)/(zNear-zFar);
+   //m[2,2] := -1;
+
    //glLoadMatrixf(@m[0,0]);
    glMultMatrixf(@m[0,0]);
    //raise an exception if zNear = 0??
@@ -364,12 +358,8 @@ begin
       glViewport(0, 0, w, h);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  {$IFDEF DGL}
   if gPrefs.Perspective then
-  {$ELSE}
-  if false then
-  {$ENDIF}
-    gluPerspective(40.0, w/h, 0.01, kMaxDistance{Distance})
+    gluPerspective(40.0, w/h, 0.01, kMaxDistance)
   else begin
        if gRayCast.Distance = 0 then
           scale := 1
@@ -385,9 +375,6 @@ procedure  InitGL (InitialSetup: boolean);// (var lTex: TTexture);
 begin
   glEnable(GL_CULL_FACE);
   glClearColor(gPrefs.BackColor.rgbRed/255,gPrefs.BackColor.rgbGreen/255,gPrefs.BackColor.rgbBlue/255, 0);
-  //initShaderWithFile('xrc.vert', 'xrc.frag',gRayCast.glslprogramGradient);
-  // Load the vertex and fragment raycasting programs
-  //initShaderWithFile('rc.vert', 'rc.frag',gRayCast.glslprogram);
   if (gRayCast.glslprogram <> 0) then begin glDeleteProgram(gRayCast.glslprogram); gRayCast.glslprogram := 0; end;
   gRayCast.glslprogram :=  initVertFrag(gShader.VertexProgram, gShader.FragmentProgram);
   if (gRayCast.glslprogram = 0) then begin //error: load default shader
@@ -464,8 +451,8 @@ begin
   glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT );
   glEnable(GL_CULL_FACE);
   glCullFace(GL_FRONT);
-  glMatrixMode(GL_MODELVIEW);
-  glScalef(lTex.Scale[1],lTex.Scale[2],lTex.Scale[3]);
+  //glMatrixMode(GL_MODELVIEW);
+  //glScalef(lTex.Scale[1],lTex.Scale[2],lTex.Scale[3]);
   drawQuads(1.0,1.0,1.0);
   glDisable(GL_CULL_FACE);
 end;
@@ -556,6 +543,8 @@ begin
            glActiveTexture( GL_TEXTURE0 );
 	   glBindTexture(GL_TEXTURE_2D, gRayCast.backFaceBuffer);
            glUniform1i( gRayCast.backFaceLoc, 0 );		// backFaceBuffer -> texture0
+           glUniform1f( gRayCast.viewWidthLoc, gRayCast.WINDOW_WIDTH );
+           glUniform1f( gRayCast.viewHeightLoc, gRayCast.WINDOW_HEIGHT );
         end;
 
         glActiveTexture( GL_TEXTURE1 );
@@ -580,8 +569,6 @@ begin
         else
             glUniform1f( gRayCast.stepSizeLoc, ComputeStepSize(gPrefs.RayCastQuality1to10) );
         glUniform1f( gRayCast.sliceSizeLoc, 1/gRayCast.slices );
-        glUniform1f( gRayCast.viewWidthLoc, gRayCast.WINDOW_WIDTH );
-        glUniform1f( gRayCast.viewHeightLoc, gRayCast.WINDOW_HEIGHT );
 
         glUniform1i( gRayCast.gradientVolLoc, 1 );	// gradientTexture -> texture2
   {$IFDEF USETRANSFERTEXTURE}
@@ -713,13 +700,10 @@ begin
     glRotatef(90-gRayCast.Elevation,-1,0,0);
     glRotatef(gRayCast.Azimuth,0,0,1);
     glTranslatef(-lTex.Scale[1]/2,-lTex.Scale[2]/2,-lTex.Scale[3]/2);
+    glMatrixMode(GL_MODELVIEW);
+    glScalef(lTex.Scale[1],lTex.Scale[2],lTex.Scale[3]);
     if gShader.SinglePass <> 1 then
-       renderBackFace(lTex)
-    else begin
-      glMatrixMode(GL_MODELVIEW);
-      glScalef(lTex.Scale[1],lTex.Scale[2],lTex.Scale[3]);
-      drawQuadX(1.0,1.0); //no idea why this is required!
-    end;
+       renderBackFace(lTex);
     rayCasting(lTex);
     disableRenderBuffers();
     renderBufferToScreen();

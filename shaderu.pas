@@ -39,7 +39,7 @@ var
 procedure AdjustShaders (lShader: TShader);
 
 implementation
-uses raycast_common, {$IFDEF COREGL} raycast_core, {$ELSE} raycast_legacy, {$ENDIF} mainunit;
+uses raycast_common, {$IFDEF COREGL} raycast_core, {$ENDIF} mainunit;
 
 
 procedure AdjustShaders (lShader: TShader);
