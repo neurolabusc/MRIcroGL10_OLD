@@ -687,11 +687,12 @@ if TargetOS='darwin' then
       <Unit51>
         <Filename Value="..\..\..\lazarus\lcl\interfaces\carbon\carbonint.pas"/>
         <UnitName Value="CarbonInt"/>
-        <EditorIndex Value="-1"/>
+        <EditorIndex Value="4"/>
         <WindowIndex Value="1"/>
         <TopLine Value="40"/>
-        <CursorPos X="21" Y="41"/>
+        <CursorPos X="82" Y="51"/>
         <UsageCount Value="25"/>
+        <Loaded Value="True"/>
       </Unit51>
       <Unit52>
         <Filename Value="..\..\..\..\..\usr\local\share\fpcsrc\packages\opengl\src\gl.pp"/>
@@ -701,6 +702,7 @@ if TargetOS='darwin' then
         <TopLine Value="1307"/>
         <CursorPos X="3" Y="1317"/>
         <UsageCount Value="17"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit52>
       <Unit53>
         <Filename Value="..\vx_new\srcgui\textureslice.pas"/>
@@ -772,6 +774,7 @@ if TargetOS='darwin' then
         <TopLine Value="156"/>
         <CursorPos X="15" Y="163"/>
         <UsageCount Value="16"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit60>
       <Unit61>
         <Filename Value="reorient.pas"/>
@@ -797,14 +800,14 @@ if TargetOS='darwin' then
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="3"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="841"/>
-        <CursorPos X="87" Y="857"/>
+        <TopLine Value="444"/>
+        <CursorPos X="75" Y="452"/>
         <UsageCount Value="25"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit63>
     </Units>
-    <JumpHistory Count="4" HistoryIndex="3">
+    <JumpHistory Count="24" HistoryIndex="23">
       <Position1>
         <Filename Value="nii_mat.pas"/>
         <Caret Line="13" Column="31" TopLine="12"/>
@@ -821,6 +824,86 @@ if TargetOS='darwin' then
         <Filename Value="nifti_tiff.pas"/>
         <Caret Line="12" Column="47" TopLine="8"/>
       </Position4>
+      <Position5>
+        <Filename Value="nifti_tiff.pas"/>
+        <Caret Line="716" Column="33" TopLine="707"/>
+      </Position5>
+      <Position6>
+        <Filename Value="nifti_tiff.pas"/>
+        <Caret Line="5" Column="105"/>
+      </Position6>
+      <Position7>
+        <Filename Value="nifti_tiff.pas"/>
+        <Caret Line="54" Column="8" TopLine="49"/>
+      </Position7>
+      <Position8>
+        <Filename Value="nifti_tiff.pas"/>
+        <Caret Line="729" Column="27" TopLine="721"/>
+      </Position8>
+      <Position9>
+        <Filename Value="nifti_tiff.pas"/>
+        <Caret Line="49" Column="8" TopLine="48"/>
+      </Position9>
+      <Position10>
+        <Filename Value="nifti_tiff.pas"/>
+        <Caret Line="314" Column="33" TopLine="301"/>
+      </Position10>
+      <Position11>
+        <Filename Value="nifti_tiff.pas"/>
+        <Caret Line="481" TopLine="466"/>
+      </Position11>
+      <Position12>
+        <Filename Value="nifti_tiff.pas"/>
+        <Caret Line="604" Column="20" TopLine="590"/>
+      </Position12>
+      <Position13>
+        <Filename Value="nifti_tiff.pas"/>
+        <Caret Line="460" Column="9" TopLine="460"/>
+      </Position13>
+      <Position14>
+        <Filename Value="nifti_tiff.pas"/>
+        <Caret Line="52" Column="21" TopLine="49"/>
+      </Position14>
+      <Position15>
+        <Filename Value="nifti_tiff.pas"/>
+        <Caret Line="286" Column="20" TopLine="270"/>
+      </Position15>
+      <Position16>
+        <Filename Value="nifti_tiff.pas"/>
+        <Caret Line="472" Column="47" TopLine="464"/>
+      </Position16>
+      <Position17>
+        <Filename Value="nifti_tiff.pas"/>
+        <Caret Line="307" Column="25" TopLine="303"/>
+      </Position17>
+      <Position18>
+        <Filename Value="nifti_tiff.pas"/>
+        <Caret Line="308" Column="17" TopLine="303"/>
+      </Position18>
+      <Position19>
+        <Filename Value="nifti_tiff.pas"/>
+        <Caret Line="440" Column="18" TopLine="426"/>
+      </Position19>
+      <Position20>
+        <Filename Value="nifti_tiff.pas"/>
+        <Caret Line="484" Column="50" TopLine="469"/>
+      </Position20>
+      <Position21>
+        <Filename Value="nifti_tiff.pas"/>
+        <Caret Line="768" Column="33" TopLine="752"/>
+      </Position21>
+      <Position22>
+        <Filename Value="nifti_tiff.pas"/>
+        <Caret Line="427" Column="19" TopLine="420"/>
+      </Position22>
+      <Position23>
+        <Filename Value="nifti_tiff.pas"/>
+        <Caret Line="762" Column="14" TopLine="757"/>
+      </Position23>
+      <Position24>
+        <Filename Value="nifti_tiff.pas"/>
+        <Caret Line="9" Column="89"/>
+      </Position24>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>

@@ -6,7 +6,7 @@ interface
 
 uses
    {$IFNDEF FPC}gziod,{$ELSE}gzio2,{$ENDIF}
-   nifti_hdr, dialogs, nifti_foreign,nifti_types, define_types, sysutils, classes;
+   nifti_hdr, dialogs, nifti_foreign,nifti_types, define_types, sysutils, classes, clipbrd;
 
    function SaveForeignAsNifti(fnm: string): boolean;
 
@@ -45,6 +45,22 @@ begin
   Count:=NewCount;
 end;
 {$ENDIF}
+
+procedure swapVoxels(var img8: ByteP0; var nhdr: TNIfTIhdr);
+var
+   i, nVox: integer;
+   img16 : WordP0;
+begin
+    if (nhdr.datatype <> kDT_UINT16) and (nhdr.datatype <> kDT_INT16) then exit;
+    nVox := 1;
+    for i := 1 to 7 do
+        if nhdr.dim[i] > 1 then
+          nVox := nVox * nhdr.dim[i];
+    img16 := WordP0(img8 );
+    i := 0;
+    for i := 0 to (nVox - 1) do
+        img16[i] := swap(img16[i]);
+end;
 
 function decodeHorizontalDifferencingPredictor16(var img8: ByteP0; SamplesPerPixel, nX, nY, nZ: integer ): boolean;
 //http://thorntonzone.com/manuals/Compression/Fax,%20IBM%20MMR/G3,%20G4%20compression/TIFF%20stuff/TIFPRE.TXT
@@ -288,6 +304,9 @@ type
   TOME = packed record
         oX, oY, oZ, oT, oC, //order, e.g. DimensionOrder="XYZTC" means oX=1 and oT=4
         nX, nY, nZ, nT, nC: uint32;
+        spacing: single;
+        isImageJ: boolean;
+
   end;
 const
   kMaxIFD = 2048;
@@ -391,20 +410,21 @@ begin
   end;
 end;
 
-procedure readOME;
+function readOME: boolean;
 var
    p: integer;
    oStr, str: string;
 begin
+     result := false;
      if tTag.count < 12 then exit;
      p := filepos(f);
      seek(f, tTag.offset);
      SetLength(str, tTag.count);
      BlockRead(f, str[1], length(str));
      seek(f, p); //return
-     //form1.memo1.lines.add(str);
      if AnsiPos('</OME>',str) < 1 then exit;
      oStr := getVal('DimensionOrder',str);
+     ome.Spacing := 1.0;
      ome.oX := AnsiPos('X',oStr);
      ome.oY := AnsiPos('Y',oStr);
      ome.oZ := AnsiPos('Z',oStr);
@@ -417,9 +437,52 @@ begin
      ome.nZ := strtointdef(getVal('SizeZ',str), 1);
      ome.nT := strtointdef(getVal('SizeT',str), 1);
      ome.nC := strtointdef(getVal('SizeC',str), 1);
+     ome.isImageJ := false;
      //DimensionOrder="XYZCT" ID="Pixels:0" SizeC="1" SizeT="1" SizeX="439" SizeY="167" SizeZ="1"
      //if not ContainsText(str,'</OME>') then exit;
      isOME := true;
+     result := true;
+end;
+
+function getValJ(substr, str: string): string;
+//getval('slices=','slices=5') returns '5'
+var
+   i: integer;
+begin
+  result := '';
+  i := AnsiPos(substr,str);
+  if i < 1 then exit;
+  i := i + length(substr);
+  while (i < length(str)) and (str[i] in ['0'..'9','.']) do begin
+        result := result + str[i];
+        i := i + 1;
+  end;
+end;
+
+function readImageJ: boolean;
+var
+   p: integer;
+   str: string;
+begin
+     result := false;
+     if tTag.count < 12 then exit;
+     p := filepos(f);
+     seek(f, tTag.offset);
+     SetLength(str, tTag.count);
+     BlockRead(f, str[1], length(str));
+     seek(f, p); //return
+     if AnsiPos('ImageJ',str) < 1 then exit;
+     ome.oZ := 4;
+     ome.oT := 5;
+     ome.oC := 3;
+     ome.nC := strtointdef(getValJ('channels=',str), 1);
+     ome.nT := strtointdef(getValJ('frames=',str), 1);
+     ome.nZ := strtointdef(getValJ('slices=',str), 1);
+     ome.spacing:= strtofloatdef(getValJ('spacing=',str), 1); ;
+     //clipboard.asText := str+ format('*ZTC %d %d %d',[ome.nZ,ome.nT, ome.nC]);
+     ome.isImageJ := true;
+     isOME := true;
+     result := true;
 end;
 
 //http://www.fileformat.info/format/tiff/egff.htm
@@ -542,7 +605,10 @@ begin
                hdr[nIFD].isLZW := (tTag.offset = 5);
             end;
           $0106 : hdr[nIFD].PhotometricInterpretation := tTag.offset;
-          $010E : readOME;//hdr[nIFD].ImageDescription := tTag;
+          $010E :  begin
+                if not readOME then
+                   readImageJ;
+                end;
           $0111 : hdr[nIFD].StripOffsets := tTag;
           $0112 : hdr[nIFD].Orientation := tTag.offset;
           $0115 : hdr[nIFD].SamplesPerPixel := tTag.offset;
@@ -677,7 +743,11 @@ begin
      nhdr.dim[3]:=hdr[ok1].SamplesPerPixel;
      nhdr.dim[4]:=nOK;
   end else if isOME then begin
-     msgTIFF(format('OME %d %d   %d %d',[nOK, ome.nZ, ome.nT, ome.nC]));
+     msgTIFF(format('OME slices=%d Z=%d  T=%d C=%d',[nOK, ome.nZ, ome.nT, ome.nC]));
+     if ome.isImageJ then begin
+        ome.nX := nhdr.dim[1];
+        ome.nY := nhdr.dim[2];
+     end;
      if (nOK <> (ome.nZ * ome.nT * ome.nC)) or (ome.nX <> nhdr.dim[1]) or (ome.nY <> nhdr.dim[2]) then begin
         isOME := false; //do not swizzle
         nhdr.dim[3]:=nOK;
@@ -691,9 +761,12 @@ begin
       nhdr.dim[3]:=nOK;
       nhdr.dim[4]:=1;
   end;
-  nhdr.pixdim[1]:=1.0;
-  nhdr.pixdim[2]:=1.0;
-  nhdr.pixdim[3]:=1.0;
+  if isOme and ome.isImageJ then
+     nhdr.pixdim[1]:=ome.Spacing
+  else
+      nhdr.pixdim[1]:=1.0;
+  nhdr.pixdim[2]:=nhdr.pixdim[1];
+  nhdr.pixdim[3]:=nhdr.pixdim[1];
   if isLsm then begin
      msgTIFF(format('ZT %d %d',[nhdr.dim[3], nhdr.dim[4]]));
      msgTIFF(format('ZCT %d %d %d',[lsm.DimensionZ, lsm.DimensionChannels, lsm.DimensionTime]));
@@ -717,6 +790,8 @@ begin
        24: nhdr.datatype := kDT_RGB;
        else goto 666;
   end;
+  if (swapEndian) and (nhdr.datatype = kDT_UINT16) then
+     swapVoxels(img, nhdr);
   if isOME then
      swizzleDims(nhdr, img, ome.oZ, ome.oT, ome.oC);
   if isLSM then
