@@ -131,9 +131,7 @@ begin
     {$IFDEF HEMISSAO}
     result := AppDir+'shader'
     {$ELSE}
-
     result := AppDir+'shaders33'
-
     {$ENDIF}
   {$ELSE}
     {$IFDEF ENABLESHADER} //MRIcroGL
@@ -337,6 +335,7 @@ begin
           end;
       end;//case
     end;//cor each item
+  GLForm1.ShaderMemo.Lines.Add(format('Rot %d/%d Light %d/%d Q%d',[gRayCast.Azimuth,gRayCast.Elevation, gRayCast.LightAzimuth, gRayCast.LightElevation, gPrefs.RayCastQuality1to10]));
   //{$IFDEF COREGL} UpdateTrackUniforms; {$ENDIF}
 end;
 

@@ -27,9 +27,9 @@ type
 TRayCast =  RECORD
    loopsLoc, stepSizeLoc, sliceSizeLoc, viewWidthLoc, viewHeightLoc, backFaceLoc,
    gradientVolLoc, intensityVolLoc, overlayVolLoc, overlayGradientVolLoc, overlaysLoc,
-   useTransferTextureLoc, clearColorLoc,
+   useTransferTextureLoc, clearColorLoc, textureSizeLoc,
 lightPositionLoc, clipPlaneDepthLoc, clipPlaneLoc: GLint; //glint not gluint: allow to be negative if not found!
-   backTexture,glslprogram, glslprogramSobel, glslprogramBlur: GLuint;
+   backTexture,glslprogram, glslprogramSobel, glslprogramBlur, glslprogramPrefilter: GLuint;
   ModelessColor: TGLRGBQuad;
   ScreenCapture: boolean;
   ClipAzimuth,ClipElevation,ClipDepth,
@@ -91,6 +91,7 @@ begin
   gRayCast.overlaysLoc:= glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('overlays'));
   gRayCast.useTransferTextureLoc:= glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('useTransferTexture'));
   gRayCast.clearColorLoc:= glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('clearColor'));
+  gRayCast.textureSizeLoc:= glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('textureSize'));
   gRayCast.lightPositionLoc:= glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('lightPosition'));
   gRayCast.clipPlaneDepthLoc:= glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('clipPlaneDepth'));
   gRayCast.clipPlaneLoc := glGetUniformLocation(gRaycast.glslprogram, pAnsiChar('clipPlane'));
@@ -198,7 +199,12 @@ begin
      if (vs = 0) then exit;
      glAttachShader(result, vs);
   end;
-  fs := compileShaderOfType(GL_FRAGMENT_SHADER, frag);
+  {$IFNDEF COREGL}
+  if gPrefs.RayCastQuality1to10 = 10 then
+      fs := compileShaderOfType(GL_FRAGMENT_SHADER, '#define CUBIC_FILTER'+UNIXeoln+frag)
+  else
+  {$ENDIF}
+      fs := compileShaderOfType(GL_FRAGMENT_SHADER, frag);
   if (fs = 0) then exit;
   glAttachShader(result, fs);
   glLinkProgram(result);
@@ -420,6 +426,7 @@ with gRayCast do begin
   gradientOverlay3D := 0;
   glslprogram := 0;
   glslprogramBlur := 0;
+  glslprogramPrefilter := 0;
   glslprogramSobel := 0;
   finalImage := 0;
   renderBuffer := 0;

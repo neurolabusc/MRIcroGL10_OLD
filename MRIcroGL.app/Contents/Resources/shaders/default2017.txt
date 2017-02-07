@@ -1,0 +1,316 @@
+//pref
+overlayVolume|set|2
+boundThresh|float|0.0|0.5|0.95
+edgeBoundMix|float|0|0|1
+diffuse|float|0.0|0.2|1.0
+specular|float|0.0|0.3|1
+shininess|float|0.01|20.0|30
+backAlpha|float|0.0|0.95|1
+overDistance|float|0.0|0.3|1
+overAlpha|float|0.0|1.6|2.0
+overShade|float|0.0|0.3|1.0
+clipThick|float|0.01|0.7|1.0
+Overlay transparency independent of background.|note
+//frag
+uniform int loops, overlays;
+uniform float diffuse, boundThresh, edgeBoundMix, clipThick, stepSize, sliceSize, viewWidth, viewHeight;
+uniform vec3 clearColor,lightPosition, clipPlane;
+uniform sampler3D overlayVol;
+uniform sampler3D overlayGradientVol;
+uniform sampler3D intensityVol; //3DTexture containing brightness
+uniform sampler3D gradientVol; //3DTexture containing gradient direction and magnitude
+uniform sampler2D backFace;
+uniform float clipPlaneDepth, specular, shininess, overAlpha, overDistance, overShade, backAlpha;
+
+#ifdef CUBIC_FILTER
+uniform vec3 textureSize;
+
+vec4 texture3Df(sampler3D vol, vec3 coord) {
+/* License applicable to this function:
+Copyright (c) 2008-2013, Danny Ruijters. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+*  Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+*  Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+*  Neither the name of the copyright holders nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+The views and conclusions contained in the software and documentation are
+those of the authors and should not be interpreted as representing official
+policies, either expressed or implied.
+
+When using this code in a scientific project, please cite one or all of the
+following papers:
+*  Daniel Ruijters and Philippe Thévenaz,
+   GPU Prefilter for Accurate Cubic B-Spline Interpolation,
+   The Computer Journal, vol. 55, no. 1, pp. 15-20, January 2012.
+*  Daniel Ruijters, Bart M. ter Haar Romeny, and Paul Suetens,
+   Efficient GPU-Based Texture Interpolation using Uniform B-Splines,
+   Journal of Graphics Tools, vol. 13, no. 4, pp. 61-69, 2008.
+*/
+  // shift the coordinate from [0,1] to [-0.5, textureSize-0.5]
+  //vec3 textureSize = uResolution; //textureSize3D(tex, 0));
+  //vec3 textureSize = textureSize3D(vol, 0);
+
+  vec3 coord_grid = coord * textureSize - 0.5;
+  vec3 index = floor(coord_grid);
+  vec3 fraction = coord_grid - index;
+  vec3 one_frac = 1.0 - fraction;
+
+  vec3 w0 = 1.0/6.0 * one_frac*one_frac*one_frac;
+  vec3 w1 = 2.0/3.0 - 0.5 * fraction*fraction*(2.0-fraction);
+  vec3 w2 = 2.0/3.0 - 0.5 * one_frac*one_frac*(2.0-one_frac);
+  vec3 w3 = 1.0/6.0 * fraction*fraction*fraction;
+
+  vec3 g0 = w0 + w1;
+  vec3 g1 = w2 + w3;
+  vec3 mult = 1.0 / textureSize;
+  vec3 h0 = mult * ((w1 / g0) - 0.5 + index);  //h0 = w1/g0 - 1, move from [-0.5, textureSize-0.5] to [0,1]
+  vec3 h1 = mult * ((w3 / g1) + 1.5 + index);  //h1 = w3/g1 + 1, move from [-0.5, textureSize-0.5] to [0,1]
+
+  // fetch the eight linear interpolations
+  // weighting and fetching is interleaved for performance and stability reasons
+  vec4 tex000 =  texture3D(vol,h0);
+  vec4 tex100 =  texture3D(vol,vec3(h1.x, h0.y, h0.z));
+  tex000 = mix(tex100, tex000, g0.x);  //weigh along the x-direction
+  vec4 tex010 =  texture3D(vol,vec3(h0.x, h1.y, h0.z));
+  vec4 tex110 =  texture3D(vol,vec3(h1.x, h1.y, h0.z));
+  tex010 = mix(tex110, tex010, g0.x);  //weigh along the x-direction
+  tex000 = mix(tex010, tex000, g0.y);  //weigh along the y-direction
+  vec4 tex001 =  texture3D(vol,vec3(h0.x, h0.y, h1.z));
+  vec4 tex101 =  texture3D(vol,vec3(h1.x, h0.y, h1.z));
+  tex001 = mix(tex101, tex001, g0.x);  //weigh along the x-direction
+  vec4 tex011 =  texture3D(vol,vec3(h0.x, h1.y, h1.z));
+  vec4 tex111 =  texture3D(vol,h1);
+  tex011 = mix(tex111, tex011, g0.x);  //weigh along the x-direction
+  tex001 = mix(tex011, tex001, g0.y);  //weigh along the y-direction
+  return mix(tex001, tex000, g0.z);  //weigh along the z-direction
+}
+#else //CUBIC_FILTER
+vec4 texture3Df(sampler3D vol, vec3 coord) {
+	return texture3D(vol, coord); //trilinear interpolation
+}
+#endif
+
+void main() {
+	//const vec3 materialColor = vec3(1.0,1.0,1.0);
+	float edgeThresh = 0.01;
+	float edgeExp = 0.5;
+	bool overClip = false;
+	float overAlphaFrac = overAlpha;
+	if (overAlphaFrac > 1.0) overAlphaFrac = 1.0;
+	float overLight = 0.5;//1.0;
+	float diffuseDiv = diffuse / 4.0;
+	//if (overAlphaFrac > 1.0) overLight =  1.0 * ((overAlphaFrac - 1.5)/1.0);
+	// get normalized pixel coordinate in view port (e.g. [0,1]x[0,1])
+	vec2 pixelCoord = gl_FragCoord.st;
+	pixelCoord.x /= viewWidth;
+	pixelCoord.y /= viewHeight;
+	// starting position of the ray is stored in the texture coordinate
+	vec3 start = gl_TexCoord[1].xyz;
+	vec3 backPosition = texture2D(backFace,pixelCoord).xyz;
+	vec3 dir = backPosition - start;
+	float len = length(dir);
+	dir = normalize(dir);
+	float clipStart = 0.0;
+	float clipEnd = len;
+	//next see if clip plane intersects ray
+	if (clipPlaneDepth > -0.5) {
+		gl_FragColor.rgb = vec3(1.0,0.0,0.0);
+		//next, see if clip plane faces viewer
+		bool frontface = (dot(dir , clipPlane) > 0.0);
+		//next, distance from ray origin to clip plane
+		float disBackFace = 0.0;
+		float dis = dot(dir,clipPlane);
+		if (dis != 0.0  )  disBackFace = (-(clipPlaneDepth-clipThick) - dot(clipPlane, start.xyz-0.5)) / dis;
+		if (dis != 0.0  )  dis = (-clipPlaneDepth - dot(clipPlane, start.xyz-0.5)) / dis;
+		if (overClip) {
+			if (!frontface) {
+				float swap = dis;
+				dis = disBackFace;
+				disBackFace = swap;
+			}
+
+			if (dis >= len) len = 0.0;
+			backPosition =  start + dir * disBackFace;
+			//if ((dis > 0.0) && (dis < len)) {
+			if (dis < len) {
+				if (dis > 0.0)
+				start = start + dir * dis;
+
+					//backPosition =  start + dir * (dis);
+
+				dir = backPosition - start;
+				len = length(dir);
+				//if (len <= 0.0) len = 0.0;
+				dir = normalize(dir);
+			} else
+				len = 0.0;
+		} else {
+			if (frontface) {
+				clipStart = dis;
+				clipEnd = disBackFace;
+			}
+			if (!frontface) {
+				clipEnd = dis;
+				clipStart = disBackFace;
+			}
+		}
+	}
+	vec3 deltaDir = dir * stepSize;
+	vec4 overAcc = vec4(0.0,0.0,0.0,0.0);
+	vec4 ocolorSample,gradientSample,colAcc = vec4(0.0,0.0,0.0,0.0);
+	vec4 colorSample = vec4(0.0,0.0,0.0,0.0);
+	float lengthAcc = 0.0;
+	float overAtten = 0.0;
+	int overDepth = 0;
+	int backDepthEnd, backDepthStart = loops;
+	//Jitter starting depth to reduce wood grain artifacts
+	vec3 samplePos = start.xyz + deltaDir* (fract(sin(gl_FragCoord.x * 12.9898 + gl_FragCoord.y * 78.233) * 43758.5453));
+	vec4 prevNorm = vec4(0.0,0.0,0.0,0.0);
+	vec4 oprevNorm = vec4(0.0,0.0,0.0,0.0);
+		float opacityCorrection = stepSize/sliceSize;
+	vec3 lightDirHeadOn =  normalize(gl_ModelViewMatrixInverse * vec4(0.0,0.0,1.0,0.0)).xyz ;
+	float stepSizex2 = clipStart + ( sliceSize * 3.0);
+	float boundAcc = 0.0;
+	float boundAcc2 = 0.0;
+	float alphaTerminate = 0.95;
+	if ( overlays > 0 ) alphaTerminate = 2.0; //impossible value: no early termination with overlays
+	for(int i = 0; i < loops; i++) {
+		if ((lengthAcc <= clipStart) || (lengthAcc > clipEnd)) {
+			colorSample.a = 0.0;
+		} else {
+			colorSample = texture3Df(intensityVol,samplePos);
+			if ((lengthAcc <= stepSizex2) && (colorSample.a > 0.01) )  colorSample.a = sqrt(colorSample.a); //opaque clipping surface
+			colorSample.a = 1.0-pow((1.0 - colorSample.a), opacityCorrection);
+			if ((colorSample.a > 0.01) && (lengthAcc > stepSizex2)  ) {
+				if (backDepthStart == loops) backDepthStart = i;
+				backDepthEnd = i;
+				gradientSample= texture3Df(gradientVol,samplePos); //interpolate gradient direction and magnitude
+				//gradientSample.rgb = normalize(gradientSample.rgb*2.0 - 1.0); //direction saved as 0..1, rescale to -1..1
+				gradientSample.rgb = gradientSample.rgb*2.0 - 1.0; //do not normalize: vec3(0,0,0)!!
+				//re-use previous normal if it has larger magnitude
+				if (gradientSample.a < prevNorm.a)
+					gradientSample.rgb = prevNorm.rgb;
+				prevNorm = gradientSample;
+				//Edge shading - darken edges parallel with viewing direction
+				float lightNormDot = dot(gradientSample.rgb, lightDirHeadOn); //with respect to viewer
+				float edgeVal = pow(1.0-abs(lightNormDot),edgeExp) * pow(gradientSample.a,0.3);
+				if (edgeVal >= edgeThresh)
+					colorSample.rgb = mix(colorSample.rgb, vec3(0.0,0.0,0.0), pow((edgeVal-edgeThresh)/(1.0-edgeThresh),4.0));
+				//specular
+				lightNormDot = dot(gradientSample.rgb, lightPosition); //with respect to light location
+
+				if (lightNormDot > 0.0) {
+					colorSample.rgb += (lightNormDot * diffuse) - diffuseDiv;
+					colorSample.rgb +=   specular * pow(max(dot(reflect(lightPosition, gradientSample.rgb), dir), 0.0), shininess);
+				} else
+					colorSample.rgb -= diffuseDiv;
+				if (gradientSample.a > boundThresh) {
+					float lightNormDot = dot(gradientSample.rgb, lightDirHeadOn); //with respect to viewer
+					float boundAlpha = pow(1.0-abs(lightNormDot),6.0);
+					boundAlpha = 1.0-pow((1.0 - boundAlpha), opacityCorrection);
+					boundAcc += (1.0 - boundAcc2) * boundAlpha;
+					boundAcc2 += (1.0 - boundAcc2) * boundAlpha;
+				}
+
+			};
+		}
+		if ( overlays > 0 ) {
+			gradientSample= texture3Df(overlayGradientVol,samplePos); //interpolate gradient direction and magnitude
+			if (gradientSample.a > 0.01) {
+				if (gradientSample.a < oprevNorm.a)
+					gradientSample.rgb = oprevNorm.rgb;
+				oprevNorm = gradientSample;
+				gradientSample.rgb = normalize(gradientSample.rgb*2.0 - 1.0); //direction saved as 0..1, rescale to -1..1
+				ocolorSample = texture3Df(overlayVol,samplePos);
+				ocolorSample.a *= gradientSample.a; //modulate by gradient
+				ocolorSample.a = sqrt(ocolorSample.a);
+				//Edge shading - darken edges parallel with viewing direction
+				float lightNormDot = dot(gradientSample.rgb, lightDirHeadOn); //with respect to viewer
+				float edgeVal = pow(1.0-abs(lightNormDot),edgeExp) * pow(gradientSample.a,overShade);
+				ocolorSample.a = pow(ocolorSample.a, 1.0 -edgeVal);
+				ocolorSample.rgb = mix(ocolorSample.rgb, vec3(0.0,0.0,0.0), edgeVal);
+				//if (edgeVal >= edgeThresh)
+				//	ocolorSample.rgb = mix(ocolorSample.rgb, vec3(0.0,0.0,0.0), pow((edgeVal-edgeThresh)/(1.0-edgeThresh),4.0));
+				//specular
+				lightNormDot = dot(gradientSample.rgb, lightPosition); //with respect to light location
+				if (lightNormDot > 0.0)
+					ocolorSample.rgb +=   overLight * specular * pow(max(dot(reflect(lightPosition, gradientSample.rgb), dir), 0.0), shininess);
+				//float lightAmount = 0.1 * overLight;
+				//diffuse
+		  		//if (lightAmount > 0.0)
+				//	ocolorSample.rgb += lightAmount*dot(normalize(lightPosition), gradientSample.rgb);
+				//Diffuse lighting
+				//float diffTerm =  max(0.5 * lightNormDot + 0.5, 0.5);
+				//Quadratic falloff of the diffusive term
+				//diffTerm *= diffTerm;
+				//ocolorSample.rgb *= diffuse* (diffTerm) + (1.0 - diffuse);
+				ocolorSample.a *= overAlphaFrac;
+				if ( ocolorSample.a > 0.2) {
+					if (overDepth == 0) overDepth = i;
+					float overRatio = colorSample.a/(ocolorSample.a);
+					if (colorSample.a > 0.02)
+						colorSample.rgb = mix( colorSample.rgb, ocolorSample.rgb, overRatio);
+					else
+						colorSample.rgb = ocolorSample.rgb;
+					colorSample.a = max(ocolorSample.a, colorSample.a);
+				}
+				//xxx colorSample= max(ocolorSample, colorSample);
+				//accumulate overlay color
+				ocolorSample.a = 1.0-pow((1.0 - ocolorSample.a), opacityCorrection);
+				overAcc= (1.0 - overAcc.a) * ocolorSample + overAcc;
+				boundAcc2 += (1.0 - boundAcc2) * ocolorSample.a;
+			}
+		}
+
+		colorSample.rgb *= colorSample.a;
+		//accumulate color
+		colAcc= (1.0 - colAcc.a) * colorSample + colAcc;
+		samplePos += deltaDir;
+		lengthAcc += stepSize;
+		if ( lengthAcc >= len || colAcc.a > alphaTerminate )
+			break;
+	}
+	colAcc.a*=backAlpha;
+	if ((edgeBoundMix > 0.0) && ((colAcc.a + boundAcc) > 0.0)) {
+		colAcc.rgb = mix(colAcc.rgb, vec3(0.0,0.0,0.0), (edgeBoundMix * boundAcc)/(colAcc.a+(edgeBoundMix * boundAcc)) );
+		colAcc.a = max(colAcc.a, boundAcc);
+	}
+	if ((overAcc.a > 0.01) && (overAlpha > 1.0))  {
+		colAcc.a=max(colAcc.a,overAcc.a);
+		if ( (overDistance > 0.0) && (overDepth > backDepthStart) && (backDepthEnd > backDepthStart)) {
+			if (overDepth > backDepthEnd) overDepth = backDepthStart; // backDepthEnd
+			float dx = float(overDepth-backDepthStart)/ float(backDepthEnd - backDepthStart);
+			dx = pow(1.0-dx, overDistance);
+			dx = pow(dx, 2.0);
+			overAcc *= dx;
+		}
+		//overAlphaFrac = (overAlpha - 1.0);
+		overAlphaFrac = overAcc.a * (overAlpha - 1.0);
+		if (overAcc.a > 0.0)
+		colAcc.rgb=mix(colAcc.rgb, overAcc.rgb,  overAlphaFrac);
+	}
+
+	if ( colAcc.a < 1.0 )
+		colAcc.rgb = mix(clearColor,colAcc.rgb,colAcc.a);
+	if (len == 0.0) colAcc.rgb = clearColor;
+	gl_FragColor = colAcc;
+}

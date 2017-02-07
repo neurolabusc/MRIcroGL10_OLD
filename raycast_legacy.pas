@@ -195,29 +195,172 @@ begin
      glActiveTexture( GL_TEXTURE0 );  //required if we will draw 2d slices next
 end;
 
+(*kPrefilterFrag and performPrefilter() are adapted from the following source and maintain that license
+Ruijters & Thévenaz (2012) GPU Prefilter for Accurate Cubic B-spline Interpolation. The Computer Journal. 55, 1: 15-20
+https://github.com/DannyRuijters/CubicInterpolationWebGL
+Copyright (c) 2008-2014, DannyRuijters
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of CubicInterpolationWebGL nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.*)
+
+const kPrefilterFrag = 'uniform float coordZ;'
++#10'uniform sampler3D uSampler;'
++#10'uniform vec3 increment;'
++#10'void main(void) {'
++#10' vec3 vTextureCoord = vec3(gl_TexCoord[0].xy, coordZ);'
++#10' vec4 w = 1.732176555 * texture3D(uSampler, vTextureCoord);'
++#10' vec3 im = vTextureCoord - increment;'
++#10' vec3 ip = vTextureCoord + increment;'
++#10' w -= 0.464135309 * (texture3D(uSampler,im)+texture3D(uSampler,ip));'
++#10' im -= increment; ip += increment;'
++#10' w += 0.124364681 * (texture3D(uSampler,im)+texture3D(uSampler,ip));'
++#10' im -= increment; ip += increment;'
++#10' w -= 0.033323416 * (texture3D(uSampler,im)+texture3D(uSampler,ip));'
++#10' im -= increment; ip += increment;'
++#10' w += 0.008928982 * (texture3D(uSampler,im)+texture3D(uSampler,ip));'
++#10' im -= increment; ip += increment;'
++#10' w -= 0.002392514 * (texture3D(uSampler,im)+texture3D(uSampler,ip));'
++#10' im -= increment; ip += increment;'
++#10' w += 0.000641072 * (texture3D(uSampler,im)+texture3D(uSampler,ip));'
++#10' im -= increment; ip += increment;'
++#10' w -= 0.000171775 * (texture3D(uSampler,im)+texture3D(uSampler,ip));'
++#10' gl_FragColor = w;'
++#10' //gl_FragColor.r = 1.0; //check it ran'
++#10' }';
+
+procedure performPrefilter(var lTex: TTexture; srcTex: GLuint);
+var
+   i,passXYZ: integer;
+   incX, incY, incZ: single;
+   coordZ: single;
+   fb, tempTex3Dx, tempTex3Dxy, inTex, outTex: GLuint;
+begin
+  glGenFramebuffersEXT(1, @fb);
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb);
+  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);// <- REQUIRED
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+  glViewport(0, 0, lTex.FiltDim[1], lTex.FiltDim[2]);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  {$IFDEF DGL}
+  gluOrtho2D(0, 1, 0, 1);
+  {$ELSE}
+  glOrtho (0, 1,0, 1, -1, 1);  //gluOrtho2D(0, 1, 0, 1);  https://www.opengl.org/sdk/docs/man2/xhtml/gluOrtho2D.xml
+  {$ENDIF}
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  glDisable(GL_TEXTURE_2D);
+  glDisable(GL_BLEND);
+  //glDisable(GL_TEXTURE_2D);
+  //STEP 1: run smooth program gradientTexture -> tempTex3D
+  tempTex3Dx := bindBlankGL(lTex);
+  tempTex3Dxy := bindBlankGL(lTex);
+  glUseProgram(gRayCast.glslprogramPrefilter);
+  glUniform1ix(gRayCast.glslprogramPrefilter, 'uSampler', 1); //input texture will be GL_TEXTURE1
+  for passXYZ := 1 to 3 do begin
+    //select input texture
+    if passXYZ = 1 then begin
+       inTex := srcTex; //1st (X): Src -> tempX
+       outTex := tempTex3Dx;
+       incX:= 1/lTex.FiltDim[1]; incY:=0; incZ:=0;
+    end else if (passXYZ = 2) then begin
+      inTex := tempTex3Dx; //2nd (Y): tempX -> tempY
+      outTex := tempTex3Dxy;
+      incX:=0; incY:=1/lTex.FiltDim[2]; incZ:=0;
+    end else begin //(passXYZ = 3)
+        inTex := tempTex3Dxy; //3rd (Z): tempY -> src
+        outTex := srcTex;
+        incX:=0; incY:=0; incZ:=1/lTex.FiltDim[3];
+    end;
+    glActiveTexture( GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_3D, inTex);
+    glUniform3f(glGetUniformLocation(gRayCast.GLSLprogram, pAnsiChar('increment')), incX,incY,incZ);
+    for i := 0 to (lTex.FiltDim[3]-1) do begin
+        coordZ := 1/lTex.FiltDim[3] * (i + 0.5);
+        glUniform1fx(gRayCast.glslprogramPrefilter, 'coordZ', coordZ);
+        glFramebufferTexture3DExt(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0, GL_TEXTURE_3D, outTex, 0, i);//output texture
+        glClear(GL_DEPTH_BUFFER_BIT);  // clear depth bit (before render every layer)
+        glBegin(GL_QUADS);
+        glTexCoord2f(0, 0);
+        glVertex2f(0, 0);
+        glTexCoord2f(1.0, 0);
+        glVertex2f(1.0, 0.0);
+        glTexCoord2f(1.0, 1.0);
+        glVertex2f(1.0, 1.0);
+        glTexCoord2f(0, 1.0);
+        glVertex2f(0.0, 1.0);
+        glEnd();
+    end;
+  end;
+  glUseProgram(0);
+  //clean up:
+  glDeleteTextures(1,@tempTex3Dx);
+  glDeleteTextures(1,@tempTex3Dxy);
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+  glDeleteFramebuffersEXT(1, @fb);
+  glActiveTexture( GL_TEXTURE0 );  //required if we will draw 2d slices next
+end; //pre-filter()
+
+
 procedure doShaderBlurSobel (var lTex: TTexture);
 var
    startTime: DWord;
 begin
   if (not lTex.updateBackgroundGradientsGLSL) and (not lTex.updateOverlayGradientsGLSL) then exit;
+  if (gRayCast.glslprogramPrefilter = 0) then
+     gRayCast.glslprogramPrefilter := initVertFrag('',kPrefilterFrag); //initFragShader (kSmoothShaderFrag,gRayCast.glslprogramBlur);
   //crapGL(lTex); exit;
   if (gRayCast.glslprogramBlur = 0) then
      gRayCast.glslprogramBlur := initVertFrag('',kSmoothShaderFrag); //initFragShader (kSmoothShaderFrag,gRayCast.glslprogramBlur);
-
   if (gRayCast.glslprogramSobel = 0) then
      gRayCast.glslprogramSobel := initVertFrag('',kSobelShaderFrag);
      //initFragShader (kSobelShaderFrag,gRayCast.glslprogramSobel );
     if (lTex.updateBackgroundGradientsGLSL) then begin
        startTime := gettickcount;
        performBlurSobel(lTex, false);
+       if (gPrefs.RayCastQuality1to10 = 10) then begin //enable bicubic
+          performPrefilter(lTex, gRayCast.intensityTexture3D);
+          performPrefilter(lTex, gRayCast.gradientTexture3D);
+       end;
        lTex.updateBackgroundGradientsGLSL := false;
        if gPrefs.Debug then
           GLForm1.Caption := 'GLSL gradients '+inttostr(gettickcount-startTime)+' ms ';
     end;
     if (lTex.updateOverlayGradientsGLSL) then begin
        performBlurSobel(lTex, true);
+       if (gPrefs.RayCastQuality1to10 = 10) then begin //enable bicubic
+          performPrefilter(lTex, gRayCast.intensityOverlay3D);
+          performPrefilter(lTex, gRayCast.gradientOverlay3D);
+       end;
        lTex.updateOverlayGradientsGLSL := false;
     end;
+
 end;
 
 procedure  enableRenderbuffers;
@@ -582,6 +725,8 @@ begin
   LightUniforms;
   ClipUniforms;
   glUniform3f(gRayCast.clearColorLoc,gPrefs.BackColor.rgbRed/255,gPrefs.BackColor.rgbGreen/255,gPrefs.BackColor.rgbBlue/255);
+  if gPrefs.RayCastQuality1to10 = 10 then
+     glUniform3f(gRayCast.textureSizeLoc, gTexture3D.FiltDim[1], gTexture3D.FiltDim[2], gTexture3D.FiltDim[3]);
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
   //glMatrixMode(GL_MODELVIEW);
@@ -684,7 +829,6 @@ begin
   resizeGL(gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT,zoom, zoomOffsetX, zoomOffsetY);
   glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, gRayCast.renderBuffer);
   glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT);  //required by VirtualBox
-
   {$IFDEF ENABLEMOSAICS}
   if length(gRayCast.MosaicString)> 0 then begin //draw mosaics
      glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT );

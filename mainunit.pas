@@ -258,6 +258,7 @@ TGLForm1 = class(TForm)
     procedure UpdateOverlaySpread;
     procedure DemoteOrder(lRow: integer);
     procedure ReadCell (ACol,ARow: integer; Update: boolean);
+    procedure RecompileShader(oldQ, newQ: integer);
     procedure BlendOverlaysRGBA (var lTexture: TTexture);
     procedure OverlayIdleTimerReset;
     function  OverlayIntensityString(Voxel: integer): string;
@@ -678,12 +679,16 @@ function TGLForm1.ScreenShot(Zoom: integer): TBitmap;
 var
   p: bytep0;
   x, y, tile: integer;
-  w,h, wz,hz,  tilex,tiley, BytePerPixel: int64;
+  prevQ, w,h, wz,hz,  tilex,tiley, BytePerPixel: int64;
   z:longword;
   RawImage: TRawImage;
   DestPtr: PInteger;
   //tic: DWord;
 begin
+  prevQ := gPrefs.RayCastQuality1to10;
+  gPrefs.RayCastQuality1to10 := 10;
+  if (prevQ <> 10) then
+     recompileShader(prevQ, 10);
   gRayCast.ScreenCapture := true;
   GLBox.MakeCurrent;
   w := GLbox.Width;
@@ -733,6 +738,11 @@ begin
   FreeMem(p);
   GLbox.ReleaseContext;
   gRayCast.ScreenCapture := false;
+
+  if (prevQ <> 10) then begin
+     gPrefs.RayCastQuality1to10 := prevQ;
+     recompileShader(10, gPrefs.RayCastQuality1to10);
+  end;
   {$IFDEF LCLCocoa}
   GLBox.Invalidate; //at least for Cocoa we need to reset this or the user will see the final tile
   {$ENDIF}
@@ -2133,7 +2143,7 @@ end;
    {$IFDEF LCLCocoa}str := str + ' (Cocoa) '; {$ENDIF}
    {$IFDEF LCLCarbon}str := str + ' (Carbon) '; {$ENDIF}
    {$IFDEF DGL} str := str +' (DGL) '; {$ENDIF}//the DGL library has more dependencies - report this if incompatibilities are found
-  str := 'MRIcroGL '+str+' 2 February 2017'
+  str := 'MRIcroGL '+str+' 7 February 2017'
    +kCR+' www.mricro.com :: BSD 2-Clause License (opensource.org/licenses/BSD-2-Clause)'
    +kCR+' Dimensions '+inttostr(gTexture3D.NIFTIhdr.dim[1])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[2])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[3])
    +kCR+' Bytes per voxel '+inttostr(gTexture3D.NIFTIhdr.bitpix div 8)
@@ -2436,8 +2446,8 @@ begin
   end;
   DisplayGL(gTexture3D);
   {$IFDEF FPC}
-      {$IFDEF Darwin} if gPrefs.isDoubleBuffer then {$ENDIF}
-       GLbox.SwapBuffers; //DoubleBuffered
+  {$IFDEF Darwin} if gPrefs.isDoubleBuffer then {$ENDIF}
+     GLbox.SwapBuffers; //DoubleBuffered
   (*if ( gRayCast.WINDOW_WIDTH = GLbox.Width) and (gRayCast.WINDOW_HEIGHT = GLbox.Height) then begin
     if gPrefs.isDoubleBuffer then
        GLbox.SwapBuffers //DoubleBuffered
@@ -2455,7 +2465,6 @@ begin
     GLbox.Invalidate;
     UpdateTimer.Enabled:=true;
 end;
-
 
 procedure TGLForm1.Open1Click(Sender: TObject);
 begin
@@ -2485,9 +2494,30 @@ begin
   GLBox.Invalidate;
 end;
 
-procedure TGLForm1.QualityTrackChange(Sender: TObject);
+procedure TGLForm1.RecompileShader(oldQ, newQ: integer);
+//recompile shader to-from level 10 (which uses bicubic)
 begin
+     if (oldQ = newQ) then exit; //no change
+     if (oldQ <> 10) and (newQ <> 10) then exit; //neither used bicubic
+     GLBox.MakeCurrent(false);
+     InitGL (false);
+     {$IFNDEF USETRANSFERTEXTURE}
+     Calculate_Transfer_Function;
+     CreateHisto (gTexture3D,gCLUTrec.Min,gCLUTrec.Max,gTexture3D.WindowHisto, true);
+     {$ELSE}
+     UpdateTransferFunctionX(gCLUTrec,gRayCast.TransferTexture1D);
+     CreateHisto (gTexture3D,gCLUTrec.Min,gCLUTrec.Max,gTexture3D.WindowHisto, true);
+     {$ENDIF}
+     GLBox.ReleaseContext;
+end;
+
+procedure TGLForm1.QualityTrackChange(Sender: TObject);
+var
+  lPrev: integer;
+begin
+  lPrev := gPrefs.RayCastQuality1to10;
   gPrefs.RayCastQuality1to10 :=  QualityTrack.position;
+  RecompileShader(lPrev, gPrefs.RayCastQuality1to10); //switch shader CUBIC_FILTER
   GLbox.Invalidate;
 end;
 
