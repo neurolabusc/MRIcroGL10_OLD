@@ -231,7 +231,7 @@ begin //creates an empty texture in VRAM without requiring memory copy from RAM
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); //, GL_CLAMP_TO_BORDER) will wrap
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, lTex.FiltDim[1], lTex.FiltDim[2], lTex.FiltDim[3], 0, GL_RGBA, GL_UNSIGNED_BYTE, nil);
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA16, lTex.FiltDim[1], lTex.FiltDim[2], lTex.FiltDim[3], 0, GL_RGBA, GL_UNSIGNED_BYTE, nil);
 end;
 
 procedure glUniform1fx(prog: GLuint; name: AnsiString; value: single );

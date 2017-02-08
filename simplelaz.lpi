@@ -16,7 +16,7 @@
       <Language Value=""/>
       <CharSet Value=""/>
     </VersionInfo>
-    <BuildModes Count="4" Active="MacOS">
+    <BuildModes Count="4">
       <Item1 Name="default" Default="True"/>
       <Item2 Name="Debug">
         <CompilerOptions>
@@ -316,7 +316,6 @@ if TargetOS='darwin' then
       </Unit9>
       <Unit10>
         <Filename Value="prefs.pas"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="440"/>
@@ -594,7 +593,6 @@ if TargetOS='darwin' then
         <TopLine Value="523"/>
         <CursorPos X="23" Y="537"/>
         <UsageCount Value="3"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit39>
       <Unit40>
         <Filename Value="lut.pas"/>
@@ -720,18 +718,19 @@ if TargetOS='darwin' then
         <Filename Value="raycast_legacy.pas"/>
         <EditorIndex Value="4"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="859"/>
-        <CursorPos X="46" Y="880"/>
+        <TopLine Value="268"/>
+        <CursorPos X="26" Y="282"/>
         <UsageCount Value="60"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit54>
       <Unit55>
         <Filename Value="raycast_common.pas"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="6"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="76"/>
-        <CursorPos X="23" Y="94"/>
+        <TopLine Value="218"/>
+        <CursorPos X="45" Y="234"/>
         <UsageCount Value="61"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -816,123 +815,123 @@ if TargetOS='darwin' then
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="2288" Column="19" TopLine="2270"/>
+        <Caret Line="2535" Column="22" TopLine="2518"/>
       </Position1>
       <Position2>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="2291" Column="50" TopLine="2273"/>
+        <Caret Line="2514" TopLine="2504"/>
       </Position2>
       <Position3>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="2535" Column="22" TopLine="2518"/>
+        <Caret Line="2534" Column="11" TopLine="2514"/>
       </Position3>
       <Position4>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="2514" TopLine="2504"/>
-      </Position4>
-      <Position5>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="2534" Column="11" TopLine="2514"/>
-      </Position5>
-      <Position6>
         <Filename Value="shaderui.pas"/>
         <Caret Line="20" Column="30" TopLine="9"/>
-      </Position6>
-      <Position7>
+      </Position4>
+      <Position5>
         <Filename Value="raycast_legacy.pas"/>
         <Caret Line="188" Column="38" TopLine="184"/>
-      </Position7>
-      <Position8>
+      </Position5>
+      <Position6>
         <Filename Value="mainunit.pas"/>
         <Caret Line="2516" Column="15" TopLine="2514"/>
-      </Position8>
-      <Position9>
+      </Position6>
+      <Position7>
         <Filename Value="mainunit.pas"/>
         <Caret Line="1636" Column="54" TopLine="1626"/>
+      </Position7>
+      <Position8>
+        <Filename Value="raycast_legacy.pas"/>
+        <Caret Line="332" Column="20" TopLine="329"/>
+      </Position8>
+      <Position9>
+        <Filename Value="raycast_legacy.pas"/>
+        <Caret Line="725" Column="44" TopLine="715"/>
       </Position9>
       <Position10>
         <Filename Value="raycast_legacy.pas"/>
-        <Caret Line="332" Column="20" TopLine="329"/>
+        <Caret Line="825" Column="18" TopLine="809"/>
       </Position10>
       <Position11>
         <Filename Value="raycast_legacy.pas"/>
-        <Caret Line="725" Column="44" TopLine="715"/>
+        <Caret Line="827" Column="125" TopLine="809"/>
       </Position11>
       <Position12>
-        <Filename Value="raycast_legacy.pas"/>
-        <Caret Line="825" Column="18" TopLine="809"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2434" Column="24" TopLine="2432"/>
       </Position12>
       <Position13>
         <Filename Value="raycast_legacy.pas"/>
-        <Caret Line="827" Column="125" TopLine="809"/>
+        <Caret Line="829" Column="20" TopLine="821"/>
       </Position13>
       <Position14>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="2434" Column="24" TopLine="2432"/>
+        <Filename Value="raycast_legacy.pas"/>
+        <Caret Line="833" Column="142" TopLine="827"/>
       </Position14>
       <Position15>
         <Filename Value="raycast_legacy.pas"/>
-        <Caret Line="829" Column="20" TopLine="821"/>
+        <Caret Line="724" Column="16" TopLine="718"/>
       </Position15>
       <Position16>
-        <Filename Value="raycast_legacy.pas"/>
-        <Caret Line="833" Column="142" TopLine="827"/>
+        <Filename Value="raycast_common.pas"/>
+        <Caret Line="30" Column="44" TopLine="23"/>
       </Position16>
       <Position17>
-        <Filename Value="raycast_legacy.pas"/>
-        <Caret Line="724" Column="16" TopLine="718"/>
+        <Filename Value="raycast_common.pas"/>
+        <Caret Line="6" Column="66"/>
       </Position17>
       <Position18>
         <Filename Value="raycast_common.pas"/>
-        <Caret Line="30" Column="44" TopLine="23"/>
+        <Caret Line="30" Column="53" TopLine="12"/>
       </Position18>
       <Position19>
-        <Filename Value="raycast_common.pas"/>
-        <Caret Line="6" Column="66"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2153" Column="26" TopLine="2143"/>
       </Position19>
       <Position20>
-        <Filename Value="raycast_common.pas"/>
-        <Caret Line="30" Column="53" TopLine="12"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2550" Column="28" TopLine="2549"/>
       </Position20>
       <Position21>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="2153" Column="26" TopLine="2143"/>
+        <Caret Line="628" Column="31" TopLine="618"/>
       </Position21>
       <Position22>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="2550" Column="28" TopLine="2549"/>
+        <Caret Line="692" Column="38" TopLine="671"/>
       </Position22>
       <Position23>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="628" Column="31" TopLine="618"/>
+        <Caret Line="746" Column="32" TopLine="726"/>
       </Position23>
       <Position24>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="692" Column="38" TopLine="671"/>
+        <Caret Line="1568" Column="79" TopLine="1548"/>
       </Position24>
       <Position25>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="746" Column="32" TopLine="726"/>
+        <Caret Line="1672" Column="53" TopLine="1655"/>
       </Position25>
       <Position26>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="1568" Column="79" TopLine="1548"/>
+        <Filename Value="prefs.pas"/>
+        <Caret Line="19" Column="68" TopLine="16"/>
       </Position26>
       <Position27>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="1672" Column="53" TopLine="1655"/>
+        <Filename Value="prefs.pas"/>
+        <Caret Line="26" Column="59" TopLine="16"/>
       </Position27>
       <Position28>
         <Filename Value="prefs.pas"/>
-        <Caret Line="19" Column="68" TopLine="16"/>
+        <Caret Line="185" Column="32" TopLine="168"/>
       </Position28>
       <Position29>
-        <Filename Value="prefs.pas"/>
-        <Caret Line="26" Column="59" TopLine="16"/>
+        <Filename Value="raycast_legacy.pas"/>
+        <Caret Line="282" Column="26" TopLine="268"/>
       </Position29>
       <Position30>
-        <Filename Value="prefs.pas"/>
-        <Caret Line="185" Column="32" TopLine="168"/>
+        <Filename Value="raycast_common.pas"/>
+        <Caret Line="65" Column="23" TopLine="55"/>
       </Position30>
     </JumpHistory>
   </ProjectOptions>
