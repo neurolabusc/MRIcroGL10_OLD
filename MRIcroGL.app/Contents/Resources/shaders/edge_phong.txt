@@ -17,6 +17,92 @@ uniform sampler2D backFace;
 uniform vec3 clearColor,lightPosition, clipPlane;
 uniform float clipPlaneDepth;
 uniform float ambient,diffuse,specular,shininess,edgeThresh, edgeExp, boundExp, lightAmount;
+#ifdef CUBIC_FILTER
+uniform vec3 textureSize;
+
+vec4 texture3Df(sampler3D vol, vec3 coord) {
+/* License applicable to this function:
+Copyright (c) 2008-2013, Danny Ruijters. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+*  Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+*  Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+*  Neither the name of the copyright holders nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+The views and conclusions contained in the software and documentation are
+those of the authors and should not be interpreted as representing official
+policies, either expressed or implied.
+
+When using this code in a scientific project, please cite one or all of the
+following papers:
+*  Daniel Ruijters and Philippe Thévenaz,
+   GPU Prefilter for Accurate Cubic B-Spline Interpolation,
+   The Computer Journal, vol. 55, no. 1, pp. 15-20, January 2012.
+*  Daniel Ruijters, Bart M. ter Haar Romeny, and Paul Suetens,
+   Efficient GPU-Based Texture Interpolation using Uniform B-Splines,
+   Journal of Graphics Tools, vol. 13, no. 4, pp. 61-69, 2008.
+*/
+  // shift the coordinate from [0,1] to [-0.5, textureSize-0.5]
+  //vec3 textureSize = uResolution; //textureSize3D(tex, 0));
+  //vec3 textureSize = textureSize3D(vol, 0);
+
+  vec3 coord_grid = coord * textureSize - 0.5;
+  vec3 index = floor(coord_grid);
+  vec3 fraction = coord_grid - index;
+  vec3 one_frac = 1.0 - fraction;
+
+  vec3 w0 = 1.0/6.0 * one_frac*one_frac*one_frac;
+  vec3 w1 = 2.0/3.0 - 0.5 * fraction*fraction*(2.0-fraction);
+  vec3 w2 = 2.0/3.0 - 0.5 * one_frac*one_frac*(2.0-one_frac);
+  vec3 w3 = 1.0/6.0 * fraction*fraction*fraction;
+
+  vec3 g0 = w0 + w1;
+  vec3 g1 = w2 + w3;
+  vec3 mult = 1.0 / textureSize;
+  vec3 h0 = mult * ((w1 / g0) - 0.5 + index);  //h0 = w1/g0 - 1, move from [-0.5, textureSize-0.5] to [0,1]
+  vec3 h1 = mult * ((w3 / g1) + 1.5 + index);  //h1 = w3/g1 + 1, move from [-0.5, textureSize-0.5] to [0,1]
+
+  // fetch the eight linear interpolations
+  // weighting and fetching is interleaved for performance and stability reasons
+  vec4 tex000 =  texture3D(vol,h0);
+  vec4 tex100 =  texture3D(vol,vec3(h1.x, h0.y, h0.z));
+  tex000 = mix(tex100, tex000, g0.x);  //weigh along the x-direction
+  vec4 tex010 =  texture3D(vol,vec3(h0.x, h1.y, h0.z));
+  vec4 tex110 =  texture3D(vol,vec3(h1.x, h1.y, h0.z));
+  tex010 = mix(tex110, tex010, g0.x);  //weigh along the x-direction
+  tex000 = mix(tex010, tex000, g0.y);  //weigh along the y-direction
+  vec4 tex001 =  texture3D(vol,vec3(h0.x, h0.y, h1.z));
+  vec4 tex101 =  texture3D(vol,vec3(h1.x, h0.y, h1.z));
+  tex001 = mix(tex101, tex001, g0.x);  //weigh along the x-direction
+  vec4 tex011 =  texture3D(vol,vec3(h0.x, h1.y, h1.z));
+  vec4 tex111 =  texture3D(vol,h1);
+  tex011 = mix(tex111, tex011, g0.x);  //weigh along the x-direction
+  tex001 = mix(tex011, tex001, g0.y);  //weigh along the y-direction
+  return mix(tex001, tex000, g0.z);  //weigh along the z-direction
+}
+#else //CUBIC_FILTER
+vec4 texture3Df(sampler3D vol, vec3 coord) {
+	return texture3D(vol, coord); //trilinear interpolation
+}
+#endif
 
 const vec3 lightColor = vec3(1.0,1.0,1.0);
 const vec3 materialColor = vec3(1.0,1.0,1.0);
@@ -26,11 +112,11 @@ vec3 shading(vec3 N,vec3 V,vec3 L)
 	vec3 final_color = vec3(ambient,ambient,ambient);
 	float lambertTerm = dot(N,L);
 	if (lambertTerm > 0.0) {
-		final_color += lightColor * materialColor * lambertTerm * diffuse;			
+		final_color += lightColor * materialColor * lambertTerm * diffuse;
 		vec3 E = normalize(V);
 		vec3 R = reflect(-L, N);
 		float specularTerm = pow( max(dot(R, E), 0.0),shininess );
-		final_color += lightColor * specularTerm * specular;	
+		final_color += lightColor * specularTerm * specular;
 	}
 	return final_color;
 }
@@ -39,7 +125,7 @@ void main() {
 	// get normalized pixel coordinate in view port (e.g. [0,1]x[0,1])
 	vec2 pixelCoord = gl_FragCoord.st;
 	pixelCoord.x /= viewWidth;
-	pixelCoord.y /= viewHeight;	
+	pixelCoord.y /= viewHeight;
 	// starting position of the ray is stored in the texture coordinate
 	vec3 start = gl_TexCoord[1].xyz;
 	vec3 backPosition = texture2D(backFace,pixelCoord).xyz;
@@ -61,13 +147,13 @@ void main() {
 			if (frontface) {
 				start = start + dir * dis;
 			} else {
-				backPosition =  start + dir * (dis); 
+				backPosition =  start + dir * (dis);
 			}
 			dir = backPosition - start;
 			len = length(dir);
-			dir = normalize(dir);		
+			dir = normalize(dir);
 		}
-	}	
+	}
 
 	vec3 deltaDir = dir * stepSize;
 	vec4 colorSample,gradientSample,colAcc = vec4(0.0,0.0,0.0,0.0);
@@ -75,17 +161,18 @@ void main() {
 	//We need to calculate the ray's starting position. We add a random
 	//fraction of the stepsize to the original starting point to dither the output
 	vec3 samplePos = start.xyz + deltaDir* (fract(sin(gl_FragCoord.x * 12.9898 + gl_FragCoord.y * 78.233) * 43758.5453));
-	//float specularColor = 1.0; //pure white, for red... vec3 specularColor= vec3(1.0,0.0,0.0); 
+	//float specularColor = 1.0; //pure white, for red... vec3 specularColor= vec3(1.0,0.0,0.0);
 	vec4 prevNorm = vec4(0.0,0.0,0.0,0.0);
 	vec3 lightDirHeadOn =  normalize(gl_ModelViewMatrixInverse * vec4(0.0,0.0,1.0,0.0)).xyz ;
 	float stepSizex2 = sliceSize * 2.0;
 	for(int i = 0; i < loops; i++) {
-		colorSample = texture3D(intensityVol,samplePos);
+		colorSample = texture3Df(intensityVol,samplePos);
 		if ((lengthAcc <= stepSizex2) && (colorSample.a > 0.01) )  colorSample.a = sqrt(colorSample.a); //opaque clipping surface
 		colorSample.a = 1.0-pow((1.0 - colorSample.a), stepSize/sliceSize);//opacity correction
-		if ((colorSample.a > 0.01) && (lengthAcc > stepSizex2)  ) {	
-			gradientSample= texture3D(gradientVol,samplePos); //interpolate gradient direction and magnitude
-			gradientSample.rgb = normalize(gradientSample.rgb*2.0 - 1.0); //direction saved as 0..1, rescale to -1..1
+		if ((colorSample.a > 0.01) && (lengthAcc > stepSizex2)  ) {
+			gradientSample= texture3Df(gradientVol,samplePos); //interpolate gradient direction and magnitude
+			//gradientSample.rgb = normalize(gradientSample.rgb*2.0 - 1.0); //direction saved as 0..1, rescale to -1..1
+			gradientSample.rgb = gradientSample.rgb*2.0 - 1.0; //do not normalize: vec3(0,0,0)!!
 			//re-use previous normal if it has larger magnitude
 			if (gradientSample.a < prevNorm.a)
 				gradientSample.rgb = prevNorm.rgb;
@@ -94,10 +181,10 @@ void main() {
 			float lightNormDot = dot(gradientSample.rgb, lightDirHeadOn); //with respect to viewer
 			float edgeVal = pow(1.0-abs(lightNormDot),edgeExp);
 			edgeVal = edgeVal * pow(gradientSample.a,0.3);
-	    		if (edgeVal >= edgeThresh) 
+	    		if (edgeVal >= edgeThresh)
 				colorSample.rgb = mix(colorSample.rgb, vec3(0.0,0.0,0.0), pow((edgeVal-edgeThresh)/(1.0-edgeThresh),4.0));
 			if (boundExp > 0.0)
-				colorSample.a = colorSample.a * pow(gradientSample.a,boundExp);		  	
+				colorSample.a = colorSample.a * pow(gradientSample.a,boundExp);
 			//specular
 			if (lightAmount > 0.0) {
 		  		vec3 N = normalize(vec3(gradientSample.r,gradientSample.g,gradientSample.b));
@@ -108,11 +195,11 @@ void main() {
 				} else {
 					colorSample.rgb = phong;
 				}
-			
+
 		  	}
 		}
 
-		colorSample.rgb *= colorSample.a; 
+		colorSample.rgb *= colorSample.a;
 		//accumulate color
 		colAcc= (1.0 - colAcc.a) * colorSample + colAcc;
 		samplePos += deltaDir;
