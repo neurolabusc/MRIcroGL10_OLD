@@ -1579,7 +1579,27 @@ object GLForm1: TGLForm1
         end
         object InterpolateDrawMenu: TMenuItem
           Caption = 'Interpolate between slices'
-          OnClick = InterpolateDrawMenuClick
+          object InterpolateRecentMenu: TMenuItem
+            Caption = 'Last two slices'
+            ShortCut = 16472
+            OnClick = InterpolateDrawMenuClick
+          end
+          object InterpolaceAxialMenu: TMenuItem
+            Tag = 1
+            Caption = 'All axial gaps'
+            ShortCut = 4170
+            OnClick = InterpolateDrawMenuClick
+          end
+          object InterpolateCoronalMenu: TMenuItem
+            Tag = 2
+            Caption = 'All coronal gaps'
+            OnClick = InterpolateDrawMenuClick
+          end
+          object InterpolateSagittalMenu: TMenuItem
+            Tag = 3
+            Caption = 'All sagittal gaps'
+            OnClick = InterpolateDrawMenuClick
+          end
         end
         object voiDescriptives1: TMenuItem
           Caption = 'Descriptives'
@@ -1649,7 +1669,6 @@ object GLForm1: TGLForm1
       object YokeMenu: TMenuItem
         AutoCheck = True
         Caption = 'Yoke'
-        Checked = True
         ShortCut = 16473
         Visible = False
         OnClick = YokeMenuClick

@@ -35,6 +35,10 @@ TGLForm1 = class(TForm)
     LightAziTrack: TTrackBar;
     LightElevTrack: TTrackBar;
     ConvertForeign1: TMenuItem;
+    InterpolateRecentMenu: TMenuItem;
+    InterpolaceAxialMenu: TMenuItem;
+    InterpolateCoronalMenu: TMenuItem;
+    InterpolateSagittalMenu: TMenuItem;
     //voiDescriptives1: TMenuItem;
     ShaderPanel: TPanel;
     QualityTrack: TTrackBar;
@@ -462,8 +466,6 @@ begin
   YokeTimer.Enabled := YokeMenu.Checked;
   if not YokeMenu.Checked then exit;
   if (gPrefs.SliceView = 5) then exit;//not for mosaics
-
-  //intensitybox.Caption := inttostr(random(888));
   if not GetShareFloats(lXmm,lYmm,lZmm, lAzimuth, lElevation) then
      exit;
   if  (gPrefs.SliceView < 1) or (gPrefs.SliceView > 5) then  begin //not 2D slice view: assume rendering
@@ -472,8 +474,6 @@ begin
         gRayCast.Elevation := round(lElevation);
         exit;
   end;
-
-  //intensitybox.Caption := '+'+inttostr(random(888));
   lInvMat := Hdr2InvMat (gTexture3D.NIftiHdr,lOK);
   if (not lOK) or (gTexture3D.FiltDim[1] < 2) or (gTexture3D.FiltDim[2] < 2) or (gTexture3D.FiltDim[3] < 2) then exit;
   mm2Voxel (lXmm,lYmm,lZmm, lInvMat);
@@ -1643,6 +1643,7 @@ begin
         Tool1.ShortCut := ShortCut(Word('T'), [ssMeta]);
         //ToggleTransparency1.ShortCut := ShortCut(Word('A'), [ssMeta]);
         Backcolor1.ShortCut := ShortCut(Word('B'), [ssMeta]);
+        InterpolateRecentMenu.ShortCut := ShortCut(Word('X'), [ssMeta]);
         //Copy1.ShortCut := ShortCut(Word('C'), [ssMeta]);
         //SaveVOI1.ShortCut :=  ShortCut(Word('S'), [ssMeta]);
         HideVOI1.ShortCut := ShortCut(Word('H'), [ssMeta]);
@@ -2926,7 +2927,6 @@ begin
  end; //case Key
  if (X = 0) and (Y = 0) and (Z = 0) then exit;
  OrthoCoordMidSlice(X,Y,Z);
-
  (*X := round(FracToSlice(gRayCast.OrthoX,gTexture3D.FiltDim[1]))-0.5 + X;
  Y := round(FracToSlice(gRayCast.OrthoY,gTexture3D.FiltDim[2]))-0.5 + Y;
  Z := round(FracToSlice(gRayCast.OrthoZ,gTexture3D.FiltDim[3]))-0.5 + Z;
@@ -2936,7 +2936,6 @@ begin
  gRayCast.OrthoX := X/gTexture3D.FiltDim[1];
  gRayCast.OrthoY := Y/gTexture3D.FiltDim[2];
  gRayCast.OrthoZ := Z/gTexture3D.FiltDim[3]; *)
- //caption := floattostr(x)+'  '+floattostr(y)+' '+inttostr(random(888));
  UpdateGL;
 end;
 
@@ -3321,8 +3320,7 @@ end;
 
 procedure TGLForm1.InterpolateDrawMenuClick(Sender: TObject);
 begin
- //showmessage('Not yet functional');
- voiInterpolate;
+ voiInterpolate ((sender as tMenuItem).tag);
  GLForm1.UpdateGL;
 end;
 
@@ -3401,7 +3399,6 @@ begin
      end else
          voiMouseDown(lPen, lOrient, lXfrac, lYfrac, lZfrac);
      result := true;
-     //caption := inttostr(random(888))+' '+inttostr(lPen);
      //caption := inttostr(lOrient)+':'+floattostr(lXFrac)+'x'+floattostr(lYFrac)+'x'+floattostr(lZFrac);
 end;
 
@@ -3802,6 +3799,7 @@ begin
     //caption := format('%g %g %g',[X,Y,Z]) ;
 
     OrthoCoordMidSlice(X,Y,Z);
+    ShowOrthoSliceInfo (false);
     updateGL;
     exit;
  end;

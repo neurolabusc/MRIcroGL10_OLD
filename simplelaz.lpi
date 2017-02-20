@@ -226,11 +226,10 @@ if TargetOS='darwin' then
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="1655"/>
-        <CursorPos X="53" Y="1672"/>
+        <TopLine Value="1641"/>
+        <CursorPos X="42" Y="1654"/>
         <UsageCount Value="207"/>
         <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit1>
       <Unit2>
@@ -264,7 +263,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="4"/>
         <CursorPos X="149" Y="13"/>
-        <UsageCount Value="98"/>
+        <UsageCount Value="96"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit4>
       <Unit5>
@@ -272,7 +271,7 @@ if TargetOS='darwin' then
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <CursorPos Y="3"/>
-        <UsageCount Value="101"/>
+        <UsageCount Value="99"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit5>
       <Unit6>
@@ -291,7 +290,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="882"/>
         <CursorPos X="75" Y="895"/>
-        <UsageCount Value="101"/>
+        <UsageCount Value="99"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit7>
       <Unit8>
@@ -300,13 +299,13 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="419"/>
         <CursorPos X="19" Y="427"/>
-        <UsageCount Value="89"/>
+        <UsageCount Value="87"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit8>
       <Unit9>
         <Filename Value="shaderui.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="4"/>
         <WindowIndex Value="1"/>
         <TopLine Value="322"/>
         <CursorPos X="5" Y="326"/>
@@ -316,17 +315,17 @@ if TargetOS='darwin' then
       </Unit9>
       <Unit10>
         <Filename Value="prefs.pas"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="3"/>
         <WindowIndex Value="1"/>
         <TopLine Value="440"/>
         <CursorPos X="46" Y="457"/>
-        <UsageCount Value="99"/>
+        <UsageCount Value="101"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit10>
       <Unit11>
         <Filename Value="shaderu.pas"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="5"/>
         <WindowIndex Value="1"/>
         <TopLine Value="83"/>
         <CursorPos X="11" Y="93"/>
@@ -340,15 +339,15 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="34"/>
         <CursorPos X="54" Y="40"/>
-        <UsageCount Value="76"/>
+        <UsageCount Value="74"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit12>
       <Unit13>
         <Filename Value="define_types.pas"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="2"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="274"/>
-        <CursorPos X="21" Y="290"/>
+        <TopLine Value="80"/>
+        <CursorPos X="9" Y="96"/>
         <UsageCount Value="100"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -366,7 +365,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="8"/>
         <CursorPos X="6" Y="17"/>
-        <UsageCount Value="3"/>
+        <UsageCount Value="1"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit15>
       <Unit16>
@@ -381,7 +380,7 @@ if TargetOS='darwin' then
         <Filename Value="rle.pas"/>
         <TopLine Value="32"/>
         <CursorPos X="22" Y="36"/>
-        <UsageCount Value="288"/>
+        <UsageCount Value="286"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit17>
       <Unit18>
@@ -390,7 +389,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="79"/>
         <CursorPos X="75" Y="88"/>
-        <UsageCount Value="50"/>
+        <UsageCount Value="48"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit18>
       <Unit19>
@@ -418,17 +417,19 @@ if TargetOS='darwin' then
         <Filename Value="C:\usr\local\share\fpcsrc\rtl\objpas\classes\classesh.inc"/>
         <TopLine Value="689"/>
         <CursorPos X="39" Y="706"/>
-        <UsageCount Value="28"/>
+        <UsageCount Value="26"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit21>
       <Unit22>
         <Filename Value="drawu.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="-1"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="999"/>
-        <CursorPos X="90" Y="1006"/>
+        <TopLine Value="1120"/>
+        <CursorPos X="34" Y="1122"/>
         <UsageCount Value="200"/>
+        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit22>
       <Unit23>
@@ -437,7 +438,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="92"/>
         <CursorPos X="7" Y="100"/>
-        <UsageCount Value="65"/>
+        <UsageCount Value="63"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit23>
       <Unit24>
@@ -459,7 +460,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="1647"/>
         <CursorPos X="5" Y="1655"/>
-        <UsageCount Value="27"/>
+        <UsageCount Value="25"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit25>
       <Unit26>
@@ -490,7 +491,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="431"/>
         <CursorPos X="8" Y="446"/>
-        <UsageCount Value="22"/>
+        <UsageCount Value="20"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit28>
       <Unit29>
@@ -499,7 +500,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="28"/>
         <CursorPos X="20" Y="51"/>
-        <UsageCount Value="24"/>
+        <UsageCount Value="22"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit29>
       <Unit30>
@@ -516,19 +517,18 @@ if TargetOS='darwin' then
       </Unit30>
       <Unit31>
         <Filename Value="coordinates.pas"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="44"/>
         <CursorPos X="17" Y="59"/>
-        <UsageCount Value="23"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="21"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit31>
       <Unit32>
         <Filename Value="C:\Developer\lazarus\lcl\grids.pas"/>
         <TopLine Value="9133"/>
         <CursorPos X="41" Y="9136"/>
-        <UsageCount Value="11"/>
+        <UsageCount Value="9"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit32>
       <Unit33>
@@ -546,7 +546,7 @@ if TargetOS='darwin' then
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <CursorPos X="3" Y="10"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="8"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit34>
       <Unit35>
@@ -555,7 +555,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="25"/>
         <CursorPos X="27" Y="35"/>
-        <UsageCount Value="14"/>
+        <UsageCount Value="12"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit35>
       <Unit36>
@@ -564,7 +564,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="236"/>
         <CursorPos X="8" Y="238"/>
-        <UsageCount Value="43"/>
+        <UsageCount Value="41"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit36>
       <Unit37>
@@ -573,7 +573,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="1571"/>
         <CursorPos X="29" Y="1580"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="8"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit37>
       <Unit38>
@@ -582,7 +582,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="191"/>
         <CursorPos X="61" Y="205"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="8"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit38>
       <Unit39>
@@ -592,14 +592,14 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="523"/>
         <CursorPos X="23" Y="537"/>
-        <UsageCount Value="3"/>
+        <UsageCount Value="1"/>
       </Unit39>
       <Unit40>
         <Filename Value="lut.pas"/>
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <CursorPos X="22"/>
-        <UsageCount Value="3"/>
+        <UsageCount Value="1"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit40>
       <Unit41>
@@ -608,7 +608,7 @@ if TargetOS='darwin' then
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="59"/>
-        <UsageCount Value="45"/>
+        <UsageCount Value="43"/>
       </Unit41>
       <Unit42>
         <Filename Value="..\..\..\lazarus\components\lazutils\fileutil.pas"/>
@@ -617,7 +617,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="153"/>
         <CursorPos X="35" Y="167"/>
-        <UsageCount Value="43"/>
+        <UsageCount Value="41"/>
       </Unit42>
       <Unit43>
         <Filename Value="..\..\..\lazarus\components\codetools\fileprocs.pas"/>
@@ -626,7 +626,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="1342"/>
         <CursorPos X="66" Y="1346"/>
-        <UsageCount Value="43"/>
+        <UsageCount Value="41"/>
       </Unit43>
       <Unit44>
         <Filename Value="..\..\..\..\..\usr\local\share\fpcsrc\rtl\inc\objpash.inc"/>
@@ -634,7 +634,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="177"/>
         <CursorPos X="8" Y="192"/>
-        <UsageCount Value="41"/>
+        <UsageCount Value="39"/>
       </Unit44>
       <Unit45>
         <Filename Value="..\..\..\lazarus\lcl\graphics.pp"/>
@@ -643,7 +643,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="2657"/>
         <CursorPos Y="2681"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="7"/>
       </Unit45>
       <Unit46>
         <Filename Value="..\..\..\lazarus\lcl\graphtype.pp"/>
@@ -652,7 +652,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="18"/>
         <CursorPos X="68" Y="20"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="7"/>
       </Unit46>
       <Unit47>
         <Filename Value="histogram2d.pas"/>
@@ -660,7 +660,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="398"/>
         <CursorPos Y="400"/>
-        <UsageCount Value="15"/>
+        <UsageCount Value="13"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit47>
       <Unit48>
@@ -668,7 +668,7 @@ if TargetOS='darwin' then
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <CursorPos X="14" Y="6"/>
-        <UsageCount Value="2"/>
+        <UsageCount Value="10"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit48>
       <Unit49>
@@ -677,7 +677,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="24"/>
         <CursorPos Y="24"/>
-        <UsageCount Value="17"/>
+        <UsageCount Value="15"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit49>
       <Unit50>
@@ -685,7 +685,7 @@ if TargetOS='darwin' then
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <CursorPos X="2" Y="5"/>
-        <UsageCount Value="56"/>
+        <UsageCount Value="54"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit50>
       <Unit51>
@@ -693,9 +693,9 @@ if TargetOS='darwin' then
         <UnitName Value="CarbonInt"/>
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="39"/>
-        <CursorPos X="81" Y="45"/>
-        <UsageCount Value="27"/>
+        <TopLine Value="37"/>
+        <CursorPos X="95" Y="53"/>
+        <UsageCount Value="25"/>
       </Unit51>
       <Unit52>
         <Filename Value="..\..\..\..\..\usr\local\share\fpcsrc\packages\opengl\src\gl.pp"/>
@@ -704,35 +704,33 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="1307"/>
         <CursorPos X="3" Y="1317"/>
-        <UsageCount Value="16"/>
+        <UsageCount Value="14"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit52>
       <Unit53>
         <Filename Value="..\vx_new\srcgui\textureslice.pas"/>
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
-        <UsageCount Value="3"/>
+        <UsageCount Value="1"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit53>
       <Unit54>
         <Filename Value="raycast_legacy.pas"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="6"/>
         <WindowIndex Value="1"/>
         <TopLine Value="268"/>
         <CursorPos X="26" Y="282"/>
-        <UsageCount Value="60"/>
+        <UsageCount Value="68"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit54>
       <Unit55>
         <Filename Value="raycast_common.pas"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="218"/>
         <CursorPos X="45" Y="234"/>
-        <UsageCount Value="61"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="59"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit55>
       <Unit56>
@@ -741,7 +739,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="435"/>
         <CursorPos X="57" Y="443"/>
-        <UsageCount Value="50"/>
+        <UsageCount Value="48"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit56>
       <Unit57>
@@ -750,7 +748,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="46"/>
         <CursorPos X="7" Y="52"/>
-        <UsageCount Value="26"/>
+        <UsageCount Value="24"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit57>
       <Unit58>
@@ -759,7 +757,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="843"/>
         <CursorPos X="50" Y="851"/>
-        <UsageCount Value="39"/>
+        <UsageCount Value="37"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit58>
       <Unit59>
@@ -769,7 +767,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="11267"/>
         <CursorPos X="22" Y="11281"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="6"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit59>
       <Unit60>
@@ -779,7 +777,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="156"/>
         <CursorPos X="15" Y="163"/>
-        <UsageCount Value="15"/>
+        <UsageCount Value="13"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit60>
       <Unit61>
@@ -788,7 +786,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="739"/>
         <CursorPos X="80" Y="750"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="7"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit61>
       <Unit62>
@@ -798,140 +796,139 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="692"/>
         <CursorPos X="11" Y="704"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="7"/>
       </Unit62>
       <Unit63>
         <Filename Value="nifti_tiff.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="8"/>
+        <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="444"/>
         <CursorPos X="75" Y="452"/>
-        <UsageCount Value="36"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="51"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit63>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="2535" Column="22" TopLine="2518"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="1238" Column="27" TopLine="1222"/>
       </Position1>
       <Position2>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="2514" TopLine="2504"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="1208" Column="20" TopLine="1198"/>
       </Position2>
       <Position3>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="2534" Column="11" TopLine="2514"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="1238" Column="27" TopLine="1222"/>
       </Position3>
       <Position4>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="20" Column="30" TopLine="9"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="1226" Column="20" TopLine="1208"/>
       </Position4>
       <Position5>
-        <Filename Value="raycast_legacy.pas"/>
-        <Caret Line="188" Column="38" TopLine="184"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="1470" Column="37" TopLine="1463"/>
       </Position5>
       <Position6>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="2516" Column="15" TopLine="2514"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="224" Column="25" TopLine="214"/>
       </Position6>
       <Position7>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="1636" Column="54" TopLine="1626"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="255" Column="25" TopLine="239"/>
       </Position7>
       <Position8>
-        <Filename Value="raycast_legacy.pas"/>
-        <Caret Line="332" Column="20" TopLine="329"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="392" Column="44" TopLine="376"/>
       </Position8>
       <Position9>
-        <Filename Value="raycast_legacy.pas"/>
-        <Caret Line="725" Column="44" TopLine="715"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="395" Column="44" TopLine="379"/>
       </Position9>
       <Position10>
-        <Filename Value="raycast_legacy.pas"/>
-        <Caret Line="825" Column="18" TopLine="809"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="398" Column="45" TopLine="382"/>
       </Position10>
       <Position11>
-        <Filename Value="raycast_legacy.pas"/>
-        <Caret Line="827" Column="125" TopLine="809"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="399" Column="78" TopLine="383"/>
       </Position11>
       <Position12>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="2434" Column="24" TopLine="2432"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="411" Column="29" TopLine="408"/>
       </Position12>
       <Position13>
-        <Filename Value="raycast_legacy.pas"/>
-        <Caret Line="829" Column="20" TopLine="821"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="1029" Column="16" TopLine="1018"/>
       </Position13>
       <Position14>
-        <Filename Value="raycast_legacy.pas"/>
-        <Caret Line="833" Column="142" TopLine="827"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="991" Column="20" TopLine="985"/>
       </Position14>
       <Position15>
-        <Filename Value="raycast_legacy.pas"/>
-        <Caret Line="724" Column="16" TopLine="718"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="999" Column="31" TopLine="985"/>
       </Position15>
       <Position16>
-        <Filename Value="raycast_common.pas"/>
-        <Caret Line="30" Column="44" TopLine="23"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="1023" Column="52" TopLine="1007"/>
       </Position16>
       <Position17>
-        <Filename Value="raycast_common.pas"/>
-        <Caret Line="6" Column="66"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="1002" Column="17" TopLine="995"/>
       </Position17>
       <Position18>
-        <Filename Value="raycast_common.pas"/>
-        <Caret Line="30" Column="53" TopLine="12"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="462" Column="22" TopLine="444"/>
       </Position18>
       <Position19>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="2153" Column="26" TopLine="2143"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="464" Column="58" TopLine="448"/>
       </Position19>
       <Position20>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="2550" Column="28" TopLine="2549"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="470" Column="45" TopLine="452"/>
       </Position20>
       <Position21>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="628" Column="31" TopLine="618"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="481" Column="37" TopLine="463"/>
       </Position21>
       <Position22>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="692" Column="38" TopLine="671"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="1011" Column="58" TopLine="993"/>
       </Position22>
       <Position23>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="746" Column="32" TopLine="726"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="993" Column="11" TopLine="987"/>
       </Position23>
       <Position24>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="1568" Column="79" TopLine="1548"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="17" Column="62"/>
       </Position24>
       <Position25>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="1672" Column="53" TopLine="1655"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="439" Column="31" TopLine="425"/>
       </Position25>
       <Position26>
-        <Filename Value="prefs.pas"/>
-        <Caret Line="19" Column="68" TopLine="16"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="1066" Column="24" TopLine="1050"/>
       </Position26>
       <Position27>
-        <Filename Value="prefs.pas"/>
-        <Caret Line="26" Column="59" TopLine="16"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="955" Column="30" TopLine="951"/>
       </Position27>
       <Position28>
-        <Filename Value="prefs.pas"/>
-        <Caret Line="185" Column="32" TopLine="168"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="965" Column="43" TopLine="954"/>
       </Position28>
       <Position29>
-        <Filename Value="raycast_legacy.pas"/>
-        <Caret Line="282" Column="26" TopLine="268"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="943" Column="7" TopLine="938"/>
       </Position29>
       <Position30>
-        <Filename Value="raycast_common.pas"/>
-        <Caret Line="65" Column="23" TopLine="55"/>
+        <Filename Value="drawu.pas"/>
+        <Caret Line="1035" Column="28" TopLine="1023"/>
       </Position30>
     </JumpHistory>
   </ProjectOptions>
