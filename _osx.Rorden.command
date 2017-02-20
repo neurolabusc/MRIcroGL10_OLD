@@ -46,6 +46,9 @@ rm /Users/rorden/Documents/pas/MRIcroGL/DistroOSX/MRIcroGL.app/Contents/MacOS/MR
 rm /Users/rorden/Documents/pas/MRIcroGL/DistroOSX/*.pdf
 rm /Users/rorden/Documents/pas/MRIcroGL/DistroOSX/*.gz
 
+#remove Cocoa as widgetset
+awk '{gsub(/Active="MacOS"/,"");}1' simplelaz.lpi > simplelaz.tmp && mv simplelaz.tmp simplelaz.lpi
+
 
 cd /Users/rorden/Documents/pas/
 #get rid of symbolic link

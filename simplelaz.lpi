@@ -225,6 +225,7 @@ if TargetOS='darwin' then
         <ComponentName Value="GLForm1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <IsVisibleTab Value="True"/>
         <WindowIndex Value="1"/>
         <TopLine Value="1641"/>
         <CursorPos X="42" Y="1654"/>
@@ -423,10 +424,9 @@ if TargetOS='darwin' then
       <Unit22>
         <Filename Value="drawu.pas"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="1120"/>
+        <TopLine Value="1121"/>
         <CursorPos X="34" Y="1122"/>
         <UsageCount Value="200"/>
         <Loaded Value="True"/>

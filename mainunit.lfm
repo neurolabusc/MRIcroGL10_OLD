@@ -1587,7 +1587,6 @@ object GLForm1: TGLForm1
           object InterpolaceAxialMenu: TMenuItem
             Tag = 1
             Caption = 'All axial gaps'
-            ShortCut = 4170
             OnClick = InterpolateDrawMenuClick
           end
           object InterpolateCoronalMenu: TMenuItem
