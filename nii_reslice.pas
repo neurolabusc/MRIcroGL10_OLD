@@ -6,7 +6,6 @@ interface
 uses
   Dialogs, nii_mat,define_types,sysutils,prefs,nifti_hdr,Texture_3D_Unit, nifti_types;
 
-//function Reslice2Targ (lSrcName,lTargetName,lDestName: string; lPrefs: TPrefs):string;
 procedure NIFTIhdr_UnswapImg (var lHdr: TMRIcroHdr; var lImgBuffer: byteP); //ensures image data is in native space
 procedure NIFTIhdr_MinMaxImg (var lHdr: TMRIcroHdr; var lImgBuffer: byteP); //ensures image data is in native space
 procedure Int32ToFloat (var lHdr: TMRIcroHdr; var lImgBuffer: byteP);
@@ -171,74 +170,61 @@ var
    l32f: SingleP;
    l16Buf : SmallIntP;
 begin
-
-(*     if lHdr.DiskDataNativeEndian then exit;
-     case lHdr.NIFTIhdr.datatype of
-          kDT_UNSIGNED_CHAR : begin
-              exit;
-            end;
-	  kDT_SIGNED_SHORT,kDT_SIGNED_INT,kDT_FLOAT: ;//supported format
-         else begin
-             Msg('niftiutil UnSwapImg error: datatype not supported.');
-             exit;
-         end;
-     end; //case *)
      lImgSamples := lHdr.NIFTIhdr.Dim[1] *lHdr.NIFTIhdr.Dim[2]*lHdr.NIFTIhdr.Dim[3];
      if lImgSamples < 1 then
         exit;
      case lHdr.NIFTIhdr.datatype of
 	  kDT_UNSIGNED_CHAR: begin
-      lMini := lImgBuffer^[1];
-      lMaxi := lImgBuffer^[1];
-	    for lInc := 1 to lImgSamples do begin
-        if lImgBuffer^[lInc] >  lMaxi then
-          lMaxi := lImgBuffer^[lInc];
-        if lImgBuffer^[lInc] <  lMini then
-          lMini := lImgBuffer^[lInc];
-      end;
-       lHdr.GlMinUnscaledS := lMini;
-       lHdr.GlMaxUnscaledS := lMaxi;
-    end; //l16i
+            lMini := lImgBuffer^[1];
+            lMaxi := lImgBuffer^[1];
+            for lInc := 1 to lImgSamples do begin
+              if lImgBuffer^[lInc] >  lMaxi then
+                 lMaxi := lImgBuffer^[lInc];
+              if lImgBuffer^[lInc] <  lMini then
+                 lMini := lImgBuffer^[lInc];
+            end;
+            lHdr.GlMinUnscaledS := lMini;
+            lHdr.GlMaxUnscaledS := lMaxi;
+          end; //8ui
 	  kDT_SIGNED_SHORT: begin
-	    l16Buf := SmallIntP(lImgBuffer {lHdr.ImgBuffer} );
-      lMini := l16Buf^[1];
-      lMaxi := l16Buf^[1];
-	    for lInc := 1 to lImgSamples do begin
-        if l16Buf^[lInc] >  lMaxi then
-          lMaxi := l16Buf^[lInc];
-        if l16Buf^[lInc] <  lMini then
-          lMini := l16Buf^[lInc];
-      end;
-       lHdr.GlMinUnscaledS := lMini;
-       lHdr.GlMaxUnscaledS := lMaxi;
-    end; //l16i
-      kDT_SIGNED_INT: begin
-             l32i := LongIntP(@lImgBuffer^);
-      lMini := l32i^[1];
-      lMaxi := l32i^[1];
-	    for lInc := 1 to lImgSamples do begin
-        if l32i^[lInc] >  lMaxi then
-          lMaxi := l32i^[lInc];
-        if l32i^[lInc] <  lMini then
-          lMini := l32i^[lInc];
-      end;
-       lHdr.GlMinUnscaledS := lMini;
-       lHdr.GlMaxUnscaledS := lMaxi;
-
-      end; //32i
-      kDT_FLOAT: begin
-             l32f := SingleP(@lImgBuffer^);
-      lMins := l32f^[1];
-      lMaxs := l32f^[1];
-	    for lInc := 1 to lImgSamples do begin
-        if l32f^[lInc] >  lMaxs then
-          lMaxs := l32f^[lInc];
-        if l32f^[lInc] <  lMins then
-          lMins := l32f^[lInc];
-      end;
-       lHdr.GlMinUnscaledS := lMins;
-       lHdr.GlMaxUnscaledS := lMaxs;
-          end;//32i
+              l16Buf := SmallIntP(lImgBuffer {lHdr.ImgBuffer} );
+              lMini := l16Buf^[1];
+              lMaxi := l16Buf^[1];
+              for lInc := 1 to lImgSamples do begin
+                  if l16Buf^[lInc] >  lMaxi then
+                     lMaxi := l16Buf^[lInc];
+                  if l16Buf^[lInc] <  lMini then
+                     lMini := l16Buf^[lInc];
+              end;
+              lHdr.GlMinUnscaledS := lMini;
+              lHdr.GlMaxUnscaledS := lMaxi;
+          end; //16i
+          kDT_SIGNED_INT: begin
+            l32i := LongIntP(@lImgBuffer^);
+            lMini := l32i^[1];
+            lMaxi := l32i^[1];
+            for lInc := 1 to lImgSamples do begin
+              if l32i^[lInc] >  lMaxi then
+                 lMaxi := l32i^[lInc];
+              if l32i^[lInc] <  lMini then
+                 lMini := l32i^[lInc];
+            end;
+            lHdr.GlMinUnscaledS := lMini;
+            lHdr.GlMaxUnscaledS := lMaxi;
+          end; //32i
+          kDT_FLOAT: begin
+            l32f := SingleP(@lImgBuffer^);
+            lMins := l32f^[1];
+            lMaxs := l32f^[1];
+            for lInc := 1 to lImgSamples do begin
+                if l32f^[lInc] >  lMaxs then
+                   lMaxs := l32f^[lInc];
+                if l32f^[lInc] <  lMins then
+                   lMins := l32f^[lInc];
+            end;
+            lHdr.GlMinUnscaledS := lMins;
+            lHdr.GlMaxUnscaledS := lMaxs;
+          end;//32f
      end; //case
 end;
 
@@ -442,15 +428,119 @@ begin
     lInVox :=  lHdr.NIFTIhdr.dim[1] *  lHdr.NIFTIhdr.dim[2] * lHdr.NIFTIhdr.dim[3];
     l32Buf := SingleP(lImgBuffer );
     for lI := 1 to lInVox do
-			  if specialsingle(l32Buf^[lI]) then l32Buf^[lI] :=0.0;
+        if specialsingle(l32Buf^[lI]) then l32Buf^[lI] :=0.0;
 
 end;//Float32RemoveNAN
+
+procedure NIFTIhdr_ThreshFind (var lHdr: TMRIcroHdr; var lImgBuffer: byteP; out lMinPos, lMaxNeg: single);
+var
+   lInc,lImgSamples : integer;
+   lMax, lMin: single;
+   l32f: SingleP;
+begin
+     lImgSamples := lHdr.NIFTIhdr.Dim[1] *lHdr.NIFTIhdr.Dim[2]*lHdr.NIFTIhdr.Dim[3];
+     lMinPos := 0;
+     lMaxNeg := 0;
+     if (lImgSamples < 1) or (lHdr.NIFTIhdr.datatype <> kDT_FLOAT) or (not gPrefs.ThresholdDetection) then
+        exit;
+    lMinPos := MaxInt;
+    lMaxNeg := -MaxInt;
+    lMin := 0;
+    lMax := 0;
+     case lHdr.NIFTIhdr.datatype of
+          kDT_FLOAT: begin
+            l32f := SingleP(@lImgBuffer^);
+            lMax :=l32f^[1];
+            lMin := lMax;
+            for lInc := 1 to lImgSamples do begin
+                if (l32f^[lInc] > lMax) then
+                   lMax := l32f^[lInc];
+                if (l32f^[lInc] > 0) and (l32f^[lInc] < lMinPos) then
+                   lMinPos := l32f^[lInc];
+                if (l32f^[lInc] < lMin) then
+                   lMin := l32f^[lInc];
+                if (l32f^[lInc] < 0) and (l32f^[lInc] > lMaxNeg) then
+                   lMaxNeg := l32f^[lInc];
+            end; //for each sample
+          end;//32f
+     end; //case
+     if (lMaxNeg = -MaxInt) or (lMaxNeg = lMin) then lMaxNeg := 0;
+     if (lMinPos = MaxInt) or (lMinPos = lMax) then lMinPos := 0;
+     if (lHdr.NIFTIhdr.datatype <> kDT_FLOAT) and (lMinPos = 1) then
+        lMinPos := 0; //minimum integer is 1
+     if (lHdr.NIFTIhdr.datatype <> kDT_FLOAT) and (lMaxNeg = -1) then
+        lMaxNeg := 0; //minimum integer is 1
+     //scale v := (v * gTexture3D.NIFTIhdr.scl_slope)+gTexture3D.NIFTIhdr.scl_inter;
+     if ((lMinPos*lHdr.NIFTIhdr.scl_slope)+lHdr.NIFTIhdr.scl_inter) < 1.0 then
+        lMinPos := 0;
+     if ((lMaxNeg*lHdr.NIFTIhdr.scl_slope)+lHdr.NIFTIhdr.scl_inter) > -1.0 then
+        lMaxNeg := 0;
+     //GLForm1.caption := ( format('%g %g',[lMinPos, lMaxNeg]) );
+end;
+
+procedure NIFTIhdr_ThreshPos (var lHdr: TMRIcroHdr; var lImgBuffer: byteP; lMinPos: single); //ensures image data is in native space
+var
+   lInc,lImgSamples : integer;
+   lMinPosDiv2: single;
+   //l32i : LongIntP;
+   l32f: SingleP;
+   //l16Buf : SmallIntP;
+begin
+     lImgSamples := lHdr.NIFTIhdr.Dim[1] *lHdr.NIFTIhdr.Dim[2]*lHdr.NIFTIhdr.Dim[3];
+     if (lImgSamples < 1) or (lHdr.NIFTIhdr.datatype <> kDT_FLOAT) or (not gPrefs.ThresholdDetection) or (lMinPos <= 0) then
+        exit;
+    lMinPosDiv2 := lMinPos / 2.0;
+     case lHdr.NIFTIhdr.datatype of
+          kDT_FLOAT: begin
+            l32f := SingleP(@lImgBuffer^);
+            for lInc := 1 to lImgSamples do begin
+                if (l32f^[lInc] > 0) then begin
+                     if (l32f^[lInc] <  lMinPosDiv2) then
+                        l32f^[lInc] := 0
+                     else if (l32f^[lInc] <  lMinPos) then
+                	l32f^[lInc] := lMinPos;
+                end; //pos sample
+            end; //for each sample
+          end;//32f
+     end; //case
+end; //NIFTIhdr_ThreshPos()
+
+procedure NIFTIhdr_ThreshNeg (var lHdr: TMRIcroHdr; var lImgBuffer: byteP; lMaxNeg: single); //ensures image data is in native space
+var
+   lInc,lImgSamples : integer;
+   lMaxNegDiv2: single;
+   //l32i : LongIntP;
+   l32f: SingleP;
+   //l16Buf : SmallIntP;
+begin
+     lImgSamples := lHdr.NIFTIhdr.Dim[1] *lHdr.NIFTIhdr.Dim[2]*lHdr.NIFTIhdr.Dim[3];
+     if (lImgSamples < 1) or (lHdr.NIFTIhdr.datatype <> kDT_FLOAT) or (not gPrefs.ThresholdDetection) or (lMaxNeg >= 0) then
+        exit;
+    lMaxNegDiv2 := lMaxNeg / 2.0;
+     case lHdr.NIFTIhdr.datatype of
+          kDT_FLOAT: begin
+            l32f := SingleP(@lImgBuffer^);
+            for lInc := 1 to lImgSamples do begin
+                if (l32f^[lInc] < 0) then begin
+                     if (l32f^[lInc] >  lMaxNegDiv2) then
+                        l32f^[lInc] := 0
+                     else if (l32f^[lInc] >  lMaxNeg) then
+                	l32f^[lInc] := lMaxNeg;
+
+                end; //neg sample
+            end; //for each sample
+          end;//32f
+     end; //case
+     //GLForm1.caption := ( format('neg %g boost %d',[lMaxNeg, Nx]) );
+end; //NIFTIhdr_ThreshNeg()
+
 
 function Reslice2TargCore (var lSrcHdr: TMRIcroHdr; var lSrcBuffer: bytep;  var lTargHdr: TNIFTIHdr; var lDestHdr: TMRIcroHdr; lTrilinearInterpolation: boolean; lVolume: integer): string;
 //output lDestHdr
 var
    lPos,lXYs,lXYZs,lXs,lYs,lZs,lXi,lYi,lZi,lX,lY,lZ,
    lXo,lYo,lZo,lMinY,lMinZ,lMaxY,lMaxZ,lBPP,lXYZ: integer;
+   lMinPositive, lMaxNegative,
    lXrM1,lYrM1,lZrM1,lXreal,lYreal,lZreal,
    lZx,lZy,lZz,lYx,lYy,lYz,
    lInMinX,lInMinY,lInMinZ, lOutMinX,lOutMinY,lOutMinZ: single;
@@ -472,6 +562,8 @@ begin
      NIFTIhdr_UnswapImg (lSrcHdr,lSrcBuffer); //ensures image data is in native byteorder
      Float32RemoveNAN(lSrcHdr,lSrcBuffer);
      RGB24ToByte (lSrcHdr, lSrcBuffer,lVolume);
+     NIFTIhdr_ThreshFind (lSrcHdr, lSrcBuffer, lMinPositive, lMaxNegative); //ensures image data is in native space
+
      //AbsFloat(lSrcHdr, lSrcBuffer);
      case lSrcHdr.NIFTIhdr.datatype of
         kDT_UNSIGNED_CHAR : lBPP := 1;
@@ -682,24 +774,11 @@ end else begin //if trilinear, else nearest neighbor
      end;//z
 
 end;
-
      //release lookup tables
      freemem(lXx);
      freemem(lXy);
      freemem(lXz);
-     //check to see if image is empty...
-     (*lPos := 1;
-     case lSrcHdr.NIFTIhdr.datatype of
-        kDT_UNSIGNED_CHAR : while (lPos <= (lX*lY*lZ)) and (l8i^[lPos] = 0) do inc(lPos);
-        kDT_SIGNED_SHORT: while (lPos <= (lX*lY*lZ)) and (l16i^[lPos] = 0) do inc(lPos);
-        kDT_SIGNED_INT:while (lPos <= (lX*lY*lZ)) and (l32i^[lPos] = 0) do inc(lPos);
-	      kDT_FLOAT: while (lPos <= (lX*lY*lZ)) and (l32f^[lPos] = 0) do inc(lPos);
-     end; //case
-     if lPos <= (lX*lY*lZ) then  //image not empty
-        //Msg('Overlap')
-        //result :=  SaveNIfTICore (lDestName, lBuffAligned, kNIIImgOffset+1, lDestHdr, lPrefs,lByteSwap);
-     else
-         Msg('Overlay image does not overlap with background image.');  *)
+
      if not lOverlap then
          Msg('Overlay image does not overlap with background image.');
      //Freemem(lBuffUnaligned);
@@ -710,6 +789,8 @@ end;
       kDT_SIGNED_INT:lDestHdr.ImgBufferBPP :=4;
 	    kDT_FLOAT: lDestHdr.ImgBufferBPP :=4;
      end; //case
+     NIFTIhdr_ThreshPos(lDestHdr,lDestHdr.ImgBuffer, lMinPositive);
+     NIFTIhdr_ThreshNeg(lDestHdr,lDestHdr.ImgBuffer, lMaxNegative);
      NIFTIhdr_MinMaxImg(lDestHdr,lDestHdr.ImgBuffer);//set global min/max
      result := 'OK';
 end;
@@ -724,563 +805,5 @@ begin
      result := Reslice2TargCore (lSrcHdr, lSrcBuffer, lTargHdr, lDestHdr, lTrilinearInterpolation, lVolume);
      Freemem(lSrcBuffer);
 end;
-
-(*function Reslice2Targ (lSrcName: string; var lTargHdr: TNIFTIHdr; var lDestHdr: TMRIcroHdr; lTrilinearInterpolation: boolean; lVolume: integer): string;
-var
-   lPos,lXYs,lXYZs,lXs,lYs,lZs,lXi,lYi,lZi,lX,lY,lZ,
-   lXo,lYo,lZo,lMinY,lMinZ,lMaxY,lMaxZ,lBPP,lXYZ: integer;
-   lXrM1,lYrM1,lZrM1,lXreal,lYreal,lZreal,
-   lZx,lZy,lZz,lYx,lYy,lYz,
-   lInMinX,lInMinY,lInMinZ, lOutMinX,lOutMinY,lOutMinZ: single;
-   lXx,lXy,lXz: Singlep0;
-   l32fs,l32f : SingleP;
-   l32is,l32i : LongIntP;
-   l16is,l16i : SmallIntP;
-   l8i,l8is,lSrcBuffer: bytep;
-   lMat: TMatrix;
-   lSrcHdr: TMRIcroHdr;
-   lOverlap: boolean;
-begin
-     result := '';
-     lOverlap := false;
-     if not NIFTIhdr_LoadImg (lSrcName, lSrcHdr, lSrcBuffer,lVolume) then  exit;
-          lOverlap := false;
-     //convert 32-bit int to 32-bit float....
-     Int32ToFloat (lSrcHdr, lSrcBuffer);
-     Float64ToFloat32(lSrcHdr, lSrcBuffer);
-     NIFTIhdr_UnswapImg (lSrcHdr,lSrcBuffer); //ensures image data is in native byteorder
-     Float32RemoveNAN(lSrcHdr,lSrcBuffer);
-     RGB24ToByte (lSrcHdr, lSrcBuffer,lVolume);
-     //AbsFloat(lSrcHdr, lSrcBuffer);
-     case lSrcHdr.NIFTIhdr.datatype of
-        kDT_UNSIGNED_CHAR : lBPP := 1;
-	      kDT_SIGNED_SHORT: lBPP := 2;
-        kDT_SIGNED_INT:lBPP := 4;
-	      kDT_FLOAT: lBPP := 4;
-        kDT_RGB: lBPP := 1;
-         else begin
-             Msg('NII reslice error: datatype not supported.');
-             exit;
-         end;
-     end; //case
-     lMat := Voxel2Voxel (lTargHdr,lSrcHdr.NIFTIhdr);
-     lDestHdr {.NIFTIhdr} := lSrcHdr {.NIFTIhdr}; //destination has the comments and voxel BPP of source
-     CopyHdrMat(lTargHdr,lDestHdr.NIFTIhdr);//destination has dimensions and rotations of destination
-     lXs := lSrcHdr.NIFTIhdr.Dim[1];
-     lYs := lSrcHdr.NIFTIhdr.Dim[2];
-     lZs := lSrcHdr.NIFTIhdr.Dim[3];
-     lXYs:=lXs*lYs; //slicesz
-     lXYZs := lXYs*lZs;
-     lX := lDestHdr.NIFTIhdr.Dim[1];
-     lY := lDestHdr.NIFTIhdr.Dim[2];
-     lZ := lDestHdr.NIFTIhdr.Dim[3];
-     lDestHdr.NIFTIhdr.Dim[4] := 1;
-     //load dataset
-     NIFTIhdr_UnswapImg(lSrcHdr, lSrcBuffer);//interpolation requires data is in native endian
-     { We will set min/max after scaling..
-     NIFTIhdr_MinMaxImg(lSrcHdr, lSrcBuffer);
-     lDestHdr.GlMinUnscaledS := lSrcHdr.GlMinUnscaledS;
-     lDestHdr.GlMaxUnscaledS := lSrcHdr.GlMaxUnscaledS; }
-     l8is := (@lSrcBuffer^);
-
-     GetMem(lDestHdr.ImgBufferUnaligned ,(lBPP*lX*lY*lZ)+15);
-     {$IFDEF FPC}
-     lDestHdr.ImgBuffer := Align(lDestHdr.ImgBufferUnaligned,16); // not commented - check this
-     {$ELSE}
-     lDestHdr.ImgBuffer := ByteP($fffffff0 and (integer(lDestHdr.ImgBufferUnaligned)+15));
-     {$ENDIF}
-     //lPos := 1;
-     case lSrcHdr.NIFTIhdr.datatype of
-          kDT_UNSIGNED_CHAR : l8i  := @lDestHdr.ImgBuffer^;
-	        kDT_SIGNED_SHORT: l16i := SmallIntP(@lDestHdr.ImgBuffer^ );
-          kDT_SIGNED_INT:l32i := LongIntP(@lDestHdr.ImgBuffer^);
-	        kDT_FLOAT: l32f := SingleP(@lDestHdr.ImgBuffer^ );
-     end; //case
-     case lSrcHdr.NIFTIhdr.datatype of
-           //kDT_UNSIGNED_CHAR : l8is := l8is;
-	        kDT_SIGNED_SHORT: l16is := SmallIntP(l8is );
-          kDT_SIGNED_INT:l32is := LongIntP(l8is );
-	        kDT_FLOAT: l32fs := SingleP(l8is );
-     end; //case
-     //next clear image
-
-     case lSrcHdr.NIFTIhdr.datatype of
-           kDT_UNSIGNED_CHAR : for lPos := 1 to (lX*lY*lZ) do l8i^[lPos] := 0;
-	        kDT_SIGNED_SHORT: for lPos := 1 to (lX*lY*lZ) do l16i^[lPos] := 0;
-          kDT_SIGNED_INT:for lPos := 1 to (lX*lY*lZ) do l32i^[lPos] := 0;
-	        kDT_FLOAT: for lPos := 1 to (lX*lY*lZ) do l32f^[lPos] := 0;
-     end; //case
-
-     //now we can apply the transforms...
-     //build lookup table - speed up inner loop
-     getmem(lXx, lX*sizeof(single));
-     getmem(lXy, lX*sizeof(single));
-     getmem(lXz, lX*sizeof(single));
-     for lXi := 0 to (lX-1) do begin
-      lXx^[lXi] := lXi*lMat.matrix[1][1];
-      lXy^[lXi] := lXi*lMat.matrix[2][1];
-      lXz^[lXi] := lXi*lMat.matrix[3][1];
-     end;
-     lPos := 0;
-if lTrilinearInterpolation  then begin
-     for lZi := 0 to (lZ-1) do begin
-         //these values are the same for all voxels in the slice
-         // compute once per slice
-         lZx := lZi*lMat.matrix[1][3];
-         lZy := lZi*lMat.matrix[2][3];
-         lZz := lZi*lMat.matrix[3][3];
-         for lYi := 0 to (lY-1) do begin
-             //these values change once per row
-             // compute once per row
-             lYx :=  lYi*lMat.matrix[1][2];
-             lYy :=  lYi*lMat.matrix[2][2];
-             lYz :=  lYi*lMat.matrix[3][2];
-             for lXi := 0 to (lX-1) do begin
-                 //compute each column
-                 inc(lPos);
-
-                 lXreal := (lXx^[lXi]+lYx+lZx+lMat.matrix[1][4]);
-                 lYreal := (lXy^[lXi]+lYy+lZy+lMat.matrix[2][4]);
-                 lZreal := (lXz^[lXi]+lYz+lZz+lMat.matrix[3][4]);
-                 //need to test Xreal as -0.01 truncates to zero
-                 if (lXreal >= 0) and (lYreal >= 0{1}) and (lZreal >= 0{1}) and
-                     (lXreal < (lXs -1)) and (lYreal < (lYs -1) ) and (lZreal < (lZs -1))
-                  then begin
-                    //compute the contribution for each of the 8 source voxels
-                    //nearest to the target
-                    lOverlap := true;
-			              lXo := trunc(lXreal);
-			              lYo := trunc(lYreal);
-			              lZo := trunc(lZreal);
-			              lXreal := lXreal-lXo;
-			              lYreal := lYreal-lYo;
-			              lZreal := lZreal-lZo;
-                    lXrM1 := 1-lXreal;
-			              lYrM1 := 1-lYreal;
-			              lZrM1 := 1-lZreal;
-			              lMinY := lYo*lXs;
-			              lMinZ := lZo*lXYs;
-			              lMaxY := lMinY+lXs;
-			              lMaxZ := lMinZ+lXYs;
-                    inc(lXo);//images incremented from 1 not 0
-     case lSrcHdr.NIFTIhdr.datatype of
-          kDT_UNSIGNED_CHAR : begin// l8is := l8is;
-                          l8i^[lPos] :=
-                           round (
-		 	   {all min} ( (lXrM1*lYrM1*lZrM1)*l8is^[lXo+lMinY+lMinZ])
-			   {x+1}+((lXreal*lYrM1*lZrM1)*l8is^[lXo+1+lMinY+lMinZ])
-			   {y+1}+((lXrM1*lYreal*lZrM1)*l8is^[lXo+lMaxY+lMinZ])
-			   {z+1}+((lXrM1*lYrM1*lZreal)*l8is^[lXo+lMinY+lMaxZ])
-			   {x+1,y+1}+((lXreal*lYreal*lZrM1)*l8is^[lXo+1+lMaxY+lMinZ])
-			   {x+1,z+1}+((lXreal*lYrM1*lZreal)*l8is^[lXo+1+lMinY+lMaxZ])
-			   {y+1,z+1}+((lXrM1*lYreal*lZreal)*l8is^[lXo+lMaxY+lMaxZ])
-			   {x+1,y+1,z+1}+((lXreal*lYreal*lZreal)*l8is^[lXo+1+lMaxY+lMaxZ]) );
-          end;
-	  kDT_SIGNED_SHORT: begin
-                          l16i^[lPos] :=
-                           round (
-		 	   {all min} ( (lXrM1*lYrM1*lZrM1)*l16is^[lXo+lMinY+lMinZ])
-			   {x+1}+((lXreal*lYrM1*lZrM1)*l16is^[lXo+1+lMinY+lMinZ])
-			   {y+1}+((lXrM1*lYreal*lZrM1)*l16is^[lXo+lMaxY+lMinZ])
-			   {z+1}+((lXrM1*lYrM1*lZreal)*l16is^[lXo+lMinY+lMaxZ])
-			   {x+1,y+1}+((lXreal*lYreal*lZrM1)*l16is^[lXo+1+lMaxY+lMinZ])
-			   {x+1,z+1}+((lXreal*lYrM1*lZreal)*l16is^[lXo+1+lMinY+lMaxZ])
-			   {y+1,z+1}+((lXrM1*lYreal*lZreal)*l16is^[lXo+lMaxY+lMaxZ])
-			   {x+1,y+1,z+1}+((lXreal*lYreal*lZreal)*l16is^[lXo+1+lMaxY+lMaxZ]) );
-          end;
-          kDT_SIGNED_INT:begin
-                          l32i^[lPos] :=
-                           round (
-		 	   {all min} ( (lXrM1*lYrM1*lZrM1)*l32is^[lXo+lMinY+lMinZ])
-			   {x+1}+((lXreal*lYrM1*lZrM1)*l32is^[lXo+1+lMinY+lMinZ])
-			   {y+1}+((lXrM1*lYreal*lZrM1)*l32is^[lXo+lMaxY+lMinZ])
-			   {z+1}+((lXrM1*lYrM1*lZreal)*l32is^[lXo+lMinY+lMaxZ])
-			   {x+1,y+1}+((lXreal*lYreal*lZrM1)*l32is^[lXo+1+lMaxY+lMinZ])
-			   {x+1,z+1}+((lXreal*lYrM1*lZreal)*l32is^[lXo+1+lMinY+lMaxZ])
-			   {y+1,z+1}+((lXrM1*lYreal*lZreal)*l32is^[lXo+lMaxY+lMaxZ])
-			   {x+1,y+1,z+1}+((lXreal*lYreal*lZreal)*l32is^[lXo+1+lMaxY+lMaxZ]) );
-          end;
-	  kDT_FLOAT: begin  //note - we do not round results - all intensities might be frational...
-                          l32f^[lPos] :=
-                            (
-		 	   {all min} ( (lXrM1*lYrM1*lZrM1)*l32fs^[lXo+lMinY+lMinZ])
-			   {x+1}+((lXreal*lYrM1*lZrM1)*l32fs^[lXo+1+lMinY+lMinZ])
-			   {y+1}+((lXrM1*lYreal*lZrM1)*l32fs^[lXo+lMaxY+lMinZ])
-			   {z+1}+((lXrM1*lYrM1*lZreal)*l32fs^[lXo+lMinY+lMaxZ])
-			   {x+1,y+1}+((lXreal*lYreal*lZrM1)*l32fs^[lXo+1+lMaxY+lMinZ])
-			   {x+1,z+1}+((lXreal*lYrM1*lZreal)*l32fs^[lXo+1+lMinY+lMaxZ])
-			   {y+1,z+1}+((lXrM1*lYreal*lZreal)*l32fs^[lXo+lMaxY+lMaxZ])
-			   {x+1,y+1,z+1}+((lXreal*lYreal*lZreal)*l32fs^[lXo+1+lMaxY+lMaxZ]) );
-          end;
-     end; //case
-
-                 end; //if voxel is in source image's bounding box
-             end;//z
-         end;//y
-     end;//z
-end else begin //if trilinear, else nearest neighbor
-
-     for lZi := 0 to (lZ-1) do begin
-         //these values are the same for all voxels in the slice
-         // compute once per slice
-         lZx := lZi*lMat.matrix[1][3];
-         lZy := lZi*lMat.matrix[2][3];
-         lZz := lZi*lMat.matrix[3][3];
-         for lYi := 0 to (lY-1) do begin
-             //these values change once per row
-             // compute once per row
-             lYx :=  lYi*lMat.matrix[1][2];
-             lYy :=  lYi*lMat.matrix[2][2];
-             lYz :=  lYi*lMat.matrix[3][2];
-             for lXi := 0 to (lX-1) do begin
-                 //compute each column
-                 inc(lPos);
-                 lXo := round(lXx^[lXi]+lYx+lZx+lMat.matrix[1][4]);
-                 lYo := round(lXy^[lXi]+lYy+lZy+lMat.matrix[2][4]);
-                 lZo := round(lXz^[lXi]+lYz+lZz+lMat.matrix[3][4]);
-                 //if lZo <> 0 then
-                 // fx(lZo);
-                 //need to test Xreal as -0.01 truncates to zero
-                 if (lXo >= 0) and (lYo >= 0{1}) and (lZo >= 0{1}) and
-                     (lXo < (lXs -1)) and (lYo < (lYs -1) ) and (lZo < (lZs {-1}))
-                  then begin
-                    lOverlap := true;
-                    inc(lXo);//images incremented from 1 not 0
-			              lYo := lYo*lXs;
-			              lZo := lZo*lXYs;
-     case lSrcHdr.NIFTIhdr.datatype of
-          kDT_UNSIGNED_CHAR : // l8is := l8is;
-                          l8i^[lPos] :=l8is^[lXo+lYo+lZo];
-	  kDT_SIGNED_SHORT: l16i^[lPos] := l16is^[lXo+lYo+lZo];
-    kDT_SIGNED_INT:l32i^[lPos] := l32is^[lXo+lYo+lZo];
-	  kDT_FLOAT: l32f^[lPos] := l32fs^[lXo+lYo+lZo];
-     end; //case
-                 end; //if voxel is in source image's bounding box
-             end;//z
-         end;//y
-     end;//z
-
-end;
-     Freemem(lSrcBuffer);
-     //release lookup tables
-     freemem(lXx);
-     freemem(lXy);
-     freemem(lXz);
-     //check to see if image is empty...
-     if not lOverlap then
-         Msg('Overlay image does not overlap with background image.'); 
-     //Freemem(lBuffUnaligned);
-     lDestHdr.ImgBufferItems := lX*lY*lZ;
-     case lSrcHdr.NIFTIhdr.datatype of
-      kDT_UNSIGNED_CHAR :lDestHdr.ImgBufferBPP :=1;
-      kDT_SIGNED_SHORT: lDestHdr.ImgBufferBPP :=2;
-      kDT_SIGNED_INT:lDestHdr.ImgBufferBPP :=4;
-	    kDT_FLOAT: lDestHdr.ImgBufferBPP :=4;
-     end; //case
-     NIFTIhdr_MinMaxImg(lDestHdr,lDestHdr.ImgBuffer);//set global min/max
-     result := 'OK';
-end;  *)
-
-(*function Reslice2Targ (lSrcName: string; var lTargHdr: TNIFTIHdr; var lDestHdr: TMRIcroHdr; lTrilinearInterpolation: boolean; lVolume: integer): string;
-var
-   lPos,lXYs,lXYZs,lXs,lYs,lZs,lXi,lYi,lZi,lX,lY,lZ,
-   lXo,lYo,lZo,lMinY,lMinZ,lMaxY,lMaxZ,lBPP,lXYZ: integer;
-   lXrM1,lYrM1,lZrM1,lXreal,lYreal,lZreal,
-   lZx,lZy,lZz,lYx,lYy,lYz,
-   lInMinX,lInMinY,lInMinZ, lOutMinX,lOutMinY,lOutMinZ: single;
-   lXx,lXy,lXz: Singlep0;
-   l32fs,l32f : SingleP;
-   l32is,l32i : LongIntP;
-   l16is,l16i : SmallIntP;
-   l8i,l8is,lSrcBuffer: bytep;
-   lMat: TMatrix;
-   lSrcHdr: TMRIcroHdr;
-begin
-     result := '';
-     if not NIFTIhdr_LoadImg (lSrcName, lSrcHdr, lSrcBuffer,lVolume) then  exit;
-     //convert 32-bit int to 32-bit float....
-     Int32ToFloat (lSrcHdr, lSrcBuffer);
-     Float64ToFloat32(lSrcHdr, lSrcBuffer);
-     //AbsFloat(lSrcHdr, lSrcBuffer);
-
-     case lSrcHdr.NIFTIhdr.datatype of
-        kDT_UNSIGNED_CHAR : lBPP := 1;
-	      kDT_SIGNED_SHORT: lBPP := 2;
-        kDT_SIGNED_INT:lBPP := 4;
-	      kDT_FLOAT: lBPP := 4;
-         else begin
-             Msg('NII reslice error: datatype not supported.');
-             exit;
-         end;
-     end; //case
-     lMat := Voxel2Voxel (lTargHdr,lSrcHdr.NIFTIhdr);
-     lDestHdr.NIFTIhdr := lSrcHdr.NIFTIhdr; //destination has the comments and voxel BPP of source
-     //lDestHdr.NIFTIhdr.datatype := lSrcHdr.NIFTIhdr.datatype;
-     CopyHdrMat(lTargHdr,lDestHdr.NIFTIhdr);//destination has dimensions and rotations of destination
-     lXs := lSrcHdr.NIFTIhdr.Dim[1];
-     lYs := lSrcHdr.NIFTIhdr.Dim[2];
-     lZs := lSrcHdr.NIFTIhdr.Dim[3];
-     lXYs:=lXs*lYs; //slicesz
-     lXYZs := lXYs*lZs;
-     lX := lDestHdr.NIFTIhdr.Dim[1];
-     lY := lDestHdr.NIFTIhdr.Dim[2];
-     lZ := lDestHdr.NIFTIhdr.Dim[3];
-     lDestHdr.NIFTIhdr.Dim[4] := 1;
-     //load dataset
-     NIFTIhdr_UnswapImg(lSrcHdr, lSrcBuffer);//interpolation requires data is in native endian
-     {  We will set min/max after scaling..
-     NIFTIhdr_MinMaxImg(lSrcHdr, lSrcBuffer);
-     lDestHdr.GlMinUnscaledS := lSrcHdr.GlMinUnscaledS;
-     lDestHdr.GlMaxUnscaledS := lSrcHdr.GlMaxUnscaledS;  }
-     l8is := (@lSrcBuffer^);
-     GetMem(lDestHdr.ImgBufferUnaligned ,(lBPP*lX*lY*lZ)+15);
-     {$IFDEF FPC}
-     lDestHdr.ImgBuffer := Align(lDestHdr.ImgBufferUnaligned,16); // not commented - check this
-     {$ELSE}
-     lDestHdr.ImgBuffer := ByteP($fffffff0 and (integer(lDestHdr.ImgBufferUnaligned)+15));
-     {$ENDIF}
-     lPos := 1;
-     case lSrcHdr.NIFTIhdr.datatype of
-          kDT_UNSIGNED_CHAR : l8i  := @lDestHdr.ImgBuffer^;
-	        kDT_SIGNED_SHORT: l16i := SmallIntP(@lDestHdr.ImgBuffer^ );
-          kDT_SIGNED_INT:l32i := LongIntP(@lDestHdr.ImgBuffer^);
-	        kDT_FLOAT: l32f := SingleP(@lDestHdr.ImgBuffer^ );
-     end; //case
-     case lSrcHdr.NIFTIhdr.datatype of
-           //kDT_UNSIGNED_CHAR : l8is := l8is;
-	        kDT_SIGNED_SHORT: l16is := SmallIntP(l8is );
-          kDT_SIGNED_INT:l32is := LongIntP(l8is );
-	        kDT_FLOAT: l32fs := SingleP(l8is );
-     end; //case
-     //next clear image
-
-     case lSrcHdr.NIFTIhdr.datatype of
-           kDT_UNSIGNED_CHAR : for lPos := 1 to (lX*lY*lZ) do l8i^[lPos] := 0;
-	        kDT_SIGNED_SHORT: for lPos := 1 to (lX*lY*lZ) do l16i^[lPos] := 0;
-          kDT_SIGNED_INT:for lPos := 1 to (lX*lY*lZ) do l32i^[lPos] := 0;
-	        kDT_FLOAT: for lPos := 1 to (lX*lY*lZ) do l32f^[lPos] := 0;
-     end; //case
-
-     //now we can apply the transforms...
-     //build lookup table - speed up inner loop
-     getmem(lXx, lX*sizeof(single));
-     getmem(lXy, lX*sizeof(single));
-     getmem(lXz, lX*sizeof(single));
-     for lXi := 0 to (lX-1) do begin
-      lXx^[lXi] := lXi*lMat.matrix[1][1];
-      lXy^[lXi] := lXi*lMat.matrix[2][1];
-      lXz^[lXi] := lXi*lMat.matrix[3][1];
-     end;
-     lPos := 0;
-if lTrilinearInterpolation  then begin
-     for lZi := 0 to (lZ-1) do begin
-         //these values are the same for all voxels in the slice
-         // compute once per slice
-         lZx := lZi*lMat.matrix[1][3];
-         lZy := lZi*lMat.matrix[2][3];
-         lZz := lZi*lMat.matrix[3][3];
-         for lYi := 0 to (lY-1) do begin
-             //these values change once per row
-             // compute once per row
-             lYx :=  lYi*lMat.matrix[1][2];
-             lYy :=  lYi*lMat.matrix[2][2];
-             lYz :=  lYi*lMat.matrix[3][2];
-             for lXi := 0 to (lX-1) do begin
-                 //compute each column
-                 inc(lPos);
-
-                 lXreal := (lXx^[lXi]+lYx+lZx+lMat.matrix[1][4]);
-                 lYreal := (lXy^[lXi]+lYy+lZy+lMat.matrix[2][4]);
-                 lZreal := (lXz^[lXi]+lYz+lZz+lMat.matrix[3][4]);
-                 //need to test Xreal as -0.01 truncates to zero
-                 if (lXreal >= 0) and (lYreal >= 0{1}) and (lZreal >= 0{1}) and
-                     (lXreal < (lXs -1)) and (lYreal < (lYs -1) ) and (lZreal < (lZs -1))
-                  then begin
-                    //compute the contribution for each of the 8 source voxels
-                    //nearest to the target
-			              lXo := trunc(lXreal);
-			              lYo := trunc(lYreal);
-			              lZo := trunc(lZreal);
-			              lXreal := lXreal-lXo;
-			              lYreal := lYreal-lYo;
-			              lZreal := lZreal-lZo;
-                    lXrM1 := 1-lXreal;
-			              lYrM1 := 1-lYreal;
-			              lZrM1 := 1-lZreal;
-			              lMinY := lYo*lXs;
-			              lMinZ := lZo*lXYs;
-			              lMaxY := lMinY+lXs;
-			              lMaxZ := lMinZ+lXYs;
-                    inc(lXo);//images incremented from 1 not 0
-     case lSrcHdr.NIFTIhdr.datatype of
-          kDT_UNSIGNED_CHAR : begin// l8is := l8is;
-                          l8i^[lPos] :=
-                           round (
-		 	   {all min} ( (lXrM1*lYrM1*lZrM1)*l8is^[lXo+lMinY+lMinZ])
-			   {x+1}+((lXreal*lYrM1*lZrM1)*l8is^[lXo+1+lMinY+lMinZ])
-			   {y+1}+((lXrM1*lYreal*lZrM1)*l8is^[lXo+lMaxY+lMinZ])
-			   {z+1}+((lXrM1*lYrM1*lZreal)*l8is^[lXo+lMinY+lMaxZ])
-			   {x+1,y+1}+((lXreal*lYreal*lZrM1)*l8is^[lXo+1+lMaxY+lMinZ])
-			   {x+1,z+1}+((lXreal*lYrM1*lZreal)*l8is^[lXo+1+lMinY+lMaxZ])
-			   {y+1,z+1}+((lXrM1*lYreal*lZreal)*l8is^[lXo+lMaxY+lMaxZ])
-			   {x+1,y+1,z+1}+((lXreal*lYreal*lZreal)*l8is^[lXo+1+lMaxY+lMaxZ]) );
-          end;
-	  kDT_SIGNED_SHORT: begin
-                          l16i^[lPos] :=
-                           round (
-		 	   {all min} ( (lXrM1*lYrM1*lZrM1)*l16is^[lXo+lMinY+lMinZ])
-			   {x+1}+((lXreal*lYrM1*lZrM1)*l16is^[lXo+1+lMinY+lMinZ])
-			   {y+1}+((lXrM1*lYreal*lZrM1)*l16is^[lXo+lMaxY+lMinZ])
-			   {z+1}+((lXrM1*lYrM1*lZreal)*l16is^[lXo+lMinY+lMaxZ])
-			   {x+1,y+1}+((lXreal*lYreal*lZrM1)*l16is^[lXo+1+lMaxY+lMinZ])
-			   {x+1,z+1}+((lXreal*lYrM1*lZreal)*l16is^[lXo+1+lMinY+lMaxZ])
-			   {y+1,z+1}+((lXrM1*lYreal*lZreal)*l16is^[lXo+lMaxY+lMaxZ])
-			   {x+1,y+1,z+1}+((lXreal*lYreal*lZreal)*l16is^[lXo+1+lMaxY+lMaxZ]) );
-          end;
-          kDT_SIGNED_INT:begin
-                          l32i^[lPos] :=
-                           round (
-		 	   {all min} ( (lXrM1*lYrM1*lZrM1)*l32is^[lXo+lMinY+lMinZ])
-			   {x+1}+((lXreal*lYrM1*lZrM1)*l32is^[lXo+1+lMinY+lMinZ])
-			   {y+1}+((lXrM1*lYreal*lZrM1)*l32is^[lXo+lMaxY+lMinZ])
-			   {z+1}+((lXrM1*lYrM1*lZreal)*l32is^[lXo+lMinY+lMaxZ])
-			   {x+1,y+1}+((lXreal*lYreal*lZrM1)*l32is^[lXo+1+lMaxY+lMinZ])
-			   {x+1,z+1}+((lXreal*lYrM1*lZreal)*l32is^[lXo+1+lMinY+lMaxZ])
-			   {y+1,z+1}+((lXrM1*lYreal*lZreal)*l32is^[lXo+lMaxY+lMaxZ])
-			   {x+1,y+1,z+1}+((lXreal*lYreal*lZreal)*l32is^[lXo+1+lMaxY+lMaxZ]) );
-          end;
-	  kDT_FLOAT: begin  //note - we do not round results - all intensities might be frational...
-                          l32f^[lPos] :=
-                            (
-		 	   {all min} ( (lXrM1*lYrM1*lZrM1)*l32fs^[lXo+lMinY+lMinZ])
-			   {x+1}+((lXreal*lYrM1*lZrM1)*l32fs^[lXo+1+lMinY+lMinZ])
-			   {y+1}+((lXrM1*lYreal*lZrM1)*l32fs^[lXo+lMaxY+lMinZ])
-			   {z+1}+((lXrM1*lYrM1*lZreal)*l32fs^[lXo+lMinY+lMaxZ])
-			   {x+1,y+1}+((lXreal*lYreal*lZrM1)*l32fs^[lXo+1+lMaxY+lMinZ])
-			   {x+1,z+1}+((lXreal*lYrM1*lZreal)*l32fs^[lXo+1+lMinY+lMaxZ])
-			   {y+1,z+1}+((lXrM1*lYreal*lZreal)*l32fs^[lXo+lMaxY+lMaxZ])
-			   {x+1,y+1,z+1}+((lXreal*lYreal*lZreal)*l32fs^[lXo+1+lMaxY+lMaxZ]) );
-          end;
-     end; //case
-
-                 end; //if voxel is in source image's bounding box
-             end;//z
-         end;//y
-     end;//z
-end else begin //if trilinear, else nearest neighbor
-
-     for lZi := 0 to (lZ-1) do begin
-         //these values are the same for all voxels in the slice
-         // compute once per slice
-         lZx := lZi*lMat.matrix[1][3];
-         lZy := lZi*lMat.matrix[2][3];
-         lZz := lZi*lMat.matrix[3][3];
-         for lYi := 0 to (lY-1) do begin
-             //these values change once per row
-             // compute once per row
-             lYx :=  lYi*lMat.matrix[1][2];
-             lYy :=  lYi*lMat.matrix[2][2];
-             lYz :=  lYi*lMat.matrix[3][2];
-             for lXi := 0 to (lX-1) do begin
-                 //compute each column
-                 inc(lPos);
-                 lXo := round(lXx^[lXi]+lYx+lZx+lMat.matrix[1][4]);
-                 lYo := round(lXy^[lXi]+lYy+lZy+lMat.matrix[2][4]);
-                 lZo := round(lXz^[lXi]+lYz+lZz+lMat.matrix[3][4]);
-                 //if lZo <> 0 then
-                 // fx(lZo);
-                 //need to test Xreal as -0.01 truncates to zero
-                 if (lXo >= 0) and (lYo >= 0{1}) and (lZo >= 0{1}) and
-                     (lXo < (lXs -1)) and (lYo < (lYs -1) ) and (lZo < (lZs {-1}))
-                  then begin
-                    inc(lXo);//images incremented from 1 not 0
-			              lYo := lYo*lXs;
-			              lZo := lZo*lXYs;
-     case lSrcHdr.NIFTIhdr.datatype of
-          kDT_UNSIGNED_CHAR : // l8is := l8is;
-                          l8i^[lPos] :=l8is^[lXo+lYo+lZo];
-	  kDT_SIGNED_SHORT: l16i^[lPos] := l16is^[lXo+lYo+lZo];
-    kDT_SIGNED_INT:l32i^[lPos] := l32is^[lXo+lYo+lZo];
-	  kDT_FLOAT: l32f^[lPos] := l32fs^[lXo+lYo+lZo];
-     end; //case
-
-
-                 end; //if voxel is in source image's bounding box
-
-             end;//z
-         end;//y
-     end;//z
-
-end;
-     Freemem(lSrcBuffer);
-     //release lookup tables
-     freemem(lXx);
-     freemem(lXy);
-     freemem(lXz);
-     //check to see if image is empty...
-     lPos := 1;
-     case lSrcHdr.NIFTIhdr.datatype of
-        kDT_UNSIGNED_CHAR : while (lPos <= (lX*lY*lZ)) and (l8i^[lPos] = 0) do inc(lPos);
-        kDT_SIGNED_SHORT: while (lPos <= (lX*lY*lZ)) and (l16i^[lPos] = 0) do inc(lPos);
-        kDT_SIGNED_INT:while (lPos <= (lX*lY*lZ)) and (l32i^[lPos] = 0) do inc(lPos);
-	      kDT_FLOAT: while (lPos <= (lX*lY*lZ)) and (l32f^[lPos] = 0) do inc(lPos);
-     end; //case
-     if lPos <= (lX*lY*lZ) then  //image not empty
-        //Msg('Overlap')
-        //result :=  SaveNIfTICore (lDestName, lBuffAligned, kNIIImgOffset+1, lDestHdr, lPrefs,lByteSwap);
-     else
-         Msg('Overlay image does not overlap with background image.');
-     //Freemem(lBuffUnaligned);
-     lDestHdr.ImgBufferItems := lX*lY*lZ;
-     case lSrcHdr.NIFTIhdr.datatype of
-      kDT_UNSIGNED_CHAR :lDestHdr.ImgBufferBPP :=1;
-      kDT_SIGNED_SHORT: lDestHdr.ImgBufferBPP :=2;
-      kDT_SIGNED_INT:lDestHdr.ImgBufferBPP :=4;
-	    kDT_FLOAT: lDestHdr.ImgBufferBPP :=4;
-     end; //case
-     {if lSrcHdr.NIFTIhdr.datatype = kDT_FLOAT then begin
-      lInMinX := l32f^[1];
-      lInMinY := l32f^[1];
-      for lPos := 1 to (lX*lY*lZ) do begin
-        if l32f^[lPos] > lInMinX then
-          lInMinX :=l32f^[lPos];
-        if l32f^[lPos] < lInMinY then
-          lInMinY :=l32f^[lPos];
-      end;
-      fx(lInMinY,lInMinX);
-     end; }
-     NIFTIhdr_MinMaxImg(lDestHdr,lDestHdr.ImgBuffer);//set global min/max
-     result := 'OK';
-end;
-*)
-
-(*function ResliceImgNIfTI (lTargetImgName,lSrcImgName,lOutputName: string): boolean;
-label
- 666;
-var
-   lReslice : boolean;
-   lDestHdr,lSrcHdr: TMRIcroHdr;
-   lSrcMat,lDestMat,lSrcMatINv,lDestMatInv,lMat: TMatrix;
-   lOffX,lOffY,lOffZ: single;
-   D: double;
-begin
-     result := false;
-     if not fileexists(lTargetImgName) then exit;
-     if not fileexists(lSrcImgName) then exit;
-     ImgForm.CloseImagesClick(nil);
-     lReslice := gBGImg.ResliceOnLoad;
-     gBGImg.ResliceOnLoad := false;
-     //if not HdrForm.OpenAndDisplayHdr(lTargetImgName,lDestHdr) then goto 666;
-     if not NIFTIhdr_LoadHdr(lTargetImgName, lDestHdr) then goto 666;
-     if not NIFTIhdr_LoadHdr(lSrcImgName, lSrcHdr) then goto 666;
-     if not ImgForm.OpenAndDisplayImg(lSrcImgName,false) then exit;
-     if not Qx(lDestHdr,lSrcHdr,lOutputName) then goto 666;
-
-     result := true;
-666:
-     if not result then
-        showmessage('Error applying transform '+lSrcImgName+'->'+lTargetImgName);
-     gBGImg.ResliceOnLoad := lReslice;
-end;  *)
 
 end.

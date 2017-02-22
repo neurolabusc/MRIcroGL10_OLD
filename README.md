@@ -10,8 +10,10 @@ http://www.mccauslandcenter.sc.edu/mricrogl/
 
 ##### Recent Versions
 
-30-January-2017
+7-February-2017
  - Looks better on Linux high-DPI screens
+ - [Cubic b-spline interpolation](http://www.mccauslandcenter.sc.edu/mricrogl/beta-features).
+ - [Threshold Detection](http://www.mccauslandcenter.sc.edu/mricrogl/beta-features).
 30-September-2016
  - Ensure colorbars show active overlay colors. Improvements for macOS 10.11.
 6-June-2016

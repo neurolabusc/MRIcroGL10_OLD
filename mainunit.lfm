@@ -1095,6 +1095,7 @@ object GLForm1: TGLForm1
         ShowHint = True
         TabOrder = 0
         OnDrawCell = StringGrid1DrawCell
+        OnEditingDone = StringGrid1Exit
         OnExit = StringGrid1Exit
         OnKeyPress = StringGrid1KeyPress
         OnMouseDown = StringGrid1MouseDown

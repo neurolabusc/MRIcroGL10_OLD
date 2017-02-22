@@ -1110,9 +1110,7 @@ begin //Proc Load_From_NIfTI
 //  Here I take the latter approach
     result :=false;
     lFilename := F_Filename;
-    //deleteGradients (lTexture);
     InitTexture(lTexture);
-
     if lFilename = '' then begin
       if not NIFTIhdr_LoadDummyImg (lHdr, lImgBuffer) then
         exit;

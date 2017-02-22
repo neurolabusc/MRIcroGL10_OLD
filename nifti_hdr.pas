@@ -20,6 +20,7 @@ type
    NIFTIhdr : TNIFTIhdr;
    AutoBalMinUnscaled,AutoBalMaxUnscaled
    ,WindowScaledMin,WindowScaledMax
+   //,GlMaxNegUnscaledS,GlMinPosUnscaledS //<- used for thresholded images
    ,GlMinUnscaledS,GlMaxUnscaledS,Zero8Bit,Slope8bit: double; //brightness and contrast
    NIfTItransform,DiskDataNativeEndian,UsesCustomPalette,RGB,LutFromZero,LutVisible: boolean;
    HdrFileName,ImgFileName: string;

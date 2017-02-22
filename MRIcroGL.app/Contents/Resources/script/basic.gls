@@ -1,9 +1,12 @@
 begin
-	LOADIMAGE('avg152T1');
+	//LOADIMAGE('avg152T1');
 	//RESETDEFAULTS;
-	//LOADIMAGE('mni152_2009bet');
+	LOADIMAGE('/Users/rorden/Documents/OSX/MRIcroGL/mni152_2009_256');
 	//CLIPAZIMUTHELEVATION(0.3, 0, 130);
-	//OVERLAYLOAD('motor');
-	//OVERLAYMINMAX(1, 2.6, 4);
+	OVERLAYLOAD('/Users/rorden/msk/m');
+	//OVERLAYLOAD('/Users/rorden/msk/neg');
+	//OVERLAYLOAD('/Users/rorden/msk/t');	
+OVERLAYMINMAX(1, 2.0, 2);
+//OVERLAYMINMAX(1, -2.0, -2);
 end.
 

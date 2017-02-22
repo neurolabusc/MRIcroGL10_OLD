@@ -14,20 +14,17 @@ type
   TMRU =  array [1..knMRU] of string;
   TPrefs = record
          {$IFDEF Darwin}isDoubleBuffer,{$ENDIF}
-         FlipYZ,
-         SliceDetailsCubeAndText,
-         FormMaximized,Debug,ColorEditor,ProportionalStretch,OverlayColorFromZero, OverlayHideZeros,SkipPrefWriting,
-         MaskOverlayWithBackground,  InterpolateOverlays, Perspective,
-         FasterGradientCalculations,
-         ShowToolbar,ColorbarText,Colorbar,ForcePowerOfTwo,  //InterpolateViewX,
-         RayCastShowGLSLWarnings,RayCastViewCenteredLight,EnableYoke,//Show2DSlicesDuringRendering,
-         //IntelWarning,        dou
+         OverlayHideZeros,SkipPrefWriting,
+         FlipYZ, SliceDetailsCubeAndText,ThresholdDetection,
+         FormMaximized,Debug,ColorEditor,ProportionalStretch,OverlayColorFromZero,
+         MaskOverlayWithBackground,  InterpolateOverlays, Perspective,FasterGradientCalculations,
+         ShowToolbar,ColorbarText,Colorbar,ForcePowerOfTwo,
+         RayCastShowGLSLWarnings,RayCastViewCenteredLight,EnableYoke,
          NoveauWarning, StartupScript : boolean;
-         PlanarRGB,SliceView,DrawColor,RayCastQuality1to10,FormWidth,FormHeight,//RenderQuality,
-         BackgroundAlpha,
-         OverlayAlpha,CrosshairThick,MaxVox, BitmapZoom: integer;
+         PlanarRGB,SliceView,DrawColor,RayCastQuality1to10,FormWidth,FormHeight,
+         BackgroundAlpha,OverlayAlpha,CrosshairThick,MaxVox, BitmapZoom: integer;
          CLUTWindowColor,CLUTIntensityColor: TColor;
-         GridAndBorder,BackColor,TextColor,TextBorder,CrosshairColor,HistogramColor,{HistogramGrid,}HistogramBack: TGLRGBQuad;
+         GridAndBorder,BackColor,TextColor,TextBorder,CrosshairColor,HistogramColor,HistogramBack: TGLRGBQuad;
          ColorBarPos: TUnitRect;
          InitScript: string;
          PrevFilename,PrevScriptName: TMRU;
@@ -175,6 +172,7 @@ begin
             //IntelWarning := true;
             NoveauWarning := true;
             FlipYZ := false;
+            ThresholdDetection := true;
             {$IFDEF Darwin} isDoubleBuffer := false; {$ENDIF}
             ForcePowerOfTwo:= false;
             OverlayHideZeros := false;
@@ -431,6 +429,7 @@ begin
 	IniBool(lRead,lIniFile, 'FormMaximized',lPrefs.FormMaximized);
 	//IniBool(lRead,lIniFile, 'SliceText',lPrefs.SliceText);
 	IniBool(lRead,lIniFile, 'ColorBarText',lPrefs.ColorBarText);
+        IniBool(lRead,lIniFile, 'ThresholdDetection',lPrefs.ThresholdDetection);
  	IniBool(lRead,lIniFile, 'ForcePowerOfTwo',lPrefs.ForcePowerOfTwo);
 	IniBool(lRead,lIniFile, 'StartScript',lPrefs.StartupScript);
 	//IniBool(lRead,lIniFile, 'IntelWarning',lPrefs.IntelWarning);

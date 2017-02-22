@@ -29,41 +29,36 @@ mainunit;
 
 const
   kRGBAclear : TRGBA = (r: 0; g: 0; b: 0; a:0);
-
-(*
-USE XYZIx instead it is FASTER and BETTER (preserves more percision in 8-bit float)
-Function XYZI (X1,X2,Y1,Y2,Z1,Z2: single): TRGBA;
-//Function XYZI (X1,X2,Y1,Y2,Z1,Z2: single; Center: byte): TRGBA;
+{$DEFINE GRADIENT_PRENORM}
+//pre-normalizing our data allows us to avoids the "normalize" in GLSL
+//  gradientSample.rgb = normalize(gradientSample.rgb*2.0 - 1.0);
+//it is a bit slower and does provide a bit less precision
+//in 2017 we switched to the pre-norm so that the CPU and GLSL gradients match each other
+{$IFDEF GRADIENT_PRENORM}
+Function XYZIx (X1,X2,Y1,Y2,Z1,Z2: single): TRGBA;
 //input voxel intensity to the left,right,anterior,posterior,inferior,superior and center
 // Output RGBA image where values correspond to X,Y,Z gradients and ImageIntensity
-//AlphaT will make a voxel invisible if center intensity is less than specified value
-// Voxels where there is no gradient (no edge boundary) are made transparent
 var
   X,Y,Z,Dx: single;
 begin
   Result := kRGBAclear;
-  //if Center < 1 then
-  //  exit; //intensity less than threshold: make invisible
   X := X1-X2;
   Y := Y1-Y2;
   Z := Z1-Z2;
   Dx := sqrt(X*X+Y*Y+Z*Z);
   if Dx = 0 then
-    exit;  //no gradient - set intensity to zero.                      Calculate_Transfer_Function
-  result.r :=round((X/(Dx*2)+0.5)*255);           //X
-  result.g :=round((Y/(Dx*2)+0.5)*255); //Y
-  result.B := round((Z/(Dx*2)+0.5)*255); //Z
-  //result.A := Center;
-end;*)
-
+    exit;  //no gradient - set intensity to zero.
+  result.r :=round((X/(Dx*2)+0.5)*255);
+  result.g :=round((Y/(Dx*2)+0.5)*255);
+  result.B := round((Z/(Dx*2)+0.5)*255);
+end;
+{$ELSE GRADIENT_PRENORM}
 Function XYZIx (X1,X2,Y1,Y2,Z1,Z2: single): TRGBA; {$IFDEF FPC} inline; {$ENDIF}
-//Function XYZIx (X1,X2,Y1,Y2,Z1,Z2: single; Center: byte): TRGBA;
-//faster version of XYZI
+//faster, more precise version of XYZI for computation, but requires "normalize" for display
 var
   X,Y,Z,Dx: single;
 begin
   Result := kRGBAclear;
-  //if Center < 1 then exit; //intensity less than threshold: make invisible
   X := X1-X2;
   Y := Y1-Y2;
   Z := Z1-Z2;
@@ -77,6 +72,7 @@ begin
   result.g :=round((Y/Dx+0.5)*255); //Y
   result.B := round((Z/Dx+0.5)*255); //Z
 end;
+{$ENDIF GRADIENT_PRENORM}
 
 {$DEFINE SOBEL}
 {$IFDEF SOBEL} //use SOBEL
@@ -88,10 +84,6 @@ var
   Y,Z,J: integer;
   Xp,Xm,Yp,Ym,Zp,Zm: single;
 begin
-  //GradMag := 0;//gradient magnitude
-  //Result := kRGBAclear;
-  //if rawData[i] < 1 then
-  //  exit; //intensity less than threshold: make invisible
   Y := XSz; //each row is X voxels
   Z := YSz*XSz; //each plane is X*Y voxels
   //X:: cols: +Z +0 -Z, rows -Y +0 +Y
@@ -257,7 +249,7 @@ Begin
         Index := (Z * dim1x2) + (Y * dim1) + X;
         //estimate gradients using Sobel or  Central Difference  (depending on DEFINE SOBEL)
         if (VolData[Index] <> 0) then
-        VolRGBA[Index] := estimateGradients (VolData, dim1,dim2, Index,GradMagS[Index]);
+           VolRGBA[Index] := estimateGradients (VolData, dim1,dim2, Index,GradMagS[Index]);
       end;//X
   VolData := nil;//FREE ----
   //next: generate normalized gradient magnitude values
