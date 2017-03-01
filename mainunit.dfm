@@ -627,7 +627,7 @@ object GLForm1: TGLForm1
         Left = 167
         Top = 21
         Width = 148
-        Height = 21
+        Height = 24
         TabOrder = 0
         OnKeyPress = MinMaxEditKeyPress
         OnKeyUp = MinMaxEditKeyUp
@@ -636,7 +636,7 @@ object GLForm1: TGLForm1
         Left = 10
         Top = 21
         Width = 148
-        Height = 21
+        Height = 24
         TabOrder = 1
         OnKeyPress = MinMaxEditKeyPress
         OnKeyUp = MinMaxEditKeyUp
@@ -1275,7 +1275,26 @@ object GLForm1: TGLForm1
         end
         object interpolateDrawMenu: TMenuItem
           Caption = 'Interpolate between slices'
-          OnClick = InterpolateDrawMenuClick
+          object InterpolateRecentMenu: TMenuItem
+            Caption = 'Last two slices '
+            ShortCut = 16472
+            OnClick = InterpolateDrawMenuClick
+          end
+          object InterpolateAxialMenu: TMenuItem
+            Tag = 1
+            Caption = 'All axial gaps'
+            OnClick = InterpolateDrawMenuClick
+          end
+          object InterpolateCoronalMenu: TMenuItem
+            Tag = 2
+            Caption = 'All coronal gaps'
+            OnClick = InterpolateDrawMenuClick
+          end
+          object InterpolateSagittalMenu: TMenuItem
+            Tag = 3
+            Caption = 'All sagittal gaps'
+            OnClick = InterpolateDrawMenuClick
+          end
         end
         object voiDescriptives1: TMenuItem
           Caption = 'Descriptives'

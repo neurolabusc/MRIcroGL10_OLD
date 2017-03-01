@@ -7,7 +7,7 @@ interface
 uses
    {$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL}glcorearb, {$ELSE} gl,glext, {$ENDIF}  {$ENDIF DGL}
   {$IFNDEF FPC} Windows, {$ENDIF}  {$IFDEF COREGL} raycast_core, {$ELSE} raycast_legacy, {$ENDIF} raycast_common,
-{$IFDEF USETRANSFERTEXTURE}texture_3d_unita, {$ELSE} {$ENDIF}
+{$IFDEF USETRANSFERTEXTURE}texture_3d_unit_transfertexture, {$ELSE} {$ENDIF}
   shaderu,dialogs,Classes,define_types, sysUtils;  //clut, texture_3d_unit,
 
 type

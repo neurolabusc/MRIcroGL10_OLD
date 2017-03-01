@@ -15,7 +15,8 @@ type
     procedure Paint; override;
 
   public
-    procedure MakeCurrent;
+    procedure MakeCurrent; overload;
+    procedure MakeCurrent(dummy: boolean); overload;
     procedure ReleaseContext;
   published
 
@@ -40,9 +41,14 @@ begin
     SwapBuffers(Self.DC);
 end;
 
-procedure TGLPanel.MakeCurrent;
+procedure TGLPanel.MakeCurrent; 
 begin
   wglMakeCurrent(self.DC, self.RC);
+end;
+
+procedure TGLPanel.MakeCurrent(dummy: boolean);
+begin
+  MakeCurrent;
 end;
 
 procedure  TGLPanel.ReleaseContext;

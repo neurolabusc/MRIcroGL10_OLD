@@ -21,7 +21,7 @@ type
          ShowToolbar,ColorbarText,Colorbar,ForcePowerOfTwo,
          RayCastShowGLSLWarnings,RayCastViewCenteredLight,EnableYoke,
          NoveauWarning, StartupScript : boolean;
-         PlanarRGB,SliceView,DrawColor,RayCastQuality1to10,FormWidth,FormHeight,
+         PlanarRGB,SliceView,DrawColor,RayCastQuality1to10,MaxStartupRayCastQuality1to10, FormWidth,FormHeight,
          BackgroundAlpha,OverlayAlpha,CrosshairThick,MaxVox, BitmapZoom: integer;
          CLUTWindowColor,CLUTIntensityColor: TColor;
          GridAndBorder,BackColor,TextColor,TextBorder,CrosshairColor,HistogramColor,HistogramBack: TGLRGBQuad;
@@ -181,6 +181,7 @@ begin
             RayCastShowGLSLWarnings := false;
             RayCastViewCenteredLight := true;
             RayCastQuality1to10 := 7;
+            MaxStartupRayCastQuality1to10 := 9; //prevent user starting up at slowest Q=10
             PlanarRGB := 2;//autodetect
             BitmapZoom := 2;
             StartupScript := false;
@@ -454,6 +455,9 @@ begin
   IniInt(lRead,lIniFile, 'PlanarRGB',lPrefs.PlanarRGB);
   IniInt(lRead,lIniFile, 'BitmapZoom',lPrefs.BitmapZoom);
   IniInt(lRead,lIniFile, 'RayCastQuality1to10',lPrefs.RayCastQuality1to10);
+  IniInt(lRead,lIniFile, 'MaxStartupRayCastQuality1to10',lPrefs.MaxStartupRayCastQuality1to10);
+  if (lRead) and (lPrefs.RayCastQuality1to10 > lPrefs.MaxStartupRayCastQuality1to10) then
+        lPrefs.RayCastQuality1to10:= lPrefs.MaxStartupRayCastQuality1to10;
   IniInt(lRead,lIniFile, 'SliceView',lPrefs.SliceView);
   if (lPrefs.SliceView > 4) then lPrefs.SliceView := 0; //do not launch in mosaic mode
   IniInt(lRead,lIniFile, 'BackgroundAlpha',lPrefs.BackgroundAlpha);

@@ -18,7 +18,7 @@ uses
   Windows,
   {$ENDIF}
   {$IFDEF ENABLEWATERMARK}watermark,{$ENDIF}
-{$IFDEF USETRANSFERTEXTURE}texture_3d_unita, {$ELSE} texture_3d_unit,{$ENDIF}
+{$IFDEF USETRANSFERTEXTURE}texture_3d_unit_transfertexture, {$ELSE} texture_3d_unit,{$ENDIF}
            graphics,
 {$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL}gl_core_matrix, glcorearb, {$ELSE} gl, glext, {$ENDIF}  {$ENDIF DGL}
  define_types,
@@ -36,8 +36,7 @@ lightPositionLoc, clipPlaneDepthLoc, clipPlaneLoc: GLint; //glint not gluint: al
   LightAzimuth,LightElevation,
   Azimuth,Elevation,WINDOW_WIDTH,WINDOW_HEIGHT : integer;
   OrthoZoom,OrthoX,OrthoY,OrthoZ,Distance,slices: single;
-{$IFDEF USETRANSFERTEXTURE}transferTexture1,
-{$ENDIF}
+{$IFDEF USETRANSFERTEXTURE}transferTexture1D,{$ENDIF}
   intensityOverlay3D,
   gradientTexture3D,gradientOverlay3D,
   intensityTexture3D,finalImage,

@@ -5,7 +5,7 @@ unit histogram2d;
 interface
 uses
 {$IFNDEF FPC}windows, {$ENDIF}
-{$IFDEF USETRANSFERTEXTURE}texture_3d_unita, {$ELSE} texture_3d_unit,{$ENDIF}
+{$IFDEF USETRANSFERTEXTURE}texture_3d_unit_transfertexture, {$ELSE} texture_3d_unit,{$ENDIF}
 {$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL}glcorearb, {$ELSE} gl, {$ENDIF}  {$ENDIF DGL}
 
  clut, define_types, Forms, Classes, Controls, prefs;

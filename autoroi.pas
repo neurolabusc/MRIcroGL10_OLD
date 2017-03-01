@@ -74,7 +74,9 @@ end;
 
 procedure TAutoROIForm.PreviewBtnClick(Sender: TObject);
 begin
- //
+ {$IFDEF USETRANSFERTEXTURE}
+ showmessage('recompile');
+ {$ELSE}
  if (gPrefs.DrawColor < 0) then begin
     GLFOrm1.DrawTool1.Items[2].click;
     exit; //do not call twice!
@@ -87,6 +89,7 @@ begin
  voiUndo;
  voiMorphologyFill(gTexture3D.FiltImg, gPrefs.DrawColor, gTexture3D.PixMM[1], gTexture3D.PixMM[2], gTexture3D.PixMM[3], gOriginX, gOriginY, gOriginZ, VarianceEdit.Value,  RadiusEdit.value, ConstrainCheck.checked);
  GLForm1.UpdateGL;
+ {$ENDIF}
 end;
 
 procedure TAutoROIForm.FormShow(Sender: TObject);

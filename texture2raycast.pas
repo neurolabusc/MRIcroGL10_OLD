@@ -5,7 +5,7 @@ interface
 uses
 {$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL}gl_core_matrix, glcorearb, {$ELSE} gl,glext, {$ENDIF}  {$ENDIF DGL}
   {$IFNDEF FPC} Windows, {$ENDIF}  raycast_common, {$IFDEF COREGL} raycast_core, {$ELSE} raycast_legacy, {$ENDIF}
-{$IFDEF USETRANSFERTEXTURE}texture_3d_unita, {$ELSE} texture_3d_unit,{$ENDIF}
+{$IFDEF USETRANSFERTEXTURE}texture_3d_unit_transfertexture, {$ELSE} texture_3d_unit,{$ENDIF}
   shaderu, clut,dialogs,Classes,define_types, sysUtils;
 procedure CreateGradientVolume (var Tex: TTexture; var gradientVolume : GLuint; var inRGBA : Bytep0; isOverlay: boolean);
 procedure CreateVolumeGL (var Tex: TTexture; var volumeID    : GLuint; ptr: PChar);
@@ -337,7 +337,7 @@ begin
 end;
 
 {$IFDEF USETRANSFERTEXTURE}
-unused
+
 Procedure iCreateColorTable (var transferTexture : GLuint; var CLUTrec: TCLUTrec);// Load image data
 var lCLUT: TLUT;
 begin

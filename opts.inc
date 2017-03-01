@@ -5,7 +5,8 @@
 {$DEFINE ENABLESHADER}
 {$DEFINE ENABLECLUT}
 {$DEFINE ENABLEMOSAIC}
-{$DEFINE xUSETRANSFERTEXTURE} //images loaded as simple 8-bit volumes with transfer texture. Overlays/Cutouts not supported.
+//{$DEFINE USETRANSFERTEXTURE} //images loaded as simple 8-bit volumes with transfer texture. Overlays/Cutouts not supported.
+//{$DEFINE ENABLEOVERLAY}
 {$IFNDEF USETRANSFERTEXTURE}
 
          {$DEFINE ENABLECUTOUT}

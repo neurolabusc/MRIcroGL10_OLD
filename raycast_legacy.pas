@@ -18,7 +18,7 @@ uses
   Windows,
   {$ENDIF}
   {$IFDEF ENABLEWATERMARK}watermark,{$ENDIF}
-{$IFDEF USETRANSFERTEXTURE}texture_3d_unita, {$ELSE} texture_3d_unit,{$ENDIF}
+{$IFDEF USETRANSFERTEXTURE}texture_3d_unit_transfertexture, {$ELSE} texture_3d_unit,{$ENDIF}
            graphics,
 {$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL}glcorearb, {$ELSE} gl,glext, {$ENDIF}  {$ENDIF DGL}
  define_types,
@@ -694,7 +694,7 @@ begin
 	glBindTexture(GL_TEXTURE_3D,gRayCast.gradientTexture3D);
 {$IFDEF USETRANSFERTEXTURE}
         glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_1D, gRayCast.TransferTexture1);
+        glBindTexture(GL_TEXTURE_1D, gRayCast.TransferTexture1D);
 {$ENDIF}
         glActiveTexture( GL_TEXTURE3 );
 	glBindTexture(GL_TEXTURE_3D,gRayCast.intensityTexture3D);

@@ -4,7 +4,7 @@ interface
 {$include opts.inc}
 {$D-,L-,O+,Q-,R-,Y-,S-}
 uses
-{$IFDEF USETRANSFERTEXTURE}texture_3d_unita, {$ELSE} texture_3d_unit,{$ENDIF}
+{$IFDEF USETRANSFERTEXTURE}texture_3d_unit_transfertexture, {$ELSE} texture_3d_unit,{$ENDIF}
 define_types, math,nifti_hdr, nifti_types;
 
 procedure ComputeThreshOverlay (var lM: TMRIcroHdr);

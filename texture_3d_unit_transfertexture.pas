@@ -1,14 +1,16 @@
-unit texture_3d_unita;
+unit texture_3d_unit_transfertexture;
 //This unit is used when USETRANSFERTEXTURE is defined in options.inc
 //  Otherwise  texture_3d_unit is used
 
 interface
 {$H+}
-{$include options.inc}
+{$include opts.inc}
 {$IFDEF FPC} {$DEFINE GZIP} {$ENDIF}
 
 uses
-  {$IFDEF GZIP}zstream, {$ENDIF}define_types, dglOpenGL,sysUtils, dialogs, math, classes,nifti_hdr, clut;
+  {$IFNDEF FPC}gziod,{$ELSE} gzio2,{$ENDIF}
+  {$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL}glcorearb, {$ELSE} gl, {$ENDIF}  {$ENDIF DGL}
+  {$IFDEF GZIP}zstream, {$ENDIF}define_types, sysUtils, dialogs, math, classes,nifti_hdr, clut, nifti_types;
 
 Type
   TTexture =  RECORD //3D data
@@ -16,29 +18,240 @@ Type
     Scale: array[1..3] of single;
     FiltDim : array [1..3] of integer;
     FiltImg: bytep0;
-    hasGradients: boolean;
     WindowHisto: HistoRA;
     MinThreshScaled,MaxThreshScaled: single;
     NIFTIhdr: TNIFTIHdr;
+    updateBackgroundGradientsGLSL,updateOverlayGradientsGLSL,
+    isLabels: boolean; //use maximum intensity projection for angiography....
     WindowScaledMax,WindowScaledMin: single;
     UnscaledHisto: HistoRA;
     RawUnscaledImgRGBA,RawUnscaledImg8: Bytep0;
     RawUnscaledImg16: SmallIntP0;
     RawUnscaledImg32: SingleP0;
+    LabelRA: TStrRA;
 end;
 
 Function Load_From_NIfTI (var lTex: TTexture; Const F_FileName : String; lPowerOfTwo: boolean; lVol: integer) : boolean;
 Procedure InitTexture (var lTexture: TTexture);
 Procedure SetLengthB (var lPtr: Bytep0;lBytes: integer);
 Procedure UpdateTransferFunctionX (lNodeRA: TCLUTrec; var TransferTexture : GLuint);
+procedure Float64ToFloat32 (var lHdr: TMRIcroHdr; var lImgBuffer: byteP);
+function NIFTIhdr_LoadImg (var lFilename: string; var lHdr: TMRIcroHdr; var lImgBuffer: byteP; lVolume: integer): boolean;
+procedure SharpenTexture(var lTexture: TTexture);
 
 implementation
-uses texture2raycast, raycastglsl;
+uses texture2raycast, raycast_legacy, raycast_common, mainunit;
 
 type
   tVolW = array of word;
 
-  Procedure UpdateTransferFunctionX (lNodeRA: TCLUTrec; var TransferTexture : GLuint);
+procedure SmoothVol8 (var rawData: bytep0; lXdim,lYdim,lZdim: integer);
+var
+  lSmoothImg,lSmoothImg2: SmallIntP0;
+  lSliceSz,lnVox,i: integer;
+begin
+  lSliceSz := lXdim*lYdim;
+  lnVox := lSliceSz*lZDim;
+  if (lnVox < 0) or (lXDim < 3) or (lYDim < 3) or (lZDim < 3) then exit;
+  getmem(lSmoothImg,lnVox * 2);
+  getmem(lSmoothImg2,lnVox * 2);
+  lSmoothImg[0] := rawData[0];
+  lSmoothImg[lnVox-1] := rawData[lnVox-1];
+  for i := 1 to (lnVox-2) do
+      lSmoothImg[i] := rawData[i-1] + (rawData[i] shl 1) + rawData[i+1];
+  for i := lXdim to (lnVox-lXdim-1) do  //output *4 input (10bit->12bit)
+      lSmoothImg2[i] := lSmoothImg[i-lXdim] + (lSmoothImg[i] shl 1) + lSmoothImg[i+lXdim];
+  for i := lSliceSz to (lnVox-lSliceSz-1) do  // *4 input (12bit->14bit) , >> 6 for 8 bit output
+      rawData[i] := (lSmoothImg2[i-lSliceSz] + (lSmoothImg2[i] shl 1) + lSmoothImg2[i+lSliceSz]) shr 6;
+  freemem(lSmoothImg);
+  freemem(lSmoothImg2);
+end;
+
+procedure SmoothVol16 (var rawData: smallintp0; lXdim,lYdim,lZdim: integer);
+var
+  lSmoothImg,lSmoothImg2: LongIntP0;
+  lSliceSz,lnVox,i: integer;
+begin
+  lSliceSz := lXdim*lYdim;
+  lnVox := lSliceSz*lZDim;
+  if (lnVox < 0) or (lXDim < 3) or (lYDim < 3) or (lZDim < 3) then exit;
+  getmem(lSmoothImg,lnVox * 4);
+  getmem(lSmoothImg2,lnVox * 4);
+  lSmoothImg[0] := rawData[0];
+  lSmoothImg[lnVox-1] := rawData[lnVox-1];
+  for i := 1 to (lnVox-2) do
+      lSmoothImg[i] := rawData[i-1] + (rawData[i] shl 1) + rawData[i+1];
+  for i := lXdim to (lnVox-lXdim-1) do  //output *4 input (10bit->12bit)
+      lSmoothImg2[i] := lSmoothImg[i-lXdim] + (lSmoothImg[i] shl 1) + lSmoothImg[i+lXdim];
+  for i := lSliceSz to (lnVox-lSliceSz-1) do  // *4 input (12bit->14bit) , >> 6 for 8 bit output
+      rawData[i] := (lSmoothImg2[i-lSliceSz] + (lSmoothImg2[i] shl 1) + lSmoothImg2[i+lSliceSz]) shr 6;
+  freemem(lSmoothImg);
+  freemem(lSmoothImg2);
+end;
+
+procedure SharpenTexture8(var lTexture: TTexture);
+var
+  lFilt: bytep0;
+  lnVox, i, v: integer;
+begin
+   lnVox := lTexture.FiltDim[1] * lTexture.FiltDim[2]  * lTexture.FiltDim[3] ;
+   getmem(lFilt,lnVox);
+   Move(lTexture.RawUnscaledImg8^, lFilt^, lnVox); //copy edges
+   SmoothVol8(lFilt, lTexture.FiltDim[1], lTexture.FiltDim[2], lTexture.FiltDim[3]);
+   for i := 0 to (lnVox -1) do begin
+       v := lTexture.RawUnscaledImg8^[i] - (lFilt^[i] - lTexture.RawUnscaledImg8^[i]);
+       if v < 0 then v := 0;
+       if v > 255 then v := 255;
+       lTexture.RawUnscaledImg8^[i] := v;
+   end;
+   freemem(lFilt);
+end;
+procedure SharpenTexture16(var lTexture: TTexture);
+var
+  lFilt: smallintp0;
+  lnVox, i, v, mx, mn: integer;
+begin
+   lnVox := lTexture.FiltDim[1] * lTexture.FiltDim[2]  * lTexture.FiltDim[3] ;
+   getmem(lFilt,lnVox*2);
+   Move(lTexture.RawUnscaledImg16^, lFilt^, lnVox*2); //copy edges
+   SmoothVol16(lFilt, lTexture.FiltDim[1], lTexture.FiltDim[2], lTexture.FiltDim[3]);
+   mx := lTexture.RawUnscaledImg16^[0];
+   mn := mx;
+   for i := 0 to (lnVox -1) do begin
+       if lTexture.RawUnscaledImg16^[i] > mx then
+         mx := lTexture.RawUnscaledImg16^[i];
+       if lTexture.RawUnscaledImg16^[i] < mn then
+         mn := lTexture.RawUnscaledImg16^[i];
+   end;
+   for i := 0 to (lnVox -1) do begin
+       v := lTexture.RawUnscaledImg16^[i] - (lFilt^[i] - lTexture.RawUnscaledImg16^[i]);
+       if v < mn then v := mn;
+       if v > mx then v := mx;
+       lTexture.RawUnscaledImg16^[i] := v;
+   end;
+   freemem(lFilt);
+end;
+
+procedure SharpenTexture(var lTexture: TTexture);
+begin
+   if (lTexture.FiltDim[1] < 3) or (lTexture.FiltDim[2] < 3) or (lTexture.FiltDim[3] < 1) then
+      exit;
+   if (lTexture.RawUnscaledImg8 <> nil) then
+      SharpenTexture8(lTexture);
+   if (lTexture.RawUnscaledImg16 <> nil) then
+      SharpenTexture16(lTexture);
+
+end;
+
+function NIFTIhdr_LoadImg (var lFilename: string; var lHdr: TMRIcroHdr; var lImgBuffer: byteP; lVolume: integer): boolean;
+  //loads img to byteP - if this returns successfully you must freemem(lImgBuffer)
+  var
+
+    lImgName: string;
+     lVolOffset,lnVol,lVol,lFileBytes,lImgBytes: integer;
+     lBuf: ByteP;
+     lInF: File;
+  begin
+      result := false;
+      if not NIFTIhdr_LoadHdr (lFilename, lHdr, gPrefs.FlipYZ) then
+          exit;
+     if lHdr.NIFTIhdr.dim[4] < 1 then
+      lHdr.NIFTIhdr.dim[4] := 1;
+     if lHdr.NIFTIhdr.dim[5] < 1 then
+      lHdr.NIFTIhdr.dim[5] := 1;
+     lnVol := lHdr.NIFTIhdr.dim[4]*lHdr.NIFTIhdr.dim[5]; //Time+Direction
+     lVol := lVolume;
+     if (lVol < 1) or (lVol > lnVol) then
+      lVol := lnVol;
+     if lHdr.NIFTIhdr.datatype = kDT_RGB then begin
+        lHdr.NIFTIhdr.bitpix := 24;
+        lVol := 1; //read all RGB planes, later on we can separate different planes
+     end;
+     //GLForm1.Caption := inttostr(lHdr.NIFTIhdr.dim[1])+'x'+inttostr(lHdr.NIFTIhdr.dim[2])+'x'+inttostr(lHdr.NIFTIhdr.dim[3])+ ' '+inttostr(lHdr.NIFTIhdr.bitpix);
+     lImgBytes := lHdr.NIFTIhdr.dim[1]*lHdr.NIFTIhdr.dim[2]*lHdr.NIFTIhdr.dim[3]*(lHdr.NIFTIhdr.bitpix div 8);
+     if lImgBytes < 1 then begin
+      GLForm1.ShowmessageError(format('Image dimensions do not make sense (x*y*z*bpp = %d*%d*%d*%d)',[lHdr.NIFTIhdr.dim[1], lHdr.NIFTIhdr.dim[2], lHdr.NIFTIhdr.dim[3], (lHdr.NIFTIhdr.bitpix div 8)]) );
+      exit;
+
+     end;
+     lVolOffset := (lVol-1) * lImgBytes;
+     lImgName := lHdr.ImgFileName;
+     if not fileexists(lImgName) then begin
+         GLForm1.ShowmessageError('LoadImg Error: Unable to find '+lImgName);
+         exit;
+     end;
+     if (lHdr.NiftiHdr.vox_offset < 0) then lHdr.NiftiHdr.vox_offset := 0;
+     if (lHdr.gzBytes = K_gzBytes_headerAndImageUncompressed) and (FSize (lImgName) < (lHdr.NiftiHdr.vox_offset+ lImgBytes)) then begin
+       GLForm1.ShowmessageError(format('LoadImg Error: File smaller (%d) than expected (%d+%d): %s',[FSize (lImgName), round(lHdr.NiftiHdr.vox_offset), lImgBytes,  lImgName]) );
+       //GLForm1.ShowmessageError(format('LoadImg Error: File smaller (%d+%d) than expected (%d) : %s',[FSize (lImgName),lHdr.NiftiHdr.vox_offset, lImgBytes,  lImgName]) );
+         exit;
+     end;
+     lFileBytes := lImgBytes;
+     GetMem(lImgBuffer,lFileBytes);
+     Filemode := 0;  //Read Only - allows us to open images where we do not have permission to modify
+     if (lHdr.gzBytes = K_gzBytes_headerAndImageUncompressed) then begin
+        AssignFile(lInF, lImgName);
+         Reset(lInF,1);
+         Seek(lInF,lVolOffset+round(lHdr.NiftiHdr.vox_offset));
+         BlockRead(lInF, lImgBuffer^[1],lImgBytes);
+         CloseFile(lInF);
+     end else begin
+         lBuf := @lImgBuffer^[1];
+        {$IFDEF GZIP}
+        if (lHdr.gzBytes = K_gzBytes_onlyImageCompressed) then
+          UnGZip2 (lImgName,lBuf, lVolOffset ,lImgBytes, round(lHdr.NIFtiHdr.vox_offset))
+        else
+          UnGZip (lImgName,lBuf, lVolOffset+round(lHdr.NIFtiHdr.vox_offset),lImgBytes);
+        {$ENDIF}
+     end;
+     Filemode := 2;  //Read/Write
+     result := true;
+  end;
+
+procedure Float64ToFloat32 (var lHdr: TMRIcroHdr; var lImgBuffer: byteP);
+var
+  lI,lInVox: integer;
+  l64Buf : DoubleP;
+  lV: double;
+  l32TempBuf,l32Buf : SingleP;
+begin
+	  if lHdr.NIFTIHdr.datatype <> kDT_DOUBLE then
+      exit;
+    lInVox :=  lHdr.NIFTIhdr.dim[1] *  lHdr.NIFTIhdr.dim[2] * lHdr.NIFTIhdr.dim[3];
+    l64Buf := DoubleP(lImgBuffer );
+    GetMem(l32TempBuf ,lInVox*sizeof(single));
+    if not lHdr.DiskDataNativeEndian then begin
+        for lI := 1 to lInVox do begin
+                         try
+                            l32TempBuf^[lI] := Swap64r(l64Buf^[lI])
+                         except
+                            l32TempBuf^[lI] := 0;
+                         end; //except
+        end; //for
+    end else begin  //convert integer to float
+			 for lI := 1 to lInVox do begin
+                        // try
+                        lV := l64Buf^[lI];
+                            l32TempBuf^[lI] := lV;//
+                       //  except
+                       //     l32TempBuf^[lI] := 0;
+                       //  end; //except
+       end;
+    end;
+    freemem(lImgBuffer);
+    GetMem(lImgBuffer ,lInVox*sizeof(single));
+    l32Buf := SingleP(lImgBuffer );
+    Move(l32TempBuf^,l32Buf^,lInVox*sizeof(single));
+    freemem(l32TempBuf);
+    for lI := 1 to lInVox do
+			if specialsingle(l32Buf^[lI]) then l32Buf^[lI] := 0.0;
+    lHdr.NIFTIHdr.datatype := kDT_FLOAT;
+    lHdr.DiskDataNativeEndian := true;
+    lHdr.NIFTIhdr.bitpix := 32;
+end;//Float64ToFloat32
+
+
+Procedure UpdateTransferFunctionX (lNodeRA: TCLUTrec; var TransferTexture : GLuint);
 var lCLUT: TLUT;
 begin
   GenerateLUT(lNodeRA, lCLUT);
@@ -49,7 +262,13 @@ end;
 Procedure InitTexture (var lTexture: TTexture);
 begin
   lTexture.FiltImg := nil;
-  lTexture.hasGradients := false;
+  //lTexture.hasGradients := false;
+  lTexture.updateBackgroundGradientsGLSL := false;
+  lTexture.updateOverlayGradientsGLSL := false;
+  lTexture.NIFTIhdr.scl_slope := 1;
+  lTexture.NIFTIhdr.scl_inter := 0;
+  lTexture.isLabels := false;
+  lTexture.LabelRA := nil; //free memory
 end;
 
 Procedure SetLengthB (var lPtr: Bytep0;lBytes: integer);
@@ -362,15 +581,20 @@ end;
 
 
 Function Load_From_NIfTI (var lTex: TTexture; Const F_FileName : String; lPowerOfTwo: boolean; lVol: integer) : boolean;
+var
+  lHdr: TMRIcroHdr;
 begin
   result := true;
-  lTex.hasGradients := false;
-  NIFTIhdr_ClearHdr(lTex.NIftiHdr);
+  //lTex.hasGradients := false;
+  InitTexture(lTex);
+  NIFTIhdr_ClearHdr(lHdr);
   if not Load3DNIfTI(F_FileName, lTex,lVol) then
      LoadBorg(64,lTex);
+  lTex.NIFTIhdr := lHdr.NIFTIhdr;
   MakeHistogram8x(lTex.FiltImg,(lTex.FiltDim[1]*lTex.FiltDim[2]*lTex.FiltDim[3]),true,lTex.WindowHisto);
   ClearHistogram8x(lTex.UnscaledHisto);
-  LoadTTexture(lTex, gRayCast.gradientTexture3D,gRayCast.intensityTexture3D, gRayCast.transferTexture1D );
+  LoadTTexture(lTex, gRayCast.gradientTexture3D,gRayCast.intensityTexture3D, gRayCast.transferTexture1D, gRayCast.intensityOverlay3D, gRayCast.gradientOverlay3D, gShader.OverlayVolume );
+
 end;
 
 end.

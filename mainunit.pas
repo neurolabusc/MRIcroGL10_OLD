@@ -16,7 +16,7 @@ types,clipbrd,
   messages,ShellAPI, detectmsaa,{$IFDEF PNG}pngimage, JPEG,{$ENDIF}
 {$ENDIF}Dialogs, ExtCtrls, Menus,  shaderu, texture2raycast,
   StdCtrls, Controls, ComCtrls, Reslice,
-{$IFDEF USETRANSFERTEXTURE}texture_3d_unita, {$ELSE} texture_3d_unit,extract,{$ENDIF}
+{$IFDEF USETRANSFERTEXTURE}texture_3d_unit_transfertexture, {$ELSE} texture_3d_unit,extract,{$ENDIF}
   {$IFDEF FPC} FileUtil, GraphType, LCLProc,LCLtype,  LCLIntf,LResources,OpenGLContext,{$ELSE}glpanel, {$ENDIF}
 {$IFDEF UNIX}Process,  {$ELSE}//ShellApi,
 Windows,{$IFDEF FPC}uscaledpi,{$ENDIF}{$ENDIF}
@@ -36,7 +36,7 @@ TGLForm1 = class(TForm)
     LightElevTrack: TTrackBar;
     ConvertForeign1: TMenuItem;
     InterpolateRecentMenu: TMenuItem;
-    InterpolaceAxialMenu: TMenuItem;
+    InterpolateAxialMenu: TMenuItem;
     InterpolateCoronalMenu: TMenuItem;
     InterpolateSagittalMenu: TMenuItem;
     //voiDescriptives1: TMenuItem;
@@ -3247,7 +3247,7 @@ var
   lHdr: TNIFTIHdr;
   lSrcHdr,lDestHdr: TMRIcroHdr;
 begin
- //exit; //fcx
+ {$IFNDEF USETRANSFERTEXTURE}
      ptr := voiGetVolume;
      if voiIsEmpty then begin
         showmessage('The drawing is empty: nothing to save');
@@ -3291,6 +3291,7 @@ begin
      SaveImg (SaveDialogVoi.FileName, lDestHdr.NIFTIhdr, lDestHdr.ImgBuffer);
      freemem(lDestHdr.ImgBufferUnaligned);
      voiSetModified(false);
+     {$ENDIF}
 end;
 
 procedure TGLForm1.CloseVOI1Click(Sender: TObject);

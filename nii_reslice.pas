@@ -3,8 +3,10 @@ interface
 //{$D-,O+,Q-,R-,S-} // L-,Y-,
 {$H+}
 {$IFDEF FPC}{$mode delphi}{$ENDIF}
+{$include opts.inc}
 uses
-  Dialogs, nii_mat,define_types,sysutils,prefs,nifti_hdr,Texture_3D_Unit, nifti_types;
+  {$IFDEF USETRANSFERTEXTURE}texture_3d_unit_transfertexture, {$ELSE} texture_3d_unit,extract,{$ENDIF}
+  Dialogs, nii_mat,define_types,sysutils,prefs,nifti_hdr, nifti_types;
 
 procedure NIFTIhdr_UnswapImg (var lHdr: TMRIcroHdr; var lImgBuffer: byteP); //ensures image data is in native space
 procedure NIFTIhdr_MinMaxImg (var lHdr: TMRIcroHdr; var lImgBuffer: byteP); //ensures image data is in native space
