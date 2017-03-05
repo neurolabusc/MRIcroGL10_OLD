@@ -133,6 +133,8 @@ begin
       gTexture3D.FiltImg^[lPos+1] := LUT[gTexture3D.RawUnscaledImgRGBA^[lPos+1]];
       gTexture3D.FiltImg^[lPos+2] := LUT[gTexture3D.RawUnscaledImgRGBA^[lPos+2]];
       gTexture3D.FiltImg^[lPos+3] := lCLUTalpha[gTexture3D.FiltImg^[lPos+1]].rgbReserved;
+      if (not gTexture3D.isLabels) and (gTexture3D.RawUnscaledImgRGBA^[lPos+1] < gCLutRec.min) then
+         gTexture3D.FiltImg^[lPos+3] := 0;
     lPos := lPos + 4;
   end;
   result := true;
@@ -1272,7 +1274,6 @@ begin //Proc Load_From_NIfTI
     end; //32-bit FLOAT datatype
     if lHdr.NIFTIHdr.datatype = kDT_RGB then begin
       lTexture.RawUnscaledImgRGBA := RGB2RGBA(lHdr.NIFTIHdr, lImgBuffer, lOutVox* lTexture.BytesPerVoxel, lTexture.FiltDim[1], lTexture.FiltDim[2]);
-
       lHdr.NIFTIHdr.bitpix := 32;
       ReorientCore(lHdr.NIFTIHdr, bytep(lTexture.RawUnscaledImgRGBA));
       end;
