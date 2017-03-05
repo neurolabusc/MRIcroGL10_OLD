@@ -1172,7 +1172,6 @@ begin
   lFilenameX := GetCurrentDir + pathdelim + lFilename;
   if AddExtSearch(lFilenameX,lBitmap) then
     exit;
-
   lFilenameX := lFilename;
   if AddExtSearch(lFilenameX,lBitmap) then
     exit;

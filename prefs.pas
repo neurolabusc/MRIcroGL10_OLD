@@ -306,38 +306,6 @@ begin
   lValue := RGBA2TColor(lC);
 end; //IniColor
 
-(*procedure IniMRU(lRead: boolean; lIniFile: TIniFile; lIdent: string;  var lMRU: TMRU);
-var
-	lI,lOK: integer;
-function Novel: boolean;
-var
-  lX: integer;
-begin
-  if lI < 2 then begin
-    result := true;
-    exit;
-  end;
-   result := false;
-   for lX := 1 to (lI-1) do
-    if lMRU[lX] = lMRU[lI] then
-      exit;
-   result := true;
-end;
-begin
-  if lRead then begin //compress files so lowest values are OK
-    lOK := 0;
-    for lI := 1 to knMRU do begin
-      IniStr(lRead,lIniFile,lIdent+inttostr(lI),lMRU[lI]);
-	    if (length(lMRU[lI]) > 0) and (fileexistsex(lMRU[lI])) and (Novel) then begin
-		    inc(lOK);
-		    lMRU[lOK] := lMRU[lI];
-      end else
-        lMRU[lI] := '';
-	  end; //for each MRU
-  end else
-	  for lI := 1 to knMRU do
-      IniStr(lRead,lIniFile,lIdent+inttostr(lI),lMRU[lI]); //write values
-end; *)
 procedure IniMRU(lRead: boolean; lIniFile: TIniFile; lIdent: string;  var lMRU: TMRU);
 var
 	lI,lOK: integer;
@@ -404,8 +372,6 @@ begin
        lPrefs.PrevFilename[1] := lFilename;
        FillMRU (lPrefs.PrevFilename, ExtractFileDirWithPathDelim(lPrefs.PrevFilename[1]),'.nii.gz',false);
     end;
-
-
 end;
 
 function IniFile(lRead: boolean; lFilename: string; var lPrefs: TPrefs): boolean;
@@ -482,7 +448,6 @@ begin
   IniRGBA(lRead,lIniFile, 'GridAndBorder',lPrefs.GridAndBorder);
   IniRGBA(lRead,lIniFile, 'HistogramBack',lPrefs.HistogramBack);
   IniRGBA(lRead,lIniFile, 'HistogramColor',lPrefs.HistogramColor);
-
 //  IniRGBA(lRead,lIniFile, 'TextColor'+inttostr(lI),lPrefs.TextColor);
 //  IniRGBA(lRead,lIniFile, 'TextBorder'+inttostr(lI),lPrefs.TextBorder);
 //  IniRGBA(lRead,lIniFile, 'ColorBarBorder'+inttostr(lI),lPrefs.ColorBarBorder);

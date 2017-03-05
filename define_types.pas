@@ -595,7 +595,7 @@ begin
     //    dec(lPathPos);
     inc(lPathPos);
     //next find first ext
-    lExtPos := 1;
+    lExtPos := lPathPos;
     while (lExtPos <= lLen) and (lInName[lExtPos] <> '.') do
           inc(lExtPos);
     if (lInName[lExtPos] = '.')  then begin
