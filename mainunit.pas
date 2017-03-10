@@ -1024,7 +1024,12 @@ begin
       mx := lMax;
     end;
     range := abs(lMax-lMin);
-    if range > 10000 then
+    lDec := 2 - trunc(log10(range));
+    if lDec < 0 then
+      lDec := 0;
+    if lDec > 8 then
+      lDec := 8;
+    (*if range > 10000 then
       lDec := 0
     else if range > 1000 then
       lDec := 1
@@ -1032,8 +1037,10 @@ begin
       lDec := 2
     else if range > 10 then
       lDec := 3
+    else if range > 0.05 then
+      lDec := 4
     else
-      lDec := 6;
+      lDec := 6;*)
     gCLUTrec.min := mn;
     gCLUTrec.max := mx;
     MinEdit.text := realtostr(mn,lDec);
@@ -1947,7 +1954,7 @@ end;
 
 procedure TGLForm1.UpdateContrast (Xa,Ya, Xb, Yb: integer);
 var
-  X,Y, Xs,Xe,Ys,Ye,lOrients,lOriente,lVox: integer;
+  X,Y, Xs,Xe,Ys,Ye,lOrients,lOriente,lVox, lLog10: integer;
   lXfrac,lYfrac,lZfrac,lMin, lMax, lVoxInten: single;
 begin
      if (Xa = Xb) and (Ya = Yb) then exit;
@@ -1972,6 +1979,11 @@ begin
      end;
      Raw2ScaledIntensity(lMin);
      Raw2ScaledIntensity(lMax);
+     if lMax > lMin then begin
+        lLog10 := trunc(log10( lMax-lMin))-1;
+        lMin := roundto(lMin,lLog10);
+        lMax := roundto(lMax,lLog10);
+     end;
      SelectIntensityMinMax(lMin,lMax);
      glbox.Invalidate;
 end;
@@ -1986,12 +1998,9 @@ begin
     UpdateContrast(MouseStartPt.X,MouseStartPt.Y,X,Y);
     //Caption := inttostr( MouseStartPt.X)+'  '+inttostr(X);
  end;
-
   MousePt.X := -X;
   MousePt.Y := -Y;
   gSelectedNode := -gSelectedNode;
-
-
 end;
 
 procedure RotateColorBar;
