@@ -255,7 +255,7 @@ TGLForm1 = class(TForm)
     procedure OrientClick(lOrient: integer);
     procedure OrientMenuClick(Sender: TObject);
     procedure SetOverlayAlpha(Sender: TObject);
-    procedure StringGridSetCaption(aRow: integer);
+    //procedure StringGridSetCaption(aRow: integer);
     procedure StringGrid1DrawCell(Sender: TObject; aCol, aRow: Integer;
       aRect: TRect; aState: TGridDrawState);
     procedure ThresholdMenuClick(Sender: TObject);
@@ -1401,7 +1401,7 @@ begin
           //Number key shortcuts used for pens!
           //if lPos < 10 then
           {$IFDEF Darwin}
-          //File1.Items[lM].ShortCut := ShortCut(Word('1')+ord(lPos-1), [ssMeta]);
+          File1.Items[lM].ShortCut := ShortCut(Word('1')+ord(lPos-1), [ssMeta]);
           {$ELSE}
           //File1.Items[lM].ShortCut := ShortCut(Word('1')+ord(lPos-1), [ssCtrl]);
           {$ENDIF}
@@ -1670,8 +1670,6 @@ begin
         PosteriorMenu.ShortCut :=  ShortCut(Word('P'), [ssCtrl]);
         SuperiorMenu.ShortCut :=  ShortCut(Word('S'), [ssCtrl]);
         InferiorMenu.ShortCut :=  ShortCut(Word('I'), [ssCtrl]);
-
-
         {$ELSE}
    AppleMenu.visible := false;
  {$ENDIF}
@@ -1853,7 +1851,7 @@ begin
   {$IFNDEF FPC}
   GLBox.SetFocus;//without this the scroll wheel can adjust previously selected combobox
   {$ENDIF}
- if gPrefs.SliceView = 5 then exit; //mosaic
+  if gPrefs.SliceView = 5 then exit; //mosaic
   MouseStartPt.X := -1;
   if MouseDownVOI(Shift,X, Y) then exit; //intercepted by draw tool
   if  (SSRight in Shift) then begin
@@ -2547,7 +2545,7 @@ end;
 procedure TGLForm1.UpdateTimerTimer(Sender: TObject);
 begin
  GLForm1.Refresh;
-      StringGridSetCaption(gPrevRow);
+ // StringGridSetCaption(gPrevRow);
  UpdateTimer.Enabled := false;
   M_refresh := true;
   GLbox.Invalidate;
@@ -3365,13 +3363,16 @@ end;
 
 procedure TGLForm1.DrawTool1Click(Sender: TObject);
 begin
-     gPrefs.DrawColor := (Sender as TMenuItem).tag; //xxx
+ if not (sender is TMenuItem) then exit;
+(Sender as TMenuItem).checked := true;
+     gPrefs.DrawColor := (Sender as TMenuItem).tag;
      if AutoRoiForm.Visible then
         AutoRoiForm.PreviewBtnClick(Sender);
      (*if (gPrefs.DrawColor >= 0) and (not voiIsOpen) then begin
         voiCreate(gTexture3D.FiltDim[1], gTexture3D.FiltDim[2],gTexture3D.FiltDim[3], nil);
         GLbox.Invalidate;
      end; *)
+
 end;
 
 procedure TGLForm1.UndoVOI1Click(Sender: TObject);
@@ -4009,12 +4010,12 @@ begin
   end;
 end;
 
-procedure TGLForm1.StringGridSetCaption(aRow: integer);
+(*procedure TGLForm1.StringGridSetCaption(aRow: integer);
 begin
     if (aRow < 1) or (aRow > gOpenOverlays) then exit;
     //writes 2.599999 instead of 2.6
-    //GLForm1.Caption := format('%s : %s %g..%g', [GLForm1.StringGrid1.Cells[0, aRow], GLForm1.StringGrid1.Cells[kLUT, aRow], gOverlayImg[aRow].WindowScaledMin, gOverlayImg[aRow].WindowScaledMax] );
-end;
+    GLForm1.Caption := format('%s : %s %g..%g', [GLForm1.StringGrid1.Cells[0, aRow], GLForm1.StringGrid1.Cells[kLUT, aRow], gOverlayImg[aRow].WindowScaledMin, gOverlayImg[aRow].WindowScaledMax] );
+end;*)
 
 
 procedure TGLForm1.StringGrid1MouseDown(Sender: TObject; Button: TMouseButton;

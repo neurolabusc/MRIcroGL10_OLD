@@ -31,6 +31,33 @@ Type
   vect3 = array [0..2] of Single;
   ivect3 = array [0..2] of integer;
 
+(*  function isECAT(fnm: string): boolean;
+  type
+  THdrMain = packed record //Next: ECAT signature
+    magic: array[1..14] of char;
+  end;
+  var
+    f: file;
+    mhdr: THdrMain;
+  begin
+    result := false;
+    if not fileexists(fnm) then exit;
+    if DirectoryExists(fnm) then exit;
+    if FSize(fnm) < 32 then exit;
+    {$I-}
+    AssignFile(f, fnm);
+    FileMode := 0;  //Set file access to read only
+    Reset(f, 1);
+    {$I+}
+    if ioresult <> 0 then
+       exit;
+    BlockRead(f, mhdr, sizeof(mhdr));
+    closefile(f);
+    if ((mhdr.magic[1] <> 'M') or (mhdr.magic[2] <> 'A') or (mhdr.magic[3] <> 'T') or (mhdr.magic[4] <> 'R') or (mhdr.magic[5] <> 'I') or (mhdr.magic[6] <> 'X')) then
+       exit;
+    result := true;
+  end; *)
+
   function isTIFF(fnm: string): boolean;
   var
     f: file;
@@ -494,7 +521,7 @@ begin
   end;
   nhdr.sform_code := 1;
   nifti_mat44_to_quatern( qto_xyz , nhdr.quatern_b, nhdr.quatern_c, nhdr.quatern_d,nhdr.qoffset_x,nhdr.qoffset_y,nhdr.qoffset_z, dumdx, dumdy, dumdz,nhdr.pixdim[0]) ;
-  nhdr.qform_code := kNIFTI_XFORM_SCANNER_ANAT;
+  nhdr.qform_code := 0;//kNIFTI_XFORM_SCANNER_ANAT;
 end;
 
 procedure NSLog( str: string);
@@ -904,6 +931,186 @@ begin
   nhdr.srow_z[0]:=0.0;nhdr.srow_z[1]:=0.0;nhdr.srow_z[2]:=-nhdr.pixdim[3];nhdr.srow_z[3]:=0.0;
   convertForeignToNifti(nhdr);
   result := true;
+end;
+
+function nii_readEcat(var fname: string; var nhdr: TNIFTIhdr; var gzBytes: int64; var swapEndian: boolean): boolean;
+Const
+  ECAT7_BYTE =1;
+  ECAT7_VAXI2 =2;
+  ECAT7_VAXI4 =3;
+  ECAT7_VAXR4 =4;
+  ECAT7_IEEER4 =5;
+  ECAT7_SUNI2 =6;
+  ECAT7_SUNI4 =7;
+  //image types
+  ECAT7_2DSCAN =1;
+  ECAT7_IMAGE16 =2;
+  ECAT7_ATTEN =3;
+  ECAT7_2DNORM =4;
+  ECAT7_POLARMAP =5;
+  ECAT7_VOLUME8 =6;
+  ECAT7_VOLUME16 =7;
+  ECAT7_PROJ =8;
+  ECAT7_PROJ16 =9;
+  ECAT7_IMAGE8 =10;
+  ECAT7_3DSCAN =11;
+  ECAT7_3DSCAN8 =12;
+  ECAT7_3DNORM =13;
+  ECAT7_3DSCANFIT =14;
+Label
+  666;
+Type
+  THdrMain = packed record //Next: MGH Format Header structure
+    magic: array[1..14] of char;
+    original_filename: array[1..32] of char;
+    sw_version, system_type, file_type: uint16;
+    serial_number: array[1..10] of char;
+    scan_start_time: uint32;
+    isotope_name: array[1..8] of char;
+    isotope_halflife: single;
+    radiopharmaceutical: array[1..32] of char;
+    gantry_tilt, gantry_rotation, bed_elevation, intrinsic_tilt: single;
+    wobble_speed, transm_source_type: int16;
+    distance_scanned, transaxial_fov: single;
+    angular_compression, coin_samp_mode, axial_samp_mode: uint16;
+    ecat_calibration_factor: single;
+    calibration_unitS, calibration_units_type, compression_code: uint16;
+    study_type: array[1..12] of char;
+    patient_id: array[1..16] of char;
+    patient_name: array[1..32] of char;
+    patient_sex, patient_dexterity: char;
+    patient_age, patient_height, patient_weight: single;
+    patient_birth_date: uint32;
+    physician_name, operator_name, study_description: array[1..32] of char;
+    acquisition_type, patient_orientation: uint16;
+    facility_name: array[1..20] of char;
+    num_planes, num_frames, num_gates, num_bed_pos: uint16;
+    init_bed_position: single;
+    bed_position: array[1..15] of single;
+    plane_separation: single;
+    lwr_sctr_thres, lwr_true_thres, upr_true_thres: uint16;
+    user_process_code: array[1..10] of char;
+    acquisition_mode: uint16;
+    bin_size, branching_fraction: single;
+    dose_start_time: single;
+    dosage, well_counter_corr_factor: single;
+    data_units: array[1..32] of char;
+    septa_state: uint16;
+    fill: array[1..12] of char;
+  end;
+  THdrList = packed record
+        hdr,
+        r01,r02,r03,r04,r05,r06,r07,r08,r09,r10,
+        r11,r12,r13,r14,r15,r16,r17,r18,r19,r20,
+        r21,r22,r23,r24,r25,r26,r27,r28,r29,r30,
+        r31 : array[1..4] of int32;
+    end;
+  THdrImg = packed record
+    data_type, num_dimensions, x_dimension, y_dimension, z_dimension: smallint;
+    x_offset, y_offset, z_offset, recon_zoom, scale_factor: single;
+    image_min, image_max: smallint;
+    x_pixel_size, y_pixel_size, z_pixel_size: single;
+    frame_duration, frame_start_time,filter_code: smallint;
+    x_resolution, y_resolution, z_resolution, num_r_elements, num_angles, z_rotation_angle, decay_corr_fctr: single;
+    processing_code, gate_duration, r_wave_offset, num_accepted_beats: int32;
+    filter_cutoff_frequenc, filter_resolution, filter_ramp_slope: single;
+    filter_order: smallint;
+    filter_scatter_fraction, filter_scatter_slope: single;
+    annotation: string[40];
+    mtx: array [1..9] of single;
+    rfilter_cutoff, rfilter_resolution: single;
+    rfilter_code, rfilter_order: int16;
+    zfilter_cutoff, zfilter_resolution: single;
+    zfilter_code, zfilter_order: smallint;
+    mtx_1_4, mtx_2_4, mtx_3_4: single;
+    scatter_type, recon_type, recon_views: smallint;
+    fill_cti: array [1..87] of int16;
+    fill_user: array [1..49] of int16;
+  end;
+var
+  mhdr: THdrMain;
+  ihdr: THdrImg;
+  lhdr: THdrList;
+  lHdrFile: file;
+  img1_StartBytes: integer;
+begin
+  result := false;
+  gzBytes := 0;
+  {$I-}
+  AssignFile(lHdrFile, fname);
+  FileMode := 0;  //Set file access to read only
+  Reset(lHdrFile, 1);
+  {$I+}
+  if ioresult <> 0 then begin
+        NSLog('Error in reading ECAT header.'+inttostr(IOResult));
+        FileMode := 2;
+        exit;
+  end;
+  BlockRead(lHdrFile, mhdr, sizeof(mhdr));
+  mhdr.magic:=upcase(mhdr.magic);
+  if ((mhdr.magic[1] <> 'M') or (mhdr.magic[2] <> 'A') or (mhdr.magic[3] <> 'T') or (mhdr.magic[4] <> 'R') or (mhdr.magic[5] <> 'I') or (mhdr.magic[6] <> 'X')) then
+       goto 666;
+  {$IFDEF ENDIAN_BIG} //data always stored big endian
+    swapEndian := false;
+  {$ELSE}
+    swapEndian := true;
+    mhdr.sw_version := swap2(mhdr.sw_version);
+    mhdr.file_type := swap2(mhdr.file_type);
+    mhdr.num_frames := swap2(mhdr.num_frames);
+    pswap4r(mhdr.ecat_calibration_factor);
+  {$ENDIF}
+  if ((mhdr.file_type < ECAT7_2DSCAN) or (mhdr.file_type > ECAT7_3DSCANFIT)) then begin
+      ShowMsg('Unknown ECAT file type '+ inttostr( mhdr.file_type));
+      goto 666;
+  end;
+  //read list header
+  BlockRead(lHdrFile, lhdr, sizeof(lhdr));
+  {$IFNDEF ENDIAN_BIG} //data always stored big endian
+  pswap4i(lhdr.r01[2]);
+  {$ENDIF}
+  img1_StartBytes := lhdr.r01[2] * 512;
+  //read image header
+  seek(lHdrFile, img1_StartBytes - 512);
+  BlockRead(lHdrFile, ihdr, sizeof(ihdr));
+  {$IFNDEF ENDIAN_BIG} //data always stored big endian
+  ihdr.data_type := swap(ihdr.data_type);
+  pswap4r(ihdr.x_pixel_size);
+  pswap4r(ihdr.y_pixel_size);
+  pswap4r(ihdr.z_pixel_size);
+  pswap4r(ihdr.scale_factor);
+  ihdr.x_dimension := swap(ihdr.x_dimension);
+  ihdr.y_dimension := swap(ihdr.y_dimension);
+  ihdr.z_dimension := swap(ihdr.z_dimension);
+  {$ENDIF}
+  ihdr.x_pixel_size := ihdr.x_pixel_size * 10.0;
+  ihdr.y_pixel_size := ihdr.y_pixel_size * 10.0;
+  ihdr.z_pixel_size := ihdr.z_pixel_size * 10.0;
+  if ((ihdr.data_type <> ECAT7_BYTE) and (ihdr.data_type <> ECAT7_SUNI2) and (ihdr.data_type <> ECAT7_SUNI4)) then begin
+      ShowMsg('Unknown ECAT data type '+ inttostr(ihdr.data_type));
+      goto 666;
+  end;
+  nhdr.scl_slope := ihdr.scale_factor * mhdr.ecat_calibration_factor;
+  nhdr.datatype := kDT_INT16;
+  if (ihdr.data_type = ECAT7_BYTE) then
+        nhdr.datatype := kDT_UINT8
+  else if (ihdr.data_type = ECAT7_SUNI4)  then
+       nhdr.datatype := kDT_INT32;
+  nhdr.dim[1]:=ihdr.x_dimension;
+  nhdr.dim[2]:=ihdr.y_dimension;
+  nhdr.dim[3]:=ihdr.z_dimension;
+  nhdr.dim[4]:=1;
+  nhdr.pixdim[1]:=ihdr.x_pixel_size;
+  nhdr.pixdim[2]:=ihdr.y_pixel_size;
+  nhdr.pixdim[3]:=ihdr.z_pixel_size;
+  nhdr.vox_offset := img1_StartBytes;
+  nhdr.sform_code := 0;
+  nhdr.srow_x[0]:=nhdr.pixdim[1]; nhdr.srow_x[1]:=0; nhdr.srow_x[2]:=0; nhdr.srow_x[3]:=-(ihdr.x_dimension-2.0)/2.0*ihdr.x_pixel_size;
+  nhdr.srow_y[0]:=0; nhdr.srow_y[1]:=nhdr.pixdim[2]; nhdr.srow_y[2]:=0; nhdr.srow_y[3]:=-(ihdr.y_dimension-2.0)/2.0*ihdr.y_pixel_size;
+  nhdr.srow_z[0]:=0; nhdr.srow_z[1]:=0; nhdr.srow_z[2]:=nhdr.pixdim[3]; nhdr.srow_z[3]:=-(ihdr.z_dimension-2.0)/2.0*ihdr.z_pixel_size;
+  convertForeignToNifti(nhdr);
+  result := true;
+666:
+CloseFile(lHdrFile);
 end;
 
 function readMGHHeader (var fname: string; var nhdr: TNIFTIhdr; var gzBytes: int64; var swapEndian: boolean): boolean;
@@ -1854,6 +2061,8 @@ begin
   lExt := UpCaseExt(lFilename);
   if (lExt = '.DV') then
      result := nii_readDeltaVision(lFilename, lHdr, gzBytes, swapEndian)
+  else if (lExt = '.V') then
+       result := nii_readEcat(lFilename, lHdr, gzBytes, swapEndian)
   else if (lExt = '.BVOX') then
        result := nii_readBVox(lFilename, lHdr, gzBytes, swapEndian)
   else if (lExt = '.GIPL') then

@@ -118,7 +118,9 @@ end;
 
 procedure TAutoROIForm.FormHide(Sender: TObject);
 begin
-     GLForm1.DrawTool1.Items[0].click;
+     //767 GLForm1.DrawTool1.Items[0].click;
+     GLForm1.NoDraw1.Click;
+
  (*if (AutoROIForm.ModalResult = mrCancel) then
 		UndoVolVOI;
 	 if not (AutoROIForm.ModalResult = mrCancel) then

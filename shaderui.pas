@@ -126,20 +126,30 @@ begin
 end;
 
 function ShaderDir: string;
+var
+   s: string;
 begin
   {$IFDEF COREGL}   //OpenGL 3 Core shaders not compatible with OpenGL2
     {$IFDEF HEMISSAO}
-    result := AppDir+'shader'
+    s := 'shader';
     {$ELSE}
-    result := AppDir+'shaders33'
+    s := 'shaders33';
     {$ENDIF}
   {$ELSE}
     {$IFDEF ENABLESHADER} //MRIcroGL
-    result := AppDir+'shaders'
+    s := 'shaders';
     {$ELSE} //SurfIce
-    result := AppDir+'shadersOld'
+    s := 'shadersOld';
     {$ENDIF}
   {$ENDIF}
+  result := AppDir + s;
+  {$IFDEF UNIX}
+  if fileexists(result) then exit;
+  result := '/usr/share/mricrogl/'+s;
+  if fileexists(result) then exit;
+  result := AppDir + s;
+  {$ENDIF}
+
 end;
 
 (*{$IFDEF COREGL}

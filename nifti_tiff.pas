@@ -187,7 +187,6 @@ begin
     if (C >= nhdr.dim[5]) then C := 0;
   end;
   freemem(imgIn);
-
 end;
 
 function RGB2planar8(var img: ByteP0; SamplesPerPixel, nX, nY, nZ: integer ): boolean;

@@ -1,5 +1,5 @@
 object GLForm1: TGLForm1
-  Left = 248
+  Left = 434
   Height = 994
   Top = 23
   Width = 1032
@@ -1530,7 +1530,6 @@ object GLForm1: TGLForm1
       end
       object DrawTool1: TMenuItem
         Caption = 'Draw color'
-        OnClick = DrawTool1Click
         object NoDraw1: TMenuItem
           Tag = -1
           AutoCheck = True
@@ -1546,7 +1545,6 @@ object GLForm1: TGLForm1
           Caption = 'Erase'
           GroupIndex = 189
           RadioItem = True
-          ShortCut = 16432
           OnClick = DrawTool1Click
         end
       end
