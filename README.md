@@ -10,6 +10,10 @@ http://www.mccauslandcenter.sc.edu/mricrogl/
 
 ##### Recent Versions
 
+31-March-2017
+ - Better (Gentoo support)[https://github.com/neurolabusc/MRIcroGL/issues/8]: Allow supporting files to be stored in /usr/share/mricrogl/script, /usr/share/mricrogl/lut and /usr/share/mricrogl/shaders
+ - Fix bug where drawing erase tool would get inadvertently activated.
+
 7-February-2017
  - Looks better on Linux high-DPI screens
  - [Cubic b-spline interpolation](http://www.mccauslandcenter.sc.edu/mricrogl/beta-features).
