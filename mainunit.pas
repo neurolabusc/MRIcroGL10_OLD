@@ -1457,6 +1457,7 @@ begin
  Colorbar1.Checked := gPrefs.Colorbar;
  SelectSliceView(gPrefs.SliceView);
  OverlayColorFromZeroMenu.checked := gPrefs.OverlayColorFromZero;
+ SetToolPanelWidth; //4/2017: show correct tool panel when script runs ResetDefaults()
 end;
 
 function SimpleGetInt(lPrompt: string; lMin,lDefault,lMax: integer): integer;
@@ -4419,7 +4420,7 @@ begin
     exit;
   end;
   Opt := OpenDialog1.Options;
-  OpenDialog1.Options := [ofAllowMultiSelect,ofFileMustExist {,ofNoChangeDir}];
+  OpenDialog1.Options := [ofAllowMultiSelect,ofFileMustExist];
   if not OpenDialog1.Execute then begin
     OpenDialog1.Options := Opt;
     exit;
@@ -4432,8 +4433,10 @@ begin
     lnVol :=  NIFTIvolumes(lFilename);
     if lnVol < 1 then
       exit;
-    if lnVol > 1 then
-      lnVol := 1;//ReadIntForm.GetInt('4D image: select volume',1,1,lnVol);
+    if ScriptForm.PSScript1.Running then
+      lnVol := 1
+    else if lnVol > 1 then
+      ReadIntForm.GetInt('4D image: select volume',1,1,lnVol); // 5/2017 https://github.com/neurolabusc/MRIcroGL/issues/4
     AddOverlay(lFilename,lnVol);
   end;
 end;

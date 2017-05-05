@@ -226,10 +226,11 @@ if TargetOS='darwin' then
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="4090"/>
-        <CursorPos X="14" Y="4106"/>
+        <TopLine Value="4429"/>
+        <CursorPos X="27" Y="4438"/>
         <UsageCount Value="207"/>
         <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit1>
       <Unit2>
@@ -238,10 +239,11 @@ if TargetOS='darwin' then
         <ComponentName Value="ScriptForm"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="4"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="5"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="197"/>
-        <CursorPos X="29" Y="204"/>
+        <TopLine Value="489"/>
+        <CursorPos X="10" Y="500"/>
         <UsageCount Value="207"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -261,11 +263,12 @@ if TargetOS='darwin' then
       </Unit3>
       <Unit4>
         <Filename Value="commandsu.pas"/>
-        <EditorIndex Value="-1"/>
+        <EditorIndex Value="6"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="4"/>
-        <CursorPos X="149" Y="13"/>
+        <TopLine Value="262"/>
+        <CursorPos X="14" Y="276"/>
         <UsageCount Value="74"/>
+        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit4>
       <Unit5>
@@ -307,7 +310,7 @@ if TargetOS='darwin' then
       <Unit9>
         <Filename Value="shaderui.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="4"/>
         <WindowIndex Value="1"/>
         <TopLine Value="135"/>
         <CursorPos Y="146"/>
@@ -344,7 +347,7 @@ if TargetOS='darwin' then
       </Unit12>
       <Unit13>
         <Filename Value="define_types.pas"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="7"/>
         <WindowIndex Value="1"/>
         <TopLine Value="154"/>
         <CursorPos X="10" Y="163"/>
@@ -455,8 +458,7 @@ if TargetOS='darwin' then
       <Unit25>
         <Filename Value="clut.pas"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="3"/>
         <WindowIndex Value="1"/>
         <TopLine Value="89"/>
         <CursorPos X="26" Y="96"/>
@@ -562,11 +564,12 @@ if TargetOS='darwin' then
       <Unit36>
         <Filename Value="..\..\..\lazarus\lcl\interfaces\carbon\carbonint.pas"/>
         <UnitName Value="CarbonInt"/>
-        <EditorIndex Value="-1"/>
+        <EditorIndex Value="1"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="31"/>
-        <CursorPos X="72" Y="44"/>
+        <TopLine Value="39"/>
+        <CursorPos X="96" Y="51"/>
         <UsageCount Value="10"/>
+        <Loaded Value="True"/>
       </Unit36>
       <Unit37>
         <Filename Value="raycast_legacy.pas"/>
@@ -650,7 +653,7 @@ if TargetOS='darwin' then
       </Unit45>
       <Unit46>
         <Filename Value="lut.pas"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="2"/>
         <WindowIndex Value="1"/>
         <TopLine Value="83"/>
         <CursorPos X="21" Y="98"/>
@@ -659,91 +662,127 @@ if TargetOS='darwin' then
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit46>
     </Units>
-    <JumpHistory Count="21" HistoryIndex="20">
+    <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="1666" Column="19" TopLine="1638"/>
+        <Filename Value="scriptengine.pas"/>
+        <Caret Line="16" Column="19"/>
       </Position1>
       <Position2>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="301" Column="68" TopLine="299"/>
+        <Filename Value="commandsu.pas"/>
+        <Caret Line="18" Column="91" TopLine="10"/>
       </Position2>
       <Position3>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="18" Column="19" TopLine="9"/>
+        <Filename Value="commandsu.pas"/>
+        <Caret Line="71" Column="17" TopLine="55"/>
       </Position3>
       <Position4>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="147" Column="4" TopLine="131"/>
+        <Filename Value="commandsu.pas"/>
+        <Caret Line="166" Column="39" TopLine="150"/>
       </Position4>
       <Position5>
-        <Filename Value="shaderui.pas"/>
-        <Caret Line="146" Column="19" TopLine="132"/>
+        <Filename Value="commandsu.pas"/>
+        <Caret Line="276" Column="14" TopLine="262"/>
       </Position5>
       <Position6>
-        <Filename Value="scriptengine.pas"/>
-        <Caret Line="478" Column="45" TopLine="478"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="398" Column="27" TopLine="390"/>
       </Position6>
       <Position7>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="2124" Column="58" TopLine="2124"/>
+        <Caret Line="1451" Column="5" TopLine="1442"/>
       </Position7>
       <Position8>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="3513" Column="17" TopLine="3497"/>
+        <Caret Line="1603" Column="14" TopLine="1588"/>
       </Position8>
       <Position9>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="3567" Column="9" TopLine="3551"/>
+        <Caret Line="4446" Column="23" TopLine="4442"/>
       </Position9>
       <Position10>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="3764" Column="61" TopLine="3746"/>
+        <Filename Value="..\..\..\lazarus\lcl\interfaces\carbon\carbonint.pas"/>
+        <Caret Line="51" Column="96" TopLine="39"/>
       </Position10>
       <Position11>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="3784" Column="27" TopLine="3766"/>
+        <Caret Line="1462" Column="97" TopLine="1447"/>
       </Position11>
       <Position12>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="3791" Column="61" TopLine="3773"/>
+        <Caret Line="4435" Column="39" TopLine="4424"/>
       </Position12>
       <Position13>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="3955" Column="18" TopLine="3939"/>
+        <Caret Line="1349" Column="35" TopLine="1340"/>
       </Position13>
       <Position14>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="4032" Column="18" TopLine="4015"/>
+        <Caret Line="1368" Column="34" TopLine="1350"/>
       </Position14>
       <Position15>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="4079" Column="25" TopLine="4062"/>
+        <Caret Line="1379" Column="21" TopLine="1363"/>
       </Position15>
       <Position16>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="4106" Column="14" TopLine="4090"/>
+        <Caret Line="2481" Column="24" TopLine="2465"/>
       </Position16>
       <Position17>
-        <Filename Value="lut.pas"/>
-        <Caret Line="62" Column="2" TopLine="56"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2483" Column="24" TopLine="2467"/>
       </Position17>
       <Position18>
-        <Filename Value="lut.pas"/>
-        <Caret Line="98" Column="21" TopLine="83"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2846" Column="23" TopLine="2830"/>
       </Position18>
       <Position19>
-        <Filename Value="clut.pas"/>
-        <Caret Line="34" Column="19" TopLine="25"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="4498" Column="20" TopLine="4482"/>
       </Position19>
       <Position20>
-        <Filename Value="clut.pas"/>
-        <Caret Line="97" Column="45" TopLine="86"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="357" Column="33" TopLine="349"/>
       </Position20>
       <Position21>
-        <Filename Value="scriptengine.pas"/>
-        <Caret Line="204" Column="29" TopLine="197"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="362" Column="36" TopLine="349"/>
       </Position21>
+      <Position22>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="388" Column="65" TopLine="373"/>
+      </Position22>
+      <Position23>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="393" Column="21" TopLine="378"/>
+      </Position23>
+      <Position24>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="399" Column="34" TopLine="389"/>
+      </Position24>
+      <Position25>
+        <Filename Value="scriptengine.pas"/>
+        <Caret Line="2" Column="61"/>
+      </Position25>
+      <Position26>
+        <Filename Value="scriptengine.pas"/>
+        <Caret Line="144" Column="25" TopLine="129"/>
+      </Position26>
+      <Position27>
+        <Filename Value="scriptengine.pas"/>
+        <Caret Line="358" Column="24" TopLine="340"/>
+      </Position27>
+      <Position28>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="907" Column="31" TopLine="906"/>
+      </Position28>
+      <Position29>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="4437" Column="19" TopLine="4427"/>
+      </Position29>
+      <Position30>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="4436" Column="19" TopLine="4427"/>
+      </Position30>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
