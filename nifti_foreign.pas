@@ -1675,13 +1675,12 @@ begin
       if (ch = chr($0D)) or (ch = chr($0A)) then break;
       str := str+ch;
     end;
-    if str = '' then break;
+    if str = '' then continue;
     if (isFirstLine) then begin
       if (length(str) <4) or (str[1]<>'N') or (str[2]<>'R') or (str[3]<>'R') or (str[4]<>'D') then
         goto 666;
       isFirstLine := false;
     end;
-    //showmessage(str+'->'+inttostr(fileposBytes));
     if (length(str) < 1) or (str[1]='#') then continue;
     splitstrStrict(':',str,mArray);
     if (mArray.count < 2) then continue;
@@ -1770,7 +1769,7 @@ begin
       if (nItems > 3) then nItems :=3;
       for i:=0 to (nItems-1) do
           offset[i] := strtofloat(mArray.Strings[i]);
-    end else if AnsiContainsText(tagName, 'data file') then begin
+    end else if AnsiContainsText(tagName, 'data file') or AnsiContainsText(tagName, 'datafile') then begin
       str := mArray.Strings[0];
       if (pos('LIST', UpperCase(str)) = 1) and (length(str) = 4) then begin  //e.g. "data file: LIST"
          readln(fp,str);
@@ -1824,9 +1823,8 @@ begin
             nhdr.pixdim[s+1] :=sqrt(vSqr);
         end //for each dimension
   end;// else
-      //  NSLog('Warning: unable to determine image orientation (unable to decode metaIO "TransformMatrix" tag)'+inttostr(matElements));
   convertForeignToNifti(nhdr);
-end;
+end; //readNRRDHeader()
 
 
 procedure THD_daxes_to_NIFTI (var nhdr: TNIFTIhdr; xyzDelta, xyzOrigin: vect3; orientSpecific: ivect3);

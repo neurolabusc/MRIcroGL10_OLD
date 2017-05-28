@@ -69,12 +69,17 @@ begin
     exit;
   ComputeMinMax(lT);
   CreateHistoThresh(lT, lT.WindowScaledMin, lT.WindowScaledMax, lT.UnscaledHisto, true, 0.005,lT.MinThreshScaled,lT.MaxThreshScaled);
+  //lT.MaxThreshScaled := 1;
+  //lT.MinThreshScaled := 0; //xxxxxxx
   lLog10 := trunc(log10( lT.MaxThreshScaled-lT.MinThreshScaled))-1;
   lMinPreRound := (lM.WindowScaledMin);
+
   lM.WindowScaledMin := roundto(lT.MinThreshScaled,lLog10);
   if (lMinPreRound > 0) and (lM.WindowScaledMin = 0) then
     lM.WindowScaledMin := power(10,lLog10);
   lM.WindowScaledMax := roundto(lT.MaxThreshScaled,lLog10);
+  if (lM.WindowScaledMax > 0.1) and (lM.WindowScaledMin = 0) then
+     lM.WindowScaledMin := lM.WindowScaledMax * 0.01;
   lM.AutoBalMinUnscaled := lM.WindowScaledMin;
   lM.AutoBalMaxUnscaled := lM.WindowScaledMax;
 end;
@@ -142,7 +147,7 @@ end;
 {$define FX9}
 procedure CreateHistoThresh (var lHdr: TTexture; lMin, lMax: single; var lHisto: HistoRA; lLogarithm: boolean; lThreshFrac: single; var lLoPct,lHiPct: single);
 var
-   lModShl10,lMinIx10,lC,lImgBufferItems,lV,lNum: integer;
+   lModShl10,lMinIx10,lC,lImgBufferItems,lV,lNum, lNumHi: integer;
    lHisto2,lHisto8bit: HistoRA;
    lByte: byte;
    lThreshVox,lMinU,lMaxU,lMod,lRng,lVs: single;
@@ -233,17 +238,21 @@ begin
    lThreshVox := lImgBufferItems * lThreshFrac;
    lLoPct := 0;
    lHiPct := 255;
+
    if (lThreshVox > 0) and (lThreshVox < lImgBufferItems) and (not lRGBdata) then begin
       //count down
-
       lNum := 0;
       lC := kHistoBins;
+      lNumHi := kHistoBins;
       repeat
 		   lNum := lNum + lHisto[lC];
+                   if (lHisto[lC] > 0) then lNumHi := lC;
 		   dec(lC);
       until (lC = 0) or (lNum >= lThreshVox);
       if lC = 0 then
-        lC := 128;
+        lC := lNumHi;
+      if (lC < (kHistoBins shr 1)) then
+        lC := (kHistoBins shr 1);
       lHiPct := ((lC/kHistoBins*(lMaxU-lMinU))+lMinU);
       //count up
       lNum := 0;
@@ -253,7 +262,7 @@ begin
 		    inc(lC);
       until (lC >= kHistoBins) or (lNum >= lThreshVox);
       lLoPct := ((lC/kHistoBIns*(lMaxU-lMinU))+lMinU);
-
+      //showmessage(inttostr(lNumHi)+'xxxx '+floattostr(lLoPct)+'>>>'+floattostr(lHiPct) );
    end; //if threshvox > 0 --- compute thresholded range
    lLoPct := Unscaled2Scaled(lLoPct,lHdr);
    lHiPct := Unscaled2Scaled(lHiPct,lHdr);

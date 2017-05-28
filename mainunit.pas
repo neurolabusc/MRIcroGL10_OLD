@@ -2151,7 +2151,7 @@ end;
    {$IFDEF LCLCocoa}str := str + ' (Cocoa) '; {$ENDIF}
    {$IFDEF LCLCarbon}str := str + ' (Carbon) '; {$ENDIF}
    {$IFDEF DGL} str := str +' (DGL) '; {$ENDIF}//the DGL library has more dependencies - report this if incompatibilities are found
-  str := 'MRIcroGL '+str+' 1 April 2017'
+  str := 'MRIcroGL '+str+' 28 May 2017'
    +kCR+' www.mricro.com :: BSD 2-Clause License (opensource.org/licenses/BSD-2-Clause)'
    +kCR+' Dimensions '+inttostr(gTexture3D.NIFTIhdr.dim[1])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[2])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[3])
    +kCR+' Bytes per voxel '+inttostr(gTexture3D.NIFTIhdr.bitpix div 8)
@@ -3905,7 +3905,6 @@ begin
   end;
   OverlayBox.visible := true; //GLForm1.StringGrid1.Visible := true;
   inc (gOpenOverlays);
-
   OverlayBox.Height :=  2+ ( (2+gOpenOverlays)*(StringGrid1.DefaultRowHeight+1));
   {$IFDEF FPC} {$IFNDEF UNIX}
  if Screen.PixelsPerInch <> 96 then begin
@@ -3918,6 +3917,8 @@ begin
     exit;
   end;
   ComputeThreshOverlay (gOverlayImg[gOpenOverlays]);
+  //caption := format('%g %g',[gOverlayImg[gOpenOverlays].AutoBalMinUnscaled, gOverlayImg[gOpenOverlays].AutoBalMaxUnscaled]);
+
   if (gOverlayImg[gOpenOverlays].RGB)  then begin //RGB images
     gOverlayImg[gOpenOverlays].AutoBalMinUnscaled := 0.1;
     gOverlayImg[gOpenOverlays].AutoBalMaxUnscaled := 255;
@@ -3948,6 +3949,7 @@ begin
    end;
   gOverlayImg[gOpenOverlays].WindowScaledMin := gOverlayImg[gOpenOverlays].AutoBalMinUnscaled;
   gOverlayImg[gOpenOverlays].WindowScaledMax := gOverlayImg[gOpenOverlays].AutoBalMaxUnscaled;
+  //caption := format('%g %g',[gOverlayImg[gOpenOverlays].WindowScaledMin, gOverlayImg[gOpenOverlays].WindowScaledMax]);
   gOverlayImg[gOpenOverlays].LutFromZero := gPrefs.OverlayColorFromZero;
   UpdateOverlaySpreadI(gOpenOverlays);
   UpdateImageIntensity (gOpenOverlays);

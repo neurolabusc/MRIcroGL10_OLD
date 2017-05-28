@@ -1,8 +1,9 @@
 begin
-	//LOADIMAGE('avg152T1');
 	RESETDEFAULTS;
-	LOADIMAGE('/Users/rorden/Documents/OSX/MRIcroGL/mni152_2009_256');
-	//CLIPAZIMUTHELEVATION(0.3, 0, 130);
-//OVERLAYMINMAX(1, -2.0, -2);
-end.
+ORTHOVIEW(0.5, 0.5, 0.5);
 
+	LOADIMAGE('/Users/rorden/avg152T1');
+OVERLAYLOAD('/Users/rorden/avg152T1-mask.img');
+
+
+end.
