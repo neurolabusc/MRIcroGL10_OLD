@@ -17,7 +17,7 @@ object GLForm1: TGLForm1
   OnKeyDown = FormKeyDown
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '1.7'
+  LCLVersion = '1.9.0.0'
   object ToolPanel: TPanel
     Left = 0
     Height = 994

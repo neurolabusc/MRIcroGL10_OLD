@@ -1047,7 +1047,7 @@ begin
         exit;
   end;
   BlockRead(lHdrFile, mhdr, sizeof(mhdr));
-  mhdr.magic:=upcase(mhdr.magic);
+  {$IFDEF FPC} mhdr.magic:=upcase(mhdr.magic); {$ENDIF} //Delphi 7 can not upcase arrays
   if ((mhdr.magic[1] <> 'M') or (mhdr.magic[2] <> 'A') or (mhdr.magic[3] <> 'T') or (mhdr.magic[4] <> 'R') or (mhdr.magic[5] <> 'I') or (mhdr.magic[6] <> 'X')) then
        goto 666;
   {$IFDEF ENDIAN_BIG} //data always stored big endian

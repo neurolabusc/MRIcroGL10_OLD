@@ -2376,7 +2376,7 @@ end;
 
 procedure TGLForm1.ConvertDicom1Click(Sender: TObject);
 begin
-  dcm2niiForm.show;
+  dcm2niiForm.showmodal;
 end;
 
 procedure TGLForm1.GLboxPaint(Sender: TObject);

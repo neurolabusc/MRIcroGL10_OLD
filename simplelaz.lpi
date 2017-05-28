@@ -226,8 +226,8 @@ if TargetOS='darwin' then
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="3916"/>
-        <CursorPos X="23" Y="3919"/>
+        <TopLine Value="2376"/>
+        <CursorPos X="24" Y="2379"/>
         <UsageCount Value="207"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -450,8 +450,8 @@ if TargetOS='darwin' then
         <Filename Value="nifti_foreign.pas"/>
         <EditorIndex Value="2"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="1670"/>
-        <CursorPos X="30" Y="1678"/>
+        <TopLine Value="1035"/>
+        <CursorPos X="68" Y="1050"/>
         <UsageCount Value="77"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -565,10 +565,11 @@ if TargetOS='darwin' then
       <Unit36>
         <Filename Value="..\..\..\lazarus\lcl\interfaces\carbon\carbonint.pas"/>
         <UnitName Value="CarbonInt"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="4"/>
         <WindowIndex Value="1"/>
         <TopLine Value="39"/>
-        <CursorPos X="3" Y="48"/>
+        <CursorPos X="80" Y="50"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit36>
@@ -664,11 +665,10 @@ if TargetOS='darwin' then
       </Unit46>
       <Unit47>
         <Filename Value="histogram.pas"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="254"/>
-        <CursorPos X="9" Y="265"/>
+        <CursorPos X="54" Y="258"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -676,124 +676,124 @@ if TargetOS='darwin' then
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="3919" Column="23" TopLine="3916"/>
+        <Filename Value="histogram.pas"/>
+        <Caret Line="10" Column="31"/>
       </Position1>
       <Position2>
         <Filename Value="histogram.pas"/>
-        <Caret Line="11" Column="13"/>
+        <Caret Line="70" Column="14" TopLine="67"/>
       </Position2>
       <Position3>
         <Filename Value="histogram.pas"/>
-        <Caret Line="79" Column="3" TopLine="67"/>
+        <Caret Line="13" Column="24" TopLine="4"/>
       </Position3>
       <Position4>
         <Filename Value="histogram.pas"/>
-        <Caret Line="78" Column="12" TopLine="69"/>
+        <Caret Line="70" Column="16" TopLine="54"/>
       </Position4>
       <Position5>
         <Filename Value="histogram.pas"/>
-        <Caret Line="81" Column="53" TopLine="69"/>
+        <Caret Line="138" Column="27" TopLine="129"/>
       </Position5>
       <Position6>
-        <Filename Value="nifti_foreign.pas"/>
-        <Caret Line="1105" Column="54" TopLine="1100"/>
+        <Filename Value="histogram.pas"/>
+        <Caret Line="71" Column="20" TopLine="62"/>
       </Position6>
       <Position7>
-        <Filename Value="nifti_foreign.pas"/>
-        <Caret Line="1633" Column="18" TopLine="1617"/>
+        <Filename Value="histogram.pas"/>
+        <Caret Line="12" Column="11" TopLine="12"/>
       </Position7>
       <Position8>
-        <Filename Value="nifti_foreign.pas"/>
-        <Caret Line="1635" Column="35" TopLine="1619"/>
+        <Filename Value="histogram.pas"/>
+        <Caret Line="19" Column="20" TopLine="10"/>
       </Position8>
       <Position9>
-        <Filename Value="nifti_foreign.pas"/>
-        <Caret Line="1754" Column="34" TopLine="1739"/>
+        <Filename Value="histogram.pas"/>
+        <Caret Line="71" Column="20" TopLine="59"/>
       </Position9>
       <Position10>
-        <Filename Value="nifti_foreign.pas"/>
-        <Caret Line="2078" Column="25" TopLine="2063"/>
+        <Filename Value="histogram.pas"/>
+        <Caret Line="73" Column="21" TopLine="59"/>
       </Position10>
       <Position11>
-        <Filename Value="nifti_foreign.pas"/>
-        <Caret Line="2050" Column="23" TopLine="2048"/>
+        <Filename Value="histogram.pas"/>
+        <Caret Line="261" Column="69" TopLine="248"/>
       </Position11>
       <Position12>
-        <Filename Value="nifti_foreign.pas"/>
-        <Caret Line="2078" Column="25" TopLine="2063"/>
+        <Filename Value="histogram.pas"/>
+        <Caret Line="73" Column="37" TopLine="65"/>
       </Position12>
       <Position13>
-        <Filename Value="nifti_foreign.pas"/>
-        <Caret Line="2079" Column="23" TopLine="2064"/>
+        <Filename Value="histogram.pas"/>
+        <Caret Line="261" Column="62" TopLine="252"/>
       </Position13>
       <Position14>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="3919" Column="23" TopLine="3916"/>
+        <Filename Value="histogram.pas"/>
+        <Caret Line="73" Column="38" TopLine="65"/>
       </Position14>
       <Position15>
         <Filename Value="histogram.pas"/>
-        <Caret Line="10" Column="31"/>
+        <Caret Line="150" Column="57" TopLine="148"/>
       </Position15>
       <Position16>
         <Filename Value="histogram.pas"/>
-        <Caret Line="70" Column="14" TopLine="67"/>
+        <Caret Line="255" Column="32" TopLine="240"/>
       </Position16>
       <Position17>
-        <Filename Value="histogram.pas"/>
-        <Caret Line="13" Column="24" TopLine="4"/>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="1671" Column="41" TopLine="1670"/>
       </Position17>
       <Position18>
-        <Filename Value="histogram.pas"/>
-        <Caret Line="70" Column="16" TopLine="54"/>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="37" Column="10" TopLine="28"/>
       </Position18>
       <Position19>
-        <Filename Value="histogram.pas"/>
-        <Caret Line="138" Column="27" TopLine="129"/>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="56" Column="98" TopLine="40"/>
       </Position19>
       <Position20>
-        <Filename Value="histogram.pas"/>
-        <Caret Line="71" Column="20" TopLine="62"/>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="59" Column="124" TopLine="41"/>
       </Position20>
       <Position21>
-        <Filename Value="histogram.pas"/>
-        <Caret Line="12" Column="11" TopLine="12"/>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="409" Column="10" TopLine="394"/>
       </Position21>
       <Position22>
-        <Filename Value="histogram.pas"/>
-        <Caret Line="19" Column="20" TopLine="10"/>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="411" Column="26" TopLine="394"/>
       </Position22>
       <Position23>
-        <Filename Value="histogram.pas"/>
-        <Caret Line="71" Column="20" TopLine="59"/>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="491" Column="12" TopLine="473"/>
       </Position23>
       <Position24>
-        <Filename Value="histogram.pas"/>
-        <Caret Line="73" Column="21" TopLine="59"/>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="726" Column="12" TopLine="708"/>
       </Position24>
       <Position25>
-        <Filename Value="histogram.pas"/>
-        <Caret Line="261" Column="69" TopLine="248"/>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="738" Column="14" TopLine="720"/>
       </Position25>
       <Position26>
-        <Filename Value="histogram.pas"/>
-        <Caret Line="73" Column="37" TopLine="65"/>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="776" Column="22" TopLine="759"/>
       </Position26>
       <Position27>
-        <Filename Value="histogram.pas"/>
-        <Caret Line="261" Column="62" TopLine="252"/>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="779" Column="16" TopLine="762"/>
       </Position27>
       <Position28>
-        <Filename Value="histogram.pas"/>
-        <Caret Line="73" Column="38" TopLine="65"/>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="966" Column="10" TopLine="949"/>
       </Position28>
       <Position29>
-        <Filename Value="histogram.pas"/>
-        <Caret Line="150" Column="57" TopLine="148"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="3918" Column="29" TopLine="3916"/>
       </Position29>
       <Position30>
-        <Filename Value="histogram.pas"/>
-        <Caret Line="255" Column="32" TopLine="240"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2379" Column="24" TopLine="2376"/>
       </Position30>
     </JumpHistory>
   </ProjectOptions>
