@@ -85,7 +85,9 @@ begin
       lBarLength := gRayCast.WINDOW_HEIGHT * abs(lU.B-lU.T)
    else
       lBarLength := gRayCast.WINDOW_WIDTH * abs(lU.L-lU.R);
-   lTextZoom :=  trunc(lBarLength / 1000) + 1;
+   //lTextZoom :=  trunc(lBarLength / 1000) + 1;
+   lTextZoom :=  trunc(lBarLength / 700) + 1;
+
    for lStep := 1 to lSteps do begin
       lStepPos := l1stStep+((lStep-1)*lStepSize);
       lStepPosScrn := round( abs(lStepPos-lMin)/lRange*lBarLength);
@@ -256,20 +258,28 @@ begin
     nglEnd;//In theory, a bit faster than GL_POLYGON
 end;
 {$ELSE}
+function aspectRatioGL: single;
+begin
+  result := 1;
+  if (gRayCast.WINDOW_WIDTH < 1) or (gRayCast.WINDOW_Height < 1) then exit;
+  result := gRayCast.WINDOW_Height/gRayCast.WINDOW_WIDTH;
+end;
+
 procedure DrawBorder (var lU: TUnitRect;lBorder: single; lPrefs: TPrefs);
 var
-    lL,lT,lR,lB: single;
+    lL,lT,lR,lB, lBorderLR: single;
 begin
   if lBorder <= 0 then
     exit;
   SetOrder(lU.L,lU.R,lL,lR);
   SetOrder(lU.T,lU.B,lT,lB);
+  lBorderLR := lBorder * aspectRatioGL;
   glColor4ub(lPrefs.GridAndBorder.rgbRed,lPrefs.GridAndBorder.rgbGreen,lPrefs.GridAndBorder.rgbBlue,lPrefs.GridAndBorder.rgbReserved);
   glBegin(GL_TRIANGLE_STRIP);
-      glVertex2f((lL-lBorder)*gRayCast.WINDOW_WIDTH,(lB+lBorder)*gRayCast.WINDOW_HEIGHT);
-      glVertex2f((lL-lBorder)*gRayCast.WINDOW_WIDTH,(lT-lBorder)*gRayCast.WINDOW_HEIGHT);
-      glVertex2f((lR+lBorder)*gRayCast.WINDOW_WIDTH,(lB+lBorder)*gRayCast.WINDOW_HEIGHT);
-      glVertex2f((lR+lBorder)*gRayCast.WINDOW_WIDTH,(lT-lBorder)*gRayCast.WINDOW_HEIGHT);
+      glVertex2f((lL-lBorderLR)*gRayCast.WINDOW_WIDTH,(lB+lBorder)*gRayCast.WINDOW_HEIGHT);
+      glVertex2f((lL-lBorderLR)*gRayCast.WINDOW_WIDTH,(lT-lBorder)*gRayCast.WINDOW_HEIGHT);
+      glVertex2f((lR+lBorderLR)*gRayCast.WINDOW_WIDTH,(lB+lBorder)*gRayCast.WINDOW_HEIGHT);
+      glVertex2f((lR+lBorderLR)*gRayCast.WINDOW_WIDTH,(lT-lBorder)*gRayCast.WINDOW_HEIGHT);
     glEnd;//In theory, a bit faster than GL_POLYGON
 end;
 {$ENDIF}

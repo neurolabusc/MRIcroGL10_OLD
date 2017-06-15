@@ -20,7 +20,7 @@ type
          MaskOverlayWithBackground,  InterpolateOverlays, Perspective,FasterGradientCalculations,
          ShowToolbar,ColorbarText,Colorbar,ForcePowerOfTwo,
          RayCastShowGLSLWarnings,RayCastViewCenteredLight,EnableYoke,
-         NoveauWarning, StartupScript : boolean;
+         NoveauWarning, StartupScript, RetinaDisplay : boolean;
          PlanarRGB,SliceView,DrawColor,RayCastQuality1to10,MaxStartupRayCastQuality1to10, FormWidth,FormHeight,
          BackgroundAlpha,OverlayAlpha,CrosshairThick,MaxVox, BitmapZoom: integer;
          CLUTWindowColor,CLUTIntensityColor: TColor;
@@ -185,6 +185,7 @@ begin
             PlanarRGB := 2;//autodetect
             BitmapZoom := 2;
             StartupScript := false;
+            RetinaDisplay := false;
             FormMaximized := false;
             Debug := false;
             {$IFNDEF FPC}
@@ -399,6 +400,9 @@ begin
         IniBool(lRead,lIniFile, 'ThresholdDetection',lPrefs.ThresholdDetection);
  	IniBool(lRead,lIniFile, 'ForcePowerOfTwo',lPrefs.ForcePowerOfTwo);
 	IniBool(lRead,lIniFile, 'StartScript',lPrefs.StartupScript);
+        IniBool(lRead,lIniFile, 'RetinaDisplay',lPrefs.RetinaDisplay);
+
+
 	//IniBool(lRead,lIniFile, 'IntelWarning',lPrefs.IntelWarning);
         IniBool(lRead,lIniFile, 'NoveauWarning',lPrefs.NoveauWarning);
         IniBool(lRead,lIniFile, 'FlipYZ',lPrefs.FlipYZ);

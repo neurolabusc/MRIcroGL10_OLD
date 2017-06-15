@@ -79,14 +79,19 @@ end;
 procedure N1;
 begin
   glBegin(GL_TRIANGLE_STRIP);
-    glVertex2f(2,0);
-    glVertex2f(2,12);
-    glVertex2f(4,0);
-    glVertex2f(4,12);
+  glVertex2f(0,12);
     glVertex2f(2,14);
     glVertex2f(2,12);
-    glVertex2f(0,14);
-    glVertex2f(0,12);
+    glVertex2f(4,14);
+    glVertex2f(2,0);
+    glVertex2f(4,0);
+
+    (*glVertex2f(0,11);
+      glVertex2f(3,14);
+      glVertex2f(3,11);
+      glVertex2f(5,14);
+      glVertex2f(3,0);
+      glVertex2f(5,0);*)
     glEnd();
 end;
 
@@ -149,11 +154,12 @@ begin
   glBegin(GL_TRIANGLE_STRIP);
   glVertex2f(0,14);
   glVertex2f(2,14);
-  glVertex2f(0,7.5);
-  glVertex2f(2,7.5);
-  glVertex2f(2,5.5);
-  glVertex2f(9,7.5);
-  glVertex2f(9,5.5);
+  glVertex2f(0,8);
+  glVertex2f(2,8);
+  //glVertex2f(2,6);
+  glVertex2f(0,6);
+  glVertex2f(9,8);
+  glVertex2f(9,6);
   glVertex2f(9,14);
   glVertex2f(9,0);
   glVertex2f(7,14);
@@ -168,13 +174,13 @@ begin
     glVertex2f(9,14);
     glVertex2f(2,12);
     glVertex2f(0,14);
-    glVertex2f(2,6.5);
-    glVertex2f(0,8.5);
-    glVertex2f(2,6.5);
-    glVertex2f(9,6.5);
-    glVertex2f(0,8.5);
-    glVertex2f(7,8.5);
-    glVertex2f(9,6.5);
+    glVertex2f(2,7);
+    glVertex2f(0,9);
+    glVertex2f(2,7);
+    glVertex2f(9,7);
+    glVertex2f(0,9);
+    glVertex2f(7,9);
+    glVertex2f(9,7);
     glVertex2f(7,0);
     glVertex2f(9,2);
     glVertex2f(2,0);
@@ -187,32 +193,33 @@ end;
 
 procedure N6;
 begin
-  glBegin(GL_TRIANGLE_STRIP);
-    glVertex2f(7,12);
-    glVertex2f(9,11);
-    glVertex2f(9,12);
-     glVertex2f(7,11);
-    glVertex2f(7,14);
-    glVertex2f(7,12);
-    glVertex2f(2,14);
-    glVertex2f(2,12);
-    glVertex2f(0,12);
-    glVertex2f(2,8.5);
-    glVertex2f(0,8.5);
-    glVertex2f(0,6.5);
-    glVertex2f(7,8.5);
-    glVertex2f(7,6.5);
-    glVertex2f(2,6.5);
-    glVertex2f(2,8.5);
-    glVertex2f(0,6.5);
-    glVertex2f(2,0);
-    glVertex2f(0,2);
-    glVertex2f(7,0);
-    glVertex2f(7,2);
-    glVertex2f(9,2);
-    glVertex2f(7,6);
-    glVertex2f(9,6);
-    glVertex2f(7,8);
+
+      glBegin(GL_TRIANGLE_STRIP);
+  glVertex2f(7,12);
+  glVertex2f(9,11);
+  glVertex2f(9,12);
+   glVertex2f(7,11);
+  glVertex2f(7,14);
+  glVertex2f(7,12);
+  glVertex2f(2,14);
+  glVertex2f(2,12);
+  glVertex2f(0,12);
+  glVertex2f(2,9);
+  glVertex2f(0,9);
+  glVertex2f(0,7);
+  glVertex2f(7,9);
+  glVertex2f(7,7);
+  glVertex2f(2,7);
+  glVertex2f(2,9);
+  glVertex2f(0,7);
+  glVertex2f(2,0);
+  glVertex2f(0,2);
+  glVertex2f(7,0);
+  glVertex2f(7,2);
+  glVertex2f(9,2);
+  glVertex2f(7,7);
+  glVertex2f(9,7);
+  glVertex2f(7,9);
   glEnd();
 end;
 
@@ -346,6 +353,7 @@ var
 begin
   if length(NumStr) < 1 then
     exit;
+  x := round(x); y := round(y);
   glLoadIdentity();
   glTranslatef(x,y,0.0); //pixelspace space
   glScalef(Sz ,Sz,0.0);
@@ -371,11 +379,18 @@ begin
     end;
     if (c= -4) or (c = -2) then
       glTranslatef(4,0,0.0)
-    else if (c = 1) or (c = -3) then
+    else if (c = 1)  then
+      glTranslatef(6,0,0.0)
+    else if  (c = -3) then
       glTranslatef(6,0,0.0)
     else
       glTranslatef(10,0,0.0);
   end;
+end;
+
+procedure glVertex2fx (x,y: single);
+begin
+  glVertex2f(round(x), round(y));
 end;
 
 procedure TextArrow (X,Y,Sz: single; NumStr: string; orient: integer; FontColor,ArrowColor: TGLRGBQuad);
@@ -393,32 +408,32 @@ begin
   case Orient of
     1: begin
       glBegin(GL_TRIANGLE_STRIP);
-        glVertex2f(X-lH2-lW-2*Sz,Y+LH2+Sz);
-        glVertex2f(X-lH2-lW-2*Sz,Y-lH2-Sz);
-        glVertex2f(X-lH2,Y+lH2+Sz);
-        glVertex2f(X-lH2,Y-lH2-Sz);
-        glVertex2f(X,Y);
+        glVertex2fx(X-lH2-lW-2*Sz,Y+LH2+Sz);
+        glVertex2fx(X-lH2-lW-2*Sz,Y-lH2-Sz);
+        glVertex2fx(X-lH2,Y+lH2+Sz);
+        glVertex2fx(X-lH2,Y-lH2-Sz);
+        glVertex2fx(X,Y);
       glEnd;
       PrintXY (X-lW-lH2-1.5*Sz,Y-lH2,Sz, NumStr,FontColor);
     end;
     3: begin
       glBegin(GL_TRIANGLE_STRIP);
-        glVertex2f(X+lH2+lW+2*Sz,Y+LH2+Sz);
-        glVertex2f(X+lH2+lW+2*Sz,Y-lH2-Sz);
-        glVertex2f(X+lH2,Y+lH2+Sz);
-        glVertex2f(X+lH2,Y-lH2-Sz);
-        glVertex2f(X,Y);
+        glVertex2fx(X+lH2+lW+2*Sz,Y+LH2+Sz);
+        glVertex2fx(X+lH2+lW+2*Sz,Y-lH2-Sz);
+        glVertex2fx(X+lH2,Y+lH2+Sz);
+        glVertex2fx(X+lH2,Y-lH2-Sz);
+        glVertex2fx(X,Y);
       glEnd;
       PrintXY (X+lH2,Y-lH2,Sz, NumStr,FontColor);
     end;
     4: begin //bottom
     glBegin(GL_TRIANGLE_STRIP);
-      glVertex2f(X-lW2-Sz,Y-LH-lH2-2*Sz);//-
-      glVertex2f(X-lW2-Sz,Y-lH2);
-      glVertex2f(X+lW2+Sz,Y-LH-lH2-2*Sz);//-
-      glVertex2f(X+lW2+Sz,Y-lH2);
-      glVertex2f(X-lW2-Sz,Y-lH2);
-      glVertex2f(X,Y);
+      glVertex2fx(X-lW2-Sz,Y-LH-lH2-2*Sz);//-
+      glVertex2fx(X-lW2-Sz,Y-lH2);
+      glVertex2fx(X+lW2+Sz,Y-LH-lH2-2*Sz);//-
+      glVertex2fx(X+lW2+Sz,Y-lH2);
+      glVertex2fx(X-lW2-Sz,Y-lH2);
+      glVertex2fx(X,Y);
     glEnd;
     PrintXY (X-lW2-Sz,Y-lH-LH2,Sz, NumStr,FontColor);
     end;
@@ -428,14 +443,13 @@ begin
       else
         T := Y;
     glBegin(GL_TRIANGLE_STRIP);
-      glVertex2f(X-lW2-Sz,T+LH+2*Sz+lH2);
-      glVertex2f(X-lW2-Sz,T+lH2);
-      glVertex2f(X+lW2+Sz,T+LH+2*Sz+lH2);
-      glVertex2f(X+lW2+Sz,T+lH2);
-      glVertex2f(X-lW2-Sz,T+lH2);
-      glVertex2f(X,T);
+      glVertex2fx(X-lW2-Sz,T+LH+2*Sz+lH2);
+      glVertex2fx(X-lW2-Sz,T+lH2);
+      glVertex2fx(X+lW2+Sz,T+LH+2*Sz+lH2);
+      glVertex2fx(X+lW2+Sz,T+lH2);
+      glVertex2fx(X-lW2-Sz,T+lH2);
+      glVertex2fx(X,T);
     glEnd;
-
     PrintXY (X-lW2-Sz,T+lH2+Sz,Sz, NumStr,FontColor);
     end;
   end;//case

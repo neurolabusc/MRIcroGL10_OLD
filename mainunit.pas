@@ -6,7 +6,13 @@ interface
 //{$IFDEF FPC}
 {$DEFINE COMPILEYOKE}
 //{$ENDIF}
+
+{$IFDEF LCLcarbon}
+ This program does not support Carbon
+  Please choose Project/ProjectOptions, go to the CompilerOptions/Additions&Overrides and set the BuildMode pull-down to "MacOS"
+{$ENDIF}
 uses
+
 {$IFDEF COMPILEYOKE}
 yokesharemem, coordinates, nii_mat, math, nifti_tiff,
 {$ENDIF}
@@ -335,7 +341,7 @@ function MouseUpVOI (Shift: TShiftState; X, Y: Integer): boolean;
     procedure ToolPanelClick(Sender: TObject);
     procedure UpdateContrast (Xa,Ya, Xb, Yb: integer);
     procedure GLboxMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
+      Shift: TShiftState; lX, lY: Integer);
     procedure GLboxMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure Backcolor1Click(Sender: TObject);
     procedure Orient1Click(Sender: TObject);
@@ -350,8 +356,8 @@ function MouseUpVOI (Shift: TShiftState; X, Y: Integer): boolean;
     procedure FormCreate(Sender: TObject);
     procedure OverlayBoxCreate;
     procedure GLboxMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
-    procedure GLboxMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+      Shift: TShiftState; lX, lY: Integer);
+    procedure GLboxMouseMove(Sender: TObject; Shift: TShiftState; lX, lY: Integer);
         procedure GLboxDblClick(Sender: TObject);
     procedure OpenMRU(Sender: TObject);//open template or MRU
     function LoadDatasetNIFTIvolx(lFilename: string; lStopScript: boolean): boolean;
@@ -433,6 +439,7 @@ var
   gBackgroundAlpha : array [kMinOverlayIndex..kMaxOverlays] of integer;
   gPrevCol: integer = 0;
   gPrevRow: integer = 0;
+  gRetinaScale: single = 1;
 
 
 implementation
@@ -593,11 +600,11 @@ begin
  zoom2 := Zoom;
  origSz.X := gRayCast.WINDOW_WIDTH;
  origSz.Y := gRayCast.WINDOW_HEIGHT;
- w := GLbox.Width * zoom2;
- h := GLbox.Height * zoom2;
+ w := GLBox.BackingWidth * zoom2;
+ h := GLbox.BackingHeight * zoom2;
  if (w > maxXY[0]) or (h > maxXY[1]) then begin
-  w := GLbox.Width;
-  h := GLbox.Height;
+  w := GLBox.BackingWidth;
+  h := GLbox.BackingHeight;
   zoom2 := 1
  end;
   Result:=TBitmap.Create;
@@ -691,8 +698,8 @@ begin
      recompileShader(prevQ, 10);
   gRayCast.ScreenCapture := true;
   GLBox.MakeCurrent;
-  w := GLbox.Width;
-  h := GLbox.Height;
+  w := GLBox.BackingWidth;
+  h := GLbox.BackingHeight;
   wz := w*Zoom;
   hz := h*Zoom;
   Result:=TBitmap.Create;
@@ -760,8 +767,8 @@ var
 begin
   gRayCast.ScreenCapture := true;
   GLBox.MakeCurrent;
-  w := GLbox.Width;
-  h := GLbox.Height;
+  w := GLBox.BackingWidth;
+  h := GLbox.BackingHeight;
   wz := w*Zoom;
   hz := h*Zoom;
   Result:=TBitmap.Create;
@@ -1845,14 +1852,30 @@ begin
   end;
   //GLSceneViewer1DblClick(nil);
 end; *)
+{$IFDEF LCLCocoa}
+procedure Mouse2Retina(var X,Y: integer);
+begin
+     if not gPrefs.RetinaDisplay then exit;
+     X := round(X * gRetinaScale);
+     Y := round(Y * gRetinaScale);
+end;
+{$ELSE}
+procedure Mouse2Retina(var X,Y: integer);
+begin
+     //Retina display is MacOS feature
+end;
+{$ENDIF}
 
 procedure TGLForm1.GLboxMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
+  Shift: TShiftState; lX, lY: Integer);
+var
+  X,Y: integer;
 begin
   {$IFNDEF FPC}
   GLBox.SetFocus;//without this the scroll wheel can adjust previously selected combobox
   {$ENDIF}
   if gPrefs.SliceView = 5 then exit; //mosaic
+  X := lX; Y := lY; Mouse2Retina(X,Y);
   MouseStartPt.X := -1;
   if MouseDownVOI(Shift,X, Y) then exit; //intercepted by draw tool
   if  (SSRight in Shift) then begin
@@ -1882,13 +1905,15 @@ begin
   MousePt.Y := Y;
 end;
 
-procedure TGLForm1.GLboxMouseMove(Sender: TObject; Shift: TShiftState; X,
-  Y: Integer);
+procedure TGLForm1.GLboxMouseMove(Sender: TObject; Shift: TShiftState; lX,
+  lY: Integer);
 var
   zoom: single;
+  X,Y: integer;
 begin
  if gPrefs.SliceView = 5 then exit; //mosaic
-  if MouseMoveVOI (X, Y) then exit;
+ X := lX; Y := lY; Mouse2Retina(X,Y);
+ if MouseMoveVOI (X, Y) then exit;
   if (SSLeft in Shift)  and (InColorBox(abs(X),abs(Y))) and (gPrefs.ColorEditor) and (gSelectedNode >= 0) then begin
      CLUTMouseMove(Shift, X, Y);
      M_refresh := true;
@@ -1988,9 +2013,12 @@ begin
 end;
 
 procedure TGLForm1.GLboxMouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
+  Shift: TShiftState; lX, lY: Integer);
+var
+  X,Y: integer;
 begin
  if (gPrefs.SliceView = 5) then exit; //mosaic
+ X := lX; Y := lY; Mouse2Retina(X,Y);
  MouseUpVOI (Shift, X, Y) ;
  //if (SSRight in Shift) then begin
  if (gPrefs.SliceView <> 0) and (MouseStartPt.X >= 0) then begin
@@ -2151,7 +2179,7 @@ end;
    {$IFDEF LCLCocoa}str := str + ' (Cocoa) '; {$ENDIF}
    {$IFDEF LCLCarbon}str := str + ' (Carbon) '; {$ENDIF}
    {$IFDEF DGL} str := str +' (DGL) '; {$ENDIF}//the DGL library has more dependencies - report this if incompatibilities are found
-  str := 'MRIcroGL '+str+' 28 May 2017'
+  str := 'MRIcroGL '+str+' 15 June 2017'
    +kCR+' www.mricro.com :: BSD 2-Clause License (opensource.org/licenses/BSD-2-Clause)'
    +kCR+' Dimensions '+inttostr(gTexture3D.NIFTIhdr.dim[1])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[2])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[3])
    +kCR+' Bytes per voxel '+inttostr(gTexture3D.NIFTIhdr.bitpix div 8)
@@ -2401,8 +2429,11 @@ begin
     Load_GL_EXT_texture_object;
     {$ENDIF COREGL}
     {$ENDIF DGL}
-    gRayCast.WINDOW_WIDTH := GLbox.Width;
-    gRayCast.WINDOW_HEIGHT := GLbox.Height;
+    {$IFDEF LCLCocoa}
+     GLBox.WantsBestResolutionOpenGLSurface:= gPrefs.RetinaDisplay;
+    {$ENDIF}
+    gRayCast.WINDOW_WIDTH := GLBox.BackingWidth;
+    gRayCast.WINDOW_HEIGHT := GLbox.BackingHeight;
     LoadStartupImage;
     AutoDetectVOI;
     {$IFDEF LINUX}
@@ -2411,8 +2442,12 @@ begin
   end;
 
   if not AreaInitialized then begin
-    gRayCast.WINDOW_WIDTH := GLbox.Width;
-    gRayCast.WINDOW_HEIGHT := GLbox.Height;
+    gRayCast.WINDOW_WIDTH := GLBox.BackingWidth;
+    gRayCast.WINDOW_HEIGHT := GLbox.BackingHeight;
+    if (GLbox.Height < 1) or (GLBox.BackingHeight <= GLbox.Height) then
+       gRetinaScale := 1
+    else
+        gRetinaScale := GLBox.BackingHeight/GLbox.Height;
     if M_reload > 0 then begin
       voiClose;
       if Load_From_NIfTI (gTexture3D,OpenDialog1.Filename,gPrefs.ForcePowerOfTwo, M_reload) then begin
@@ -2456,7 +2491,7 @@ begin
   {$IFDEF FPC}
   {$IFDEF Darwin} if gPrefs.isDoubleBuffer then {$ENDIF}
      GLbox.SwapBuffers; //DoubleBuffered
-  (*if ( gRayCast.WINDOW_WIDTH = GLbox.Width) and (gRayCast.WINDOW_HEIGHT = GLbox.Height) then begin
+  (*if ( gRayCast.WINDOW_WIDTH = GLBox.BackingWidth) and (gRayCast.WINDOW_HEIGHT = GLbox.BackingHeight) then begin
     if gPrefs.isDoubleBuffer then
        GLbox.SwapBuffers //DoubleBuffered
   end else begin
@@ -2702,12 +2737,12 @@ var
   s: string;
 begin
  case Key of
-  '0'..'9'  : ;
+  '-','0'..'9'  : ;
   '.',','   : if AllowDec AND (pos(DecimalSeparator,(Sender as TEdit).Text)=0)
                 then  Key := DecimalSeparator
                 else  Key:=#0;
   #8        : ;
-  #45       : if FAllowNeg then
+  (*#45       : if FAllowNeg then
                 begin
                   s := (Sender as TEdit).Text;
                   if (length(s) < 1) or (s[1] <> '-') then
@@ -2716,7 +2751,7 @@ begin
                      (Sender as TEdit).Text := Copy(s, 2,length(s)-1);
                   (Sender as TEdit).SelStart := length(s)+1;
                  Key:=#0;
-                end;
+                end;*)
   else
     Key:=#0;
  end;
@@ -2955,13 +2990,13 @@ procedure PrefMenuClick;
 var
   PrefForm: TForm;
   bmpEdit: TEdit;
-  flipCheck: TCheckBox;
+  {$IFDEF LCLCocoa} RetinaCheck,{$ENDIF} flipCheck: TCheckBox;
   OkBtn, AdvancedBtn: TButton;
   bmpLabel: TLabel;
-  isFlipChange,isAdvancedPrefs: boolean;
+  isFlipChange,isAdvancedPrefs  {$IFDEF LCLCocoa}, isRetinaChanged {$ENDIF}: boolean;
 begin
   PrefForm:=TForm.Create(nil);
-  PrefForm.SetBounds(100, 100, 520, 132);
+  PrefForm.SetBounds(100, 100, 520, 162);
   PrefForm.Caption:='Preferences';
   PrefForm.Position := poScreenCenter;
   PrefForm.BorderStyle := bsDialog;
@@ -2988,12 +3023,21 @@ begin
   flipCheck.Left := 8;
   flipCheck.Top := 48;
   flipCheck.Parent:=PrefForm;
+  //Retina Check
+  {$IFDEF LCLCocoa}
+  RetinaCheck:=TCheckBox.create(PrefForm);
+  RetinaCheck.Checked := gPrefs.RetinaDisplay;
+  RetinaCheck.Caption:='Retina display (better but slower)';
+  RetinaCheck.Left := 8;
+  RetinaCheck.Top := 78;
+  RetinaCheck.Parent:=PrefForm;
+  {$ENDIF}
   //OK button
   OkBtn:=TButton.create(PrefForm);
   OkBtn.Caption:='OK';
   OkBtn.Left := PrefForm.Width - 128;
   OkBtn.Width:= 100;
-  OkBtn.Top := 94;
+  OkBtn.Top := 124;
   OkBtn.Parent:=PrefForm;
   OkBtn.ModalResult:= mrOK;
   //Advanced button
@@ -3001,7 +3045,7 @@ begin
   AdvancedBtn.Caption:='Advanced';
   AdvancedBtn.Left := PrefForm.Width - 256;
   AdvancedBtn.Width:= 100;
-  AdvancedBtn.Top := 94;
+  AdvancedBtn.Top := 124;
   AdvancedBtn.Parent:=PrefForm;
   AdvancedBtn.ModalResult:= mrYesToAll;
   {$IFDEF Windows} ScaleDPI(PrefForm, 96);  {$ENDIF}
@@ -3013,11 +3057,25 @@ begin
   if gPrefs.BitmapZoom < 1 then gPrefs.BitmapZoom := 1;
   if gPrefs.BitmapZoom > 10 then gPrefs.BitmapZoom := 10;
   isAdvancedPrefs := (PrefForm.ModalResult = mrYesToAll);
+  {$IFDEF LCLCocoa}
+  isRetinaChanged := gPrefs.RetinaDisplay <> RetinaCheck.Checked;
+  gPrefs.RetinaDisplay := RetinaCheck.Checked;
+  {$ENDIF}
   FreeAndNil(PrefForm);
   if  isAdvancedPrefs then
      GLForm1.Quit2TextEditor
   else if isFlipChange then
        GLForm1.OpenMRU(nil);
+  {$IFDEF LCLCocoa}
+  if isRetinaChanged then begin
+    GLBox.WantsBestResolutionOpenGLSurface:=gPrefs.RetinaDisplay;
+    AreaInitialized := false;
+    //M_Refresh := true;
+     GLForm1.UpdateTimer.enabled := true;
+
+  end;
+  {$ENDIF}
+
 end; // PrefMenuClick()
 
 procedure SetBitmapZoom;
@@ -3708,7 +3766,7 @@ if lH.ImgBuffer <> nil then begin
   {$ELSE}
      lAImgBuffer := ByteP($fffffff0 and (integer(lAUnaligned)+15));
   {$ENDIF}
-  Move(lH.ImgBuffer^,lAImgBuffer^,lABytes);
+  System.Move(lH.ImgBuffer^,lAImgBuffer^,lABytes);
   FreeMem(lH.ImgBufferUnaligned);
   lH.ImgBufferUnaligned := nil;
 
@@ -3716,7 +3774,7 @@ end else
   lAUnaligned := nil;
 if lH.ScrnBuffer <> nil then begin
   GetMem(lAScrnBuffer ,lH.ScrnBufferItems);
-  Move(lH.ScrnBuffer^,lAScrnBuffer^,lH.ScrnBufferItems);
+  System.Move(lH.ScrnBuffer^,lAScrnBuffer^,lH.ScrnBufferItems);
   FreeMem(lH.ScrnBuffer);
 end else
   lAScrnBuffer := nil;
@@ -3735,12 +3793,12 @@ begin
   {$ELSE}
      lH.ImgBuffer := ByteP($fffffff0 and (integer(lH.ImgBufferUnaligned)+15));
   {$ENDIF}
-  Move(lAImgBuffer^,lH.ImgBuffer^,lABytes);
+  System.Move(lAImgBuffer^,lH.ImgBuffer^,lABytes);
   FreeMem(lAUnaligned);
 end;
  if lAScrnBuffer <>  nil then begin
   GetMem(lH.ScrnBuffer ,lH.ScrnBufferItems);
-  Move(lAScrnBuffer^,lH.ScrnBuffer^,lH.ScrnBufferItems);//src, dest, bytes
+  System.Move(lAScrnBuffer^,lH.ScrnBuffer^,lH.ScrnBufferItems);//src, dest, bytes
   FreeMem(lAScrnBuffer);
  end;
 end;

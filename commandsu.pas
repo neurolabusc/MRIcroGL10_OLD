@@ -78,6 +78,7 @@ procedure SHADERADJUST(lProperty: string; lVal: single);
 procedure SHADERLIGHTAZIMUTHELEVATION (AZI, ELEV: integer);
 procedure SHADERQUALITY1TO10 (Q: integer);
 procedure SHADERUPDATEGRADIENTS;
+procedure SHARPEN;
 procedure SLICETEXT (VISIBLE: boolean);
 procedure TOOLFORMVISIBLE (VISIBLE: boolean);
 procedure LOADWATERMARK(lFilename: string; lX,lY: integer);
@@ -107,7 +108,7 @@ const
     (Ptr:@OVERLAYLOADCLUSTER;Decl:'OVERLAYLOADCLUSTER';Vars:'(lFilename: string; lThreshold, lClusterMM3: single; lSaveToDisk: boolean): integer'),
 
      (Ptr:@OVERLAYLOADVOL;Decl:'OVERLAYLOADVOL';Vars:'(lFilename: string; lVol: integer): integer'));
-  knProc = 77;
+  knProc = 78;
   kProcRA : array [1..knProc] of TScriptRec =
     (
       (Ptr:@AZIMUTH;Decl:'AZIMUTH';Vars:'(DEG: integer)'),
@@ -174,7 +175,7 @@ const
       (Ptr:@SHADERLIGHTAZIMUTHELEVATION;Decl:'SHADERLIGHTAZIMUTHELEVATION';Vars:'(AZI, ELEV: integer)'),
       (Ptr:@SHADERQUALITY1TO10;Decl:'SHADERQUALITY1TO10';Vars:'(Q: integer)'),
       (Ptr:@SHADERUPDATEGRADIENTS;Decl:'SHADERUPDATEGRADIENTS';Vars:''),
-
+      (Ptr:@SHARPEN;Decl:'SHARPEN';Vars:''),
       (Ptr:@SLICETEXT;Decl:'SLICETEXT';Vars:'(VISIBLE: boolean)'),
       (Ptr:@TOOLFORMVISIBLE;Decl:'TOOLFORMVISIBLE';Vars:'(VISIBLE: boolean)'),
       (Ptr:@LOADWATERMARK;Decl:'LOADWATERMARK';Vars:'(lFilename: string; lX,lY: integer)'),
@@ -506,6 +507,12 @@ begin
   gPrefs.ColorBarPos:= CreateUnitRect (L,T,R,B);
   SensibleUnitRect(gPrefs.ColorBarPos);
   ReRender(false);
+end;
+
+procedure SHARPEN;
+begin
+  SharpenTexture(gTexture3D);
+  ReRender(true);
 end;
 
 procedure MEDIANSMOOTH;
