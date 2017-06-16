@@ -333,6 +333,8 @@ function MouseUpVOI (Shift: TShiftState; X, Y: Integer): boolean;
   procedure SaveVOI1Click(Sender: TObject);
   procedure ShowOrthoSliceInfo (isYoke: boolean);
   procedure Quit2TextEditor;
+  function GLBoxBackingWidth: integer;
+  function GLBoxBackingHeight: integer;
     procedure ClipTrackChange(Sender: TObject);
     procedure AppDropFiles(Sender: TObject; const FileNames: array of String);
     procedure OpenColorScheme(Sender: TObject);
@@ -410,6 +412,7 @@ function MouseUpVOI (Shift: TShiftState; X, Y: Integer): boolean;
     procedure voiDescriptives1Click(Sender: TObject);
     procedure YokeMenuClick(Sender: TObject);
     procedure YokeTimerTimer(Sender: TObject);
+    {$IFDEF LCLCocoa} procedure SetRetina; {$ENDIF}
   private
     {$IFNDEF FPC}    procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES; {$ENDIF}
   public
@@ -443,7 +446,8 @@ var
 
 
 implementation
-{$IFDEF ENABLEOVERLAY} uses nifti_types, savethreshold, nii_reslice {$IFDEF ENABLESCRIPT}, scriptengine{$ENDIF};{$ENDIF}
+
+{$IFDEF ENABLEOVERLAY} uses {$IFDEF LCLCocoa}glcocoanscontext,{$ENDIF} nifti_types, savethreshold, nii_reslice {$IFDEF ENABLESCRIPT}, scriptengine{$ENDIF};{$ENDIF}
 {$IFDEF FPC} {$R *.lfm}   {$ENDIF}
 {$IFNDEF FPC} {$R *.dfm} {$ENDIF}
 var
@@ -452,6 +456,42 @@ var
 GLBox:TOpenGLControl;
 {$ELSE}
 GLbox : TGLPanel;
+{$ENDIF}
+
+function TGLForm1.GLBoxBackingWidth: integer;
+begin
+   {$IFDEF LCLCocoa}
+     result := Round(GLBox.Width * LBackingScaleFactor(GLBox.Handle));
+   {$ELSE}
+    result := GLBox.Width;
+   {$ENDIF}
+end;
+
+function TGLForm1.GLBoxBackingHeight: integer;
+begin
+   {$IFDEF LCLCocoa}
+   result := Round(GLBox.Height * LBackingScaleFactor(GLBox.Handle));
+   {$ELSE}
+    result := GLBox.Height;
+   {$ENDIF}
+end;
+
+{$IFDEF LCLCocoa}
+procedure TGLForm1.SetRetina;
+begin
+  (*if gPrefs.RetinaDisplay then
+     GLBox.Options := [ocoMacRetinaMode]
+  else
+    GLBox.Options := [];
+  GLBox.MultiSampling:=GLBox.MultiSampling;
+  *)
+  LSetWantsBestResolutionOpenGLSurface(gPrefs.RetinaDisplay, GLBox.Handle);
+  //GLBox.WantsBestResolutionOpenGLSurface:=gPrefs.RetinaDisplay;
+  if (GLbox.Height < 1) or (GLBoxBackingHeight <= GLbox.Height) then
+     gRetinaScale := 1
+  else
+      gRetinaScale := GLBoxBackingHeight/GLbox.Height;
+end;
 {$ENDIF}
 
 
@@ -581,7 +621,6 @@ begin
      end;
 end;
 
-
 function TGLForm1.ScreenShot(Zoom: integer): TBitmap;
 var
   RawImage: TRawImage;
@@ -682,6 +721,8 @@ begin
   GLbox.invalidate;
 end;
 {$ELSE} //not COREGL
+//{$DEFINE TILED_SCREENSHOT}
+{$IFDEF TILED_SCREENSHOT} //Tiled screen capture slow and problematic, but works on Linux where OpenGL surfaces can not be larger than screen resolution
 function TGLForm1.ScreenShot(Zoom: integer): TBitmap;
 var
   p: bytep0;
@@ -698,8 +739,8 @@ begin
      recompileShader(prevQ, 10);
   gRayCast.ScreenCapture := true;
   GLBox.MakeCurrent;
-  w := GLBox.BackingWidth;
-  h := GLbox.BackingHeight;
+  w := GLBoxBackingWidth;
+  h := GLboxBackingHeight;
   wz := w*Zoom;
   hz := h*Zoom;
   Result:=TBitmap.Create;
@@ -715,7 +756,7 @@ begin
   for tile := 0 to ((Zoom * Zoom) - 1) do begin
     tilex := (tile mod zoom) * w;
     tiley := (tile div zoom) * h;
-    DisplayGLz(gTexture3D, Zoom, -tilex, -tiley);
+    DisplayGLz(gTexture3D, Zoom, -tilex, -tiley, 0 {to screen});
     {$IFDEF Darwin} //http://lists.apple.com/archives/mac-opengl/2006/Nov/msg00196.html
     glReadPixels(0, 0, w, h, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8, @p[0]); //OSX-Darwin
     {$ELSE}
@@ -755,6 +796,175 @@ begin
   {$ENDIF}
   //clipbox.caption := inttostr(gettickcount - tic);
 end;
+{$ELSE}//not IFDEF TILED_SCREENSHOT
+Type
+TFrameBuffer = record
+  depthBuf,frameBuf, tex: GLUint;
+  w, h: integer;
+end;
+
+procedure initFrame (var f : TFrameBuffer);
+begin
+     f.tex := 0;
+     f.depthBuf := 0;
+     f.frameBuf := 0;
+end;
+
+procedure freeFrame (var f : TFrameBuffer);
+begin
+  glDeleteTextures(1, @f.tex);
+  glDeleteTextures(1, @f.depthBuf);
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+  glDeleteFramebuffersEXT(1, @f.frameBuf);
+  //Bind 0, which means render to back buffer, as a result, frameBuf is unbound
+end;
+
+function setFrame (wid, ht: integer; var f : TFrameBuffer; isMultiSample: boolean) : boolean; //returns true if multi-sampling
+//http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
+var
+   w,h: integer;
+   //drawBuf: GLenum;
+   drawBuf: array[0..1] of GLenum;
+begin
+     w := wid;
+     h := ht;
+     if isMultiSample then begin
+        w := w * 2;
+        h := h * 2;
+     end;
+     result := isMultiSample;
+     if (w = f.w) and (h = f.h) then begin
+         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, f.frameBuf);
+         exit;
+     end;
+     freeframe(f);
+     f.w := w;
+     f.h := h;
+     //https://www.opengl.org/wiki/Framebuffer_Object_Examples#Quick_example.2C_render_to_texture_.282D.29
+     glGenTextures(1, @f.tex);
+     glBindTexture(GL_TEXTURE_2D, f.tex);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+     glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA8, f.w, f.h, 0,GL_RGBA, GL_UNSIGNED_BYTE, nil); //RGBA16 for AO
+     glGenFramebuffersEXT(1, @f.frameBuf);
+     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, f.frameBuf);
+     //Attach 2D texture to this FBO
+     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, f.tex, 0);
+
+     //glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, f.tex, 0);
+     // Create the depth buffer
+    glGenTextures(1, @f.depthBuf);
+    glBindTexture(GL_TEXTURE_2D, f.depthBuf);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, f.w, f.h, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nil);
+    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, f.depthBuf, 0);
+     //glDrawBuffers(1, @drawBuf); // "1" is the size of DrawBuffers
+     drawBuf[0] := GL_COLOR_ATTACHMENT0;
+     drawBuf[1] := GL_COLOR_ATTACHMENT1;
+     glDrawBuffers(1, @drawBuf[0]); // draw colors only
+     if(glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) <> GL_FRAMEBUFFER_COMPLETE) then begin
+       GLForm1.ShowmessageError('Frame buffer error 0x'+inttohex(glCheckFramebufferStatus(GL_FRAMEBUFFER),4) );
+       exit;
+     end;
+end;
+
+function TGLForm1.ScreenShot(Zoom: integer): TBitmap;
+var
+  p: bytep0;
+  x, y: integer;
+  prevQ, w,h, BytePerPixel: int64;
+  z:longword;
+  RawImage: TRawImage;
+  DestPtr: PInteger;
+  maxXY: array[0..1] of GLuint;
+  f: TFrameBuffer;
+begin
+  prevQ := gPrefs.RayCastQuality1to10;
+  gPrefs.RayCastQuality1to10 := 10;
+  if (prevQ <> 10) then
+     recompileShader(prevQ, 10);
+  gRayCast.ScreenCapture := true;
+  GLBox.MakeCurrent;
+  glGetIntegerv(GL_MAX_VIEWPORT_DIMS, @maxXY);
+  //caption := inttostr(maxXY[0]) +'x'+inttostr(maxXY[1]);
+  w := GLBoxBackingWidth * Zoom;
+  h := GLboxBackingHeight * Zoom;
+  MosaicScale(w, h, Zoom);
+  if (w > maxXY[0]) or (h > maxXY[1]) then begin
+    //OpenGL unable to create such a large bitmap
+    w := GLBoxBackingWidth;
+    h := GLboxBackingHeight;
+    zoom := 1
+  end;
+  Result:=TBitmap.Create;
+  Result.Width:=w;
+  Result.Height:=h;
+  Result.PixelFormat := pf24bit; //if pf32bit the background color is wrong, e.g. when alpha = 0
+  RawImage := Result.RawImage;
+  //GLForm1.ShowmessageError('GLSL error '+inttostr(RawImage.Description.RedShift)+' '+inttostr(RawImage.Description.GreenShift) +' '+inttostr(RawImage.Description.BlueShift));
+  BytePerPixel := RawImage.Description.BitsPerPixel div 8;
+  Result.BeginUpdate(False);
+  GetMem(p, w*h*4);
+  initFrame(f);
+  setFrame (w, h, f, false);
+  //tic := gettickcount;
+  gRayCast.WINDOW_WIDTH := w;
+  gRayCast.WINDOW_HEIGHT  := h;
+  InitGL (false);
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, f.frameBuf); //<- required for 2D views
+  DisplayGLz(gTexture3D, 1, 0, 0, f.frameBuf);
+  {$IFDEF Darwin} //http://lists.apple.com/archives/mac-opengl/2006/Nov/msg00196.html
+  glReadPixels(0, 0, w, h, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8, @p[0]); //OSX-Darwin
+  {$ELSE}
+  glReadPixels(0, 0, w, h, GL_BGRA, GL_UNSIGNED_BYTE, @p[0]); //Linux-Windows
+  {$ENDIF}
+  z := 0;
+  if BytePerPixel <> 4 then begin
+    for y:= h-1 downto 0 do begin
+         DestPtr := PInteger(RawImage.Data);
+         Inc(PByte(DestPtr), y * RawImage.Description.BytesPerLine );
+         for x := 1 to w do begin
+             DestPtr^ := p[z] + (p[z+1] shl 8) + (p[z+2] shl 16);
+             Inc(PByte(DestPtr), BytePerPixel);
+             z := z + 4;
+         end;
+     end; //for y : each line in image
+  end else begin
+      for y:= h-1 downto 0 do begin
+          DestPtr := PInteger(RawImage.Data);
+          Inc(PByte(DestPtr), y * RawImage.Description.BytesPerLine );
+          System.Move(p[z], DestPtr^, w * BytePerPixel );
+          z := z + ( w * 4 );
+    end; //for y : each line in image
+  end;
+  FreeMem(p);
+  gRayCast.WINDOW_WIDTH := GLBoxBackingWidth;
+  gRayCast.WINDOW_HEIGHT  := GLBoxBackingHeight;
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);  //draw to display
+  freeFrame(f);
+  Result.EndUpdate(False);
+  InitGL (false);
+  GLbox.ReleaseContext;
+
+  gRayCast.ScreenCapture := false;
+  if (prevQ <> 10) then begin
+     gPrefs.RayCastQuality1to10 := prevQ;
+     recompileShader(10, gPrefs.RayCastQuality1to10);
+  end;
+  {$IFDEF LCLCocoa}
+  GLBox.Invalidate; //at least for Cocoa we need to reset this or the user will see the final tile
+  {$ENDIF}
+  //clipbox.caption := inttostr(gettickcount - tic);
+end;
+
+{$ENDIF}
+
+
 {$ENDIF} //if COREGL else not CORE
 
 {$ELSE} //If FPC else Delphi
@@ -2179,7 +2389,7 @@ end;
    {$IFDEF LCLCocoa}str := str + ' (Cocoa) '; {$ENDIF}
    {$IFDEF LCLCarbon}str := str + ' (Carbon) '; {$ENDIF}
    {$IFDEF DGL} str := str +' (DGL) '; {$ENDIF}//the DGL library has more dependencies - report this if incompatibilities are found
-  str := 'MRIcroGL '+str+' 15 June 2017'
+  str := 'MRIcroGL '+str+' 16 June 2017'
    +kCR+' www.mricro.com :: BSD 2-Clause License (opensource.org/licenses/BSD-2-Clause)'
    +kCR+' Dimensions '+inttostr(gTexture3D.NIFTIhdr.dim[1])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[2])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[3])
    +kCR+' Bytes per voxel '+inttostr(gTexture3D.NIFTIhdr.bitpix div 8)
@@ -2430,10 +2640,11 @@ begin
     {$ENDIF COREGL}
     {$ENDIF DGL}
     {$IFDEF LCLCocoa}
-     GLBox.WantsBestResolutionOpenGLSurface:= gPrefs.RetinaDisplay;
+    SetRetina;
+    // GLBox.WantsBestResolutionOpenGLSurface:= gPrefs.RetinaDisplay;
     {$ENDIF}
-    gRayCast.WINDOW_WIDTH := GLBox.BackingWidth;
-    gRayCast.WINDOW_HEIGHT := GLbox.BackingHeight;
+    gRayCast.WINDOW_WIDTH := GLBoxBackingWidth;
+    gRayCast.WINDOW_HEIGHT := GLboxBackingHeight;
     LoadStartupImage;
     AutoDetectVOI;
     {$IFDEF LINUX}
@@ -2442,12 +2653,12 @@ begin
   end;
 
   if not AreaInitialized then begin
-    gRayCast.WINDOW_WIDTH := GLBox.BackingWidth;
-    gRayCast.WINDOW_HEIGHT := GLbox.BackingHeight;
-    if (GLbox.Height < 1) or (GLBox.BackingHeight <= GLbox.Height) then
+    gRayCast.WINDOW_WIDTH := GLBoxBackingWidth;
+    gRayCast.WINDOW_HEIGHT := GLboxBackingHeight;
+    if (GLbox.Height < 1) or (GLBoxBackingHeight <= GLbox.Height) then
        gRetinaScale := 1
     else
-        gRetinaScale := GLBox.BackingHeight/GLbox.Height;
+        gRetinaScale := GLBoxBackingHeight/GLbox.Height;
     if M_reload > 0 then begin
       voiClose;
       if Load_From_NIfTI (gTexture3D,OpenDialog1.Filename,gPrefs.ForcePowerOfTwo, M_reload) then begin
@@ -3068,7 +3279,8 @@ begin
        GLForm1.OpenMRU(nil);
   {$IFDEF LCLCocoa}
   if isRetinaChanged then begin
-    GLBox.WantsBestResolutionOpenGLSurface:=gPrefs.RetinaDisplay;
+     GLForm1.SetRetina;
+     //GLBox.WantsBestResolutionOpenGLSurface:=gPrefs.RetinaDisplay;
     AreaInitialized := false;
     //M_Refresh := true;
      GLForm1.UpdateTimer.enabled := true;

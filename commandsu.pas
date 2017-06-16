@@ -18,6 +18,7 @@ function OVERLAYLOADCLUSTER(lFilename: string; lThreshold, lClusterMM3: single; 
 procedure AZIMUTH (DEG: integer);
 procedure AZIMUTHELEVATION (AZI, ELEV: integer);
 procedure BACKCOLOR (R,G,B: byte);
+procedure BMPZOOM(Z: byte);
 procedure MODELESSCOLOR(R,G,B: byte);
 procedure CAMERADISTANCE (Z: single);
 procedure CHANGENODE(INDEX, INTENSITY, R,G,B,A: byte);
@@ -108,12 +109,13 @@ const
     (Ptr:@OVERLAYLOADCLUSTER;Decl:'OVERLAYLOADCLUSTER';Vars:'(lFilename: string; lThreshold, lClusterMM3: single; lSaveToDisk: boolean): integer'),
 
      (Ptr:@OVERLAYLOADVOL;Decl:'OVERLAYLOADVOL';Vars:'(lFilename: string; lVol: integer): integer'));
-  knProc = 78;
+  knProc = 79;
   kProcRA : array [1..knProc] of TScriptRec =
     (
       (Ptr:@AZIMUTH;Decl:'AZIMUTH';Vars:'(DEG: integer)'),
       (Ptr:@AZIMUTHELEVATION;Decl:'AZIMUTHELEVATION';Vars:'(AZI, ELEV: integer)'),
       (Ptr:@BACKCOLOR;Decl:'BACKCOLOR';Vars:'(R, G, B: byte)'),
+      (Ptr:@BMPZOOM;Decl:'BMPZOOM';Vars:'(Z: byte)'),
       (Ptr:@MODELESSCOLOR;Decl:'MODELESSCOLOR';Vars:'(R, G, B: byte)'),
       (Ptr:@CAMERADISTANCE;Decl:'CAMERADISTANCE';Vars:'(Z: single)'),
       (Ptr:@CHANGENODE;Decl:'CHANGENODE';Vars:'(INDEX, INTENSITY, R,G,B,A: byte)'),
@@ -209,6 +211,14 @@ var
     gAVIFrame : integer = 0;
   {$ENDIF} //if not enableAVE
 {$ENDIF} //Delphi
+
+procedure BMPZOOM(Z: byte);
+begin
+  if (Z > 10) or (Z < 1) then
+     Z := 1;
+  gPrefs.BitmapZoom := Z;
+end;
+
 procedure HaltScript;
 begin
   ScriptForm.Memo2.Lines.Add('Script stopped due to errors.');

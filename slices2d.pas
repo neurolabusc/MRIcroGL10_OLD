@@ -5,7 +5,7 @@ uses
  {$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL}glcorearb, {$ELSE} gl, glext, {$ENDIF}  {$ENDIF DGL}
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unit_transfertexture, {$ELSE} texture_3d_unit,{$ENDIF}
    //types,
-   graphics, nii_mat, define_types, coordinates, sysutils, textfx, {$IFDEF COREGL} gl_2d, raycast_core, gl_core_matrix, {$ELSE} raycast_legacy, {$ENDIF} raycast_common, drawu;
+   math, graphics, nii_mat, define_types, coordinates, sysutils, textfx, {$IFDEF COREGL} gl_2d, raycast_core, gl_core_matrix, {$ELSE} raycast_legacy, {$ENDIF} raycast_common, drawu;
 const
   kMaxMosaicDim = 12; //e.g. if 12 then only able to draw up to 12x12 mosaics [=144 slices]
   kEmptyOrient = 0;
@@ -14,7 +14,6 @@ const
   kSagRightOrient = 3;
   kSagLeftOrient = 4;
 procedure MosaicGL ( lMosaicString: string);
-
 procedure DrawOrtho(var lTex: TTexture);
 //procedure SetZooms (var lX,lY,lZ: single);
 procedure SetZooms (var lX,lY,lZ: single; lTex: TTexture);
@@ -22,6 +21,7 @@ procedure MMToFrac(var X,Y,Z: single);
 function SliceMM (lSliceFrac: single; lOrient: integer): single;
 function FracToSlice (lFrac: single; lSlices : integer): single;
 function FracToVox (Xf,Yf,Zf: single; Xdim, Ydim,Zdim: integer): integer;
+procedure MosaicScale(var w, h: int64; zoom: integer);
 
 implementation
 
@@ -42,8 +42,8 @@ end;
     Dim,Pos: TMosaicPoint;
     Orient: TMosaicOrient;
     Text: TMosaicText;
-    HOverlap,VOverlap,MaxWid,MaxHt: single;
-    Rows,Cols: integer;
+    HOverlap,VOverlap: single;
+    MaxWid,MaxHt, Rows,Cols: integer;
     isMM: boolean;
   end;
 
@@ -182,10 +182,10 @@ begin
         lX := lX +  lMosaic.Dim[lCol,lRow].X;
     end;//for each column
     if lX > lMosaic.MaxWid then
-      lMosaic.MaxWid := lX;
+      lMosaic.MaxWid := ceil(lX);
 
   end;//for each row
-  lMosaic.MaxHt := (lMosaic.Pos[1,1].Y+lMosaic.Dim[1,1].Y);
+  lMosaic.MaxHt := ceil(lMosaic.Pos[1,1].Y+lMosaic.Dim[1,1].Y);
 end;
 
 (*procedure ReportMosaic (var lMosaic: TMosaic);
@@ -915,6 +915,18 @@ begin
   end;
   EndDraw2D;
 end;
+
+
+  procedure MosaicScale(var w, h: int64; zoom: integer);
+  var
+    lMosaic: TMosaic;
+  begin
+   if (gPrefs.SliceView  <> 5) or (gRayCast.MosaicString = '') then exit;
+   lMosaic := Str2Mosaic ( gRayCast.MosaicString);
+   if (lMosaic.MaxWid = 0) or (lMosaic.MaxHt= 0) then exit;
+   w := (lMosaic.MaxWid * zoom);
+   h := (lMosaic.MaxHt * zoom);
+  end;
 
 
 

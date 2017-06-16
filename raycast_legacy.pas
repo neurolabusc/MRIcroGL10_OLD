@@ -25,7 +25,7 @@ uses
     sysutils, histogram2d, math, colorbar2d, raycast_common;
 
 procedure DisplayGL(var lTex: TTexture);
-procedure DisplayGLz(var lTex: TTexture; zoom, zoomOffsetX, zoomOffsetY: integer);
+procedure DisplayGLz(var lTex: TTexture; zoom, zoomOffsetX, zoomOffsetY: integer; framebuff: GLUint);
 procedure  InitGL (InitialSetup: boolean);// (var lTex: TTexture);
 
 implementation
@@ -369,9 +369,9 @@ begin
      glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, gRayCast.renderBuffer);
 end;
 
-procedure disableRenderBuffers;
+procedure disableRenderBuffers (framebuff: GLUint);
 begin
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, framebuff);
 end;
 
 procedure drawVertex(x,y,z: single);
@@ -514,7 +514,7 @@ begin
   glMatrixMode(GL_MODELVIEW);//?
 end;
 
-procedure  InitGL (InitialSetup: boolean);// (var lTex: TTexture);
+procedure InitGL (InitialSetup: boolean);// (var lTex: TTexture);
 begin
   glEnable(GL_CULL_FACE);
   glClearColor(gPrefs.BackColor.rgbRed/255,gPrefs.BackColor.rgbGreen/255,gPrefs.BackColor.rgbBlue/255, 0);
@@ -820,11 +820,12 @@ begin
   //glDisable(GL_CULL_FACE); // <- required for Cocoa
 end;
 
-procedure DisplayGLz(var lTex: TTexture; zoom, zoomOffsetX, zoomOffsetY: integer);
+procedure DisplayGLz(var lTex: TTexture; zoom, zoomOffsetX, zoomOffsetY: integer; framebuff: GLUint);
 begin
   //if (gPrefs.SliceView  = 5) and (length(gRayCast.MosaicString) < 1) then exit; //we need to draw something, otherwise swapbuffer crashes
   if (gPrefs.SliceView  <> 5) then  gRayCast.MosaicString := '';
   doShaderBlurSobel(lTex);
+  disableRenderBuffers(framebuff);
   glClearColor(gPrefs.BackColor.rgbRed/255,gPrefs.BackColor.rgbGreen/255,gPrefs.BackColor.rgbBlue/255, 0);
   resizeGL(gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT,zoom, zoomOffsetX, zoomOffsetY);
   glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, gRayCast.renderBuffer);
@@ -849,7 +850,7 @@ begin
     if gShader.SinglePass <> 1 then
        renderBackFace(lTex);
     rayCasting(lTex);
-    disableRenderBuffers();
+    disableRenderBuffers(framebuff);
     renderBufferToScreen();
     if gPrefs.SliceDetailsCubeAndText then
       drawCube(gRayCast.WINDOW_WIDTH*zoom, gRayCast.WINDOW_HEIGHT*zoom, zoomOffsetX, zoomOffsetY);
@@ -873,7 +874,7 @@ end;
 
 procedure DisplayGL(var lTex: TTexture);
 begin
-  DisplayGLz(lTex,1,0,0);
+  DisplayGLz(lTex,1,0,0,0);
 end;
 
 
