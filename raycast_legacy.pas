@@ -835,6 +835,9 @@ begin
      glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT );
      glDisable(GL_CULL_FACE); //<-this is important, otherwise nodes and quads not filled
      MosaicGL(gRayCast.MosaicString);
+     //if gPrefs.Colorbar and (gPrefs.SliceView  <> 5) then
+     //	DrawCLUT( gPrefs.ColorBarPos,0.01, gPrefs);//, gRayCast.WINDOW_WIDTH*zoom, gRayCast.WINDOW_HEIGHT*zoom, zoomOffsetX, zoomOffsetY);
+
   end else {$ENDIF} if gPrefs.SliceView > 0  then begin //draw 2D orthogonal slices
     glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT );
     glDisable(GL_CULL_FACE); //<-this is important, otherwise nodes and quads not filled
@@ -858,7 +861,7 @@ begin
   end;
   if gPrefs.ColorEditor then
     DrawNodes(gRayCast.WINDOW_HEIGHT,gRayCast.WINDOW_WIDTH, lTex, gPrefs);
-  if gPrefs.Colorbar then
+  if gPrefs.Colorbar (*and (gPrefs.SliceView  <> 5)*) then
      DrawCLUT( gPrefs.ColorBarPos,0.01, gPrefs);//, gRayCast.WINDOW_WIDTH*zoom, gRayCast.WINDOW_HEIGHT*zoom, zoomOffsetX, zoomOffsetY);
   {$IFDEF ENABLEWATERMARK}
   if gWatermark.filename <> '' then

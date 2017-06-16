@@ -43,7 +43,7 @@ end;
     Orient: TMosaicOrient;
     Text: TMosaicText;
     HOverlap,VOverlap: single;
-    MaxWid,MaxHt, Rows,Cols: integer;
+    LeftBorder, BottomBorder, MaxWid,MaxHt, Rows,Cols: integer;
     isMM: boolean;
   end;
 
@@ -145,6 +145,48 @@ begin
 
 end;
 
+procedure MosaicColorBarXY(var lMosaic: TMosaic);
+//we need to compute space for a colorbar
+var
+  w,h, n, ratio, border: single;
+  a,b: integer;
+begin
+  lMosaic.LeftBorder := 0; //assume no left colorbar
+  lMosaic.BottomBorder := 0; //assume no bottom colorbar
+  if not gPrefs.Colorbar then exit;//no colorbar: no need for space
+  a := lMosaic.MaxHt;
+  b := lMosaic.MaxWid;
+  n := gOpenOverlays;
+  if (n < 1) then n := 1;
+  n := n + 1;
+  w := abs(gPrefs.ColorBarPos.L - gPrefs.ColorBarPos.R);
+  h := abs(gPrefs.ColorBarPos.T - gPrefs.ColorBarPos.B);
+  if (w > h) then begin//wide colorbars - pad top or bottom
+     //gOpenOverlays
+     if (gPrefs.ColorBarPos.B > 0.5) then
+        border := 1.0 -  gPrefs.ColorBarPos.B
+     else
+         border := gPrefs.ColorBarPos.B;
+     border := border + (n * h);
+     ratio := border + 1;
+     lMosaic.MaxHt := round(lMosaic.MaxHt * ratio);
+     if (gPrefs.ColorBarPos.B < 0.5) then //create space at bottom for item
+       lMosaic.BottomBorder := round(lMosaic.MaxHt * border / ratio);
+  end else begin //high colorbars - pad left or right
+    if (gPrefs.ColorBarPos.L > 0.5) then //bar on right
+       border := 1.0 -  gPrefs.ColorBarPos.L
+    else
+        border := gPrefs.ColorBarPos.L;
+    border := border + (n * w);
+    ratio := border + 1;
+    lMosaic.MaxWid := round(lMosaic.MaxWid * ratio);
+      if (gPrefs.ColorBarPos.L < 0.5) then
+         lMosaic.LeftBorder := round(lMosaic.MaxWid * border / ratio);
+
+  end;
+  //GLForm1.caption := format('%d %d -> %d %d',[a,b, lMosaic.MaxHt,lMosaic.MaxWid]);
+end;
+
 procedure MosaicSetXY (var lMosaic: TMosaic);
 var
   lRow,lCol: integer;
@@ -186,6 +228,7 @@ begin
 
   end;//for each row
   lMosaic.MaxHt := ceil(lMosaic.Pos[1,1].Y+lMosaic.Dim[1,1].Y);
+  MosaicColorBarXY(lMosaic);
 end;
 
 (*procedure ReportMosaic (var lMosaic: TMosaic);
@@ -564,6 +607,13 @@ begin
   glBindTexture(GL_TEXTURE_3D,gRayCast.intensityTexture3D);
   if (lMosaic.MaxWid = 0) or (lMosaic.MaxHt= 0) or (lMosaic.Cols < 1) or (lMosaic.Rows < 1) then
     exit;
+
+   for lRow := 1 to lMosaic.Rows do
+    for lCol := 1 to lMosaic.Cols do begin
+        lMosaic.Pos[lCol,lRow].X := lMosaic.Pos[lCol,lRow].X + lMosaic.LeftBorder;
+        lMosaic.Pos[lCol,lRow].Y := lMosaic.Pos[lCol,lRow].Y + lMosaic.BottomBorder;
+    end;
+
   scale := gRayCast.WINDOW_WIDTH/(lMosaic.MaxWid);
   if (gRayCast.WINDOW_HEIGHT/(lMosaic.MaxHt)) < scale then
     scale := gRayCast.WINDOW_HEIGHT/(lMosaic.MaxHt);
