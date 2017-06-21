@@ -250,6 +250,7 @@ TGLForm1 = class(TForm)
     SuperiorMenu: TMenuItem;
     voiDescriptives1: TMenuItem;
     procedure ConvertForeign1Click(Sender: TObject);
+    procedure FormChangeBounds(Sender: TObject);
     procedure InterpolateDrawMenuClick(Sender: TObject);
     function OpenVOI(lFilename: string): boolean;
     procedure BackgroundMaskMenuClick(Sender: TObject);
@@ -485,6 +486,7 @@ begin
     GLBox.Options := [];
   GLBox.MultiSampling:=GLBox.MultiSampling;
   *)
+
   LSetWantsBestResolutionOpenGLSurface(gPrefs.RetinaDisplay, GLBox.Handle);
   //GLBox.WantsBestResolutionOpenGLSurface:=gPrefs.RetinaDisplay;
   if (GLbox.Height < 1) or (GLBoxBackingHeight <= GLbox.Height) then
@@ -3622,6 +3624,20 @@ begin
   for lF := 0 to (OpenDialog1.Files.Count-1) do
     SaveForeignAsNifti(OpenDialog1.Files[lF]);
 end;
+
+procedure TGLForm1.FormChangeBounds(Sender: TObject);
+{$IFDEF LCLCocoa} var lprev: single; {$ENDIF}
+begin
+   {$IFDEF LCLCocoa}
+   if (gPrefs.RetinaDisplay)  then begin //detect if window moved between retina and non-retina display
+      lprev := gRetinaScale;
+      SetRetina;
+      if (lprev <> gRetinaScale) then
+         GLboxResize(Sender);
+   end;
+   {$ENDIF}
+end;
+
 
 procedure TGLForm1.OpenVOI1Click(Sender: TObject);
 begin

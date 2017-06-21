@@ -185,7 +185,7 @@ begin
             PlanarRGB := 2;//autodetect
             BitmapZoom := 2;
             StartupScript := false;
-            RetinaDisplay := false;
+            RetinaDisplay := true;
             FormMaximized := false;
             Debug := false;
             {$IFNDEF FPC}
