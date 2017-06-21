@@ -390,7 +390,7 @@ begin
     Dim[0] := 3;
     Dim[1] := 256;
     Dim[2] := 256;
-    Dim[3] := 128;
+    Dim[3] := 1;
     Dim[4] := 1; {n vols}
     Dim[5] := 1;
     Dim[6] := 1;
@@ -1675,7 +1675,7 @@ begin
       if (ch = chr($0D)) or (ch = chr($0A)) then break;
       str := str+ch;
     end;
-    if str = '' then continue;
+    if str = '' then break; //if str = '' then continue;
     if (isFirstLine) then begin
       if (length(str) <4) or (str[1]<>'N') or (str[2]<>'R') or (str[3]<>'R') or (str[4]<>'D') then
         goto 666;
@@ -1699,6 +1699,8 @@ begin
         nhdr.pixdim[i+1] :=strtofloat(mArray.Strings[i]);
     end else if AnsiContainsText(tagName, 'sizes') then begin
       if (nItems > 6) then nItems :=6;
+      //for i:=1 to 6 do
+      //    nhdr.dim[i] := 1;
       for i:=0 to (nItems-1) do
           nhdr.dim[i+1] := strtoint(mArray.Strings[i]);
     end else if AnsiContainsText(tagName, 'space directions') then begin
@@ -1796,6 +1798,8 @@ begin
     headerSize :=fileposBytes;
   end;
   result := true;
+
+  //GLForm1.ShaderMemo.Lines.Add(format(' %d', [gzBytes]));
 666:
   CloseFile(FP);
   Filemode := 2;

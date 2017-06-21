@@ -230,7 +230,6 @@ if TargetOS='darwin' then
         <CursorPos X="96" Y="2138"/>
         <UsageCount Value="207"/>
         <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit1>
       <Unit2>
@@ -274,7 +273,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="599"/>
         <CursorPos X="10" Y="606"/>
-        <UsageCount Value="77"/>
+        <UsageCount Value="78"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit5>
@@ -290,11 +289,12 @@ if TargetOS='darwin' then
       </Unit6>
       <Unit7>
         <Filename Value="texture_3d_unit.pas"/>
-        <EditorIndex Value="-1"/>
+        <EditorIndex Value="5"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="36"/>
-        <CursorPos X="11" Y="46"/>
+        <TopLine Value="720"/>
+        <CursorPos X="14" Y="722"/>
         <UsageCount Value="79"/>
+        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit7>
       <Unit8>
@@ -318,12 +318,11 @@ if TargetOS='darwin' then
       </Unit9>
       <Unit10>
         <Filename Value="prefs.pas"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="178"/>
         <CursorPos X="34" Y="188"/>
         <UsageCount Value="96"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit10>
       <Unit11>
@@ -424,11 +423,11 @@ if TargetOS='darwin' then
       </Unit21>
       <Unit22>
         <Filename Value="colorbar2d.pas"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="3"/>
         <WindowIndex Value="1"/>
         <TopLine Value="373"/>
         <CursorPos X="30" Y="375"/>
-        <UsageCount Value="49"/>
+        <UsageCount Value="50"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit22>
@@ -447,11 +446,13 @@ if TargetOS='darwin' then
       </Unit23>
       <Unit24>
         <Filename Value="nifti_foreign.pas"/>
-        <EditorIndex Value="-1"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="4"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="1035"/>
-        <CursorPos X="68" Y="1050"/>
-        <UsageCount Value="84"/>
+        <TopLine Value="1659"/>
+        <CursorPos X="3" Y="1670"/>
+        <UsageCount Value="85"/>
+        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit24>
       <Unit25>
@@ -564,18 +565,17 @@ if TargetOS='darwin' then
         <UnitName Value="CarbonInt"/>
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="35"/>
-        <CursorPos X="57" Y="41"/>
+        <TopLine Value="37"/>
+        <CursorPos X="74" Y="48"/>
         <UsageCount Value="11"/>
       </Unit36>
       <Unit37>
         <Filename Value="raycast_legacy.pas"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="835"/>
         <CursorPos X="18" Y="835"/>
         <UsageCount Value="100"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit37>
       <Unit38>
@@ -584,7 +584,7 @@ if TargetOS='darwin' then
         <WindowIndex Value="1"/>
         <TopLine Value="413"/>
         <CursorPos X="24" Y="418"/>
-        <UsageCount Value="74"/>
+        <UsageCount Value="75"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit38>
@@ -670,12 +670,11 @@ if TargetOS='darwin' then
       </Unit47>
       <Unit48>
         <Filename Value="textfx.pas"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
         <WindowIndex Value="1"/>
         <TopLine Value="24"/>
         <CursorPos X="3" Y="44"/>
-        <UsageCount Value="18"/>
+        <UsageCount Value="19"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit48>
@@ -716,123 +715,123 @@ if TargetOS='darwin' then
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="slices2d.pas"/>
-        <Caret Line="929" Column="8" TopLine="913"/>
+        <Caret Line="166" Column="45" TopLine="150"/>
       </Position1>
       <Position2>
         <Filename Value="slices2d.pas"/>
-        <Caret Line="925" Column="21" TopLine="917"/>
+        <Caret Line="23" Column="36" TopLine="22"/>
       </Position2>
       <Position3>
-        <Filename Value="slices2d.pas"/>
-        <Caret Line="46" Column="19" TopLine="36"/>
+        <Filename Value="colorbar2d.pas"/>
+        <Caret Line="375" Column="30" TopLine="373"/>
       </Position3>
       <Position4>
         <Filename Value="slices2d.pas"/>
-        <Caret Line="185" Column="33" TopLine="178"/>
+        <Caret Line="170" Column="7" TopLine="160"/>
       </Position4>
       <Position5>
         <Filename Value="slices2d.pas"/>
-        <Caret Line="8" Column="10"/>
+        <Caret Line="145" Column="30" TopLine="133"/>
       </Position5>
       <Position6>
         <Filename Value="slices2d.pas"/>
-        <Caret Line="24" Column="53" TopLine="15"/>
+        <Caret Line="188" Column="67" TopLine="167"/>
       </Position6>
       <Position7>
-        <Filename Value="slices2d.pas"/>
-        <Caret Line="927" Column="24" TopLine="919"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="894" Column="21" TopLine="893"/>
       </Position7>
       <Position8>
-        <Filename Value="slices2d.pas"/>
-        <Caret Line="46" Column="10" TopLine="46"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="11" Column="2"/>
       </Position8>
       <Position9>
-        <Filename Value="slices2d.pas"/>
-        <Caret Line="166" Column="45" TopLine="150"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="3626" TopLine="3625"/>
       </Position9>
       <Position10>
-        <Filename Value="slices2d.pas"/>
-        <Caret Line="23" Column="36" TopLine="22"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="251" Column="30" TopLine="243"/>
       </Position10>
       <Position11>
-        <Filename Value="colorbar2d.pas"/>
-        <Caret Line="375" Column="30" TopLine="373"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="3629" Column="35" TopLine="3626"/>
       </Position11>
       <Position12>
-        <Filename Value="slices2d.pas"/>
-        <Caret Line="170" Column="7" TopLine="160"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="3627" TopLine="3618"/>
       </Position12>
       <Position13>
-        <Filename Value="raycast_legacy.pas"/>
-        <Caret Line="839" Column="28" TopLine="829"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="4772" Column="49" TopLine="4768"/>
       </Position13>
       <Position14>
-        <Filename Value="slices2d.pas"/>
-        <Caret Line="145" Column="30" TopLine="133"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="254" Column="5" TopLine="243"/>
       </Position14>
       <Position15>
-        <Filename Value="slices2d.pas"/>
-        <Caret Line="188" Column="67" TopLine="167"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="3634" Column="4" TopLine="3626"/>
       </Position15>
       <Position16>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="894" Column="21" TopLine="893"/>
+        <Caret Line="3632" Column="19" TopLine="3621"/>
       </Position16>
       <Position17>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="11" Column="2"/>
+        <Caret Line="3639" Column="10" TopLine="3621"/>
       </Position17>
       <Position18>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="3626" TopLine="3625"/>
+        <Caret Line="3634" Column="18" TopLine="3624"/>
       </Position18>
       <Position19>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="251" Column="30" TopLine="243"/>
-      </Position19>
-      <Position20>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="3629" Column="35" TopLine="3626"/>
-      </Position20>
-      <Position21>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="3627" TopLine="3618"/>
-      </Position21>
-      <Position22>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="4772" Column="49" TopLine="4768"/>
-      </Position22>
-      <Position23>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="254" Column="5" TopLine="243"/>
-      </Position23>
-      <Position24>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="3634" Column="4" TopLine="3626"/>
-      </Position24>
-      <Position25>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="3632" Column="19" TopLine="3621"/>
-      </Position25>
-      <Position26>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="3639" Column="10" TopLine="3621"/>
-      </Position26>
-      <Position27>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="3634" Column="18" TopLine="3624"/>
-      </Position27>
-      <Position28>
         <Filename Value="slices2d.pas"/>
         <Caret Line="647" Column="25" TopLine="641"/>
-      </Position28>
-      <Position29>
+      </Position19>
+      <Position20>
         <Filename Value="slices2d.pas"/>
         <Caret Line="606" Column="10" TopLine="599"/>
-      </Position29>
-      <Position30>
+      </Position20>
+      <Position21>
         <Filename Value="textfx.pas"/>
         <Caret Line="12" Column="18"/>
+      </Position21>
+      <Position22>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="984" Column="55" TopLine="969"/>
+      </Position22>
+      <Position23>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="1799" Column="22" TopLine="1787"/>
+      </Position23>
+      <Position24>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="828" Column="58" TopLine="816"/>
+      </Position24>
+      <Position25>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="1802" Column="51" TopLine="1790"/>
+      </Position25>
+      <Position26>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="1645" Column="3" TopLine="1643"/>
+      </Position26>
+      <Position27>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="1673" Column="3" TopLine="1662"/>
+      </Position27>
+      <Position28>
+        <Filename Value="texture_3d_unit.pas"/>
+        <Caret Line="51" Column="30" TopLine="36"/>
+      </Position28>
+      <Position29>
+        <Filename Value="texture_3d_unit.pas"/>
+        <Caret Line="393" TopLine="382"/>
+      </Position29>
+      <Position30>
+        <Filename Value="texture_3d_unit.pas"/>
+        <Caret Line="722" Column="14" TopLine="720"/>
       </Position30>
     </JumpHistory>
   </ProjectOptions>
