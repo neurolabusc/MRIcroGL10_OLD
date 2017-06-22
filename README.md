@@ -10,10 +10,11 @@ http://www.mccauslandcenter.sc.edu/mricrogl/
 
 ##### Recent Versions
 
-16-June-2017
+21-June-2017
  - Preferences window now allows user to enable optional support for MacOS retina resolution. Slower but better quality.
  - [Screenshot fixes](http://www.nitrc.org/forum/message.php?msg_id=21504). Fix 'seams' when taking screenshots with high zoom factors, reduce blurriness of mosaic screenshots.
  - New script commands "sharpen" and "bmpzoom" (described in manual).
+ - Better support for NRRD format images.
 
 28-May-2017
  - [Better thresholding of binary overlays](https://www.nitrc.org/forum/message.php?msg_id=19974).

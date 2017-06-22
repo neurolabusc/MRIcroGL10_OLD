@@ -979,8 +979,8 @@ var
 begin
   gRayCast.ScreenCapture := true;
   GLBox.MakeCurrent;
-  w := GLBox.BackingWidth;
-  h := GLbox.BackingHeight;
+  w := GLBox.Width;
+  h := GLbox.Height;
   wz := w*Zoom;
   hz := h*Zoom;
   Result:=TBitmap.Create;
@@ -992,7 +992,7 @@ begin
   for tile := 0 to ((Zoom * Zoom) - 1) do begin
     tilex := (tile mod zoom) * w;
     tiley := (tile div zoom) * h;
-    DisplayGLz(gTexture3D, Zoom, -tilex, -tiley);
+    DisplayGLz(gTexture3D, Zoom, -tilex, -tiley,0);
     glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, @p[0]);
     z := 0;
     for y:=0 to h-1 do begin
@@ -2391,7 +2391,7 @@ end;
    {$IFDEF LCLCocoa}str := str + ' (Cocoa) '; {$ENDIF}
    {$IFDEF LCLCarbon}str := str + ' (Carbon) '; {$ENDIF}
    {$IFDEF DGL} str := str +' (DGL) '; {$ENDIF}//the DGL library has more dependencies - report this if incompatibilities are found
-  str := 'MRIcroGL '+str+' 16 June 2017'
+  str := 'MRIcroGL '+str+' 21 June 2017'
    +kCR+' www.mricro.com :: BSD 2-Clause License (opensource.org/licenses/BSD-2-Clause)'
    +kCR+' Dimensions '+inttostr(gTexture3D.NIFTIhdr.dim[1])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[2])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[3])
    +kCR+' Bytes per voxel '+inttostr(gTexture3D.NIFTIhdr.bitpix div 8)
