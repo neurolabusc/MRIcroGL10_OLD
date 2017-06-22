@@ -1640,7 +1640,7 @@ var
   ch: char;
   mArray: TStringList;
   str,tagName,elementNames: string;
-  i,s,nItems,headerSize,matElements,fileposBytes: integer;
+  lineskip,byteskip,i,s,nItems,headerSize,matElements,fileposBytes: integer;
   mat: mat33;
   isDetachedFile,isFirstLine: boolean;
   offset: array[0..3] of single;
@@ -1660,6 +1660,8 @@ begin
   swapEndian :=false;
   //nDims := 0;
   headerSize :=0;
+  lineskip := 0;
+  byteskip := 0;
   isDetachedFile :=false;
   matElements :=0;
   mArray := TStringList.Create;
@@ -1767,10 +1769,15 @@ begin
           gzBytes := K_gzBytes_headerAndImageCompressed//K_gzBytes_headeruncompressed
       else
           NSLog('Unknown encoding format '+mArray.Strings[0]);
-    end  else if AnsiContainsText(tagName, 'space origin') then begin
+    end else if (AnsiContainsText(tagName, 'lineskip') or AnsiContainsText(tagName, 'line skip')) then begin //http://teem.sourceforge.net/nrrd/format.html#lineskip
+      lineskip := strtointdef(mArray.Strings[0],0);
+    end else if (AnsiContainsText(tagName, 'byteskip') or AnsiContainsText(tagName, 'byte skip')) then begin //http://teem.sourceforge.net/nrrd/format.html#byteskip
+      byteskip := strtointdef(mArray.Strings[0],0);
+    end else if AnsiContainsText(tagName, 'space origin') then begin
       if (nItems > 3) then nItems :=3;
       for i:=0 to (nItems-1) do
           offset[i] := strtofloat(mArray.Strings[i]);
+
     end else if AnsiContainsText(tagName, 'data file') or AnsiContainsText(tagName, 'datafile') then begin
       str := mArray.Strings[0];
       if (pos('LIST', UpperCase(str)) = 1) and (length(str) = 4) then begin  //e.g. "data file: LIST"
@@ -1795,10 +1802,26 @@ begin
   if ((headerSize = 0) and ( not isDetachedFile)) then begin
     if gzBytes = K_gzBytes_headerAndImageCompressed then
       gzBytes := K_gzBytes_onlyImageCompressed; //raw text file followed by GZ image
+    if lineskip > 0 then begin
+      for i := 1 to lineskip do begin
+        while not EOF(fp) do begin
+              read(fp,ch);
+              fileposBytes := fileposBytes + 1;
+              if (ch = chr($0D)) or (ch = chr($0A)) then break;
+        end; //for each character in line
+      end; //for each line
+    end; //if lineskip
     headerSize :=fileposBytes;
   end;
   result := true;
-
+  if (lineskip > 0) and (isDetachedFile) then begin
+     NSLog('Unsupported NRRD feature: lineskip in detached file');
+     result := false;
+  end;
+  if (byteskip > 0) then begin
+    NSLog('Unsupported NRRD feature: byteskip');
+    result := false;
+  end;
   //GLForm1.ShaderMemo.Lines.Add(format(' %d', [gzBytes]));
 666:
   CloseFile(FP);

@@ -449,8 +449,8 @@ if TargetOS='darwin' then
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="4"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="1659"/>
-        <CursorPos X="3" Y="1670"/>
+        <TopLine Value="1760"/>
+        <CursorPos X="46" Y="1778"/>
         <UsageCount Value="85"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -566,7 +566,7 @@ if TargetOS='darwin' then
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="37"/>
-        <CursorPos X="74" Y="48"/>
+        <CursorPos X="3" Y="48"/>
         <UsageCount Value="11"/>
       </Unit36>
       <Unit37>
@@ -715,123 +715,123 @@ if TargetOS='darwin' then
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="slices2d.pas"/>
-        <Caret Line="166" Column="45" TopLine="150"/>
+        <Caret Line="145" Column="30" TopLine="133"/>
       </Position1>
       <Position2>
         <Filename Value="slices2d.pas"/>
-        <Caret Line="23" Column="36" TopLine="22"/>
+        <Caret Line="188" Column="67" TopLine="167"/>
       </Position2>
       <Position3>
-        <Filename Value="colorbar2d.pas"/>
-        <Caret Line="375" Column="30" TopLine="373"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="894" Column="21" TopLine="893"/>
       </Position3>
       <Position4>
-        <Filename Value="slices2d.pas"/>
-        <Caret Line="170" Column="7" TopLine="160"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="11" Column="2"/>
       </Position4>
       <Position5>
-        <Filename Value="slices2d.pas"/>
-        <Caret Line="145" Column="30" TopLine="133"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="3626" TopLine="3625"/>
       </Position5>
       <Position6>
-        <Filename Value="slices2d.pas"/>
-        <Caret Line="188" Column="67" TopLine="167"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="251" Column="30" TopLine="243"/>
       </Position6>
       <Position7>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="894" Column="21" TopLine="893"/>
+        <Caret Line="3629" Column="35" TopLine="3626"/>
       </Position7>
       <Position8>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="11" Column="2"/>
+        <Caret Line="3627" TopLine="3618"/>
       </Position8>
       <Position9>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="3626" TopLine="3625"/>
+        <Caret Line="4772" Column="49" TopLine="4768"/>
       </Position9>
       <Position10>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="251" Column="30" TopLine="243"/>
+        <Caret Line="254" Column="5" TopLine="243"/>
       </Position10>
       <Position11>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="3629" Column="35" TopLine="3626"/>
+        <Caret Line="3634" Column="4" TopLine="3626"/>
       </Position11>
       <Position12>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="3627" TopLine="3618"/>
+        <Caret Line="3632" Column="19" TopLine="3621"/>
       </Position12>
       <Position13>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="4772" Column="49" TopLine="4768"/>
+        <Caret Line="3639" Column="10" TopLine="3621"/>
       </Position13>
       <Position14>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="254" Column="5" TopLine="243"/>
+        <Caret Line="3634" Column="18" TopLine="3624"/>
       </Position14>
       <Position15>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="3634" Column="4" TopLine="3626"/>
-      </Position15>
-      <Position16>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="3632" Column="19" TopLine="3621"/>
-      </Position16>
-      <Position17>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="3639" Column="10" TopLine="3621"/>
-      </Position17>
-      <Position18>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="3634" Column="18" TopLine="3624"/>
-      </Position18>
-      <Position19>
         <Filename Value="slices2d.pas"/>
         <Caret Line="647" Column="25" TopLine="641"/>
-      </Position19>
-      <Position20>
+      </Position15>
+      <Position16>
         <Filename Value="slices2d.pas"/>
         <Caret Line="606" Column="10" TopLine="599"/>
-      </Position20>
-      <Position21>
+      </Position16>
+      <Position17>
         <Filename Value="textfx.pas"/>
         <Caret Line="12" Column="18"/>
+      </Position17>
+      <Position18>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="984" Column="55" TopLine="969"/>
+      </Position18>
+      <Position19>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="1799" Column="22" TopLine="1787"/>
+      </Position19>
+      <Position20>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="828" Column="58" TopLine="816"/>
+      </Position20>
+      <Position21>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="1802" Column="51" TopLine="1790"/>
       </Position21>
       <Position22>
         <Filename Value="nifti_foreign.pas"/>
-        <Caret Line="984" Column="55" TopLine="969"/>
+        <Caret Line="1645" Column="3" TopLine="1643"/>
       </Position22>
       <Position23>
         <Filename Value="nifti_foreign.pas"/>
-        <Caret Line="1799" Column="22" TopLine="1787"/>
+        <Caret Line="1673" Column="3" TopLine="1662"/>
       </Position23>
       <Position24>
-        <Filename Value="nifti_foreign.pas"/>
-        <Caret Line="828" Column="58" TopLine="816"/>
+        <Filename Value="texture_3d_unit.pas"/>
+        <Caret Line="51" Column="30" TopLine="36"/>
       </Position24>
       <Position25>
-        <Filename Value="nifti_foreign.pas"/>
-        <Caret Line="1802" Column="51" TopLine="1790"/>
+        <Filename Value="texture_3d_unit.pas"/>
+        <Caret Line="393" TopLine="382"/>
       </Position25>
       <Position26>
-        <Filename Value="nifti_foreign.pas"/>
-        <Caret Line="1645" Column="3" TopLine="1643"/>
+        <Filename Value="texture_3d_unit.pas"/>
+        <Caret Line="722" Column="14" TopLine="720"/>
       </Position26>
       <Position27>
         <Filename Value="nifti_foreign.pas"/>
-        <Caret Line="1673" Column="3" TopLine="1662"/>
+        <Caret Line="1670" Column="3" TopLine="1659"/>
       </Position27>
       <Position28>
-        <Filename Value="texture_3d_unit.pas"/>
-        <Caret Line="51" Column="30" TopLine="36"/>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="1806" Column="21" TopLine="1792"/>
       </Position28>
       <Position29>
-        <Filename Value="texture_3d_unit.pas"/>
-        <Caret Line="393" TopLine="382"/>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="1643" Column="12" TopLine="1642"/>
       </Position29>
       <Position30>
-        <Filename Value="texture_3d_unit.pas"/>
-        <Caret Line="722" Column="14" TopLine="720"/>
+        <Filename Value="nifti_foreign.pas"/>
+        <Caret Line="1664" Column="17" TopLine="1645"/>
       </Position30>
     </JumpHistory>
   </ProjectOptions>
