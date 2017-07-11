@@ -1453,10 +1453,51 @@ object GLForm1: TGLForm1
         Caption = 'Edit colors'
         OnClick = ToggleTransparency1Click
       end
-      object Colorbar1: TMenuItem
-        AutoCheck = True
+      object ClrbarMenu: TMenuItem
         Caption = 'Colorbar'
-        OnClick = Colorbar1Click
+        OnClick = ClrbarMenu1Click
+        object VisibleClrbarMenu: TMenuItem
+          AutoCheck = True
+          Caption = 'Visible'
+          RadioItem = True
+          OnClick = ClrbarMenu1Click
+        end
+        object ClrbarSep: TMenuItem
+          Caption = '-'
+        end
+        object WhiteClrbarMenu: TMenuItem
+          Tag = 1
+          AutoCheck = True
+          Caption = 'White'
+          GroupIndex = 193
+          RadioItem = True
+          OnClick = ClrbarMenuClick
+        end
+        object TransWhiteClrbarMenu: TMenuItem
+          Tag = 2
+          AutoCheck = True
+          Caption = 'Translucent White'
+          GroupIndex = 193
+          RadioItem = True
+          OnClick = ClrbarMenuClick
+        end
+        object BlackClrbarMenu: TMenuItem
+          Tag = 3
+          AutoCheck = True
+          Caption = 'Black'
+          GroupIndex = 193
+          RadioItem = True
+          OnClick = ClrbarMenuClick
+        end
+        object TransBlackClrbarMenu: TMenuItem
+          Tag = 4
+          AutoCheck = True
+          Caption = 'Translucent Black'
+          Checked = True
+          GroupIndex = 193
+          RadioItem = True
+          OnClick = ClrbarMenuClick
+        end
       end
       object Backcolor1: TMenuItem
         Caption = 'Back color'

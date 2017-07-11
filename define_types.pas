@@ -36,10 +36,10 @@ const
 {$ENDIF}
 
 type
+  (*TRGBA = packed record //Next: analyze Format Header structure
+   R,G,B,A : byte;
+ end;*)
   {$IFDEF COREGL}
-   TRGBA = packed record //Next: analyze Format Header structure
-    R,G,B,A : byte;
-  end;
   TPoint3f = packed record
     X: single;
     Y: single;
@@ -185,7 +185,6 @@ function CreateUnitRect (L,T,R,B: single) : TUnitRect;
 procedure SensibleUnitRect (var U: TUnitRect);
 function StrToRGBA(lS: string; out lU: glRGBaQUAD): boolean;
 function RGBAToStr (lU: glRGBaQUAD) : string;
-function RGBA(lR,lG,lB,lA: byte): TGLRGBQuad;
 function RGBA2TColor ( lRGBA: TGLRGBQuad): TColor;
 procedure TColor2RGBA (lColor: TColor; out lRGBA: TGLRGBQuad);
 procedure EnsureDirExists (var lFilename: string);
@@ -194,9 +193,19 @@ function FloatMinVal (lA,lB,lC: single): single;
 function ResetIniDefaults : boolean;
 procedure ShowDebug (lS: AnsiString);
 function float2str(Avalue:double; ADigits:integer):string; //e.g x:single=2.6; floattostrf(x,8,4);
+//function RGBA(lR,lG,lB,lA: byte): TRGBA;
+function RGBA(lR,lG,lB,lA: byte): TGLRGBQuad;
 
 implementation
 
+(*function RGBA(lR,lG,lB,lA: byte): TRGBA;
+//set red,green,blue and alpha of a Quad
+begin
+  result.r := lR;
+  result.g := lG;
+  result.b := lB;
+  result.a := lA;
+end;*)
 function float2str(Avalue:double; ADigits:integer):string; //e.g x:single=2.6; floattostrf(x,8,4);
 //http://stackoverflow.com/questions/5650051/how-to-keep-2-decimal-places-in-delphi
 var v:double; p:integer; e:string;

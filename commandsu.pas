@@ -26,6 +26,7 @@ procedure CLIP (DEPTH: single);
 procedure CLIPAZIMUTHELEVATION (DEPTH,AZI,ELEV: single);
 procedure CLIPFORMVISIBLE (VISIBLE: boolean);
 procedure COLORBARCOORD (L,T,R,B: single);
+procedure COLORBARPOSITION (P: integer);
 procedure ADDNODE(INTENSITY, R,G,B,A: byte);
 procedure COLORBARFORMVISIBLE (VISIBLE: boolean);
 procedure COLORBARTEXT (VISIBLE: boolean);
@@ -109,7 +110,7 @@ const
     (Ptr:@OVERLAYLOADCLUSTER;Decl:'OVERLAYLOADCLUSTER';Vars:'(lFilename: string; lThreshold, lClusterMM3: single; lSaveToDisk: boolean): integer'),
 
      (Ptr:@OVERLAYLOADVOL;Decl:'OVERLAYLOADVOL';Vars:'(lFilename: string; lVol: integer): integer'));
-  knProc = 79;
+  knProc = 80;
   kProcRA : array [1..knProc] of TScriptRec =
     (
       (Ptr:@AZIMUTH;Decl:'AZIMUTH';Vars:'(DEG: integer)'),
@@ -123,6 +124,7 @@ const
       (Ptr:@CLIPAZIMUTHELEVATION;Decl:'CLIPAZIMUTHELEVATION';Vars:'(DEPTH,AZI,ELEV: single)'),
       (Ptr:@CLIPFORMVISIBLE;Decl:'CLIPFORMVISIBLE';Vars:'(VISIBLE: boolean)'),
       (Ptr:@COLORBARCOORD;Decl:'COLORBARCOORD';Vars:'(L,T,R,B: single)'),
+      (Ptr:@COLORBARPOSITION;Decl:'COLORBARPOSITION';Vars:'(P: integer)'),
       (Ptr:@ADDNODE;Decl:'ADDNODE';Vars:'(INTENSITY, R,G,B,A: byte)'),
       (Ptr:@COLORBARFORMVISIBLE;Decl:'COLORBARFORMVISIBLE';Vars:'(VISIBLE: boolean)'),
       (Ptr:@COLORBARTEXT;Decl:'COLORBARTEXT';Vars:'(VISIBLE: boolean)'),
@@ -512,10 +514,18 @@ begin
     ReRender(false);
 end;
 
+procedure COLORBARPOSITION(P: integer);
+begin
+  gPrefs.ColorBarPosition:= P;
+  GLForm1.SetColorBarPosition;
+  ReRender(false);
+end;
+
 procedure COLORBARCOORD (L,T,R,B: single);
 begin
-  gPrefs.ColorBarPos:= CreateUnitRect (L,T,R,B);
-  SensibleUnitRect(gPrefs.ColorBarPos);
+  ScriptForm.Memo2.Lines.Add('COLORBARCOORD replaced with COLORBARPOSITION');
+  //gPrefs.ColorBarPos:= CreateUnitRect (L,T,R,B);
+  //SensibleUnitRect(gPrefs.ColorBarPos);
   ReRender(false);
 end;
 

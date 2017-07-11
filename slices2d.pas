@@ -5,7 +5,7 @@ uses
  {$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL}glcorearb, {$ELSE} gl, glext, {$ENDIF}  {$ENDIF DGL}
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unit_transfertexture, {$ELSE} texture_3d_unit,{$ENDIF}
    //types,
-   math, graphics, nii_mat, define_types, coordinates, sysutils, textfx, {$IFDEF COREGL} gl_2d, raycast_core, gl_core_matrix, {$ELSE} raycast_legacy, {$ENDIF} raycast_common, drawu;
+   math, graphics, nii_mat, define_types, coordinates, sysutils,  {$IFDEF COREGL} gl_2d, raycast_core, gl_core_matrix, {$ELSE} raycast_legacy, {$ENDIF} raycast_common, drawu;
 const
   kMaxMosaicDim = 12; //e.g. if 12 then only able to draw up to 12x12 mosaics [=144 slices]
   kEmptyOrient = 0;
@@ -13,7 +13,7 @@ const
   kCoronalOrient = 2;
   kSagRightOrient = 3;
   kSagLeftOrient = 4;
-procedure MosaicGL ( lMosaicString: string);
+function MosaicGL ( lMosaicString: string; var lTex: TTexture): single;
 procedure DrawOrtho(var lTex: TTexture);
 //procedure SetZooms (var lX,lY,lZ: single);
 procedure SetZooms (var lX,lY,lZ: single; lTex: TTexture);
@@ -42,7 +42,7 @@ end;
     Dim,Pos: TMosaicPoint;
     Orient: TMosaicOrient;
     Text: TMosaicText;
-    HOverlap,VOverlap: single;
+    HOverlap,VOverlap, ClrBarSizeFracX: single;
     LeftBorder, BottomBorder, MaxWid,MaxHt, Rows,Cols: integer;
     isMM: boolean;
   end;
@@ -146,44 +146,39 @@ begin
 end;
 
 procedure MosaicColorBarXY(var lMosaic: TMosaic);
+const
+  SizeFrac = 0.035;
 //we need to compute space for a colorbar
 var
-  w,h, n, ratio, border: single;
-  a,b: integer;
+  w,h, ratio, border: single;
+  a,b,  BGThick, nLUTs, BarThick: integer;
 begin
+  lMosaic.ClrBarSizeFracX := 0;
   lMosaic.LeftBorder := 0; //assume no left colorbar
   lMosaic.BottomBorder := 0; //assume no bottom colorbar
   if not gPrefs.Colorbar then exit;//no colorbar: no need for space
+  nLUTs := gOpenOverlays;
+  if (nLUTs < 1) then
+    nLUTs := 1;
+  if lMosaic.MaxHt < lMosaic.MaxWid then
+     BarThick := round(lMosaic.MaxWid * sizeFrac)
+  else
+      BarThick := round(lMosaic.MaxHt * sizeFrac);
+  if BarThick < 1 then exit;
+  BGThick := round(BarThick*((nLUTs * 2)+0.5));
   a := lMosaic.MaxHt;
   b := lMosaic.MaxWid;
-  n := gOpenOverlays;
-  if (n < 1) then n := 1;
-  n := n + 1;
-  w := abs(gPrefs.ColorBarPos.L - gPrefs.ColorBarPos.R);
-  h := abs(gPrefs.ColorBarPos.T - gPrefs.ColorBarPos.B);
-  if (w > h) then begin//wide colorbars - pad top or bottom
-     //gOpenOverlays
-     if (gPrefs.ColorBarPos.B > 0.5) then
-        border := 1.0 -  gPrefs.ColorBarPos.B
-     else
-         border := gPrefs.ColorBarPos.B;
-     border := border + (n * h);
-     ratio := border + 1;
-     lMosaic.MaxHt := round(lMosaic.MaxHt * ratio);
-     if (gPrefs.ColorBarPos.B < 0.5) then //create space at bottom for item
-       lMosaic.BottomBorder := round(lMosaic.MaxHt * border / ratio);
+  if (gPrefs.ColorBarPosition = 1) or (gPrefs.ColorBarPosition = 3) then begin//wide colorbars - pad top or bottom
+     lMosaic.MaxHt := lMosaic.MaxHt + BGThick;
+     if gPrefs.ColorBarPosition = 1 then
+        lMosaic.BottomBorder := BGThick;
   end else begin //high colorbars - pad left or right
-    if (gPrefs.ColorBarPos.L > 0.5) then //bar on right
-       border := 1.0 -  gPrefs.ColorBarPos.L
-    else
-        border := gPrefs.ColorBarPos.L;
-    border := border + (n * w);
-    ratio := border + 1;
-    lMosaic.MaxWid := round(lMosaic.MaxWid * ratio);
-      if (gPrefs.ColorBarPos.L < 0.5) then
-         lMosaic.LeftBorder := round(lMosaic.MaxWid * border / ratio);
+    lMosaic.MaxWid := lMosaic.MaxWid + BGThick;
+    if (gPrefs.ColorBarPosition = 2) then
+         lMosaic.LeftBorder := BGThick;
 
   end;
+  lMosaic.ClrBarSizeFracX :=  BarThick/lMosaic.MaxWid;
   //GLForm1.caption := format('%d %d -> %d %d',[a,b, lMosaic.MaxHt,lMosaic.MaxWid]);
 end;
 
@@ -567,7 +562,7 @@ begin
      if lDec = 0 then
         lF := round(lF);
     lS := realtostr(lF,lDec);
-    TextArrow (X,Y,1, lS, 5,gPrefs.TextColor, gPrefs.TextBorder);
+    GLForm1.TextArrow (X,Y,1, lS, 5,gPrefs.TextColor, gPrefs.TextBorder);
 end;
 
 function ComputeDecimals(var lMosaic: TMosaic): integer;
@@ -598,15 +593,50 @@ begin
   result := 2;
 end;
 
-procedure DrawMosaic(var lMosaic: TMosaic);
+procedure StartDraw2D;
+begin
+ {$IFDEF COREGL}
+   from textfx
+ {$ENDIF}
+end;
+
+procedure EndDraw2D;
+begin
+ {$IFDEF COREGL}
+   from textfx
+ {$ENDIF}
+end;
+
+procedure Enter2D;
+begin
+  {$IFDEF COREGL}
+  nglMatrixMode(nGL_PROJECTION);
+  nglLoadIdentity;
+  nglOrtho(0, gRayCast.WINDOW_WIDTH, 0, gRayCast.WINDOW_HEIGHT,-1,1);//<- same effect as previous line
+  nglMatrixMode(nGL_MODELVIEW);
+  nglLoadIdentity;
+  {$ELSE}
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity;
+  glOrtho(0, gRayCast.WINDOW_WIDTH, 0, gRayCast.WINDOW_HEIGHT,-1,1);//<- same effect as previous line
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity;
+  {$ENDIF}
+  glDisable(GL_DEPTH_TEST);
+end;
+
+procedure DrawMosaic(lMosaic: TMosaic);
 var
   lRowInc,lColInc,lRow,lCol,lDec:integer;
   scale:single;
 begin
-  Enter2D ;//x22;
+ //if (lMosaic.MaxWid = 0) or (lMosaic.MaxHt= 0) or (lMosaic.Cols < 1) or (lMosaic.Rows < 1) then
+ //  exit;
+ Enter2D ;//x22;
+  glUseProgram(0);
+  glActiveTexture( GL_TEXTURE0 );  //required if we will draw 2d slices next
   glBindTexture(GL_TEXTURE_3D,gRayCast.intensityTexture3D);
-  if (lMosaic.MaxWid = 0) or (lMosaic.MaxHt= 0) or (lMosaic.Cols < 1) or (lMosaic.Rows < 1) then
-    exit;
+
 
    for lRow := 1 to lMosaic.Rows do
     for lCol := 1 to lMosaic.Cols do begin
@@ -677,12 +707,95 @@ begin
   EndDraw2D;
 end;
 
-procedure MosaicGL ( lMosaicString: string);
+(*procedure DrawMosaic(var lMosaic: TMosaic);
+var
+  lRowInc,lColInc,lRow,lCol,lDec:integer;
+  scale:single;
+begin
+ if (lMosaic.MaxWid = 0) or (lMosaic.MaxHt= 0) or (lMosaic.Cols < 1) or (lMosaic.Rows < 1) then
+   exit;
+ Enter2D ;//x22;
+  glUseProgram(0);
+  glActiveTexture( GL_TEXTURE0 );  //required if we will draw 2d slices next
+  glBindTexture(GL_TEXTURE_3D,gRayCast.intensityTexture3D);
+
+
+   for lRow := 1 to lMosaic.Rows do
+    for lCol := 1 to lMosaic.Cols do begin
+        lMosaic.Pos[lCol,lRow].X := lMosaic.Pos[lCol,lRow].X + lMosaic.LeftBorder;
+        lMosaic.Pos[lCol,lRow].Y := lMosaic.Pos[lCol,lRow].Y + lMosaic.BottomBorder;
+    end;
+
+  scale := gRayCast.WINDOW_WIDTH/(lMosaic.MaxWid);
+  if (gRayCast.WINDOW_HEIGHT/(lMosaic.MaxHt)) < scale then
+    scale := gRayCast.WINDOW_HEIGHT/(lMosaic.MaxHt);
+  //scale := 2;
+  {$IFNDEF COREGL}glPushAttrib (GL_ENABLE_BIT); {$ENDIF}
+  glEnable (GL_TEXTURE_3D);
+  glDisable (GL_BLEND);
+  {$IFNDEF COREGL}
+  glEnable(GL_ALPHA_TEST);
+  glAlphaFunc(GL_GEQUAL,1/255);
+  {$ENDIF}
+  if lMosaic.HOverlap < 0 then
+    lColInc := -1
+  else
+    lColInc := 1;
+  if lMosaic.VOverlap < 0 then begin
+    lRow := lMosaic.Rows;
+    lRowInc := -1;
+  end else begin
+    lRow := 1;
+    lRowInc := 1;
+  end;
+
+  while (lRow >= 1) and (lRow <= lMosaic.Rows) do begin
+    if lMosaic.HOverlap < 0 then
+      lCol := lMosaic.Cols
+    else
+      lCol := 1;
+    while (lCol >= 1) and (lCol <= lMosaic.Cols) do begin
+      case lMosaic.Orient[lCol,lRow] of
+        kAxialOrient: DrawXYAx (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow]{, gTexture3D});
+        kCoronalOrient: DrawXYCoro (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow]{, gTexture3D});
+        kSagRightOrient: DrawXYSag (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow]{, gTexture3D});
+        kSagLeftOrient: DrawXYSagMirror (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow]{, gTexture3D});
+      end;//
+      lCol := lCol + lColInc;
+    end;//col
+    lRow := lRow+lRowInc;
+  end;//row
+  {$IFNDEF COREGL}glPopAttrib; {$ENDIF}
+  lDec := ComputeDecimals(lMosaic);
+    if lMosaic.VOverlap < 0 then
+      lRow := lMosaic.Rows
+    else
+      lRow := 1;
+    Enter2D ;//x22;
+    StartDraw2D;
+    while (lRow >= 1) and (lRow <= lMosaic.Rows) do begin
+      if lMosaic.HOverlap < 0 then
+        lCol := lMosaic.Cols
+      else
+        lCol := 1;
+      while (lCol >= 1) and (lCol <= lMosaic.Cols) do begin
+        if lMosaic.Text[lCol,lRow] then
+          TextLabelXY(scale*(lMosaic.Pos[lCol,lRow].X+(lMosaic.Dim[lCol,lRow].X/2) ),scale*(lMosaic.Pos[lCol,lRow].Y+lMosaic.Dim[lCol,lRow].Y),lMosaic.Slices[lCol,lRow],lMosaic.Orient[lCol,lRow],lDec);
+        lCol := lCol + lColInc;
+      end;//col
+      lRow := lRow+lRowInc;
+  end;//row
+  {$IFNDEF COREGL}  glLoadIdentity(); {$ENDIF}
+  EndDraw2D;
+end;*)
+
+function MosaicGL ( lMosaicString: string; var lTex: TTexture): single;
 var
   lMosaic: TMosaic;
 begin
  lMosaic := Str2Mosaic ( lMosaicString);
  DrawMosaic(lMosaic);
+ result := lMosaic.ClrBarSizeFracX;
 end;
 
 procedure SetZooms (var lX,lY,lZ: single; lTex: TTexture);
@@ -728,22 +841,39 @@ begin
   {$ENDIF}
 end; *)
 
-procedure ShowOrthoSliceText(Col1L,Col2L,Row1T,Row2T: single);
+(*procedure ShowOrthoSliceText(Col1L,Col2L,Row1T,Row2T: single);
 var
   lS,lC,lA : single;
 begin
     Enter2D;
     lS := SliceMM (gRayCast.OrthoX,kSagLeftOrient); //Sag
     if (gPrefs.SliceView = 3) or (gPrefs.SliceView = 4) then
-       TextArrow (Col2L,Row1T,1, realtostr(lS,0), 5,gPrefs.TextColor, gPrefs.TextBorder);
+       GLForm1.TextArrow (Col2L,Row1T,1, realtostr(lS,0), 5,gPrefs.TextColor, gPrefs.TextBorder);
     lC := SliceMM (gRayCast.OrthoY,kCoronalOrient); //Coronal
     if (gPrefs.SliceView = 2) or (gPrefs.SliceView = 4) then
-       TextArrow (Col1L,Row1T,1, realtostr(lC,0), 5,gPrefs.TextColor, gPrefs.TextBorder);
+       GLForm1.TextArrow (Col1L,Row1T,1, realtostr(lC,0), 5,gPrefs.TextColor, gPrefs.TextBorder);
     lA := SliceMM (gRayCast.OrthoZ,kAxialOrient); //Axial
     if (gPrefs.SliceView = 1) or (gPrefs.SliceView = 4) then
-       TextArrow (Col1L,Row2T,1, realtostr(lA,0), 5,gPrefs.TextColor, gPrefs.TextBorder);
+       GLForm1.TextArrow (Col1L,Row2T,1, realtostr(lA,0), 5,gPrefs.TextColor, gPrefs.TextBorder);
+    {$IFNDEF COREGL}glLoadIdentity();{$ENDIF}
+end; *)
+procedure ShowOrthoSliceText2(Col1L,Col2L,Row1T,Row2T: single);
+var
+  lS,lC,lA : single;
+begin
+    Enter2D;
+    lS := SliceMM (gRayCast.OrthoX,kSagLeftOrient); //Sag
+    if (gPrefs.SliceView = 3) or (gPrefs.SliceView = 4) then
+       GLForm1.TextArrow (Col2L,Row1T,1, realtostr(lS,0), 6,gPrefs.TextColor, gPrefs.TextBorder);
+    lC := SliceMM (gRayCast.OrthoY,kCoronalOrient); //Coronal
+    if (gPrefs.SliceView = 2) or (gPrefs.SliceView = 4) then
+       GLForm1.TextArrow (Col1L,Row1T,1, realtostr(lC,0), 6,gPrefs.TextColor, gPrefs.TextBorder);
+    lA := SliceMM (gRayCast.OrthoZ,kAxialOrient); //Axial
+    if (gPrefs.SliceView = 1) or (gPrefs.SliceView = 4) then
+       GLForm1.TextArrow (Col1L,Row2T,1, realtostr(lA,0), 6,gPrefs.TextColor, gPrefs.TextBorder);
     {$IFNDEF COREGL}glLoadIdentity();{$ENDIF}
 end;
+
 
 procedure DrawOrtho(var lTex: TTexture);
 var
@@ -819,6 +949,7 @@ begin
          DrawXYTex(0,Y+YShift,X,Z)
        else
            DrawXYTex(0,YShift,X,Z);
+
     end;
     //draw sagittal
     if (gPrefs.SliceView > 2) then begin
@@ -959,9 +1090,9 @@ begin
   if gPrefs.SliceDetailsCubeAndText then begin
      if (gPrefs.SliceView = 2) then Y := 0;
      if (gPrefs.SliceView = 3) then
-       ShowOrthoSliceText(X/2,Y/2,Z+YShift,YShift)
+       ShowOrthoSliceText2(0,0,Z+YShift,YShift)
     else
-        ShowOrthoSliceText(X/2,X+Y/2,Y+Z+YShift,Y+YShift);
+        ShowOrthoSliceText2(0,X,Y+Z+YShift,Y+YShift);
   end;
   EndDraw2D;
 end;

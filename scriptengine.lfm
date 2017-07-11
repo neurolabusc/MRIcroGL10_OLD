@@ -1,8 +1,8 @@
 object ScriptForm: TScriptForm
   Tag = 2
-  Left = 902
+  Left = 622
   Height = 375
-  Top = 93
+  Top = 114
   Width = 387
   ActiveControl = Memo1
   Caption = 'ScriptForm'
@@ -14,7 +14,7 @@ object ScriptForm: TScriptForm
   OnCreate = FormCreate
   OnDeactivate = FormDeactivate
   Position = poScreenCenter
-  LCLVersion = '1.7'
+  LCLVersion = '1.9.0.0'
   object Splitter1: TSplitter
     Cursor = crVSplit
     Left = 0
@@ -200,9 +200,9 @@ object ScriptForm: TScriptForm
           OnClick = InsertCommand
         end
         object colorbarcoord1: TMenuItem
-          Tag = 43
-          Caption = 'colorbarcoord'
-          Hint = 'COLORBARCOORD (L,T,R,B: single). Sets the position of the colorbar based on the Left, Top, Right and Bottom coordinates.'
+          Tag = 2
+          Caption = 'colorbarposition'
+          Hint = 'COLORBARPOSITION (P: integer). Sets the position of the colorbar: 1=bottom, 2=left, 3=top, 4=right.'
           OnClick = InsertCommand
         end
         object colorbartext1: TMenuItem

@@ -21,14 +21,14 @@ types,clipbrd,
 {$IFNDEF FPC}
   messages,ShellAPI, detectmsaa,{$IFDEF PNG}pngimage, JPEG,{$ENDIF}
 {$ENDIF}Dialogs, ExtCtrls, Menus,  shaderu, texture2raycast,
-  StdCtrls, Controls, ComCtrls, Reslice,
+  StdCtrls, Controls, ComCtrls, Reslice, glcube,glclrbar,gltext,
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unit_transfertexture, {$ELSE} texture_3d_unit,extract,{$ENDIF}
   {$IFDEF FPC} FileUtil, GraphType, LCLProc,LCLtype,  LCLIntf,LResources,OpenGLContext,{$ELSE}glpanel, {$ENDIF}
 {$IFDEF UNIX}Process,  {$ELSE}//ShellApi,
 Windows,{$IFDEF FPC}uscaledpi,{$ENDIF}{$ENDIF}
   Graphics, Classes, SysUtils, Forms, Buttons, Spin, Grids, clut, define_types,
   histogram2d, readint, {$IFDEF COREGL} raycast_core, {$ELSE} raycast_legacy, {$ENDIF} raycast_common, histogram, nifti_hdr, shaderui,
-  prefs, userdir, slices2d, colorbar2d, autoroi, fsl_calls, drawU, dcm2nii, lut,
+  prefs, userdir, slices2d,  autoroi, fsl_calls, drawU, dcm2nii, lut,
   extractui, scaleimageintensity;
 
   {$IFNDEF FPC}
@@ -45,7 +45,12 @@ TGLForm1 = class(TForm)
     InterpolateAxialMenu: TMenuItem;
     InterpolateCoronalMenu: TMenuItem;
     InterpolateSagittalMenu: TMenuItem;
-    //voiDescriptives1: TMenuItem;
+    //VisibleClrbarMenu: TMenuItem;
+    //ClrbarSep: TMenuItem;
+    //BlackClrbarMenu: TMenuItem;
+    //TransBlackClrbarMenu: TMenuItem;
+    //WhiteTransMenu: TMenuItem;
+    //WhiteClrbarMenu: TMenuItem;
     ShaderPanel: TPanel;
     QualityTrack: TTrackBar;
     S10Check: TCheckBox;
@@ -191,7 +196,6 @@ TGLForm1 = class(TForm)
   Colors1: TMenuItem;
   Scheme1: TMenuItem;
   ToggleTransparency1: TMenuItem;
-  Colorbar1: TMenuItem;
   Backcolor1: TMenuItem;
   Help1: TMenuItem;
   About1: TMenuItem;
@@ -249,6 +253,13 @@ TGLForm1 = class(TForm)
     InferiorMenu: TMenuItem;
     SuperiorMenu: TMenuItem;
     voiDescriptives1: TMenuItem;
+    VisibleClrbarMenu: TMenuItem;
+    ClrbarSep: TMenuItem;
+    WhiteClrbarMenu: TMenuItem;
+    TransWhiteClrbarMenu: TMenuItem;
+    BlackClrbarMenu: TMenuItem;
+    TransBlackClrbarMenu: TMenuItem;
+    ClrbarMenu: TMenuItem;
     procedure ConvertForeign1Click(Sender: TObject);
     procedure FormChangeBounds(Sender: TObject);
     procedure InterpolateDrawMenuClick(Sender: TObject);
@@ -321,6 +332,7 @@ function MouseUpVOI (Shift: TShiftState; X, Y: Integer): boolean;
   procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   procedure BET1Click(Sender: TObject);
   procedure GradientsIdleTimerTimer(Sender: TObject);
+  procedure SetColorBarPosition;
   procedure Label4Click(Sender: TObject);
   procedure Label5Click(Sender: TObject);
   procedure Label6Click(Sender: TObject);
@@ -358,6 +370,13 @@ function MouseUpVOI (Shift: TShiftState; X, Y: Integer): boolean;
     procedure ExitButton1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure OverlayBoxCreate;
+    procedure UpdateClrbar;
+    procedure ClrbarClr(i: integer);
+    procedure ClrbarMenuClick(Sender: TObject);
+    procedure DrawClrbar (lScrnWid, lScrnHt, zoom, zoomOffsetX, zoomOffsetY: integer; ClrbarSizeFracX: single);
+    procedure DrawCube (lScrnWid, lScrnHt, zoom, zoomOffsetX, zoomOffsetY: integer);
+    procedure TextArrow (X,Y,Sz: single; NumStr: string; orient: integer;FontColor,ArrowColor: TGLRGBQuad);
+
     procedure GLboxMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; lX, lY: Integer);
     procedure GLboxMouseMove(Sender: TObject; Shift: TShiftState; lX, lY: Integer);
@@ -371,7 +390,7 @@ function MouseUpVOI (Shift: TShiftState; X, Y: Integer): boolean;
     procedure AdjustFormPos (var lForm: TForm);
     procedure GLboxPaint(Sender: TObject);
     procedure GLboxResize(Sender: TObject);
-    procedure Colorbar1Click(Sender: TObject);
+    procedure ClrbarMenu1Click(Sender: TObject);
     procedure Open1Click(Sender: TObject);
     //procedure FormResize(Sender: TObject);
     procedure AziElevChange(Sender: TObject);
@@ -413,6 +432,8 @@ function MouseUpVOI (Shift: TShiftState; X, Y: Integer): boolean;
     procedure voiDescriptives1Click(Sender: TObject);
     procedure YokeMenuClick(Sender: TObject);
     procedure YokeTimerTimer(Sender: TObject);
+    procedure ClearText(ScrnWid, lScrnHt: integer);
+    procedure DrawText(lScrnWid, lScrnHt, zoom, zoomOffsetX, zoomOffsetY: integer);
     {$IFDEF LCLCocoa} procedure SetRetina; {$ENDIF}
   private
     {$IFNDEF FPC}    procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES; {$ENDIF}
@@ -444,7 +465,9 @@ var
   gPrevCol: integer = 0;
   gPrevRow: integer = 0;
   gRetinaScale: single = 1;
-
+  gCube : TGLCube;
+  gClrbar: TGLClrbar;
+  gText: TGLText;
 
 implementation
 
@@ -453,11 +476,129 @@ implementation
 {$IFNDEF FPC} {$R *.dfm} {$ENDIF}
 var
   MouseStartPt, MousePt: TPoint;
+  //gnClrbar: integer;
+  gFontSz, gFontPx: single;
 {$IFDEF FPC}
 GLBox:TOpenGLControl;
 {$ELSE}
 GLbox : TGLPanel;
 {$ENDIF}
+
+procedure TGLForm1.ClearText(ScrnWid, lScrnHt: integer);
+const
+  sizeFrac = 0.035;
+begin
+     if ScrnWid < lScrnHt then
+        gFontSz := round(ScrnWid * sizeFrac)
+     else
+         gFontSz := round(lScrnHt * sizeFrac);
+     gFontPx := gFontSz;
+     gFontSz := gFontSz/gText.BaseHeight;
+     gText.ClearText;
+     gText.TextColor(255,128,128);
+end;
+
+
+procedure TGLForm1.TextArrow (X,Y,Sz: single; NumStr: string; orient: integer;FontColor,ArrowColor: TGLRGBQuad);
+begin
+     if (gPrefs.BackColor.rgbRed = FontColor.rgbRed) and (gPrefs.BackColor.rgbGreen = FontColor.rgbGreen) and (gPrefs.BackColor.rgbBlue = FontColor.rgbBlue) then
+        gText.TextColor(255-FontColor.rgbRed, 255-FontColor.rgbGreen, 255-FontColor.rgbBlue)
+
+     else
+         gText.TextColor(FontColor.rgbRed, FontColor.rgbGreen, FontColor.rgbBlue);
+     //Caption := inttostr(orient);
+     //1=left,2=top,3=right,4=bottom,5=above
+     if orient = 5 then //centered directly below XY
+        gText.TextOut(X- (gText.TextWidth(gFontSz,NumStr)*0.5) ,Y-(gFontPx*1.2),gFontSz,NumStr);
+     if orient = 6 then //left of X, Below Y
+        gText.TextOut(X+(gFontPx*0.1) ,Y-(gFontPx*1.2),gFontSz,NumStr)
+     else   //??
+        gText.TextOut(X- (gText.TextWidth(gFontSz,NumStr)*0.5) ,Y-(gFontPx*1.2),gFontSz,NumStr);
+end;
+
+procedure TGLForm1.DrawText(lScrnWid, lScrnHt, zoom, zoomOffsetX, zoomOffsetY: integer);
+begin
+(*glDisable(GL_CULL_FACE);
+glMatrixMode(GL_MODELVIEW);
+glLoadIdentity;
+glMatrixMode(GL_PROJECTION);
+glLoadIdentity();
+//glOrtho (0, Width, 0, Height, 0.1, 40);
+//glTranslatef(zoom*zoomOffsetX, zoom*zoomOffsetY, 0);
+glEnable (GL_BLEND);
+glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+glDisable(GL_DEPTH_TEST);
+glDisable(GL_CULL_FACE);
+glMatrixMode(GL_MODELVIEW);
+glLoadIdentity;
+glMatrixMode(GL_PROJECTION);
+glLoadIdentity();
+glOrtho (0, Width div zoom , 0, Height div zoom, 0.1, 40);
+glTranslatef(zoomOffsetX, zoomOffsetY, 0);
+glEnable (GL_BLEND);
+glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+glDisable(GL_DEPTH_TEST);  *)
+gText.DrawText;
+
+end;
+
+procedure SetLutFromZero(var lMin,lMax: single);
+//if both min and max are positive, returns 0..max
+//if both min and max are negative, returns min..0
+begin
+    SortSingle(lMin,lMax);
+    if (lMin > 0) and (lMax > 0) then
+      lMin := 0
+    else if (lMin < 0) and (lMax < 0) then
+      lMax := 0;
+end;
+
+procedure TGLForm1.UpdateClrbar;
+var
+   i: integer;
+   lMin, lMax: single;
+   LUT: TLUT;
+begin
+   (*  //
+     for i := 0 to 255 do begin
+      LUT[i].rgbRed := i;
+      LUT[i].rgbGreen := 0;
+      LUT[i].rgbBlue := 0;
+  end;*)
+  if gOpenOverlays < 1 then begin
+     GenerateLUT(gCLUTrec, LUT);
+     gClrbar.SetLUT(1, LUT, gCLUTrec.min,gCLUTrec.max);
+     exit;
+  end; //
+  for i := 1 to gOpenOverlays do begin
+    lMin := gOverlayImg[i].WindowScaledMin;
+    lMax := gOverlayImg[i].WindowScaledMax;
+    SortSingle(lMin,lMax);
+    if gOverlayImg[i].LutFromZero then
+      SetLutFromZero(lMin,lMax);
+
+    gClrbar.SetLUT(i, gOverlayImg[i].LUT, lMin,lMax);
+  end;
+
+end;
+
+procedure TGLForm1.DrawClrbar (lScrnWid, lScrnHt, zoom, zoomOffsetX, zoomOffsetY: integer; ClrbarSizeFracX: single);
+
+begin
+     gClrbar.ForcedSizeFracX:= ClrbarSizeFracX;
+     gClrbar.Draw(max(gOpenOverlays,1),lScrnWid, lScrnHt, zoom, zoomOffsetX, zoomOffsetY);
+end;
+
+procedure TGLForm1.DrawCube (lScrnWid, lScrnHt, zoom, zoomOffsetX, zoomOffsetY: integer);
+begin
+     gCube.Azimuth:= -gRayCast.Azimuth;
+     gCube.Elevation:= gRayCast.Elevation;
+     if (gPrefs.ColorbarPosition = 1) or (gPrefs.ColorbarPosition = 2) then
+       gCube.TopLeft:= true
+     else
+          gCube.TopLeft:= false;
+     gCube.Draw(lScrnWid, lScrnHt,zoom, zoomOffsetX, zoomOffsetY);
+end;
 
 function TGLForm1.GLBoxBackingWidth: integer;
 begin
@@ -722,10 +863,68 @@ begin
   setlength(p, 0);
   GLbox.invalidate;
 end;
+
+
 {$ELSE} //not COREGL
-//{$DEFINE TILED_SCREENSHOT}
-{$IFDEF TILED_SCREENSHOT} //Tiled screen capture slow and problematic, but works on Linux where OpenGL surfaces can not be larger than screen resolution
-function TGLForm1.ScreenShot(Zoom: integer): TBitmap;
+function ScreenShotX1: TBitmap; //native resolution: no framebuffer, automatic multisampling
+var
+  p: bytep0;
+  x, y: integer;
+  prevQ, w,h, BytePerPixel: int64;
+  z:longword;
+  RawImage: TRawImage;
+  DestPtr: PInteger;
+  maxXY: array[0..1] of GLuint;
+begin
+  prevQ := gPrefs.RayCastQuality1to10;
+  gPrefs.RayCastQuality1to10 := 10;
+  if ((prevQ <> 10) and (gPrefs.SliceView = 0)) then
+   GLForm1.recompileShader(prevQ, 10);
+  GLBox.MakeCurrent;
+  DisplayGL(gTexture3D);
+  w := GLForm1.GLBoxBackingWidth;
+  h := GLForm1.GLboxBackingHeight;
+  Result:=TBitmap.Create;
+  Result.Width:=w;
+  Result.Height:=h;
+  Result.PixelFormat := pf24bit; //if pf32bit the background color is wrong, e.g. when alpha = 0
+  RawImage := Result.RawImage;
+  //GLForm1.ShowmessageError('GLSL error '+inttostr(RawImage.Description.RedShift)+' '+inttostr(RawImage.Description.GreenShift) +' '+inttostr(RawImage.Description.BlueShift));
+  BytePerPixel := RawImage.Description.BitsPerPixel div 8;
+  GetMem(p, w*h*4);
+  {$IFDEF Darwin} //http://lists.apple.com/archives/mac-opengl/2006/Nov/msg00196.html
+  glReadPixels(0, 0, w, h, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8, @p[0]); //OSX-Darwin
+  {$ELSE}
+  glReadPixels(0, 0, w, h, GL_BGRA, GL_UNSIGNED_BYTE, @p[0]); //Linux-Windows
+  {$ENDIF}
+  z := 0;
+  if BytePerPixel <> 4 then begin
+    for y:= h-1 downto 0 do begin
+         DestPtr := PInteger(RawImage.Data);
+         Inc(PByte(DestPtr), y * RawImage.Description.BytesPerLine );
+         for x := 1 to w do begin
+             DestPtr^ := p[z] + (p[z+1] shl 8) + (p[z+2] shl 16);
+             Inc(PByte(DestPtr), BytePerPixel);
+             z := z + 4;
+         end;
+     end; //for y : each line in image
+  end else begin
+      for y:= h-1 downto 0 do begin
+          DestPtr := PInteger(RawImage.Data);
+          Inc(PByte(DestPtr), y * RawImage.Description.BytesPerLine );
+          System.Move(p[z], DestPtr^, w * BytePerPixel );
+          z := z + ( w * 4 );
+    end; //for y : each line in image
+  end;
+  FreeMem(p);
+  GLbox.ReleaseContext;
+  if ((prevQ <> 10) and (gPrefs.SliceView = 0)) then begin
+     gPrefs.RayCastQuality1to10 := prevQ;
+     GLForm1.recompileShader(10, gPrefs.RayCastQuality1to10);
+  end;
+end;
+
+function ScreenShotTiled(Zoom: integer): TBitmap;
 var
   p: bytep0;
   x, y, tile: integer;
@@ -733,16 +932,15 @@ var
   z:longword;
   RawImage: TRawImage;
   DestPtr: PInteger;
-  //tic: DWord;
 begin
   prevQ := gPrefs.RayCastQuality1to10;
   gPrefs.RayCastQuality1to10 := 10;
   if (prevQ <> 10) then
-     recompileShader(prevQ, 10);
+     GLForm1.recompileShader(prevQ, 10);
   gRayCast.ScreenCapture := true;
   GLBox.MakeCurrent;
-  w := GLBoxBackingWidth;
-  h := GLboxBackingHeight;
+  w := GLForm1.GLBoxBackingWidth;
+  h := GLForm1.GLboxBackingHeight;
   wz := w*Zoom;
   hz := h*Zoom;
   Result:=TBitmap.Create;
@@ -754,11 +952,12 @@ begin
   BytePerPixel := RawImage.Description.BitsPerPixel div 8;
   Result.BeginUpdate(False);
   GetMem(p, w*h*4);
+  //GLForm1.Caption := inttostr(Zoom);
   //tic := gettickcount;
   for tile := 0 to ((Zoom * Zoom) - 1) do begin
     tilex := (tile mod zoom) * w;
     tiley := (tile div zoom) * h;
-    DisplayGLz(gTexture3D, Zoom, -tilex, -tiley, 0 {to screen});
+    DisplayGLz(gTexture3D, Zoom, -tilex, -tiley, 0 {to screen}, true {tiled});
     {$IFDEF Darwin} //http://lists.apple.com/archives/mac-opengl/2006/Nov/msg00196.html
     glReadPixels(0, 0, w, h, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8, @p[0]); //OSX-Darwin
     {$ELSE}
@@ -791,17 +990,18 @@ begin
 
   if (prevQ <> 10) then begin
      gPrefs.RayCastQuality1to10 := prevQ;
-     recompileShader(10, gPrefs.RayCastQuality1to10);
+     GLForm1.recompileShader(10, gPrefs.RayCastQuality1to10);
   end;
   {$IFDEF LCLCocoa}
   GLBox.Invalidate; //at least for Cocoa we need to reset this or the user will see the final tile
   {$ENDIF}
   //clipbox.caption := inttostr(gettickcount - tic);
 end;
-{$ELSE}//not IFDEF TILED_SCREENSHOT
+
+//not IFDEF TILED_SCREENSHOT
 Type
 TFrameBuffer = record
-  depthBuf,frameBuf, tex: GLUint;
+  depthBuf,frameBuf, tex: GLUint; //we need depth buffer for 2D cube
   w, h: integer;
 end;
 
@@ -821,11 +1021,17 @@ begin
   //Bind 0, which means render to back buffer, as a result, frameBuf is unbound
 end;
 
+
+//{$DEFINE multisample}
+{$IFDEF multisample}
+  //How to get this to work on MacOS?
+  //https://stackoverflow.com/questions/33587682/opengl-how-can-i-attach-a-depth-buffer-to-a-framebuffer-using-a-multisampled-2d
+{$ELSE}
+
 function setFrame (wid, ht: integer; var f : TFrameBuffer; isMultiSample: boolean) : boolean; //returns true if multi-sampling
 //http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
 var
    w,h: integer;
-   //drawBuf: GLenum;
    drawBuf: array[0..1] of GLenum;
 begin
      w := wid;
@@ -874,8 +1080,8 @@ begin
        exit;
      end;
 end;
-
-function TGLForm1.ScreenShot(Zoom: integer): TBitmap;
+{$ENDIF}
+function ScreenShotNoTile(Zoom: integer): TBitmap;
 var
   p: bytep0;
   x, y: integer;
@@ -888,20 +1094,25 @@ var
 begin
   prevQ := gPrefs.RayCastQuality1to10;
   gPrefs.RayCastQuality1to10 := 10;
-  if (prevQ <> 10) then
-     recompileShader(prevQ, 10);
+  if ((prevQ <> 10) and (gPrefs.SliceView = 0)) then
+     GLForm1.recompileShader(prevQ, 10);
   gRayCast.ScreenCapture := true;
   GLBox.MakeCurrent;
   glGetIntegerv(GL_MAX_VIEWPORT_DIMS, @maxXY);
   //caption := inttostr(maxXY[0]) +'x'+inttostr(maxXY[1]);
-  w := GLBoxBackingWidth * Zoom;
-  h := GLboxBackingHeight * Zoom;
+  w := GLForm1.GLBoxBackingWidth * Zoom;
+  h := GLForm1.GLboxBackingHeight * Zoom;
   MosaicScale(w, h, Zoom);
   if (w > maxXY[0]) or (h > maxXY[1]) then begin
     //OpenGL unable to create such a large bitmap
-    w := GLBoxBackingWidth;
-    h := GLboxBackingHeight;
-    zoom := 1
+    if (gPrefs.SliceView  <> 5) then begin
+      result := ScreenShotX1;
+      exit;
+    end else begin
+        w := GLForm1.GLBoxBackingWidth;
+        h := GLForm1.GLboxBackingHeight;
+        zoom := 1;
+    end;
   end;
   Result:=TBitmap.Create;
   Result.Width:=w;
@@ -919,7 +1130,7 @@ begin
   gRayCast.WINDOW_HEIGHT  := h;
   InitGL (false);
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, f.frameBuf); //<- required for 2D views
-  DisplayGLz(gTexture3D, 1, 0, 0, f.frameBuf);
+  DisplayGLz(gTexture3D, 1, 0, 0, f.frameBuf, false);
   {$IFDEF Darwin} //http://lists.apple.com/archives/mac-opengl/2006/Nov/msg00196.html
   glReadPixels(0, 0, w, h, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8, @p[0]); //OSX-Darwin
   {$ELSE}
@@ -945,8 +1156,8 @@ begin
     end; //for y : each line in image
   end;
   FreeMem(p);
-  gRayCast.WINDOW_WIDTH := GLBoxBackingWidth;
-  gRayCast.WINDOW_HEIGHT  := GLBoxBackingHeight;
+  gRayCast.WINDOW_WIDTH := GLForm1.GLBoxBackingWidth;
+  gRayCast.WINDOW_HEIGHT  := GLForm1.GLBoxBackingHeight;
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);  //draw to display
   freeFrame(f);
   Result.EndUpdate(False);
@@ -954,9 +1165,9 @@ begin
   GLbox.ReleaseContext;
 
   gRayCast.ScreenCapture := false;
-  if (prevQ <> 10) then begin
+  if ((prevQ <> 10) and (gPrefs.SliceView = 0)) then begin
      gPrefs.RayCastQuality1to10 := prevQ;
-     recompileShader(10, gPrefs.RayCastQuality1to10);
+     GLForm1.recompileShader(10, gPrefs.RayCastQuality1to10);
   end;
   {$IFDEF LCLCocoa}
   GLBox.Invalidate; //at least for Cocoa we need to reset this or the user will see the final tile
@@ -964,12 +1175,23 @@ begin
   //clipbox.caption := inttostr(gettickcount - tic);
 end;
 
-{$ENDIF}
+function TGLForm1.ScreenShot(Zoom: integer): TBitmap;
+begin
+  if (Zoom = 1) and (gPrefs.SliceView  <> 5) then begin
+     result := ScreenShotX1;
+     exit;
+  end;
+  if (gPrefs.isTiledScreenShot) and (gPrefs.SliceView  <> 5) then
+     result := ScreenShotTiled(Zoom)
+  else
+      result := ScreenShotNoTile(Zoom);
 
+end;
 
 {$ENDIF} //if COREGL else not CORE
 
 {$ELSE} //If FPC else Delphi
+
 function TGLForm1.ScreenShot(Zoom: integer): TBitmap;
 var
   p: bytep0;
@@ -992,7 +1214,7 @@ begin
   for tile := 0 to ((Zoom * Zoom) - 1) do begin
     tilex := (tile mod zoom) * w;
     tiley := (tile div zoom) * h;
-    DisplayGLz(gTexture3D, Zoom, -tilex, -tiley,0);
+    DisplayGLz(gTexture3D, Zoom, -tilex, -tiley,0,true);
     glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, @p[0]);
     z := 0;
     for y:=0 to h-1 do begin
@@ -1673,7 +1895,7 @@ begin
  ToolPanel.Visible := gPrefs.ShowToolbar;
  CollapsedToolPanel.Visible := not  ToolPanel.Visible;
  //OrthoSlice.checked := gPrefs.OrthoSliceView;
- Colorbar1.Checked := gPrefs.Colorbar;
+ VisibleClrbarMenu.Checked := gPrefs.Colorbar;
  SelectSliceView(gPrefs.SliceView);
  OverlayColorFromZeroMenu.checked := gPrefs.OverlayColorFromZero;
  SetToolPanelWidth; //4/2017: show correct tool panel when script runs ResetDefaults()
@@ -1891,6 +2113,12 @@ begin
         SuperiorMenu.ShortCut :=  ShortCut(Word('S'), [ssCtrl]);
         InferiorMenu.ShortCut :=  ShortCut(Word('I'), [ssCtrl]);
         {$ELSE}
+        LeftMenu.ShortCut :=  ShortCut(Word('L'), [ssAlt]);
+        RightMenu.ShortCut :=  ShortCut(Word('R'), [ssAlt]);
+        AnteriorMenu.ShortCut :=  ShortCut(Word('A'), [ssAlt]);
+        PosteriorMenu.ShortCut :=  ShortCut(Word('P'), [ssAlt]);
+        SuperiorMenu.ShortCut :=  ShortCut(Word('S'), [ssAlt]);
+        InferiorMenu.ShortCut :=  ShortCut(Word('I'), [ssAlt]);
    AppleMenu.visible := false;
  {$ENDIF}
  {$IFNDEF UNIX}BET1.Visible := false; {$ENDIF}
@@ -2242,14 +2470,16 @@ begin
   gSelectedNode := -gSelectedNode;
 end;
 
-procedure RotateColorBar;
+procedure TGLForm1.SetColorBarPosition;
 begin
-  case ColorBarPos(gPrefs.ColorBarPos) of
-    3: gPrefs.ColorBarPos := CreateUnitRect(0.1,0.9,0.9,0.95); //top row
-    4: gPrefs.ColorBarPos := CreateUnitRect(0.9,0.1,0.95,0.9); //right column
-    1:  gPrefs.ColorBarPos := CreateUnitRect(0.1,0.05,0.9,0.1); //bottom row
-    2: gPrefs.ColorBarPos := CreateUnitRect(0.05,0.1,0.1,0.9);//left column
+  if (gPrefs.ColorBarPosition < 1) or (gPrefs.ColorBarPosition > 4) then gPrefs.ColorBarPosition := 1;
+  case gPrefs.ColorBarPosition of
+      3: begin gClrbar.isTopOrRight := true; gClrbar.isVertical:=false; end; //top row
+      4: begin gClrbar.isTopOrRight := true; gClrbar.isVertical:=true; end; //right column
+      1: begin gClrbar.isTopOrRight := false; gClrbar.isVertical:=false; end;//bottom row
+      2: begin gClrbar.isTopOrRight := false; gClrbar.isVertical:=true; end;//left column
   end;
+   //gClrbar.isTopOrRight := true; gClrbar.isVertical:=false;
 end;
 
 procedure TGLForm1.GLboxDblClick(Sender: TObject);
@@ -2261,7 +2491,8 @@ begin
   if (not (gPrefs.ColorEditor)) or (not InColorBox(abs(MousePt.X),abs(MousePt.Y))) then begin
     if not gPrefs.Colorbar then
       exit;
-    RotateColorbar;
+    gPrefs.ColorBarPosition := gPrefs.ColorBarPosition + 1;
+    SetColorbarPosition;
     GLbox.invalidate;
     exit;
   end;
@@ -2619,7 +2850,45 @@ begin
   dcm2niiForm.showmodal;
 end;
 
+procedure TGLForm1.ClrbarClr(i: integer);
+begin
+ if (i < 1) or (i > 4) then i := 4;
+ gPrefs.ColorbarColor:= i;
+ Case i of
+      1: begin
+        gClrbar.BackColor := (RGBA(255,255,255,255));
+        gClrbar.FontColor := (RGBA(0,0,0,255));
+        WhiteClrbarMenu.checked := true;
+      end;
+      2: begin
+        gClrbar.BackColor := (RGBA(255,255,255,168));
+        gClrbar.FontColor := (RGBA(0,0,0,255));
+        TransWhiteClrbarMenu.checked := true;
+      end;
+      3: begin
+        gClrbar.BackColor := (RGBA(0,0,0,255));
+        gClrbar.FontColor := (RGBA(255,255,255,255));
+        BlackClrbarMenu.checked := true;
+      end;
+      else begin
+        gClrbar.BackColor := (RGBA(0,0,0,168));
+        gClrbar.FontColor := (RGBA(255,255,255,255));
+        TransBlackClrbarMenu.checked := true;
+      end;
+ end;
+end;
+
+procedure TGLForm1.ClrbarMenuClick(Sender: TObject);
+begin
+     ClrbarClr((sender as TMenuItem).Tag);
+     GLBox.Invalidate;
+end;
+
 procedure TGLForm1.GLboxPaint(Sender: TObject);
+var
+  OK: boolean;
+  i: integer;
+  LUT: TLUT;
 begin
 
   if (gRendering) or (gRayCast.ScreenCapture) then exit;
@@ -2649,6 +2918,27 @@ begin
     gRayCast.WINDOW_HEIGHT := GLboxBackingHeight;
     LoadStartupImage;
     AutoDetectVOI;
+    gCube := TGLCube.Create(GLBox);
+    gCube.TopLeft:= true;
+    gText := TGLText.Create('',true,OK,GLBox);
+    gClrbar:= TGLClrbar.Create(GLBox);
+    SetColorbarPosition;
+(*    ClrbarClr(gPrefs.ColorbarColor);
+      for i := 0 to 255 do begin
+      LUT[i].rgbRed := i;
+      LUT[i].rgbGreen := 0;
+      LUT[i].rgbBlue := 0;
+  end;
+  gClrbar.SetLUT(1, LUT, 10,20);
+  for i := 0 to 255 do begin
+      LUT[i].rgbRed := 0;
+      LUT[i].rgbGreen := i;
+      LUT[i].rgbBlue := 0;
+  end;
+  gClrbar.SetLUT(2, LUT, -5,5); *)
+    ClrbarClr(gPrefs.ColorbarColor);
+    GLBox.MakeCurrent();
+
     {$IFDEF LINUX}
     if gPrefs.NoveauWarning then WarningIfNoveau;
     {$ENDIF}
@@ -2698,6 +2988,7 @@ begin
       UpdateTransferFunctionX(gCLUTrec,gRayCast.TransferTexture1D);
       CreateHisto (gTexture3D,gCLUTrec.Min,gCLUTrec.Max,gTexture3D.WindowHisto, true);
       {$ENDIF}
+      UpdateClrbar;
       M_Refresh := false;
   end;
   DisplayGL(gTexture3D);
@@ -2979,9 +3270,9 @@ begin
  end;
 end;
 
-procedure TGLForm1.Colorbar1Click(Sender: TObject);
+procedure TGLForm1.ClrbarMenu1Click(Sender: TObject);
 begin
-  gPrefs.Colorbar := Colorbar1.checked;
+  gPrefs.Colorbar := VisibleClrbarMenu.checked;
   GLBox.invalidate;
 end;
 
@@ -3203,46 +3494,55 @@ procedure PrefMenuClick;
 var
   PrefForm: TForm;
   bmpEdit: TEdit;
+  {$IFDEF FPC}TiledCheck,{$ENDIF}
   {$IFDEF LCLCocoa} RetinaCheck,{$ENDIF} flipCheck: TCheckBox;
   OkBtn, AdvancedBtn: TButton;
   bmpLabel: TLabel;
   isFlipChange,isAdvancedPrefs  {$IFDEF LCLCocoa}, isRetinaChanged {$ENDIF}: boolean;
 begin
   PrefForm:=TForm.Create(nil);
-  PrefForm.SetBounds(100, 100, 520, 162);
+  PrefForm.SetBounds(100, 100, 520, 182);
   PrefForm.Caption:='Preferences';
   PrefForm.Position := poScreenCenter;
   PrefForm.BorderStyle := bsDialog;
   {$IFNDEF FPC}PrefForm.AutoSize := true;{$ENDIF}
+  //flipCheck
+  flipCheck:=TCheckBox.create(PrefForm);
+  flipCheck.Checked := gPrefs.FlipYZ;
+  flipCheck.Caption:='Flip Y/Z axis (animal scans)';
+  flipCheck.Left := 8;
+  flipCheck.Top := 18;
+  flipCheck.Parent:=PrefForm;
   //Bitmap Scale
   bmpLabel:=TLabel.create(PrefForm);
   bmpLabel.Left := 8;
-  bmpLabel.Top := 18;
+  bmpLabel.Top := 48;
   bmpLabel.Width := PrefForm.Width - 86;
   bmpLabel.Caption := 'Bitmap zoom (large values create huge images)';
   bmpLabel.Parent:=PrefForm;
   //bmp edit
   bmpEdit := TEdit.Create(PrefForm);
   bmpEdit.Left := PrefForm.Width - 76;
-  bmpEdit.Top := 18;
+  bmpEdit.Top := 48;
   bmpEdit.Width := 60;
   bmpEdit.Text := inttostr(gPrefs.BitmapZoom);
   bmpEdit.Parent:=PrefForm;
-  //flipCheck
-  //Bitmap Alpha
-  flipCheck:=TCheckBox.create(PrefForm);
-  flipCheck.Checked := gPrefs.FlipYZ;
-  flipCheck.Caption:='Flip Y/Z axis (animal scans)';
-  flipCheck.Left := 8;
-  flipCheck.Top := 48;
-  flipCheck.Parent:=PrefForm;
+  //Tiled Check
+  {$IFDEF FPC}
+  TiledCheck:=TCheckBox.create(PrefForm);
+  TiledCheck.Checked := gPrefs.isTiledScreenShot;
+  TiledCheck.Caption:='Tiled bitmaps (more compatible)';
+  TiledCheck.Left := 8;
+  TiledCheck.Top := 78;
+  TiledCheck.Parent:=PrefForm;
+  {$ENDIF}
   //Retina Check
   {$IFDEF LCLCocoa}
   RetinaCheck:=TCheckBox.create(PrefForm);
   RetinaCheck.Checked := gPrefs.RetinaDisplay;
   RetinaCheck.Caption:='Retina display (better but slower)';
   RetinaCheck.Left := 8;
-  RetinaCheck.Top := 78;
+  RetinaCheck.Top := 108;
   RetinaCheck.Parent:=PrefForm;
   {$ENDIF}
   //OK button
@@ -3250,7 +3550,7 @@ begin
   OkBtn.Caption:='OK';
   OkBtn.Left := PrefForm.Width - 128;
   OkBtn.Width:= 100;
-  OkBtn.Top := 124;
+  OkBtn.Top := 144;
   OkBtn.Parent:=PrefForm;
   OkBtn.ModalResult:= mrOK;
   //Advanced button
@@ -3258,7 +3558,7 @@ begin
   AdvancedBtn.Caption:='Advanced';
   AdvancedBtn.Left := PrefForm.Width - 256;
   AdvancedBtn.Width:= 100;
-  AdvancedBtn.Top := 124;
+  AdvancedBtn.Top := 144;
   AdvancedBtn.Parent:=PrefForm;
   AdvancedBtn.ModalResult:= mrYesToAll;
   {$IFDEF Windows} ScaleDPI(PrefForm, 96);  {$ENDIF}
@@ -3270,6 +3570,9 @@ begin
   if gPrefs.BitmapZoom < 1 then gPrefs.BitmapZoom := 1;
   if gPrefs.BitmapZoom > 10 then gPrefs.BitmapZoom := 10;
   isAdvancedPrefs := (PrefForm.ModalResult = mrYesToAll);
+  {$IFDEF FPC}
+  gPrefs.isTiledScreenShot := TiledCheck.Checked;
+  {$ENDIF}
   {$IFDEF LCLCocoa}
   isRetinaChanged := gPrefs.RetinaDisplay <> RetinaCheck.Checked;
   gPrefs.RetinaDisplay := RetinaCheck.Checked;
@@ -3337,7 +3640,7 @@ end;
 procedure  TGLForm1.Copy1Click(Sender: TObject);
 var bmp: TBitmap;
 begin
- if (ssShift in KeyDataToShiftState(vk_Shift)) then
+  if (ssShift in KeyDataToShiftState(vk_Shift)) then
     setBitmapZoom;
   bmp := ScreenShot(gPrefs.BitmapZoom);
   Clipboard.Assign(bmp);
@@ -3773,6 +4076,9 @@ end;
 
 procedure TGLForm1.FormDestroy(Sender: TObject);
 begin
+gCube.Free;
+gText.Free;
+gClrBar.Free;
  {$IFDEF COMPILEYOKE}
    YokeTimer.Enabled := false;
    CloseSharedMem;

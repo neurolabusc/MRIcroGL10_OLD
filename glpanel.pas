@@ -4,7 +4,7 @@ interface
 {$D-,L-,O+,Q-,R-,Y-,S-}
 uses
   dglOpenGL,Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  ExtCtrls, stdctrls, textfx;
+  ExtCtrls, stdctrls;
 type
   TGLPanel= class(TPanel)
   private

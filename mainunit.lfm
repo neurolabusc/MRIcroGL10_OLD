@@ -36,7 +36,7 @@ object GLForm1: TGLForm1
       Width = 214
       Align = alTop
       Caption = 'Clipping'
-      ClientHeight = 70
+      ClientHeight = 69
       ClientWidth = 206
       ParentFont = False
       TabOrder = 0
@@ -109,14 +109,14 @@ object GLForm1: TGLForm1
       Width = 214
       Align = alClient
       Caption = 'Shader'
-      ClientHeight = 176
+      ClientHeight = 175
       ClientWidth = 206
       ParentFont = False
       TabOrder = 1
       OnResize = ShaderBoxResize
       object ShaderMemo: TMemo
         Left = 0
-        Height = 56
+        Height = 55
         Top = 120
         Width = 206
         Align = alClient
@@ -747,7 +747,7 @@ object GLForm1: TGLForm1
       Width = 214
       Align = alTop
       Caption = 'Intensity Minimum..Maximum'
-      ClientHeight = 28
+      ClientHeight = 27
       ClientWidth = 206
       ParentFont = False
       TabOrder = 2
@@ -782,7 +782,7 @@ object GLForm1: TGLForm1
       Width = 214
       Align = alTop
       Caption = 'Cutout'
-      ClientHeight = 70
+      ClientHeight = 69
       ClientWidth = 206
       ParentFont = False
       TabOrder = 3
@@ -913,14 +913,14 @@ object GLForm1: TGLForm1
       Width = 214
       Align = alTop
       Caption = 'Mosaic'
-      ClientHeight = 237
+      ClientHeight = 236
       ClientWidth = 206
       ParentFont = False
       TabOrder = 5
       Visible = False
       object MosaicText: TMemo
         Left = 0
-        Height = 121
+        Height = 120
         Top = 116
         Width = 206
         Align = alClient
@@ -1031,7 +1031,7 @@ object GLForm1: TGLForm1
           Left = 3
           Height = 18
           Top = 70
-          Width = 87
+          Width = 88
           Caption = 'Cross slice'
           OnChange = UpdateMosaic
           TabOrder = 5
@@ -1058,7 +1058,7 @@ object GLForm1: TGLForm1
           Left = 104
           Height = 18
           Top = 70
-          Width = 91
+          Width = 93
           Caption = 'Label slices'
           OnChange = UpdateMosaic
           TabOrder = 8
@@ -1072,14 +1072,14 @@ object GLForm1: TGLForm1
       Width = 214
       Align = alTop
       Caption = 'Overlays'
-      ClientHeight = 52
+      ClientHeight = 51
       ClientWidth = 206
       ParentFont = False
       TabOrder = 6
       Visible = False
       object StringGrid1: TStringGrid
         Left = 0
-        Height = 52
+        Height = 51
         Top = 0
         Width = 206
         Align = alClient
@@ -1141,7 +1141,7 @@ object GLForm1: TGLForm1
       Width = 214
       Align = alTop
       Caption = '2D Slices'
-      ClientHeight = 66
+      ClientHeight = 65
       ClientWidth = 206
       ParentFont = False
       TabOrder = 8
@@ -1751,11 +1751,49 @@ object GLForm1: TGLForm1
         Caption = 'Color editor'
         OnClick = ToggleTransparency1Click
       end
-      object Colorbar1: TMenuItem
-        AutoCheck = True
+      object ClrbarMenu: TMenuItem
         Caption = 'Colorbar'
-        ShortCut = 114
-        OnClick = Colorbar1Click
+        object VisibleClrbarMenu: TMenuItem
+          AutoCheck = True
+          Caption = 'Visible'
+          Checked = True
+          OnClick = ClrbarMenu1Click
+        end
+        object ClrbarSep: TMenuItem
+          Caption = '-'
+        end
+        object WhiteClrbarMenu: TMenuItem
+          Tag = 1
+          AutoCheck = True
+          Caption = 'White'
+          GroupIndex = 193
+          RadioItem = True
+          OnClick = ClrbarMenuClick
+        end
+        object WhiteTransMenu: TMenuItem
+          Tag = 2
+          Caption = 'Translucent White'
+          GroupIndex = 193
+          RadioItem = True
+          OnClick = ClrbarMenuClick
+        end
+        object BlackClrbarMenu: TMenuItem
+          Tag = 3
+          AutoCheck = True
+          Caption = 'Black'
+          GroupIndex = 193
+          RadioItem = True
+          OnClick = ClrbarMenuClick
+        end
+        object TransBlackClrbarMenu: TMenuItem
+          Tag = 4
+          AutoCheck = True
+          Caption = 'Translucent Black'
+          Checked = True
+          GroupIndex = 193
+          RadioItem = True
+          OnClick = ClrbarMenuClick
+        end
       end
       object Backcolor1: TMenuItem
         Caption = 'Back color'

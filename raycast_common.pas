@@ -22,7 +22,7 @@ uses
            graphics,
 {$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL}gl_core_matrix, glcorearb, {$ELSE} gl, glext, {$ENDIF}  {$ENDIF DGL}
  define_types,
-    sysutils, histogram2d, math, colorbar2d;
+    sysutils, histogram2d, math;
 type
 TRayCast =  RECORD
    loopsLoc, stepSizeLoc, sliceSizeLoc, viewWidthLoc, viewHeightLoc, backFaceLoc,

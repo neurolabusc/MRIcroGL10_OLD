@@ -22,10 +22,10 @@ uses
            graphics,
 {$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL}glcorearb, {$ELSE} gl,glext, {$ENDIF}  {$ENDIF DGL}
  define_types,
-    sysutils, histogram2d, math, colorbar2d, raycast_common;
+    sysutils, histogram2d, math, raycast_common;
 
 procedure DisplayGL(var lTex: TTexture);
-procedure DisplayGLz(var lTex: TTexture; zoom, zoomOffsetX, zoomOffsetY: integer; framebuff: GLUint);
+procedure DisplayGLz(var lTex: TTexture; zoom, zoomOffsetX, zoomOffsetY: integer; framebuff: GLUint; isTiled: boolean);
 procedure  InitGL (InitialSetup: boolean);// (var lTex: TTexture);
 
 implementation
@@ -794,7 +794,7 @@ begin
 	glEnd();
 end;
 
-procedure DrawCube (lScrnWid, lScrnHt, zoomOffsetX, zoomOffsetY: integer);
+(*procedure DrawCube (lScrnWid, lScrnHt, zoomOffsetX, zoomOffsetY: integer);
 var
   mn: integer;
   sz: single;
@@ -818,9 +818,11 @@ begin
   MakeCube(sz);
   //glDisable(GL_DEPTH_TEST);
   //glDisable(GL_CULL_FACE); // <- required for Cocoa
-end;
+end;   *)
 
-procedure DisplayGLz(var lTex: TTexture; zoom, zoomOffsetX, zoomOffsetY: integer; framebuff: GLUint);
+procedure DisplayGLz(var lTex: TTexture; zoom, zoomOffsetX, zoomOffsetY: integer; framebuff: GLUint; isTiled: boolean);
+var
+   ClrbarSizeFracX: single;
 begin
   //if (gPrefs.SliceView  = 5) and (length(gRayCast.MosaicString) < 1) then exit; //we need to draw something, otherwise swapbuffer crashes
   if (gPrefs.SliceView  <> 5) then  gRayCast.MosaicString := '';
@@ -832,16 +834,36 @@ begin
   glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT);  //required by VirtualBox
   {$IFDEF ENABLEMOSAICS}
   if length(gRayCast.MosaicString)> 0 then begin //draw mosaics
+     GLForm1.ClearText(gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT);
      glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT );
      glDisable(GL_CULL_FACE); //<-this is important, otherwise nodes and quads not filled
-     MosaicGL(gRayCast.MosaicString);
+     ClrbarSizeFracX := MosaicGL(gRayCast.MosaicString,lTex);
      //if gPrefs.Colorbar and (gPrefs.SliceView  <> 5) then
      //	DrawCLUT( gPrefs.ColorBarPos,0.01, gPrefs);//, gRayCast.WINDOW_WIDTH*zoom, gRayCast.WINDOW_HEIGHT*zoom, zoomOffsetX, zoomOffsetY);
-
+    //if gPrefs.Colorbar then
+     //  GLForm1.drawClrbar(gRayCast.WINDOW_WIDTH*zoom, gRayCast.WINDOW_HEIGHT*zoom, zoom, zoomOffsetX, zoomOffsetY);
+    //GLForm1.DrawText(gRayCast.WINDOW_WIDTH*zoom, gRayCast.WINDOW_HEIGHT*zoom, zoom, zoomOffsetX, zoomOffsetY);
+    glEnable (GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    GLForm1.DrawText(gRayCast.WINDOW_WIDTH*zoom, gRayCast.WINDOW_HEIGHT*zoom, zoom, zoomOffsetX, zoomOffsetY);
+    reshapeOrtho(gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT);
+    if gPrefs.Colorbar then begin
+       GLForm1.drawClrbar(gRayCast.WINDOW_WIDTH*zoom, gRayCast.WINDOW_HEIGHT*zoom, zoom, zoomOffsetX, zoomOffsetY, ClrbarSizeFracX);
+    end;
   end else {$ENDIF} if gPrefs.SliceView > 0  then begin //draw 2D orthogonal slices
+    GLForm1.ClearText(gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT);
     glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT );
     glDisable(GL_CULL_FACE); //<-this is important, otherwise nodes and quads not filled
     DrawOrtho(lTex);
+    glEnable (GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    GLForm1.DrawText(gRayCast.WINDOW_WIDTH*zoom, gRayCast.WINDOW_HEIGHT*zoom, zoom, zoomOffsetX, zoomOffsetY);
+    reshapeOrtho(gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT);
+    if gPrefs.Colorbar then
+       GLForm1.drawClrbar(gRayCast.WINDOW_WIDTH*zoom, gRayCast.WINDOW_HEIGHT*zoom, zoom, zoomOffsetX, zoomOffsetY,0);
+    //resizeGL(gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT,zoom, zoomOffsetX, zoomOffsetY);
+
+
   end else begin //else draw 3D rendering
     enableRenderbuffers();
     glTranslatef(0,0,-gRayCast.Distance);
@@ -856,13 +878,17 @@ begin
     disableRenderBuffers(framebuff);
     renderBufferToScreen();
     if gPrefs.SliceDetailsCubeAndText then
-      drawCube(gRayCast.WINDOW_WIDTH*zoom, gRayCast.WINDOW_HEIGHT*zoom, zoomOffsetX, zoomOffsetY);
+       GLForm1.drawCube(gRayCast.WINDOW_WIDTH*zoom, gRayCast.WINDOW_HEIGHT*zoom,zoom, zoomOffsetX, zoomOffsetY);
+    if gPrefs.Colorbar then
+       GLForm1.drawClrbar(gRayCast.WINDOW_WIDTH*zoom, gRayCast.WINDOW_HEIGHT*zoom, zoom, zoomOffsetX, zoomOffsetY,0);
     resizeGL(gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT,zoom, zoomOffsetX, zoomOffsetY);
   end;
   if gPrefs.ColorEditor then
     DrawNodes(gRayCast.WINDOW_HEIGHT,gRayCast.WINDOW_WIDTH, lTex, gPrefs);
-  if gPrefs.Colorbar (*and (gPrefs.SliceView  <> 5)*) then
-     DrawCLUT( gPrefs.ColorBarPos,0.01, gPrefs);//, gRayCast.WINDOW_WIDTH*zoom, gRayCast.WINDOW_HEIGHT*zoom, zoomOffsetX, zoomOffsetY);
+  //if gPrefs.Colorbar (*and (gPrefs.SliceView  <> 5)*) then
+  //  GLForm1.drawClrbar(gRayCast.WINDOW_WIDTH*zoom, zoom, gRayCast.WINDOW_HEIGHT*zoom, zoomOffsetX, zoomOffsetY);
+
+    //DrawCLUT( gPrefs.ColorBarPos,0.01, gPrefs);//, gRayCast.WINDOW_WIDTH*zoom, gRayCast.WINDOW_HEIGHT*zoom, zoomOffsetX, zoomOffsetY);
   {$IFDEF ENABLEWATERMARK}
   if gWatermark.filename <> '' then
     LoadWatermark(gWatermark);
@@ -877,7 +903,7 @@ end;
 
 procedure DisplayGL(var lTex: TTexture);
 begin
-  DisplayGLz(lTex,1,0,0,0);
+  DisplayGLz(lTex,1,0,0,0, false);
 end;
 
 

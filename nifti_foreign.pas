@@ -24,6 +24,8 @@ procedure convertForeignToNifti(var nhdr: TNIFTIhdr);
 function isTIFF(fnm: string): boolean;
 implementation
 
+//uses mainunit;
+
 Type
   mat44 = array [0..3, 0..3] of Single;
   vect4 = array [0..3] of Single;
@@ -1630,6 +1632,8 @@ begin
   result := true;
 end;//MHA
 
+//var gX : integer = 0;
+
 function readNRRDHeader (var fname: string; var nhdr: TNIFTIhdr; var gzBytes: int64; var swapEndian, isDimPermute2341: boolean): boolean;
 //http://www.sci.utah.edu/~gk/DTI-data/
 //http://teem.sourceforge.net/nrrd/format.html
@@ -1642,12 +1646,14 @@ var
   str,tagName,elementNames: string;
   lineskip,byteskip,i,s,nItems,headerSize,matElements,fileposBytes: integer;
   mat: mat33;
-  isDetachedFile,isFirstLine: boolean;
+  isOK, isDetachedFile,isFirstLine: boolean;
   offset: array[0..3] of single;
   vSqr, flt: single;
   transformMatrix: array [0..11] of single;
 begin
+  //gX := gX + 1; GLForm1.caption := inttostr(gX);
   isDimPermute2341 := false;
+  isOK := true;
   {$IFDEF FPC}
   DefaultFormatSettings.DecimalSeparator := '.' ;
   //DecimalSeparator := '.';
@@ -1755,6 +1761,8 @@ begin
           nhdr.datatype := kDT_UINT32
       else begin
           NSLog('Unsupported NRRD datatype'+mArray.Strings[0]);
+          isOK := false;
+          break;
       end
     end else if AnsiContainsText(tagName, 'endian') then begin
       {$IFDEF ENDIAN_BIG} //data always stored big endian
@@ -1767,8 +1775,11 @@ begin
           gzBytes :=0
       else if AnsiContainsText(mArray.Strings[0], 'gz') or AnsiContainsText(mArray.Strings[0], 'gzip') then
           gzBytes := K_gzBytes_headerAndImageCompressed//K_gzBytes_headeruncompressed
-      else
+      else begin
           NSLog('Unknown encoding format '+mArray.Strings[0]);
+          isOK := false;
+          break;
+      end;
     end else if (AnsiContainsText(tagName, 'lineskip') or AnsiContainsText(tagName, 'line skip')) then begin //http://teem.sourceforge.net/nrrd/format.html#lineskip
       lineskip := strtointdef(mArray.Strings[0],0);
     end else if (AnsiContainsText(tagName, 'byteskip') or AnsiContainsText(tagName, 'byte skip')) then begin //http://teem.sourceforge.net/nrrd/format.html#byteskip
@@ -1819,9 +1830,11 @@ begin
      result := false;
   end;
   if (byteskip > 0) then begin
-    NSLog('Unsupported NRRD feature: byteskip');
-    result := false;
+    headerSize := headerSize + byteskip;
+    //NSLog('Unsupported NRRD feature: byteskip');
+    //result := false;
   end;
+  if not isOK then result := false;
   //GLForm1.ShaderMemo.Lines.Add(format(' %d', [gzBytes]));
 666:
   CloseFile(FP);

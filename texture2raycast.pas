@@ -19,7 +19,7 @@ uses
 mainunit;
 
  type
-  TRGBA = packed record //Next: analyze Format Header structure
+    TRGBA = packed record //Next: analyze Format Header structure
     R,G,B,A : byte;
   end;
   tVolB = array of byte;

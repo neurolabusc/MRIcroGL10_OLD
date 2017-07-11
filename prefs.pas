@@ -14,6 +14,7 @@ type
   TMRU =  array [1..knMRU] of string;
   TPrefs = record
          {$IFDEF Darwin}isDoubleBuffer,{$ENDIF}
+         isTiledScreenShot,
          OverlayHideZeros,SkipPrefWriting,
          FlipYZ, SliceDetailsCubeAndText,ThresholdDetection,
          FormMaximized,Debug,ColorEditor,ProportionalStretch,OverlayColorFromZero,
@@ -22,10 +23,10 @@ type
          RayCastShowGLSLWarnings,RayCastViewCenteredLight,EnableYoke,
          NoveauWarning, StartupScript, RetinaDisplay : boolean;
          PlanarRGB,SliceView,DrawColor,RayCastQuality1to10,MaxStartupRayCastQuality1to10, FormWidth,FormHeight,
-         BackgroundAlpha,OverlayAlpha,CrosshairThick,MaxVox, BitmapZoom: integer;
+         BackgroundAlpha,OverlayAlpha,CrosshairThick,MaxVox, BitmapZoom, ColorbarColor,ColorbarPosition: integer;
          CLUTWindowColor,CLUTIntensityColor: TColor;
          GridAndBorder,BackColor,TextColor,TextBorder,CrosshairColor,HistogramColor,HistogramBack: TGLRGBQuad;
-         ColorBarPos: TUnitRect;
+         //ColorBarPos: TUnitRect;
          InitScript: string;
          PrevFilename,PrevScriptName: TMRU;
   end;
@@ -173,6 +174,7 @@ begin
             NoveauWarning := true;
             FlipYZ := false;
             ThresholdDetection := true;
+            isTiledScreenShot := true;
             {$IFDEF Darwin} isDoubleBuffer := false; {$ENDIF}
             ForcePowerOfTwo:= false;
             OverlayHideZeros := false;
@@ -211,8 +213,10 @@ begin
     //RemoveDarkSpeckles := true;
     //Show2DSlicesDuringRendering := true;
     ColorBar := true;
-    ColorBarPos:= CreateUnitRect (0.1,0.1,0.9,0.14);
-    SensibleUnitRect (ColorBarPos);
+    ColorbarColor := 4;
+    ColorBarPosition := 1;
+    //ColorBarPos:= CreateUnitRect (0.1,0.1,0.9,0.14);
+    //SensibleUnitRect (ColorBarPos);
     Perspective := false;
     InterpolateOverlays := true;
     //InterpolateView := true;
@@ -406,6 +410,7 @@ begin
 	//IniBool(lRead,lIniFile, 'IntelWarning',lPrefs.IntelWarning);
         IniBool(lRead,lIniFile, 'NoveauWarning',lPrefs.NoveauWarning);
         IniBool(lRead,lIniFile, 'FlipYZ',lPrefs.FlipYZ);
+        {$IFDEF FPC}IniBool(lRead,lIniFile, 'TiledScreenShot',lPrefs.isTiledScreenShot);{$ENDIF}
         {$IFDEF Darwin}IniBool(lRead,lIniFile, 'DoubleBuffer',lPrefs.isDoubleBuffer);{$ENDIF}
 	//IniBool(lRead,lIniFile, 'Show2DSlicesDuringRendering',lPrefs.Show2DSlicesDuringRendering);
 	IniBool(lRead,lIniFile, 'ColorBar',lPrefs.ColorBar);
@@ -421,7 +426,12 @@ begin
   //IniInt(lRead,lIniFile, 'SurfaceThreshold',lPrefs.SurfaceThreshold);
 	IniBool(lRead,lIniFile, 'RayCastShowGLSLWarnings',lPrefs.RayCastShowGLSLWarnings);
 	IniBool(lRead,lIniFile, 'RayCastViewCenteredLight',lPrefs.RayCastViewCenteredLight);
-  IniInt(lRead,lIniFile, 'MaxVox',lPrefs.MaxVox);
+
+
+        IniInt(lRead,lIniFile, 'ColorbarColor',lPrefs.ColorbarColor);
+        IniInt(lRead,lIniFile, 'ColorBarPosition',lPrefs.ColorBarPosition);
+
+        IniInt(lRead,lIniFile, 'MaxVox',lPrefs.MaxVox);
   IniInt(lRead,lIniFile, 'PlanarRGB',lPrefs.PlanarRGB);
   IniInt(lRead,lIniFile, 'BitmapZoom',lPrefs.BitmapZoom);
   IniInt(lRead,lIniFile, 'RayCastQuality1to10',lPrefs.RayCastQuality1to10);
@@ -442,8 +452,8 @@ begin
   //IniColor(lRead,lIniFile, 'BackgroundColor',lPrefs.BackgroundColor);
   IniColor(lRead,lIniFile, 'CLUTWindowColor',lPrefs.CLUTWindowColor);
   IniColor(lRead,lIniFile, 'CLUTIntensityColor',lPrefs.CLUTIntensityColor);
-  IniUnitRect(lRead,lIniFile, 'ColorBarPos',lPrefs.ColorBarPos);
-  SensibleUnitRect (lPrefs.ColorBarPos);
+  //IniUnitRect(lRead,lIniFile, 'ColorBarPos',lPrefs.ColorBarPos);
+  //SensibleUnitRect (lPrefs.ColorBarPos);
   IniRGBA(lRead,lIniFile, 'BackColor',lPrefs.BackColor);
   lPrefs.BackColor.rgbReserved := 0;
   IniRGBA(lRead,lIniFile, 'TextColor',lPrefs.TextColor);
