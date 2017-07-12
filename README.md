@@ -10,6 +10,9 @@ http://www.mccauslandcenter.sc.edu/mricrogl/
 
 ##### Recent Versions
 
+24-June-2017
+ - [Smooth](https://github.com/neurolabusc/OpenGLCoreTutorials) numbers in colorbars
+
 21-June-2017
  - Preferences window now allows user to enable optional support for MacOS retina resolution. Slower but better quality.
  - [Screenshot fixes](http://www.nitrc.org/forum/message.php?msg_id=21504). Fix 'seams' when taking screenshots with high zoom factors, reduce blurriness of mosaic screenshots.
