@@ -1983,7 +1983,7 @@ begin
 {$IFDEF FPC} Application.ShowButtonGlyphs:= sbgNever; {$ENDIF}
   forceReset := false;
   gPrefs.InitScript := '';
-  i := 1;       f
+  i := 1;
   while i <= ParamCount do begin
      s := ParamStr(i);
      if (length(s)> 1) and (s[1]='-') then begin
