@@ -1943,8 +1943,6 @@ begin
  InitOverlays;
  InterpolateMenu.checked := gPrefs.InterpolateOverlays;
  OverlayColorFromZeroMenu.checked := gPrefs.OverlayColorFromZero;
-//  for i := 1 to StringGrid1.RowCount-1 do
-//    StringGrid1.Cells[kFName, i] := IntToStr(i);
  SetSubmenuWithTag(Onotheroverlays1,gPrefs.OverlayAlpha);
  SetOverlayAlphaValue( gPrefs.OverlayAlpha);
  SetBackgroundAlphaValue( gPrefs.BackgroundAlpha);
@@ -1952,11 +1950,9 @@ begin
  StringGrid1.Selection := TGridRect(Rect(-1, -1, -1, -1));
  StringGrid1.DefaultRowHeight := LUTdrop.Height+1;
  StringGrid1.DefaultColWidth := (StringGrid1.width div 4)-2;
-  {$IFDEF FPC} {$IFNDEF UNIX}
- if Screen.PixelsPerInch <> 96 then begin
-     StringGrid1.DefaultColWidth := round(StringGrid1.width* (Screen.PixelsPerInch/96) * 0.25) - 2;
-   //ClipBox.Caption := INTTOSTR(Screen.PixelsPerInch)+'  '+ inttostr(FormWidth)+'x'+inttostr(FormHeight)+'  '+inttostr(lVidx)+'x'+inttostr(lVidY);
- end;
+ {$IFDEF FPC} {$IFNDEF UNIX} //removed July 2017: Lazarus 1.8 repainting issues?
+ //if Screen.PixelsPerInch <> 96 then
+ //    StringGrid1.DefaultColWidth := round(StringGrid1.width* (Screen.PixelsPerInch/96) * 0.25) - 2;
 {$ENDIF}{$ENDIF}
  //{$ENDIF}
  //LUTdrop.Visible := False;
@@ -1987,7 +1983,7 @@ begin
 {$IFDEF FPC} Application.ShowButtonGlyphs:= sbgNever; {$ENDIF}
   forceReset := false;
   gPrefs.InitScript := '';
-  i := 1;
+  i := 1;       f
   while i <= ParamCount do begin
      s := ParamStr(i);
      if (length(s)> 1) and (s[1]='-') then begin
@@ -2622,7 +2618,7 @@ end;
    {$IFDEF LCLCocoa}str := str + ' (Cocoa) '; {$ENDIF}
    {$IFDEF LCLCarbon}str := str + ' (Carbon) '; {$ENDIF}
    {$IFDEF DGL} str := str +' (DGL) '; {$ENDIF}//the DGL library has more dependencies - report this if incompatibilities are found
-  str := 'MRIcroGL '+str+' 21 June 2017'
+  str := 'MRIcroGL '+str+' 24 June 2017'
    +kCR+' www.mricro.com :: BSD 2-Clause License (opensource.org/licenses/BSD-2-Clause)'
    +kCR+' Dimensions '+inttostr(gTexture3D.NIFTIhdr.dim[1])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[2])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[3])
    +kCR+' Bytes per voxel '+inttostr(gTexture3D.NIFTIhdr.bitpix div 8)
@@ -4147,7 +4143,9 @@ end;
 
 procedure TGLForm1.ChangeOverlayUpdate;
 begin
-
+     {$IFDEF FPC}{$IFDEF Windows} //July2017: Lazarus 1.8.0 does not repaint?
+     StringGrid1.Refresh;
+     {$ENDIF}{$ENDIF}
      M_Refresh := true;
      // deleteGradients(gTexture3D);
      GLForm1.UpdateTimer.enabled := true;

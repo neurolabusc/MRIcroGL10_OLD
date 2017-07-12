@@ -36,7 +36,7 @@ object GLForm1: TGLForm1
       Width = 214
       Align = alTop
       Caption = 'Clipping'
-      ClientHeight = 69
+      ClientHeight = 70
       ClientWidth = 206
       ParentFont = False
       TabOrder = 0
@@ -109,14 +109,14 @@ object GLForm1: TGLForm1
       Width = 214
       Align = alClient
       Caption = 'Shader'
-      ClientHeight = 175
+      ClientHeight = 176
       ClientWidth = 206
       ParentFont = False
       TabOrder = 1
       OnResize = ShaderBoxResize
       object ShaderMemo: TMemo
         Left = 0
-        Height = 55
+        Height = 56
         Top = 120
         Width = 206
         Align = alClient
@@ -747,7 +747,7 @@ object GLForm1: TGLForm1
       Width = 214
       Align = alTop
       Caption = 'Intensity Minimum..Maximum'
-      ClientHeight = 27
+      ClientHeight = 28
       ClientWidth = 206
       ParentFont = False
       TabOrder = 2
@@ -782,7 +782,7 @@ object GLForm1: TGLForm1
       Width = 214
       Align = alTop
       Caption = 'Cutout'
-      ClientHeight = 69
+      ClientHeight = 70
       ClientWidth = 206
       ParentFont = False
       TabOrder = 3
@@ -913,14 +913,14 @@ object GLForm1: TGLForm1
       Width = 214
       Align = alTop
       Caption = 'Mosaic'
-      ClientHeight = 236
+      ClientHeight = 237
       ClientWidth = 206
       ParentFont = False
       TabOrder = 5
       Visible = False
       object MosaicText: TMemo
         Left = 0
-        Height = 120
+        Height = 121
         Top = 116
         Width = 206
         Align = alClient
@@ -1031,7 +1031,7 @@ object GLForm1: TGLForm1
           Left = 3
           Height = 18
           Top = 70
-          Width = 88
+          Width = 87
           Caption = 'Cross slice'
           OnChange = UpdateMosaic
           TabOrder = 5
@@ -1058,7 +1058,7 @@ object GLForm1: TGLForm1
           Left = 104
           Height = 18
           Top = 70
-          Width = 93
+          Width = 91
           Caption = 'Label slices'
           OnChange = UpdateMosaic
           TabOrder = 8
@@ -1072,14 +1072,14 @@ object GLForm1: TGLForm1
       Width = 214
       Align = alTop
       Caption = 'Overlays'
-      ClientHeight = 51
+      ClientHeight = 52
       ClientWidth = 206
       ParentFont = False
       TabOrder = 6
       Visible = False
       object StringGrid1: TStringGrid
         Left = 0
-        Height = 51
+        Height = 52
         Top = 0
         Width = 206
         Align = alClient
@@ -1141,7 +1141,7 @@ object GLForm1: TGLForm1
       Width = 214
       Align = alTop
       Caption = '2D Slices'
-      ClientHeight = 65
+      ClientHeight = 66
       ClientWidth = 206
       ParentFont = False
       TabOrder = 8
