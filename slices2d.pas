@@ -374,13 +374,26 @@ begin
   //ReportMosaic(result);
 end; //proc ReadMosaicStr
 
-procedure DrawXYTex ( X,Y,W,H: single);
+procedure DrawXYTex ( X,Y,W,H: single; flipLR: boolean);
 begin
 {$IFDEF COREGL}
 glUniform4f(glGetUniformLocation(gDraw.glslprogramId, 'XYWH'), X,Y,W,H) ;
 DrawSliceGL();
 
 {$ELSE}
+if flipLR then begin //radiological convention
+  glBegin(GL_QUADS);
+  glTexCoord2f(1, 0);
+  glVertex2f(X, Y);
+  glTexCoord2f(0, 0);
+  glVertex2f(X+W, Y);
+  glTexCoord2f(0, 1.0);
+  glVertex2f(X+W, Y+H);
+  glTexCoord2f(1, 1.0);
+  glVertex2f(X, Y+H);
+  glEnd();
+  exit;
+end;
 glBegin(GL_QUADS);
 glTexCoord2f(0, 0);
 glVertex2f(X, Y);
@@ -447,6 +460,20 @@ end;
 {$ELSE}
 procedure DrawXYCoro ( lX,lY,lW,lH, lSlice: single);
 begin
+  if gPrefs.FlipLR then begin //Radiological convention: flips LR, camera anterior to object
+    glBegin(GL_QUADS);
+      glTexCoord3d (1, lSlice, 1);
+      glVertex2f(lX,lY+lH);
+      glTexCoord3d (1,lSlice, 0);
+      glVertex2f(lX,lY);
+      glTexCoord3d (0,lSlice,0);
+      glVertex2f(lX+lW,lY);
+      glTexCoord3d (0,lSlice, 1);
+      glVertex2f(lX+lW,lY+lH);
+    glend;
+    exit;
+  end;
+  //neurological convention: camera posterior to object
   glBegin(GL_QUADS);
       glTexCoord3d (0, lSlice, 1);
       glVertex2f(lX,lY+lH);
@@ -461,7 +488,21 @@ end;
 
 procedure DrawXYAx ( lX,lY,lW,lH, lSlice: single);
 begin
-  glBegin(GL_QUADS);
+  if gPrefs.FlipLR then begin //radiological convention: camera inferior to object
+    glBegin(GL_QUADS);
+      glTexCoord3d (1, 1, lSlice);
+      glVertex2f(lX,lY+lH);
+      glTexCoord3d (1,0, lSlice);
+      glVertex2f(lX,lY);
+      glTexCoord3d (0,0,lSlice);
+      glVertex2f(lX+lW,lY);
+      glTexCoord3d (0,1, lSlice);
+      glVertex2f(lX+LW,lY+lH);
+    glend;
+    exit;
+  end;
+  //neurological convention: camera superior to object
+ glBegin(GL_QUADS);
       glTexCoord3d (0, 1, lSlice);
       glVertex2f(lX,lY+lH);
       glTexCoord3d (0,0, lSlice);
@@ -475,6 +516,19 @@ end;
 
 procedure DrawXYSag ( lX,lY,lW,lH, lSlice: single);
 begin
+  if gPrefs.FlipLR then begin //radiological convention
+      glBegin(GL_QUADS);
+          glTexCoord3d (1-lSlice,0,1);
+          glVertex2f(lX,lY+lH);
+          glTexCoord3d (1-lSlice,0, 0);
+          glVertex2f(lX,lY);
+          glTexCoord3d (1-lSLice, 1, 0);
+          glVertex2f(lX+lW,lY);
+          glTexCoord3d (1-lSlice,1, 1);
+          glVertex2f(lX+lW,lY+lH);
+      glend;
+     exit;
+  end;
   glBegin(GL_QUADS);
       glTexCoord3d (lSlice,0,1);
       glVertex2f(lX,lY+lH);
@@ -541,6 +595,7 @@ begin
       kSagRightOrient : X := lSliceFrac;
       kSagLeftOrient : X := lSliceFrac;
     end;
+    if gPrefs.FlipLR then X := 1 - X;
     X := FracToSlice(X,gTexture3D.FiltDim[1]);
     Y := FracToSlice(Y,gTexture3D.FiltDim[2]);
     Z := FracToSlice(Z,gTexture3D.FiltDim[3]);
@@ -908,7 +963,6 @@ begin
     Yshift := gRayCast.WINDOW_HEIGHT-((H)*scale);
   end else
       Yshift := 0;
-
   gRayCast.OrthoZoom := scale;
   X := X * scale;
   Y := Y * scale;
@@ -939,26 +993,29 @@ begin
     if (gPrefs.SliceView = 1) or (gPrefs.SliceView = 4) then begin
        glUniform1ix(gDraw.glslprogramId, 'orientAxCorSag', 1);
        glUniform1fx(gDraw.glslprogramId, 'coordZ', gRayCast.OrthoZ);
-       DrawXYTex(0,YShift,X,Y);
+       DrawXYTex(0,YShift,X,Y, gPrefs.FlipLR);
     end;
     //draw coronal
     if (gPrefs.SliceView = 2) or (gPrefs.SliceView = 4) then begin
        glUniform1ix(gDraw.glslprogramId, 'orientAxCorSag', 2);
        glUniform1fx(gDraw.glslprogramId, 'coordZ', gRayCast.OrthoY);
        if (gPrefs.SliceView = 4) then
-         DrawXYTex(0,Y+YShift,X,Z)
+         DrawXYTex(0,Y+YShift,X,Z, gPrefs.FlipLR)
        else
-           DrawXYTex(0,YShift,X,Z);
+           DrawXYTex(0,YShift,X,Z, gPrefs.FlipLR);
 
     end;
     //draw sagittal
     if (gPrefs.SliceView > 2) then begin
        glUniform1ix(gDraw.glslprogramId, 'orientAxCorSag', 3);
-       glUniform1fx(gDraw.glslprogramId, 'coordZ', gRayCast.OrthoX);
-       if (gPrefs.SliceView = 4) then
-          DrawXYTex(X,Y+YShift,Y,Z)
+       if gPrefs.FlipLR then
+           glUniform1fx(gDraw.glslprogramId, 'coordZ', 1-gRayCast.OrthoX)
        else
-           DrawXYTex(0,YShift,Y,Z);
+           glUniform1fx(gDraw.glslprogramId, 'coordZ', gRayCast.OrthoX);
+       if (gPrefs.SliceView = 4) then
+          DrawXYTex(X,Y+YShift,Y,Z, false)
+       else
+           DrawXYTex(0,YShift,Y,Z, false);
     end;
     glUseProgram(0);
     glActiveTexture( GL_TEXTURE0 );  //required if we will draw 2d slices next

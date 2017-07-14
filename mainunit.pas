@@ -45,6 +45,7 @@ TGLForm1 = class(TForm)
     InterpolateAxialMenu: TMenuItem;
     InterpolateCoronalMenu: TMenuItem;
     InterpolateSagittalMenu: TMenuItem;
+    RadiologicalMenu: TMenuItem;
     //VisibleClrbarMenu: TMenuItem;
     //ClrbarSep: TMenuItem;
     //BlackClrbarMenu: TMenuItem;
@@ -170,6 +171,7 @@ TGLForm1 = class(TForm)
   MinEdit: TEdit;
   MaxEdit: TEdit;
   CutoutBox: TGroupBox;
+  WhiteTransMenu: TMenuItem;
   Xx: TLabel;
   XTrackBar: TTrackBar;
   X2TrackBar: TTrackBar;
@@ -272,6 +274,7 @@ TGLForm1 = class(TForm)
     procedure OrientBtnClick(Sender: TObject);
     procedure OrientClick(lOrient: integer);
     procedure OrientMenuClick(Sender: TObject);
+    procedure RadiologicalMenuClick(Sender: TObject);
     procedure SetOverlayAlpha(Sender: TObject);
     //procedure StringGridSetCaption(aRow: integer);
     procedure StringGrid1DrawCell(Sender: TObject; aCol, aRow: Integer;
@@ -423,6 +426,7 @@ function MouseUpVOI (Shift: TShiftState; X, Y: Integer): boolean;
     procedure Copy1Click(Sender: TObject);
     procedure SavePicture (lFilename: string);
     procedure Save1Click(Sender: TObject);
+    procedure DisplayRadiological;
     procedure DisplayPrefs;
     procedure StopScripts;
     procedure AutoRunTimer1Timer(Sender: TObject);
@@ -1887,9 +1891,26 @@ begin
  //{$IFDEF FPC} GLBox.Invalidate; {$ENDIF} //this will crash Delphi as GLBox not yet created
 end;
 
+procedure TGLForm1.DisplayRadiological;
+begin
+     if gPrefs.FlipLR then begin  //radiological view shows Left on Right
+        if LeftBtn.Caption = 'R' then exit;
+        LeftBtn.Caption := 'R';
+        RightBtn.Caption := 'L';
+        Slice2DBox.refresh;
+        exit;
+     end;
+     if LeftBtn.Caption = 'L' then exit;
+     LeftBtn.Caption := 'L';
+     RightBtn.Caption := 'R';
+     Slice2DBox.refresh;
+end;
+
 procedure TGLForm1.DisplayPrefs;
 begin
  Orient1.checked := gPrefs.SliceDetailsCubeAndText;
+ RadiologicalMenu.Checked := gPrefs.FlipLR;
+ DisplayRadiological;
  ToggleTransparency1.checked := gPrefs.ColorEditor;
  Tool1.checked := gPrefs.ShowToolbar;
  ToolPanel.Visible := gPrefs.ShowToolbar;
@@ -1911,8 +1932,6 @@ begin
  result := strtoint(lStr);
  result := Bound (result,lMin,lMax);
 end;
-
-
 
 const
 kFname=0;
@@ -2615,10 +2634,10 @@ end;
    {$IFDEF Darwin}str := str + ' OSX '; {$ENDIF}
    {$IFDEF LCLQT}str := str + ' (QT) '; {$ENDIF}
    {$IFDEF LCLGTK2}str := str + ' (GTK2) '; {$ENDIF}
-   {$IFDEF LCLCocoa}str := str + ' (Cocoa) '; {$ENDIF}
+   {$IFDEF LCLCocoa}str := str + ' (Cocoa) ';{$ENDIF}
    {$IFDEF LCLCarbon}str := str + ' (Carbon) '; {$ENDIF}
    {$IFDEF DGL} str := str +' (DGL) '; {$ENDIF}//the DGL library has more dependencies - report this if incompatibilities are found
-  str := 'MRIcroGL '+str+' 24 June 2017'
+  str := 'MRIcroGL '+str+' 14 July 2017'
    +kCR+' www.mricro.com :: BSD 2-Clause License (opensource.org/licenses/BSD-2-Clause)'
    +kCR+' Dimensions '+inttostr(gTexture3D.NIFTIhdr.dim[1])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[2])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[3])
    +kCR+' Bytes per voxel '+inttostr(gTexture3D.NIFTIhdr.bitpix div 8)
@@ -3497,7 +3516,7 @@ var
   isFlipChange,isAdvancedPrefs  {$IFDEF LCLCocoa}, isRetinaChanged {$ENDIF}: boolean;
 begin
   PrefForm:=TForm.Create(nil);
-  PrefForm.SetBounds(100, 100, 520, 182);
+  PrefForm.SetBounds(100, 100, 520, 212);
   PrefForm.Caption:='Preferences';
   PrefForm.Position := poScreenCenter;
   PrefForm.BorderStyle := bsDialog;
@@ -3546,7 +3565,7 @@ begin
   OkBtn.Caption:='OK';
   OkBtn.Left := PrefForm.Width - 128;
   OkBtn.Width:= 100;
-  OkBtn.Top := 144;
+  OkBtn.Top := 138;
   OkBtn.Parent:=PrefForm;
   OkBtn.ModalResult:= mrOK;
   //Advanced button
@@ -3554,7 +3573,7 @@ begin
   AdvancedBtn.Caption:='Advanced';
   AdvancedBtn.Left := PrefForm.Width - 256;
   AdvancedBtn.Width:= 100;
-  AdvancedBtn.Top := 144;
+  AdvancedBtn.Top := 138;
   AdvancedBtn.Parent:=PrefForm;
   AdvancedBtn.ModalResult:= mrYesToAll;
   {$IFDEF Windows} ScaleDPI(PrefForm, 96);  {$ENDIF}
@@ -3990,10 +4009,17 @@ begin
      end else
          lPen := gPrefs.DrawColor;
      if (ssAlt in Shift) then begin
-         voiMouseFloodFill(lPen, lOrient, lXfrac, lYfrac, lZfrac);
-         GLbox.Invalidate;
-     end else
+        if gPrefs.FlipLR then
+           voiMouseFloodFill(lPen, lOrient, 1-lXfrac, lYfrac, lZfrac)
+        else
+            voiMouseFloodFill(lPen, lOrient, lXfrac, lYfrac, lZfrac);
+        GLbox.Invalidate;
+     end else begin
+       if gPrefs.FlipLR then
+          voiMouseDown(lPen, lOrient, 1-lXfrac, lYfrac, lZfrac)
+       else
          voiMouseDown(lPen, lOrient, lXfrac, lYfrac, lZfrac);
+     end;
      result := true;
      //caption := inttostr(lOrient)+':'+floattostr(lXFrac)+'x'+floattostr(lYFrac)+'x'+floattostr(lZFrac);
 end;
@@ -4011,7 +4037,10 @@ begin
      result := true;
      if (lActiveOrient <> lOrient) then
         exit;
-     voiMouseMove(lXfrac, lYfrac, lZfrac);// then
+     if gPrefs.FlipLR then
+        voiMouseMove(1-lXfrac, lYfrac, lZfrac)
+     else
+         voiMouseMove(lXfrac, lYfrac, lZfrac);
         GLbox.Invalidate;
 end;
 
@@ -4429,6 +4458,13 @@ end;
 procedure TGLForm1.OrientMenuClick(Sender: TObject);
 begin
  OrientClick( (Sender as TMenuItem).tag);
+end;
+
+procedure TGLForm1.RadiologicalMenuClick(Sender: TObject);
+begin
+  gPrefs.FlipLR:= RadiologicalMenu.Checked;
+  DisplayRadiological;
+  GLbox.Invalidate;
 end;
 
 procedure TGLForm1.InterpolateMenuClick(Sender: TObject);

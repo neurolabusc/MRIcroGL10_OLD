@@ -16,7 +16,7 @@ type
          {$IFDEF Darwin}isDoubleBuffer,{$ENDIF}
          isTiledScreenShot,
          OverlayHideZeros,SkipPrefWriting,
-         FlipYZ, SliceDetailsCubeAndText,ThresholdDetection,
+         FlipLR, FlipYZ, SliceDetailsCubeAndText,ThresholdDetection,
          FormMaximized,Debug,ColorEditor,ProportionalStretch,OverlayColorFromZero,
          MaskOverlayWithBackground,  InterpolateOverlays, Perspective,FasterGradientCalculations,
          ShowToolbar,ColorbarText,Colorbar,ForcePowerOfTwo,
@@ -173,6 +173,7 @@ begin
             //IntelWarning := true;
             NoveauWarning := true;
             FlipYZ := false;
+            FlipLR := false;
             ThresholdDetection := true;
             isTiledScreenShot := true;
             {$IFDEF Darwin} isDoubleBuffer := false; {$ENDIF}
@@ -410,6 +411,7 @@ begin
 	//IniBool(lRead,lIniFile, 'IntelWarning',lPrefs.IntelWarning);
         IniBool(lRead,lIniFile, 'NoveauWarning',lPrefs.NoveauWarning);
         IniBool(lRead,lIniFile, 'FlipYZ',lPrefs.FlipYZ);
+        IniBool(lRead,lIniFile, 'FlipLR_Radiological',lPrefs.FlipLR);
         {$IFDEF FPC}IniBool(lRead,lIniFile, 'TiledScreenShot',lPrefs.isTiledScreenShot);{$ENDIF}
         {$IFDEF Darwin}IniBool(lRead,lIniFile, 'DoubleBuffer',lPrefs.isDoubleBuffer);{$ENDIF}
 	//IniBool(lRead,lIniFile, 'Show2DSlicesDuringRendering',lPrefs.Show2DSlicesDuringRendering);
