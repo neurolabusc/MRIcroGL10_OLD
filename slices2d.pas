@@ -514,9 +514,9 @@ begin
   glend;
 end;
 
-procedure DrawXYSag ( lX,lY,lW,lH, lSlice: single);
+procedure DrawXYSag ( lX,lY,lW,lH, lSlice: single; lFlipLR: boolean);
 begin
-  if gPrefs.FlipLR then begin //radiological convention
+  if lFlipLR then begin //radiological convention
       glBegin(GL_QUADS);
           glTexCoord3d (1-lSlice,0,1);
           glVertex2f(lX,lY+lH);
@@ -541,8 +541,23 @@ begin
   glend;
 end;
 
-procedure DrawXYSagMirror ( lX,lY,lW,lH, lSlice: single);
+procedure DrawXYSagMirror ( lX,lY,lW,lH, lSlice: single; lFlipLR: boolean);
 begin
+  if lFlipLR then begin //radiological convention
+  glBegin(GL_QUADS);
+      glTexCoord3d (1-lSlice,0,1);
+      glVertex2f(lX+lW,lY+lH);
+      glTexCoord3d (1-lSlice,0, 0);
+      glVertex2f(lX+lW,lY);
+      glTexCoord3d (1-lSLice, 1, 0);
+      glVertex2f(lX,lY);
+      glTexCoord3d (1-lSlice,1, 1);
+      glVertex2f(lX,lY+lH);
+  glend;
+
+  exit;
+end;
+
   glBegin(GL_QUADS);
       glTexCoord3d (lSlice,0,1);
       glVertex2f(lX+lW,lY+lH);
@@ -731,8 +746,8 @@ begin
       case lMosaic.Orient[lCol,lRow] of
         kAxialOrient: DrawXYAx (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow]{, gTexture3D});
         kCoronalOrient: DrawXYCoro (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow]{, gTexture3D});
-        kSagRightOrient: DrawXYSag (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow]{, gTexture3D});
-        kSagLeftOrient: DrawXYSagMirror (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow]{, gTexture3D});
+        kSagRightOrient: DrawXYSag (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow]{, gTexture3D}, false);
+        kSagLeftOrient: DrawXYSagMirror (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow]{, gTexture3D},false);
       end;//
       lCol := lCol + lColInc;
     end;//col
@@ -1019,7 +1034,7 @@ begin
     end;
     glUseProgram(0);
     glActiveTexture( GL_TEXTURE0 );  //required if we will draw 2d slices next
-  end else begin  //no drawing: display background image using OpenGL
+  end else begin  //no drawing: display background image using OpenGL instead of shader
     glUseProgram(0);
     glActiveTexture( GL_TEXTURE0 );  //required if we will draw 2d slices next
     glBindTexture(GL_TEXTURE_3D,gRayCast.intensityTexture3D);
@@ -1034,11 +1049,11 @@ begin
     case gPrefs.SliceView of
          1 : DrawXYAx  (0, YShift,X,Y, gRayCast.OrthoZ);
          2 : DrawXYCoro(0, YShift,X,Z, gRayCast.OrthoY);
-         3 : DrawXYSag (0, YShift,Y,Z, gRayCast.OrthoX);
+         3 : DrawXYSag (0, YShift,Y,Z, gRayCast.OrthoX,gPrefs.FlipLR);
          else begin
               DrawXYAx  (0,YShift,X,Y, gRayCast.OrthoZ);
               DrawXYCoro(0,Y+YShift,X,Z, gRayCast.OrthoY);
-              DrawXYSag (X,Y+YShift,Y,Z, gRayCast.OrthoX);
+              DrawXYSag (X,Y+YShift,Y,Z, gRayCast.OrthoX, gPrefs.FlipLR);
          end;
     end;
   end;
