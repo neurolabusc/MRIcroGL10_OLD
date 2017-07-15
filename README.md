@@ -12,6 +12,8 @@ http://www.mccauslandcenter.sc.edu/mricrogl/
 
 14-July-2017
  - [Display/Radiological menuitem](https://www.nitrc.org/forum/message.php?msg_id=21719) flips between neurological and radiological convention. The "L" and "R" symbols change in the "2D Slices" panel to remind user of current setting. Slices coordinates reflect MNI space (e.g. left side of brain is negative regardless of viewing convention). Rendering view not influenced: radiological view assumes camera is anterior/inferior to object for coronal/sagittal views while neurological assumes camera is posterior/superior.
+ - Preference window allows user to select between fonts installed in the LUT folder, and create their own fonts using [Hiero](https://github.com/libgdx/libgdx/wiki/Distance-field-fonts).
+
 
 24-June-2017
  - [Smooth](https://github.com/neurolabusc/OpenGLCoreTutorials) numbers in colorbars
