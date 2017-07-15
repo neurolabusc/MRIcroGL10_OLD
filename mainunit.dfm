@@ -1411,6 +1411,12 @@ object GLForm1: TGLForm1
         ShortCut = 83
         OnClick = OrientMenuClick
       end
+      object RadiologicalMenu: TMenuItem
+        AutoCheck = True
+        Caption = 'Radiological (FlipLR)'
+        GroupIndex = 212
+        OnClick = RadiologicalMenuClick
+      end
     end
     object View1: TMenuItem
       Caption = 'View'

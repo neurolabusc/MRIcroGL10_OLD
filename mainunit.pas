@@ -51,7 +51,6 @@ TGLForm1 = class(TForm)
     InterpolateAxialMenu: TMenuItem;
     InterpolateCoronalMenu: TMenuItem;
     InterpolateSagittalMenu: TMenuItem;
-
     ShaderPanel: TPanel;
     QualityTrack: TTrackBar;
     S10Check: TCheckBox;
@@ -156,7 +155,6 @@ TGLForm1 = class(TForm)
   MRU2: TMenuItem;
   MRU1: TMenuItem;
   StringGrid1: TStringGrid;
-
   ToolPanel: TPanel;
   ClipBox: TGroupBox;
   Label4: TLabel;
@@ -3517,6 +3515,7 @@ begin
      else begin
          gText.ChangeFontName(p, GLBox);
          gClrBar.ChangeFontName(p, GLBox);
+         GLBox.Invalidate;
      end;
 end;
 
@@ -3562,13 +3561,13 @@ begin
   bmpEdit.Parent:=PrefForm;
   //Font name
   FontCombo:=TComboBox.create(PrefForm);
+  FontCombo.Parent:=PrefForm;
   FontCombo.Left := 8;
   FontCombo.Top := 78;
   FontCombo.Width := PrefForm.Width -16;
   FontCombo.Items.Add('Default Font');
   //add fonts
   FontCombo.ItemIndex:= 0;
-
   if FindFirst(ClutDir+pathdelim+'*.fnt', faAnyFile, searchRec) = 0 then begin
     repeat
       s :=ParseFileName(ExtractFileName(searchRec.Name));
@@ -3580,8 +3579,6 @@ begin
     until (FindNext(searchRec) <> 0);
   end; //find fonts
   FindClose(searchRec);
-  //FontCombo.Items.Add('Quality: Better');
-  //QualityCombo.Items.Add('Quality: Best');
   FontCombo.Style := csDropDownList;
   FontCombo.Parent:=PrefForm;
   //Tiled Check

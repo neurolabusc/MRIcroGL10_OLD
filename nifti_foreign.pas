@@ -552,6 +552,76 @@ begin
   sList.Free;
 end;
 
+function nii_readVmr (var fname: string; var nhdr: TNIFTIhdr; var gzBytes: int64; var swapEndian: boolean): boolean;
+//http://support.brainvoyager.com/automation-aamp-development/23-file-formats/385-developer-guide-26-the-format-of-vmr-files.html
+Type
+  Tvmr_header = packed record //Next: PIC Format Header structure
+        ver, nx, ny, nz, nvol: word; //  0,4,8,12
+  end; // Tbv_header;
+  Tvmr_tail = packed record //
+  	Xoff,Yoff,Zoff,FramingCube: int16;
+	PosFlag,CoordSystem: int32;
+	X1, Y1, Z1,Xn,Yn,Zn, RXv,RYv,RZv, CXv,CYv,CZv: single;
+	nRmat, nCmat: int32;
+	Rfov, Cfov, Zthick, Zgap: single;
+	nTrans: int32;
+	LRconv, Ref: uint8;
+	vXres, vYres, vZres: single;
+	isResVerified, isTal: uint8;
+	min, mean, max: int32;
+  end;
+var
+   vhdr : Tvmr_header;
+   vtail : Tvmr_tail;
+   lHdrFile: file;
+   nvox, FSz : integer;
+begin
+  result := false;
+  {$I-}
+  AssignFile(lHdrFile, fname);
+  FileMode := 0;  //Set file access to read only
+  Reset(lHdrFile, 1);
+  {$I+}
+  if ioresult <> 0 then begin
+        NSLog('Error in reading vmr header.'+inttostr(IOResult));
+        FileMode := 2;
+        exit;
+  end;
+  FSz := Filesize(lHdrFile);
+  BlockRead(lHdrFile, vhdr, sizeof(Tvmr_header));
+  nVox := vhdr.nx * vhdr.ny * vhdr.nz * vhdr.nvol * 4; //*4 as 32-bpp
+  if (vhdr.ver < 3) or (vhdr.ver > 255) or ((nVox + sizeof(Tvmr_header)+ sizeof(Tvmr_tail) ) > FSz) then begin //docs do not specify endian - wrong endian?
+     CloseFile(lHdrFile);
+     exit;
+  end;
+  seek(lHdrFile, nVox + sizeof(Tvmr_header));
+  BlockRead(lHdrFile, vtail, sizeof(Tvmr_tail));
+  CloseFile(lHdrFile);
+  swapEndian := false;
+  nhdr.dim[0]:=3;//3D
+  nhdr.dim[1]:=vhdr.nx;
+  nhdr.dim[2]:=vhdr.ny;
+  nhdr.dim[3]:=vhdr.nz;
+  nhdr.dim[4]:=1;
+  nhdr.pixdim[1]:=1.0;
+  nhdr.pixdim[2]:=1.0;
+  nhdr.pixdim[3]:=1.0;
+  //Need examples
+  //if vtail.isResVerified > 0 then begin
+  //  showmessage(format('%g %g %g',[vtail.X1, vtail.Y1, vtail.Z1]));
+  //end;
+  nhdr.datatype := kDT_UNSIGNED_CHAR;
+  nhdr.vox_offset := sizeof(Tvmr_header);
+  nhdr.sform_code := 1;
+  nhdr.srow_x[0]:=nhdr.pixdim[1];nhdr.srow_x[1]:=0.0;nhdr.srow_x[2]:=0.0;nhdr.srow_x[3]:=0.0;
+  nhdr.srow_y[0]:=0.0;nhdr.srow_y[1]:=nhdr.pixdim[2];nhdr.srow_y[2]:=0.0;nhdr.srow_y[3]:=0.0;
+  nhdr.srow_z[0]:=0.0;nhdr.srow_z[1]:=0.0;nhdr.srow_z[2]:=-nhdr.pixdim[3];nhdr.srow_z[3]:=0.0;
+  convertForeignToNifti(nhdr);
+  //nhdr.scl_inter:= 1;
+  //nhdr.scl_slope := -1;
+  result := true;
+end; //nii_readVmr()
+
 function nii_readBVox (var fname: string; var nhdr: TNIFTIhdr; var gzBytes: int64; var swapEndian: boolean): boolean;
 //http://pythology.blogspot.com/2014/08/you-can-do-cool-stuff-with-manual.html
 Type
@@ -2101,6 +2171,8 @@ begin
      result := nii_readDeltaVision(lFilename, lHdr, gzBytes, swapEndian)
   else if (lExt = '.V') then
        result := nii_readEcat(lFilename, lHdr, gzBytes, swapEndian)
+  else if (lExt = '.VMR') then
+       result := nii_readVmr(lFilename, lHdr, gzBytes, swapEndian)
   else if (lExt = '.BVOX') then
        result := nii_readBVox(lFilename, lHdr, gzBytes, swapEndian)
   else if (lExt = '.GIPL') then
