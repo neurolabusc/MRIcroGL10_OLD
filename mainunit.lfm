@@ -1,5 +1,5 @@
 object GLForm1: TGLForm1
-  Left = 248
+  Left = 517
   Height = 855
   Top = 23
   Width = 1032
@@ -1775,7 +1775,7 @@ object GLForm1: TGLForm1
           RadioItem = True
           OnClick = ClrbarMenuClick
         end
-        object WhiteTransMenu: TMenuItem
+        object TransWhiteClrbarMenu: TMenuItem
           Tag = 2
           Caption = 'Translucent White'
           GroupIndex = 193

@@ -59,9 +59,11 @@ type
     procedure SetLUT(index: integer; LUT: TLUT; min,max: single);
     procedure ForceRedraw();
     {$IFDEF FPC}
-    constructor Create(Ctx: TOpenGLControl);
+    procedure ChangeFontName(fntname: string; Ctx: TOpenGLControl);
+    constructor Create(fntname: string; Ctx: TOpenGLControl);
     {$ELSE}
-    constructor Create(Ctx: TGLPanel);
+    procedure ChangeFontName(fntname: string; Ctx: TGLPanel);
+    constructor Create(fntname: string; Ctx: TGLPanel);
     {$ENDIF}
    Destructor  Destroy; override;
   end;
@@ -309,9 +311,9 @@ begin
 end;*)
 
 {$IFDEF FPC}
-constructor TGLClrbar.Create(Ctx: TOpenGLControl);
+constructor TGLClrbar.Create(fntname: string; Ctx: TOpenGLControl);
 {$ELSE}
-constructor TGLClrbar.Create(Ctx: TGLPanel);
+constructor TGLClrbar.Create(fntname: string; Ctx: TGLPanel);
 {$ENDIF}
 begin
      scrnH := 0;
@@ -324,7 +326,10 @@ begin
      fisTopOrRight := false;
      isRedraw := true;
      //Txt := TGLText.Create('/Users/rorden/Documents/pas/OpenGLCoreTutorials/legacy/numbers.png', true, isText, Ctx);
-     Txt := TGLText.Create('', true, isText, Ctx);
+     if (fntname = '') or (not fileexists(fntname)) then
+        Txt := TGLText.Create('', true, isText, Ctx)
+     else
+         Txt := TGLText.Create(fntname, true, isText, Ctx);
      {$IFDEF COREGL}
      vao_point2d := 0;
      vbo_face2d := 0;
@@ -587,6 +592,16 @@ begin
      {$ENDIF}
      if isText then
         Txt.DrawText;
+end;
+
+{$IFDEF FPC}
+procedure TGLClrbar.ChangeFontName(fntname: string; Ctx: TOpenGLControl);
+{$ELSE}
+procedure TGLClrbar.ChangeFontName(fntname: string; Ctx: TGLPanel);
+{$ENDIF}
+begin
+     Txt.ChangeFontName(fntname, Ctx);
+     isRedraw := true;
 end;
 
 destructor TGLClrbar.Destroy;

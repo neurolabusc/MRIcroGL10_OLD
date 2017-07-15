@@ -36,6 +36,12 @@ Windows,{$IFDEF FPC}uscaledpi,{$ENDIF}{$ENDIF}
     {$ENDIF}
 type { TGLForm1 }
 TGLForm1 = class(TForm)
+    RadiologicalMenu: TMenuItem;
+    ClrbarMenu: TMenuItem;
+    WhiteClrbarMenu: TMenuItem;
+    TransWhiteClrbarMenu: TMenuItem;
+    BlackClrbarMenu: TMenuItem;
+    TransBlackClrbarMenu: TMenuItem;
     Label1: TLabel;
     Label2: TLabel;
     LightAziTrack: TTrackBar;
@@ -45,13 +51,7 @@ TGLForm1 = class(TForm)
     InterpolateAxialMenu: TMenuItem;
     InterpolateCoronalMenu: TMenuItem;
     InterpolateSagittalMenu: TMenuItem;
-    RadiologicalMenu: TMenuItem;
-    //VisibleClrbarMenu: TMenuItem;
-    //ClrbarSep: TMenuItem;
-    //BlackClrbarMenu: TMenuItem;
-    //TransBlackClrbarMenu: TMenuItem;
-    //WhiteTransMenu: TMenuItem;
-    //WhiteClrbarMenu: TMenuItem;
+
     ShaderPanel: TPanel;
     QualityTrack: TTrackBar;
     S10Check: TCheckBox;
@@ -171,7 +171,6 @@ TGLForm1 = class(TForm)
   MinEdit: TEdit;
   MaxEdit: TEdit;
   CutoutBox: TGroupBox;
-  WhiteTransMenu: TMenuItem;
   Xx: TLabel;
   XTrackBar: TTrackBar;
   X2TrackBar: TTrackBar;
@@ -257,11 +256,6 @@ TGLForm1 = class(TForm)
     voiDescriptives1: TMenuItem;
     VisibleClrbarMenu: TMenuItem;
     ClrbarSep: TMenuItem;
-    WhiteClrbarMenu: TMenuItem;
-    TransWhiteClrbarMenu: TMenuItem;
-    BlackClrbarMenu: TMenuItem;
-    TransBlackClrbarMenu: TMenuItem;
-    ClrbarMenu: TMenuItem;
     procedure ConvertForeign1Click(Sender: TObject);
     procedure FormChangeBounds(Sender: TObject);
     procedure InterpolateDrawMenuClick(Sender: TObject);
@@ -281,6 +275,7 @@ TGLForm1 = class(TForm)
       aRect: TRect; aState: TGridDrawState);
     procedure ThresholdMenuClick(Sender: TObject);
     procedure UpdateOverlaySpread;
+    procedure UpdateFont(initialSetup: boolean);
     procedure DemoteOrder(lRow: integer);
     procedure ReadCell (ACol,ARow: integer; Update: boolean);
     procedure RecompileShader(oldQ, newQ: integer);
@@ -1661,7 +1656,6 @@ procedure TGLForm1.ResetSliders;
 begin
   //make sure we are not showing cutout when we load a new image... otherwise gradient might be cut
   //SetShader(ShaderDir+pathdelim+ShaderDrop.Items[0]);
-
   ShaderDrop.ItemIndex := 0;
   ShaderDropChange(nil);
  GLForm1.Closeoverlays1Click(nil);
@@ -2935,8 +2929,7 @@ begin
     AutoDetectVOI;
     gCube := TGLCube.Create(GLBox);
     gCube.TopLeft:= true;
-    gText := TGLText.Create('',true,OK,GLBox);
-    gClrbar:= TGLClrbar.Create(GLBox);
+    UpdateFont(true);
     SetColorbarPosition;
 (*    ClrbarClr(gPrefs.ColorbarColor);
       for i := 0 to 255 do begin
@@ -3505,6 +3498,28 @@ begin
     //Cursor := crDefault;
 end;
 
+
+procedure TGLForm1.UpdateFont(initialSetup: boolean);
+var
+  p,f: string;
+  OK: boolean;
+begin
+     p := (ClutDir+pathdelim+gPrefs.FontName+'.png');
+     f := (ClutDir+pathdelim+gPrefs.FontName+'.fnt');
+     if (gPrefs.FontName = '') or (not fileexists(p)) or (not fileexists(f)) then begin
+       gPrefs.FontName := '';
+       p := '';
+     end;
+     if initialSetup then begin
+       gClrbar:= TGLClrbar.Create(p, GLBox);
+       gText := TGLText.Create(p,true,OK,GLBox);
+     end
+     else begin
+         gText.ChangeFontName(p, GLBox);
+         gClrBar.ChangeFontName(p, GLBox);
+     end;
+end;
+
 procedure PrefMenuClick;
 var
   PrefForm: TForm;
@@ -3513,7 +3528,10 @@ var
   {$IFDEF LCLCocoa} RetinaCheck,{$ENDIF} flipCheck: TCheckBox;
   OkBtn, AdvancedBtn: TButton;
   bmpLabel: TLabel;
-  isFlipChange,isAdvancedPrefs  {$IFDEF LCLCocoa}, isRetinaChanged {$ENDIF}: boolean;
+  searchRec: TSearchRec;
+  s: string;
+  FontCombo : TComboBox;
+  isFontChanged, isFlipChanged,isAdvancedPrefs  {$IFDEF LCLCocoa}, isRetinaChanged {$ENDIF}: boolean;
 begin
   PrefForm:=TForm.Create(nil);
   PrefForm.SetBounds(100, 100, 520, 212);
@@ -3542,13 +3560,37 @@ begin
   bmpEdit.Width := 60;
   bmpEdit.Text := inttostr(gPrefs.BitmapZoom);
   bmpEdit.Parent:=PrefForm;
+  //Font name
+  FontCombo:=TComboBox.create(PrefForm);
+  FontCombo.Left := 8;
+  FontCombo.Top := 78;
+  FontCombo.Width := PrefForm.Width -16;
+  FontCombo.Items.Add('Default Font');
+  //add fonts
+  FontCombo.ItemIndex:= 0;
+
+  if FindFirst(ClutDir+pathdelim+'*.fnt', faAnyFile, searchRec) = 0 then begin
+    repeat
+      s :=ParseFileName(ExtractFileName(searchRec.Name));
+      if (length(s) > 1) and (s[1] <> '.') and (fileexists(ClutDir+pathdelim+s+'.png')) then begin
+         FontCombo.Items.Add(s);
+         if (s = gPrefs.FontName) then
+            FontCombo.ItemIndex := FontCombo.Items.Count-1;
+      end;
+    until (FindNext(searchRec) <> 0);
+  end; //find fonts
+  FindClose(searchRec);
+  //FontCombo.Items.Add('Quality: Better');
+  //QualityCombo.Items.Add('Quality: Best');
+  FontCombo.Style := csDropDownList;
+  FontCombo.Parent:=PrefForm;
   //Tiled Check
   {$IFDEF FPC}
   TiledCheck:=TCheckBox.create(PrefForm);
   TiledCheck.Checked := gPrefs.isTiledScreenShot;
   TiledCheck.Caption:='Tiled bitmaps (more compatible)';
   TiledCheck.Left := 8;
-  TiledCheck.Top := 78;
+  TiledCheck.Top := 108;
   TiledCheck.Parent:=PrefForm;
   {$ENDIF}
   //Retina Check
@@ -3557,7 +3599,7 @@ begin
   RetinaCheck.Checked := gPrefs.RetinaDisplay;
   RetinaCheck.Caption:='Retina display (better but slower)';
   RetinaCheck.Left := 8;
-  RetinaCheck.Top := 108;
+  RetinaCheck.Top := 138;
   RetinaCheck.Parent:=PrefForm;
   {$ENDIF}
   //OK button
@@ -3565,7 +3607,7 @@ begin
   OkBtn.Caption:='OK';
   OkBtn.Left := PrefForm.Width - 128;
   OkBtn.Width:= 100;
-  OkBtn.Top := 138;
+  OkBtn.Top := 168;
   OkBtn.Parent:=PrefForm;
   OkBtn.ModalResult:= mrOK;
   //Advanced button
@@ -3573,13 +3615,13 @@ begin
   AdvancedBtn.Caption:='Advanced';
   AdvancedBtn.Left := PrefForm.Width - 256;
   AdvancedBtn.Width:= 100;
-  AdvancedBtn.Top := 138;
+  AdvancedBtn.Top := 168;
   AdvancedBtn.Parent:=PrefForm;
   AdvancedBtn.ModalResult:= mrYesToAll;
   {$IFDEF Windows} ScaleDPI(PrefForm, 96);  {$ENDIF}
   PrefForm.ShowModal;
   if (PrefForm.ModalResult <> mrOK) and (PrefForm.ModalResult <> mrYesToAll) then exit; //if user closes window with out pressing "OK"
-  isFlipChange := (gPrefs.FlipYZ <> FlipCheck.Checked);
+  isFlipChanged := (gPrefs.FlipYZ <> FlipCheck.Checked);
   gPrefs.FlipYZ:= FlipCheck.Checked;
   gPrefs.BitmapZoom:= strtointdef(bmpEdit.Text,1);
   if gPrefs.BitmapZoom < 1 then gPrefs.BitmapZoom := 1;
@@ -3592,11 +3634,20 @@ begin
   isRetinaChanged := gPrefs.RetinaDisplay <> RetinaCheck.Checked;
   gPrefs.RetinaDisplay := RetinaCheck.Checked;
   {$ENDIF}
+  s := '';
+  if FontCombo.ItemIndex > 0 then
+     s := FontCombo.Items[FontCombo.ItemIndex];
+  isFontChanged := (s <> gPrefs.FontName);
+  gPrefs.FontName := s;
   FreeAndNil(PrefForm);
-  if  isAdvancedPrefs then
-     GLForm1.Quit2TextEditor
-  else if isFlipChange then
+  if  isAdvancedPrefs then begin
+     GLForm1.Quit2TextEditor;
+     exit;
+  end;
+  if isFlipChanged then
        GLForm1.OpenMRU(nil);
+  if isFontChanged then
+       GLForm1.UpdateFont(false);
   {$IFDEF LCLCocoa}
   if isRetinaChanged then begin
      GLForm1.SetRetina;

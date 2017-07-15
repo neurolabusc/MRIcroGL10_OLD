@@ -57,9 +57,11 @@ type
     procedure TextColor(red,green,blue: byte);
     procedure DrawText;
     {$IFDEF FPC}
-    constructor Create(fnm : string; superSample: boolean; out success: boolean; Ctx: TOpenGLControl); //overlod;
+    procedure ChangeFontName(fntname: string; Ctx: TOpenGLControl);
+    constructor Create(fntname : string; superSample: boolean; out success: boolean; Ctx: TOpenGLControl); //overlod;
     {$ELSE}
-    constructor Create(fnm : string; superSample: boolean; out success: boolean; Ctx: TGLPanel); //overlod;
+    procedure ChangeFontName(fntname: string; Ctx: TGLPanel);
+    constructor Create(fntname : string; superSample: boolean; out success: boolean; Ctx: TGLPanel); //overlod;
     {$ENDIF}
     Destructor  Destroy; override;
   end;
@@ -582,10 +584,9 @@ begin
 end;
 
 {$IFDEF FPC}
-constructor TGLText.Create(fnm: string; superSample: boolean; out success: boolean; Ctx: TOpenGLControl);
+constructor TGLText.Create(fntname: string; superSample: boolean; out success: boolean; Ctx: TOpenGLControl);
 {$ELSE}
-constructor TGLText.Create(fnm: string; superSample: boolean; out success: boolean; Ctx: TGLPanel);
-
+constructor TGLText.Create(fntname: string; superSample: boolean; out success: boolean; Ctx: TGLPanel);
 {$ENDIF}
 begin
   success := true;
@@ -612,8 +613,8 @@ begin
   else
       shaderProgram :=  initVertFrag(kVert, kFrag);
   if shaderProgram = 0 then success := false;
-  if not LoadTex(fnm) then success := false;
-  if not LoadMetrics(fnm) then success := false;
+  if not LoadTex(fntname) then success := false;
+  if not LoadMetrics(fntname) then success := false;
   uniform_clr := glGetUniformLocation(shaderProgram, pAnsiChar('clr'));
   uniform_tex := glGetUniformLocation(shaderProgram, pAnsiChar('tex'));
   {$IFDEF COREGL}LoadBufferData;{$ENDIF}
@@ -652,6 +653,19 @@ destructor TGLText.Destroy;
 begin
   //call the parent destructor:
   inherited;
+end;
+
+{$IFDEF FPC}
+procedure TGLText.ChangeFontName(fntname: string; Ctx: TOpenGLControl);
+{$ELSE}
+procedure TGLText.ChangeFontName(fntname: string; Ctx: TGLPanel);
+{$ENDIF}
+begin
+  Ctx.MakeCurrent();
+  glDeleteTextures(1, @tex);
+   LoadTex(fntname);
+   LoadMetrics(fntname);
+   Ctx.ReleaseContext;
 end;
 
 initialization

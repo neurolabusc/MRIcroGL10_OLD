@@ -27,7 +27,7 @@ type
          CLUTWindowColor,CLUTIntensityColor: TColor;
          GridAndBorder,BackColor,TextColor,TextBorder,CrosshairColor,HistogramColor,HistogramBack: TGLRGBQuad;
          //ColorBarPos: TUnitRect;
-         InitScript: string;
+         InitScript, FontName: string;
          PrevFilename,PrevScriptName: TMRU;
   end;
 function IniFile(lRead: boolean; lFilename: string; var lPrefs: TPrefs): boolean;
@@ -174,6 +174,7 @@ begin
             NoveauWarning := true;
             FlipYZ := false;
             FlipLR := false;
+            FontName := '';//default
             ThresholdDetection := true;
             isTiledScreenShot := true;
             {$IFDEF Darwin} isDoubleBuffer := false; {$ENDIF}
@@ -270,7 +271,20 @@ begin
     lIniFile.WriteString('STR',lIdent,lValue);
     exit;
   end;
-	lValue := lIniFile.ReadString('STR',lIdent, '');
+  lValue := lIniFile.ReadString('STR',lIdent, '');
+end; //IniStr
+
+procedure IniStrX(lRead: boolean; lIniFile: TIniFile; lIdent: string; var lValue: string);
+//read or write a string value to the initialization file
+begin
+  if not lRead then begin
+    if lValue = '' then lValue := '_';
+    lIniFile.WriteString('STR',lIdent,lValue);
+    exit;
+  end;
+  lValue := lIniFile.ReadString('STR',lIdent, '');
+  if lValue = '_' then
+     lValue := '';
 end; //IniStr
 
 procedure IniUnitRect(lRead: boolean; lIniFile: TIniFile; lIdent: string; var lValue: TUnitRect);
@@ -469,6 +483,7 @@ begin
 //  IniRGBA(lRead,lIniFile, 'ColorBarBorder'+inttostr(lI),lPrefs.ColorBarBorder);
   IniMRU(lRead,lIniFile,'PrevFilename',lPrefs.PrevFilename);
   IniMRU(lRead,lIniFile,'PrevScriptName',lPrefs.PrevScriptName);
+  IniStrX(lRead,lIniFile,'FontName',gPrefs.FontName);
   lIniFile.Free;
 end;
 
