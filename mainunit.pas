@@ -2630,6 +2630,7 @@ end;
    {$IFDEF LCLCarbon}str := str + ' (Carbon) '; {$ENDIF}
    {$IFDEF DGL} str := str +' (DGL) '; {$ENDIF}//the DGL library has more dependencies - report this if incompatibilities are found
   str := 'MRIcroGL '+str+' 14 July 2017'
+   {$IFDEF LCLCocoa}+kCR+' '+paramstr(0){$ENDIF}
    +kCR+' www.mricro.com :: BSD 2-Clause License (opensource.org/licenses/BSD-2-Clause)'
    +kCR+' Dimensions '+inttostr(gTexture3D.NIFTIhdr.dim[1])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[2])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[3])
    +kCR+' Bytes per voxel '+inttostr(gTexture3D.NIFTIhdr.bitpix div 8)
@@ -3510,6 +3511,9 @@ begin
      end;
      if initialSetup then begin
        gClrbar:= TGLClrbar.Create(p, GLBox);
+       if (gPrefs.ColorbarSize < 0.01) or (gPrefs.ColorbarSize > 0.3) then
+          gPrefs.ColorbarSize := gClrbar.SizeFraction;
+       gClrbar.SizeFraction := gPrefs.ColorbarSize;
        gText := TGLText.Create(p,true,OK,GLBox);
      end
      else begin
@@ -4149,6 +4153,7 @@ end;
 
 procedure TGLForm1.FormDestroy(Sender: TObject);
 begin
+ //IniFile(false,IniName,gPrefs);
 gCube.Free;
 gText.Free;
 gClrBar.Free;

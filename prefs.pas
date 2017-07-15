@@ -26,9 +26,10 @@ type
          BackgroundAlpha,OverlayAlpha,CrosshairThick,MaxVox, BitmapZoom, ColorbarColor,ColorbarPosition: integer;
          CLUTWindowColor,CLUTIntensityColor: TColor;
          GridAndBorder,BackColor,TextColor,TextBorder,CrosshairColor,HistogramColor,HistogramBack: TGLRGBQuad;
-         //ColorBarPos: TUnitRect;
+         ColorbarSize: single;
          InitScript, FontName: string;
          PrevFilename,PrevScriptName: TMRU;
+
   end;
 function IniFile(lRead: boolean; lFilename: string; var lPrefs: TPrefs): boolean;
 procedure Add2MRU (var lMRU: TMRU;  lNewFilename: string); //add new file to most-recent list
@@ -160,6 +161,7 @@ begin
   if lEverything then begin  //These values are typically not changed...
        with lPrefs do begin
             //CrossHairs := true;
+            ColorbarSize := 0.035;
             HistogramColor := RGBA(106,56,106,222);
             //HistogramGrid := RGBA(106,106,142,222);
             HistogramBack := RGBA(0,0,0,0);
@@ -278,8 +280,10 @@ procedure IniStrX(lRead: boolean; lIniFile: TIniFile; lIdent: string; var lValue
 //read or write a string value to the initialization file
 begin
   if not lRead then begin
-    if lValue = '' then lValue := '_';
-    lIniFile.WriteString('STR',lIdent,lValue);
+    if lValue = '' then
+       lIniFile.WriteString('STR',lIdent,'_')
+    else
+        lIniFile.WriteString('STR',lIdent,lValue);
     exit;
   end;
   lValue := lIniFile.ReadString('STR',lIdent, '');
@@ -484,6 +488,7 @@ begin
   IniMRU(lRead,lIniFile,'PrevFilename',lPrefs.PrevFilename);
   IniMRU(lRead,lIniFile,'PrevScriptName',lPrefs.PrevScriptName);
   IniStrX(lRead,lIniFile,'FontName',gPrefs.FontName);
+  IniFloat(lRead,lIniFile,'ColorbarSize',lPrefs.ColorbarSize);
   lIniFile.Free;
 end;
 
