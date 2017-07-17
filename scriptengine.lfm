@@ -209,6 +209,7 @@ object ScriptForm: TScriptForm
           Tag = 1
           Caption = 'colorbartext'
           Hint = 'COLORBARTEXT (VISIBLE: boolean). If set to true, then colorbars will include text that indicates intensity range.'
+          Visible = False
           OnClick = InsertCommand
         end
       end

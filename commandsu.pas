@@ -15,6 +15,7 @@ function EXISTS(lFilename: string): boolean; //function
 function OVERLAYLOAD(lFilename: string): integer; //function
 function OVERLAYLOADVOL(lFilename: string; lVol: integer): integer; //function
 function OVERLAYLOADCLUSTER(lFilename: string; lThreshold, lClusterMM3: single; lSaveToDisk: boolean): integer; //function
+procedure ADDNODE(INTENSITY, R,G,B,A: byte);
 procedure AZIMUTH (DEG: integer);
 procedure AZIMUTHELEVATION (AZI, ELEV: integer);
 procedure BACKCOLOR (R,G,B: byte);
@@ -27,7 +28,6 @@ procedure CLIPAZIMUTHELEVATION (DEPTH,AZI,ELEV: single);
 procedure CLIPFORMVISIBLE (VISIBLE: boolean);
 procedure COLORBARCOORD (L,T,R,B: single);
 procedure COLORBARPOSITION (P: integer);
-procedure ADDNODE(INTENSITY, R,G,B,A: byte);
 procedure COLORBARFORMVISIBLE (VISIBLE: boolean);
 procedure COLORBARTEXT (VISIBLE: boolean);
 procedure COLORBARVISIBLE (VISIBLE: boolean);
@@ -40,6 +40,7 @@ procedure EDGEDETECT (lThresh: single; lDilateCycles: integer);//new
 procedure EDGEENHANCE (BIAS,GAIN: byte);//new
 procedure EXTRACT(lOtsuLevels, lDilateVox: integer; lOneContiguousObject: boolean);//newer
 procedure EDGEENHANCEFORMVISIBLE (VISIBLE: boolean);
+procedure FONTNAME(name: string);
 procedure MEDIANSMOOTH;//new
 procedure DECIMATE (lPercent: integer);
 procedure ELEVATION (DEG: integer);
@@ -70,6 +71,7 @@ procedure OVERLAYLAYERTRANSPARENCYONOVERLAY(lOverlay,lPct: integer);
 procedure OVERLAYLAYERTRANSPARENCYONBACKGROUND(lOverlay,lPct: integer);
 procedure OVERLAYVISIBLE(lOverlay: integer; Visible: boolean);
 procedure PERSPECTIVE (USEPERSPECTIVE: boolean);
+procedure RADIOLOGICAL (FlipLR: boolean);
 procedure RESETDEFAULTS;
 procedure SAVEBMP(lFilename: string);
 procedure SCRIPTFORMVISIBLE (VISIBLE: boolean);
@@ -110,7 +112,7 @@ const
     (Ptr:@OVERLAYLOADCLUSTER;Decl:'OVERLAYLOADCLUSTER';Vars:'(lFilename: string; lThreshold, lClusterMM3: single; lSaveToDisk: boolean): integer'),
 
      (Ptr:@OVERLAYLOADVOL;Decl:'OVERLAYLOADVOL';Vars:'(lFilename: string; lVol: integer): integer'));
-  knProc = 80;
+  knProc = 82;
   kProcRA : array [1..knProc] of TScriptRec =
     (
       (Ptr:@AZIMUTH;Decl:'AZIMUTH';Vars:'(DEG: integer)'),
@@ -136,6 +138,7 @@ const
       (Ptr:@CUTOUTFORMVISIBLE;Decl:'CUTOUTFORMVISIBLE';Vars:'(VISIBLE: boolean)'),
       (Ptr:@EDGEDETECT;Decl:'EDGEDETECT';Vars:'(lThresh: single; lDilateCycles: integer)'),//new
       (Ptr:@EDGEENHANCE;Decl:'EDGEENHANCE';Vars:'(BIAS,GAIN: byte)'),//new
+      (Ptr:@FONTNAME;Decl:'FONTNAME';Vars:'(name: string)'),
       (Ptr:@EDGEENHANCEFORMVISIBLE;Decl:'EDGEENHANCEFORMVISIBLE';Vars:'(VISIBLE: boolean)'),
       (Ptr:@EXTRACT;Decl:'EXTRACT';Vars:'(lOtsuLevels, lDilateVox: integer;  lOneContiguousObject: boolean)'),//procedure EXTRACT(lOtsuLevels, lDilateVox: integer; lOneContiguousObject: boolean);
       (Ptr:@MEDIANSMOOTH;Decl:'MEDIANSMOOTH';Vars:''),
@@ -168,6 +171,7 @@ const
       (Ptr:@OVERLAYTRANSPARENCYONOVERLAY;Decl:'OVERLAYTRANSPARENCYONOVERLAY';Vars:'(lPct: integer)'),
       (Ptr:@OVERLAYVISIBLE;Decl:'OVERLAYVISIBLE';Vars:'(lOverlay: integer; Visible: boolean)'),
       (Ptr:@PERSPECTIVE;Decl:'PERSPECTIVE';Vars:'(USEPERSPECTIVE: boolean)'),
+      (Ptr:@RADIOLOGICAL;Decl:'RADIOLOGICAL';Vars:'(FlipLR: boolean)'),
       (Ptr:@RESETDEFAULTS;Decl:'RESETDEFAULTS';Vars:''),
       (Ptr:@SAVEBMP;Decl:'SAVEBMP';Vars:'(lFilename: string)'),
       (Ptr:@SCRIPTFORMVISIBLE;Decl:'SCRIPTFORMVISIBLE';Vars:'(VISIBLE: boolean)'),
@@ -504,8 +508,8 @@ end;
 
 procedure COLORBARTEXT (VISIBLE: boolean);
 begin
-  gPrefs.ColorBarText := VISIBLE;
-   ReRender(false);
+  ScriptForm.Memo2.Lines.Add('COLORBARTEXT no longer suppoted');   //gPrefs.ColorBarText := VISIBLE;
+  //ReRender(false);
 end;
 
 procedure COLORBARVISIBLE (VISIBLE: boolean);
@@ -584,6 +588,12 @@ begin
   //EdgeForm.visible := VISIBLE;
   ScriptForm.Memo2.Lines.Add('EDGEENHANCEFORMVISIBLE not supported in this version');
   {$ENDIF}
+end;
+
+procedure FONTNAME(name: string);
+begin
+     gPrefs.FontName:= name;
+     GLForm1.UpdateFont(false);
 end;
 
 procedure DECIMATE (lPercent: integer);
@@ -863,6 +873,12 @@ begin
 
   //GLForm1.PerspectiveMenu.checked := USEPERSPECTIVE;
   //GLForm1.PerspectiveMenuClick(nil);
+end;
+
+procedure RADIOLOGICAL (FlipLR: boolean);//lPrefs.FlipLR
+begin
+     gPrefs.FlipLR:= FlipLR;
+     GLForm1.DisplayRadiological;
 end;
 
 procedure FRAMEVISIBLE (VISIBLE: boolean);

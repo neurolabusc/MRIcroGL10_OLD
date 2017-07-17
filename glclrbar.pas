@@ -15,7 +15,7 @@ uses
     dglOpenGL, glpanel, windows,pngimage,
   {$ENDIF}
   shaderu, texture2raycast, define_types,
-  raycast_common, gltext,Classes, SysUtils, Graphics,  math, dialogs;
+  raycast_common, glmtext,Classes, SysUtils, Graphics,  math, dialogs;
 
 
 const
@@ -327,9 +327,9 @@ begin
      isRedraw := true;
      //Txt := TGLText.Create('/Users/rorden/Documents/pas/OpenGLCoreTutorials/legacy/numbers.png', true, isText, Ctx);
      if (fntname = '') or (not fileexists(fntname)) then
-        Txt := TGLText.Create('', true, isText, Ctx)
+        Txt := TGLText.Create('', isText, Ctx)
      else
-         Txt := TGLText.Create(fntname, true, isText, Ctx);
+         Txt := TGLText.Create(fntname, isText, Ctx);
      {$IFDEF COREGL}
      vao_point2d := 0;
      vbo_face2d := 0;
@@ -411,9 +411,9 @@ begin
            St := FloatToStrF(lStep, ffFixed,7,lDecimals);
            StWid := Txt.TextWidth(fntScale, St);
            if not fisVertical then
-              Txt.TextOut(lPosX-(StWid*0.5),BarTop-(BarThick*0.85),fntScale, St)
+              Txt.TextOut(lPosX-(StWid*0.5),BarTop-(BarThick*0.82),fntScale, St)
            else
-               Txt.TextOut(lPosX+(BarThick*0.85),lPosY-(StWid*0.5),fntScale,90, St)
+               Txt.TextOut(lPosX+(BarThick*0.82),lPosY-(StWid*0.5),fntScale,90, St)
         end;
         lStep := lStep + lStepSize;
   until lStep > (mx+(lStepSize*0.01));
@@ -457,7 +457,7 @@ begin
      fntScale := 0;
      if (BarThick > 9) and (isText) then begin
         txt.ClearText;
-        fntScale := (BarThick*0.6)/txt.BaseHeight;
+        fntScale := (BarThick*0.7)/txt.BaseHeight;
         Txt.TextColor(FontClr.rgbRed,FontClr.rgbGreen,FontClr.rgbBlue);//black
      end;
      {$IFDEF COREGL}

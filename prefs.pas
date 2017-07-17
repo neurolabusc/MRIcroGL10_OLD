@@ -19,7 +19,8 @@ type
          FlipLR, FlipYZ, SliceDetailsCubeAndText,ThresholdDetection,
          FormMaximized,Debug,ColorEditor,ProportionalStretch,OverlayColorFromZero,
          MaskOverlayWithBackground,  InterpolateOverlays, Perspective,FasterGradientCalculations,
-         ShowToolbar,ColorbarText,Colorbar,ForcePowerOfTwo,
+         ShowToolbar,//ColorbarText,
+         Colorbar,ForcePowerOfTwo,
          RayCastShowGLSLWarnings,RayCastViewCenteredLight,EnableYoke,
          NoveauWarning, StartupScript, RetinaDisplay : boolean;
          PlanarRGB,SliceView,DrawColor,RayCastQuality1to10,MaxStartupRayCastQuality1to10, FormWidth,FormHeight,
@@ -212,7 +213,7 @@ begin
     SliceDetailsCubeAndText := true;
     ShowToolbar := true;
     SliceView := 0;
-    ColorbarText := true;
+    //ColorbarText := true;
     //LowResolutionRendering := false;
     //RemoveDarkSpeckles := true;
     //Show2DSlicesDuringRendering := true;
@@ -419,7 +420,7 @@ begin
 	IniBool(lRead,lIniFile, 'Debug',lPrefs.Debug);
 	IniBool(lRead,lIniFile, 'FormMaximized',lPrefs.FormMaximized);
 	//IniBool(lRead,lIniFile, 'SliceText',lPrefs.SliceText);
-	IniBool(lRead,lIniFile, 'ColorBarText',lPrefs.ColorBarText);
+	//IniBool(lRead,lIniFile, 'ColorBarText',lPrefs.ColorBarText);
         IniBool(lRead,lIniFile, 'ThresholdDetection',lPrefs.ThresholdDetection);
  	IniBool(lRead,lIniFile, 'ForcePowerOfTwo',lPrefs.ForcePowerOfTwo);
 	IniBool(lRead,lIniFile, 'StartScript',lPrefs.StartupScript);

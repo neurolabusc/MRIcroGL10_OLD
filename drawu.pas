@@ -495,8 +495,6 @@ begin
      if gDraw.prevOrient <> Orient then //reset: e.g. we can not interpolate slices between coronal and axial orientations
         gDraw.prevSlice := gDraw.currSlice;
      gDraw.prevOrient := Orient;
-     GLForm1.Caption := format('%d %d',[random(888),gDraw.currSlice]);
-
      //2D info
      nPix := gDraw.dim2d[1] * gDraw.dim2d[2]; //dim[3] = number of pixels
      if (nPix < 1) then exit;

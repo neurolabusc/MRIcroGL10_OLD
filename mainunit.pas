@@ -21,11 +21,11 @@ types,clipbrd,
 {$IFNDEF FPC}
   messages,ShellAPI, detectmsaa,{$IFDEF PNG}pngimage, JPEG,{$ENDIF}
 {$ENDIF}Dialogs, ExtCtrls, Menus,  shaderu, texture2raycast,
-  StdCtrls, Controls, ComCtrls, Reslice, glcube,glclrbar,gltext,
+  StdCtrls, Controls, ComCtrls, Reslice, glcube,glclrbar,
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unit_transfertexture, {$ELSE} texture_3d_unit,extract,{$ENDIF}
   {$IFDEF FPC} FileUtil, GraphType, LCLProc,LCLtype,  LCLIntf,LResources,OpenGLContext,{$ELSE}glpanel, {$ENDIF}
 {$IFDEF UNIX}Process,  {$ELSE}//ShellApi,
-Windows,{$IFDEF FPC}uscaledpi,{$ENDIF}{$ENDIF}
+Windows,{$IFDEF FPC}uscaledpi,{$ENDIF}{$ENDIF} glmtext,
   Graphics, Classes, SysUtils, Forms, Buttons, Spin, Grids, clut, define_types,
   histogram2d, readint, {$IFDEF COREGL} raycast_core, {$ELSE} raycast_legacy, {$ENDIF} raycast_common, histogram, nifti_hdr, shaderui,
   prefs, userdir, slices2d,  autoroi, fsl_calls, drawU, dcm2nii, lut,
@@ -984,7 +984,6 @@ begin
   FreeMem(p);
   GLbox.ReleaseContext;
   gRayCast.ScreenCapture := false;
-
   if (prevQ <> 10) then begin
      gPrefs.RayCastQuality1to10 := prevQ;
      GLForm1.recompileShader(10, gPrefs.RayCastQuality1to10);
@@ -3504,7 +3503,7 @@ var
   OK: boolean;
 begin
      p := (ClutDir+pathdelim+gPrefs.FontName+'.png');
-     f := (ClutDir+pathdelim+gPrefs.FontName+'.fnt');
+     f := (ClutDir+pathdelim+gPrefs.FontName+'.json');
      if (gPrefs.FontName = '') or (not fileexists(p)) or (not fileexists(f)) then begin
        gPrefs.FontName := '';
        p := '';
@@ -3514,7 +3513,7 @@ begin
        if (gPrefs.ColorbarSize < 0.01) or (gPrefs.ColorbarSize > 0.3) then
           gPrefs.ColorbarSize := gClrbar.SizeFraction;
        gClrbar.SizeFraction := gPrefs.ColorbarSize;
-       gText := TGLText.Create(p,true,OK,GLBox);
+       gText := TGLText.Create(p,OK,GLBox);
      end
      else begin
          gText.ChangeFontName(p, GLBox);
@@ -3572,7 +3571,7 @@ begin
   FontCombo.Items.Add('Default Font');
   //add fonts
   FontCombo.ItemIndex:= 0;
-  if FindFirst(ClutDir+pathdelim+'*.fnt', faAnyFile, searchRec) = 0 then begin
+  if FindFirst(ClutDir+pathdelim+'*.json', faAnyFile, searchRec) = 0 then begin
     repeat
       s :=ParseFileName(ExtractFileName(searchRec.Name));
       if (length(s) > 1) and (s[1] <> '.') and (fileexists(ClutDir+pathdelim+s+'.png')) then begin

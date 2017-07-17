@@ -208,7 +208,7 @@ if TargetOS='darwin' then
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="60">
+    <Units Count="61">
       <Unit0>
         <Filename Value="simplelaz.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -226,8 +226,8 @@ if TargetOS='darwin' then
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="3503"/>
-        <CursorPos X="8" Y="3516"/>
+        <TopLine Value="3495"/>
+        <CursorPos X="52" Y="3506"/>
         <UsageCount Value="207"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -242,7 +242,7 @@ if TargetOS='darwin' then
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="489"/>
-        <CursorPos X="12" Y="498"/>
+        <CursorPos X="55" Y="497"/>
         <UsageCount Value="207"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit2>
@@ -263,8 +263,8 @@ if TargetOS='darwin' then
         <Filename Value="commandsu.pas"/>
         <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="497"/>
-        <CursorPos Y="517"/>
+        <TopLine Value="583"/>
+        <CursorPos X="30" Y="596"/>
         <UsageCount Value="89"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit4>
@@ -308,27 +308,25 @@ if TargetOS='darwin' then
       <Unit9>
         <Filename Value="shaderui.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="11"/>
+        <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="253"/>
         <CursorPos X="15" Y="258"/>
         <UsageCount Value="224"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit9>
       <Unit10>
         <Filename Value="prefs.pas"/>
-        <EditorIndex Value="9"/>
+        <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="473"/>
-        <CursorPos X="63" Y="491"/>
+        <TopLine Value="416"/>
+        <CursorPos X="55" Y="433"/>
         <UsageCount Value="100"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit10>
       <Unit11>
         <Filename Value="shaderu.pas"/>
-        <EditorIndex Value="10"/>
+        <EditorIndex Value="4"/>
         <WindowIndex Value="1"/>
         <TopLine Value="83"/>
         <CursorPos X="44" Y="91"/>
@@ -417,10 +415,10 @@ if TargetOS='darwin' then
       <Unit21>
         <Filename Value="drawu.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="1"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="21"/>
-        <CursorPos X="18" Y="34"/>
+        <TopLine Value="119"/>
+        <CursorPos X="23" Y="129"/>
         <UsageCount Value="200"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -449,12 +447,11 @@ if TargetOS='darwin' then
       </Unit23>
       <Unit24>
         <Filename Value="nifti_foreign.pas"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="542"/>
         <CursorPos X="21" Y="562"/>
         <UsageCount Value="86"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit24>
       <Unit25>
@@ -482,12 +479,11 @@ if TargetOS='darwin' then
       </Unit26>
       <Unit27>
         <Filename Value="nifti_types.pas"/>
-        <EditorIndex Value="8"/>
+        <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="56"/>
         <CursorPos X="18" Y="59"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit27>
       <Unit28>
@@ -579,12 +575,11 @@ if TargetOS='darwin' then
       </Unit36>
       <Unit37>
         <Filename Value="raycast_legacy.pas"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="863"/>
-        <CursorPos X="5" Y="881"/>
+        <TopLine Value="833"/>
+        <CursorPos X="21" Y="849"/>
         <UsageCount Value="100"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit37>
       <Unit38>
@@ -745,30 +740,29 @@ if TargetOS='darwin' then
       </Unit54>
       <Unit55>
         <Filename Value="glcube.pas"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="368"/>
+        <TopLine Value="369"/>
         <CursorPos X="47" Y="378"/>
         <UsageCount Value="19"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit55>
       <Unit56>
         <Filename Value="gltext.pas"/>
-        <EditorIndex Value="12"/>
+        <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="656"/>
         <CursorPos X="56" Y="661"/>
         <UsageCount Value="20"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit56>
       <Unit57>
         <Filename Value="glclrbar.pas"/>
-        <EditorIndex Value="6"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="3"/>
         <WindowIndex Value="1"/>
-        <TopLine Value="596"/>
-        <CursorPos X="56" Y="602"/>
+        <TopLine Value="408"/>
+        <CursorPos X="48" Y="416"/>
         <UsageCount Value="19"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -776,143 +770,150 @@ if TargetOS='darwin' then
       <Unit58>
         <Filename Value="..\..\..\lazarus\lcl\interfaces\carbon\carbonint.pas"/>
         <UnitName Value="CarbonInt"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <TopLine Value="37"/>
-        <CursorPos X="3" Y="48"/>
+        <CursorPos X="62" Y="41"/>
         <UsageCount Value="12"/>
-        <Loaded Value="True"/>
       </Unit58>
       <Unit59>
         <Filename Value="..\..\..\..\..\usr\local\share\fpcsrc\rtl\objpas\sysutils\finah.inc"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="-1"/>
         <WindowIndex Value="1"/>
         <CursorPos X="8" Y="4"/>
         <UsageCount Value="12"/>
-        <Loaded Value="True"/>
       </Unit59>
+      <Unit60>
+        <Filename Value="glmtext.pas"/>
+        <EditorIndex Value="2"/>
+        <WindowIndex Value="1"/>
+        <TopLine Value="239"/>
+        <CursorPos X="44" Y="246"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit60>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="4155" Column="20" TopLine="4150"/>
+        <Caret Line="24" Column="58" TopLine="14"/>
       </Position1>
       <Position2>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="309" Column="26" TopLine="299"/>
+        <Caret Line="467" Column="5" TopLine="456"/>
       </Position2>
       <Position3>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="4162" Column="4" TopLine="4154"/>
+        <Caret Line="2" Column="92"/>
       </Position3>
       <Position4>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="4238" Column="41" TopLine="4220"/>
+        <Filename Value="glmtext.pas"/>
+        <Caret Line="65" Column="42" TopLine="57"/>
       </Position4>
       <Position5>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="309" Column="26" TopLine="299"/>
+        <Filename Value="glmtext.pas"/>
+        <Caret Line="68" Column="41" TopLine="57"/>
       </Position5>
       <Position6>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="4150" Column="31" TopLine="4132"/>
+        <Filename Value="glmtext.pas"/>
+        <Caret Line="76" TopLine="62"/>
       </Position6>
       <Position7>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="304" Column="44" TopLine="299"/>
+        <Filename Value="glmtext.pas"/>
+        <Caret Line="93" TopLine="78"/>
       </Position7>
       <Position8>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="1961" Column="79" TopLine="1946"/>
+        <Filename Value="glmtext.pas"/>
+        <Caret Line="123" TopLine="106"/>
       </Position8>
       <Position9>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="1964" Column="44" TopLine="1946"/>
+        <Filename Value="glmtext.pas"/>
+        <Caret Line="547" Column="45" TopLine="534"/>
       </Position9>
       <Position10>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="2633" Column="41" TopLine="2621"/>
+        <Filename Value="glmtext.pas"/>
+        <Caret Line="569" Column="3" TopLine="553"/>
       </Position10>
       <Position11>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="11" Column="2"/>
+        <Filename Value="glclrbar.pas"/>
+        <Caret Line="332" Column="40" TopLine="322"/>
       </Position11>
       <Position12>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="2713" TopLine="2711"/>
+        <Filename Value="glmtext.pas"/>
+        <Caret Line="90" Column="30" TopLine="89"/>
       </Position12>
       <Position13>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="4153" TopLine="4150"/>
+        <Filename Value="glmtext.pas"/>
+        <Caret Line="247" Column="8" TopLine="239"/>
       </Position13>
       <Position14>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="3120" Column="4" TopLine="3108"/>
+        <Filename Value="glmtext.pas"/>
+        <Caret Line="261" Column="63" TopLine="243"/>
       </Position14>
       <Position15>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="4166" Column="16" TopLine="4162"/>
+        <Filename Value="glmtext.pas"/>
+        <Caret Line="269" Column="20" TopLine="248"/>
       </Position15>
       <Position16>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="309" Column="21" TopLine="299"/>
+        <Filename Value="glmtext.pas"/>
+        <Caret Line="273" Column="37" TopLine="252"/>
       </Position16>
       <Position17>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="4151" Column="29" TopLine="4137"/>
+        <Filename Value="glmtext.pas"/>
+        <Caret Line="293" Column="27" TopLine="272"/>
       </Position17>
       <Position18>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="4153" Column="18" TopLine="4137"/>
+        <Filename Value="glmtext.pas"/>
+        <Caret Line="305" Column="11" TopLine="284"/>
       </Position18>
       <Position19>
-        <Filename Value="prefs.pas"/>
-        <Caret Line="180" Column="75" TopLine="178"/>
+        <Filename Value="glmtext.pas"/>
+        <Caret Line="307" Column="39" TopLine="287"/>
       </Position19>
       <Position20>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="3115" TopLine="3113"/>
+        <Filename Value="glmtext.pas"/>
+        <Caret Line="330" Column="7" TopLine="309"/>
       </Position20>
       <Position21>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="4150" Column="15" TopLine="4133"/>
+        <Filename Value="glmtext.pas"/>
+        <Caret Line="334" Column="11" TopLine="314"/>
       </Position21>
       <Position22>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="4153" Column="16" TopLine="4135"/>
+        <Filename Value="glmtext.pas"/>
+        <Caret Line="336" Column="49" TopLine="316"/>
       </Position22>
       <Position23>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="3113" Column="53" TopLine="3105"/>
+        <Filename Value="glmtext.pas"/>
+        <Caret Line="549" Column="49" TopLine="530"/>
       </Position23>
       <Position24>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="3120" Column="9" TopLine="3105"/>
+        <Caret Line="3516" Column="34" TopLine="3506"/>
       </Position24>
       <Position25>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="3683" Column="10" TopLine="3665"/>
+        <Caret Line="3574" Column="41" TopLine="3561"/>
       </Position25>
       <Position26>
-        <Filename Value="prefs.pas"/>
-        <Caret Line="15" Column="42" TopLine="10"/>
+        <Filename Value="glclrbar.pas"/>
+        <Caret Line="323" Column="64" TopLine="322"/>
       </Position26>
       <Position27>
-        <Filename Value="prefs.pas"/>
-        <Caret Line="30" Column="10" TopLine="19"/>
+        <Filename Value="glmtext.pas"/>
+        <Caret Line="4" Column="55"/>
       </Position27>
       <Position28>
-        <Filename Value="prefs.pas"/>
-        <Caret Line="40" Column="56" TopLine="22"/>
+        <Filename Value="glmtext.pas"/>
+        <Caret Line="3" Column="14"/>
       </Position28>
       <Position29>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="4138" Column="65" TopLine="4136"/>
+        <Filename Value="glmtext.pas"/>
+        <Caret Line="90" Column="24" TopLine="84"/>
       </Position29>
       <Position30>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="3516" Column="8" TopLine="3503"/>
+        <Filename Value="glclrbar.pas"/>
+        <Caret Line="413" Column="25"/>
       </Position30>
     </JumpHistory>
   </ProjectOptions>
