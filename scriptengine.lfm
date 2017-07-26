@@ -6,27 +6,28 @@ object ScriptForm: TScriptForm
   Width = 387
   ActiveControl = Memo1
   Caption = 'ScriptForm'
-  ClientHeight = 375
+  ClientHeight = 350
   ClientWidth = 387
+  DesignTimePPI = 120
   Menu = ScriptMenu1
   OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDeactivate = FormDeactivate
   Position = poScreenCenter
-  LCLVersion = '1.9.0.0'
+  LCLVersion = '1.8.0.3'
   object Splitter1: TSplitter
     Cursor = crVSplit
     Left = 0
     Height = 3
-    Top = 296
+    Top = 271
     Width = 387
     Align = alBottom
     ResizeAnchor = akBottom
   end
   object Memo1: TMemo
     Left = 0
-    Height = 296
+    Height = 271
     Top = 0
     Width = 387
     Align = alClient
@@ -42,7 +43,7 @@ object ScriptForm: TScriptForm
   object Memo2: TMemo
     Left = 0
     Height = 76
-    Top = 299
+    Top = 274
     Width = 387
     Align = alBottom
     ParentFont = False
@@ -404,6 +405,12 @@ object ScriptForm: TScriptForm
           Tag = 36
           Caption = 'xbarcolor'
           Hint = 'XBARCOLOR (R,G,B: byte) Changes the color for the crosshairs shown on 2D slices. For example XBARCOLOR(255, 0, 0) will show red crosshairs.'
+          OnClick = InsertCommand
+        end
+        object radiological1: TMenuItem
+          Tag = 1
+          Caption = 'radiological'
+          Hint = 'RADIOLOGICAL (VISIBLE: boolean) If true, the 2D slices displayed in radiological convention (left on right: camera inferior/anterior to object) otherwise neurological (superior/posterior)'
           OnClick = InsertCommand
         end
       end

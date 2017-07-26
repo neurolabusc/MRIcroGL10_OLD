@@ -2892,10 +2892,10 @@ begin
 end;
 
 procedure TGLForm1.GLboxPaint(Sender: TObject);
-var
-  OK: boolean;
-  i: integer;
-  LUT: TLUT;
+//var
+//  OK: boolean;
+//  i: integer;
+//  LUT: TLUT;
 begin
 
   if (gRendering) or (gRayCast.ScreenCapture) then exit;
@@ -3242,9 +3242,9 @@ end;
 procedure TGLForm1.MinMaxEditKeyPress(Sender: TObject; var Key: Char);
 const
   AllowDec = true; FAllowNeg = true;
-var
+//var
   //p : integer;
-  s: string;
+  //s: string;
 begin
  case Key of
   '-','0'..'9'  : ;

@@ -878,7 +878,9 @@ end;
 procedure RADIOLOGICAL (FlipLR: boolean);//lPrefs.FlipLR
 begin
      gPrefs.FlipLR:= FlipLR;
+     GLForm1.RadiologicalMenu.Checked := gPrefs.FlipLR;
      GLForm1.DisplayRadiological;
+  ReRender(false);
 end;
 
 procedure FRAMEVISIBLE (VISIBLE: boolean);

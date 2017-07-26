@@ -19,8 +19,8 @@ cd ~/Documents/pas/MRIcroGL/
 #compile MRIcroGL64
 # /Users/rorden/lazarus/lazbuild ./simplelaz.lpr --cpu=x86_64 --ws=cocoa --compiler="/usr/local/bin/ppcx64"
 #Current FPC 3.0.0 can not compile on OSX 10.11 El Capitan, so use 3.1.1
-/Users/rorden/lazarus/lazbuild ./simplelaz.lpr --cpu=x86_64 --ws=cocoa --compiler="/usr/local/lib/fpc/3.1.1/ppcx64"
-# lazbuild ./simplelaz.lpr --cpu=x86_64 --ws=cocoa
+#/Users/rorden/lazarus/lazbuild ./simplelaz.lpr --cpu=x86_64 --ws=cocoa --compiler="/usr/local/lib/fpc/3.1.1/ppcx64"
+lazbuild ./simplelaz.lpr --cpu=x86_64 --ws=cocoa
 # lazbuild ./simplelaz.lpr --cpu=x86_64 --ws=cocoa --compiler="/usr/local/lib/fpc/3.0.0/ppcx64"
 
 

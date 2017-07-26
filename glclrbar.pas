@@ -70,6 +70,7 @@ type
   //{$IFNDEF COREGL}var GLErrorStr : string = '';{$ENDIF}
 
 implementation
+uses mainunit;
 
 {$IFDEF COREGL}
 type
@@ -343,11 +344,71 @@ begin
      {$ENDIF}
 end;
 
+function fRemainder(const a,b:double):double;
+begin
+  result := a-b * Int(a/b);
+  if (result > (0.5 * b)) then result := b - result;
+
+end;
+
+type
+  TTicks = record
+    stepSize, remainder: single;
+    decimals: integer;
+  end;
+
+  function decimals(v: double): integer;
+  var
+    f: double;
+  begin
+    result := 0;
+    f := frac(v);
+    while (f > 0.001) and (f < 0.999) do begin
+          //Form1.memo1.lines.Add(format('%g',[v]));
+          v := v * 10;
+          result := result + 1;
+          f := frac(v);
+    end;
+  end;
+
+function setStepSize(lRange: double; lDesiredSteps: integer): TTicks;
+var
+   lPower: integer;
+begin
+  result.stepSize := lRange / lDesiredSteps;
+  lPower := 0;
+  while result.stepSize >= 10 do begin
+        result.stepSize := result.stepSize/10;
+        inc(lPower);
+  end;
+  while result.stepSize < 1 do begin
+       result.stepSize := result.stepSize * 10;
+       dec(lPower);
+  end;
+  if lPower < 0 then
+        result.decimals := abs(lPower)
+  else
+        result.decimals := 0;
+  result.stepSize := round(result.stepSize) * Power(10,lPower);
+  result.remainder := fRemainder(lRange, result.stepSize);
+  if result.remainder < (0.001* result.stepSize) then
+     result.remainder := 0;
+end;
+
+function setStepSizeForce(lRange: double; lDesiredSteps: integer): TTicks;
+begin
+  result.stepSize := lRange / lDesiredSteps;
+  result.decimals := decimals(result.stepSize);
+  result.remainder := fRemainder(lRange, result.stepSize);
+  if result.remainder < (0.001* result.stepSize) then
+     result.remainder := 0;
+end;
+
 procedure TGLClrbar.CreateTicksText(mn,mx: single; BarLength, BarTop, BarThick, fntScale: single);
 var
-  lStep,lRange, t, lStepSize, MarkerSzX,MarkerSzY, lPosX, lPosY, StWid: single;
-  lDecimals, lDesiredSteps, lPower: integer;
+  lStep,lRange, t, MarkerSzX,MarkerSzY, lPosX, lPosY, StWid: double;
   isInvert: boolean;
+  tic, ticAlt: TTicks;
   St: string;
 begin
   if (mx = mn) or (BarThick = 0) or (BarLength = 0) then exit;
@@ -365,26 +426,45 @@ begin
   end else
       MarkerSzY := 1;
   //next: compute increment
-  lDesiredSteps := 4;
+  //lDesiredSteps := 4;
+
   lRange := abs(mx - mn);
+  if (mn < 0) and (mx > 0) then
+     lRange := max(abs(mn),mx);// + (0.5 * min(abs(mn),mx));
   if lRange < 0.000001 then exit;
-  lStepSize := lRange / lDesiredSteps;
-  lPower := 0;
-  while lStepSize >= 10 do begin
-  lStepSize := lStepSize/10;
-        inc(lPower);
+  //glform1.caption := inttostr(random(888))+' '+floattostr(min(abs(mn),mx) / lRange);
+  if ((mn < 0) and (mx > 0)) and ((min(abs(mn),mx)/lRange) > 0.65)  then  begin
+    tic := setStepSize(lRange, 2);
+    //now try forcing other values
+    ticAlt := setStepSizeForce(lRange, 3);
+    if (ticAlt.remainder < tic.remainder) and (ticAlt.decimals <= tic.decimals) then
+       tic := ticAlt;
+    ticAlt := setStepSizeForce(lRange, 4);
+    if (ticAlt.remainder < tic.remainder) and (ticAlt.decimals <= tic.decimals) then
+       tic := ticAlt;
+  end else begin
+       tic := setStepSize(lRange, 3);
+       //now try forcing other values
+       ticAlt := setStepSizeForce(lRange, 2);
+       if (ticAlt.remainder < tic.remainder) and (ticAlt.decimals <= tic.decimals) then
+          tic := ticAlt;
+       ticAlt := setStepSizeForce(lRange, 4);
+       if (ticAlt.remainder < tic.remainder) and (ticAlt.decimals <= tic.decimals) then
+          tic := ticAlt;
+       ticAlt := setStepSizeForce(lRange, 1);
+       if (ticAlt.remainder < tic.remainder) and (ticAlt.decimals <= tic.decimals) then
+          tic := ticAlt;
+       if (ticAlt.remainder <= tic.remainder) and (ticAlt.decimals < tic.decimals) then
+          tic := ticAlt;
   end;
-  while lStepSize < 1 do begin
-       lStepSize := lStepSize * 10;
-       dec(lPower);
-  end;
-  lStepSize := round(lStepSize) * Power(10,lPower);
-  if lPower < 0 then
-        lDecimals := abs(lPower)
+  if (mn > 0) and (decimals(mn) <= tic.decimals) then
+     lStep := mn
   else
-        lDecimals := 0;
-  lStep := trunc((mn)  / lStepSize)*lStepSize;
-  if lStep < (mn) then lStep := lStep+lStepSize;
+      lStep := trunc((mn)  / tic.stepSize)*tic.stepSize;
+  //if (rem < (lStepSize * 0.001)) then //e.g. 0.2..3.0 can be evenly spanned
+  //      lStep := mn;
+  if (lStep < (mn)) and ((mn -lStep) > (lStep * 0.001) ) then lStep := lStep+tic.stepSize;
+  lRange := abs(mx - mn); //full range, in case mn < 0 and mx > 0
   nglColor4ub (FontClr.rgbRed,FontClr.rgbGreen,FontClr.rgbBlue,255);//outline
   repeat
         if not fisVertical then begin
@@ -408,15 +488,15 @@ begin
           nglVertex2fr(lPosX+MarkerSzX,lPosY+MarkerSzY);
         nglEnd;
         if fntScale > 0 then begin
-           St := FloatToStrF(lStep, ffFixed,7,lDecimals);
+           St := FloatToStrF(lStep, ffFixed,7,tic.decimals);
            StWid := Txt.TextWidth(fntScale, St);
            if not fisVertical then
               Txt.TextOut(lPosX-(StWid*0.5),BarTop-(BarThick*0.82),fntScale, St)
            else
                Txt.TextOut(lPosX+(BarThick*0.82),lPosY-(StWid*0.5),fntScale,90, St)
         end;
-        lStep := lStep + lStepSize;
-  until lStep > (mx+(lStepSize*0.01));
+        lStep := lStep + tic.stepSize;
+  until lStep > (mx+(tic.stepSize*0.01));
 end; //CreateTicksText()
 
 procedure TGLClrbar.CreateClrbar;

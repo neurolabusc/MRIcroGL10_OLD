@@ -150,8 +150,8 @@ const
   SizeFrac = 0.035;
 //we need to compute space for a colorbar
 var
-  w,h, ratio, border: single;
-  a,b,  BGThick, nLUTs, BarThick: integer;
+  //a,b,
+  BGThick, nLUTs, BarThick: integer;
 begin
   lMosaic.ClrBarSizeFracX := 0;
   lMosaic.LeftBorder := 0; //assume no left colorbar
@@ -166,8 +166,8 @@ begin
       BarThick := round(lMosaic.MaxHt * sizeFrac);
   if BarThick < 1 then exit;
   BGThick := round(BarThick*((nLUTs * 2)+0.5));
-  a := lMosaic.MaxHt;
-  b := lMosaic.MaxWid;
+  //a := lMosaic.MaxHt;
+  //b := lMosaic.MaxWid;
   if (gPrefs.ColorBarPosition = 1) or (gPrefs.ColorBarPosition = 3) then begin//wide colorbars - pad top or bottom
      lMosaic.MaxHt := lMosaic.MaxHt + BGThick;
      if gPrefs.ColorBarPosition = 1 then

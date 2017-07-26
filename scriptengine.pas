@@ -23,6 +23,7 @@ type
 
   { TScriptForm }
   TScriptForm = class(TForm)
+    radiological1: TMenuItem;
 
     MRU10: TMenuItem;
     MRU9: TMenuItem;
@@ -127,6 +128,7 @@ type
     xbarcolor1: TMenuItem;
     xbarthick1: TMenuItem;
     overlayloadcluster1: TMenuItem;
+    //radiological1: TMenuItem;
     procedure Compile1Click(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);

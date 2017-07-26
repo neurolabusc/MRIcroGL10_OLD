@@ -72,7 +72,7 @@ type
   {$IFNDEF COREGL}var GLErrorStr : string = '';{$ENDIF}
 
 implementation
-{$IFNDEF FPC}{$R 'numbers.res'}{$ENDIF}
+{$IFNDEF FPC}{$R 'mfnt.res'}{$ENDIF}
 
 const
 {$IFDEF COREGL}
@@ -161,7 +161,12 @@ var
    pages, id, strBlockStart, strBlockEnd: integer;
    str: string;
    f: textfile;
+   {$IFDEF FPC}
    r: TLResource;
+   {$ELSE}
+   r : TResourceStream;
+   fLst: TStringList;
+   {$ENDIF}
 function GetFntVal(key: string): single;
 var
    p, pComma: integer;
@@ -188,9 +193,18 @@ begin
       fnt.M[id].xadv := 0; //critical to set: fnt format omits non-graphical characters (e.g. DEL): we skip characters whete X-advance = 0
   end;
   if fnm = '' then begin
+    {$IFDEF FPC}
     r:=LazarusResources.Find('jsn');
     if r=nil then raise Exception.Create('resource jsn is missing');
     str:=r.Value;
+    {$ELSE}
+     r := TResourceStream.Create(hInstance,'JSN',RT_RCDATA);
+     fLst := TStringList.Create;
+     fLst.LoadFromStream(r);
+     str := fLst[0];
+     fLst.Free;
+     r.free;
+    {$ENDIF}
   end else begin
     if not fileexists(fnm) then begin
        showmessage('Unable to find '+fnm);
@@ -444,6 +458,8 @@ var
   px: TPicture;
   Ptr: PByte;
   {$ELSE}
+  ra: array of byte;
+  x,y,i: integer;
   PNG: TPNGObject;
   RS : TResourceStream;
   pScanline: pngimage.pByteArray;
@@ -520,15 +536,15 @@ begin
   bmpHt := PNG.Height;
   bmpWid := PNG.Width;
   i := 0;
-  setlength(ra, bmpHt * bmpWid);
+  setlength(ra, bmpHt * bmpWid * 3);
   for y := 0 to bmpHt - 1 do begin
-      pScanline := PNG.AlphaScanline[y];
-      for x := 0 to PNG.Width - 1 do begin
+      pScanline := PNG.Scanline[y];
+      for x := 0 to (3*PNG.Width) - 1 do begin
         ra[i] :=  pScanline[x];
         i := i + 1;
       end;
   end;
-  glTexImage2D(GL_TEXTURE_2D, 0,GL_RED, bmpWid, bmpHt, 0, GL_RED, GL_UNSIGNED_BYTE, @ra[0]);
+  glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA8, bmpWid, bmpHt, 0, GL_RGB, GL_UNSIGNED_BYTE, @ra[0]);
   setlength(ra,0);
   png.free;
 {$ENDIF}

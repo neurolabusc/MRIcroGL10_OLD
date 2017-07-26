@@ -474,7 +474,7 @@ end;
 procedure voiMouseDown(Color, Orient: integer; Xfrac, Yfrac, Zfrac:  single);
 //Orient: Ax(1), Cor(2), Sag(3)
 var
-  nPix, nSlices, volOffset,i,j, k: integer;
+  nPix, nSlices, volOffset: integer;
 begin
      if (gDraw.view3d = nil) then exit;
      if ((gDraw.dim3d[1] * gDraw.dim3d[2]*gDraw.dim3d[3]) < 1) then exit;
