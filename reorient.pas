@@ -609,7 +609,7 @@ var
    lOutHdr: TNIFTIhdr;
    lResidualMat: TMatrix;
    lInMinX,lInMinY,lInMinZ,lOutMinX,lOutMinY,lOutMinZ,
-   dx, dy, dz, QFac: single;
+   dx, dy, dz: single;
    lStartX,
    lZ,lY,lX,lB,
    lOutZ,lOutY,
@@ -752,7 +752,7 @@ begin
   nifti_mat44_to_quatern( lResidualMat,
    lOutHdr.quatern_b,lOutHdr.quatern_c,lOutHdr.quatern_d,
    lOutHdr.qoffset_x,lOutHdr.qoffset_y,lOutHdr.qoffset_z,
-                             dx, dy, dz, QFac);
+                             dx, dy, dz, lOutHdr.pixdim[0]); //qfac is stored in the otherwise unused pixdim[0]
    GetMem(lBufferOut,lVolBytes);
    lOutPos := 0;
    //convert

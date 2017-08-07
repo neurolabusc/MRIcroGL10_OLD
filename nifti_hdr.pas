@@ -749,21 +749,136 @@ begin
 
 end;
 
-(*function cleanstr(str: string): string;
-const
-  //kBad = [#0..#9,#11,#12,#14..#31,#127, #255];
-  kBad = [#0..#255];
+procedure SwapNifti2(var h: TNIFTI2hdr);
 var
   i: integer;
 begin
-  result := str;
-  if length(str) < 1 then exit;
-  result := 'x';
-  for i := 1 to length(str) do
-        if str[i] in kBad then
-          result := result+ chr(0);
-  GLForm1.ShowmessageError(result);
-end; *)
+  h.HdrSz := swap(h.HdrSz);
+  h.datatype  := swap(h.datatype);
+  h.bitpix  := swap(h.bitpix);
+  for i := 0 to 7 do
+      h.dim[i]  := swap(h.dim[i]);
+  h.intent_p1  := swap64r(h.intent_p1);
+  h.intent_p2  := swap64r(h.intent_p2);
+  h.intent_p3  := swap64r(h.intent_p3);
+  for i := 0 to 7 do
+      h.pixdim[i]  := swap64r(h.pixdim[i]);
+  h.vox_offset  := swap(h.vox_offset);
+  h.scl_slope  := swap64r(h.scl_slope);
+  h.scl_inter  := swap64r(h.scl_inter);
+  h.cal_max  := swap64r(h.cal_max);
+  h.cal_min  := swap64r(h.cal_min);
+  h.slice_duration  := swap64r(h.slice_duration);
+  h.toffset  := swap64r(h.toffset);
+  h.slice_start  := swap(h.slice_start);
+  h.slice_end  := swap(h.slice_end);
+  h.qform_code  := swap(h.qform_code);
+  h.sform_code  := swap(h.sform_code);
+  h.quatern_b  := swap64r(h.quatern_b);
+  h.quatern_c  := swap64r(h.quatern_c);
+  h.quatern_d  := swap64r(h.quatern_d);
+  h.qoffset_x  := swap64r(h.qoffset_x);
+  h.qoffset_y  := swap64r(h.qoffset_y);
+  h.qoffset_z  := swap64r(h.qoffset_z);
+  for i := 0 to 3 do begin
+      h.srow_x[i]  := swap64r(h.srow_x[i]);
+      h.srow_y[i]  := swap64r(h.srow_y[i]);
+      h.srow_z[i]  := swap64r(h.srow_z[i]);
+  end;
+  h.slice_code  := swap(h.slice_code);
+  h.xyzt_units  := swap(h.xyzt_units);
+  h.intent_code  := swap(h.intent_code);
+end;
+
+function LoadNifti2(var lFilename: string; isGz: boolean): TNIFTIhdr;
+var
+  lHdr1: TNIFTIhdr;
+  lHdr2: TNIFTI2hdr;
+  i: integer;
+  lHdrFile: file;
+  lBuff: Bytep;
+begin
+  FileMode := 0;  { Set file access to read only }
+  if (isGz) then begin
+	  lBuff := @lHdr2;
+	  UnGZip(lFileName,lBuff,0,sizeof(TNIFTI2hdr));
+   end else begin
+    {$I-}
+    AssignFile(lHdrFile, lFileName);
+    FileMode := 0;  { Set file access to read only }
+    Reset(lHdrFile, 1);
+    {$I+}
+    if ioresult <> 0 then begin
+        ShowMessage('Error in reading NIFTI header.'+inttostr(IOResult));
+        FileMode := 2;
+        exit;
+    end;
+    BlockRead(lHdrFile, lHdr2, sizeof(TNIFTI2hdr));
+    CloseFile(lHdrFile);
+   end;
+   FileMode := 2;
+   //swap
+   if lHdr2.HdrSz <> sizeof(TNIFTI2hdr) then
+      SwapNifti2(lHdr2);
+   //FILL NIFTI-1 header with NIFTI-2
+   lHdr1.HdrSz := sizeof(TNIFTIhdr);
+   lHdr1.magic := kNIFTI_MAGIC_EMBEDDED_HDR;
+   lHdr1.datatype := lHdr2.datatype;
+   lHdr1.bitpix := lHdr2.bitpix;
+   for i := 0 to 7 do begin
+       if (lHdr2.dim[i] > 32767) then
+           lHdr2.dim[i] := 32767;
+       lHdr1.dim[i] := lHdr2.dim[i];
+   end;
+   lHdr1.intent_p1 := lHdr2.intent_p1;
+   lHdr1.intent_p2 := lHdr2.intent_p2;
+   lHdr1.intent_p3 := lHdr2.intent_p3;
+   for i := 0 to 7 do
+       lHdr1.pixdim[i] := lHdr2.pixdim[i];
+   lHdr1.vox_offset := lHdr2.vox_offset;
+   lHdr1.scl_slope := lHdr2.scl_slope;
+   lHdr1.scl_inter := lHdr2.scl_inter;
+   lHdr1.cal_max := lHdr2.cal_max;
+   lHdr1.cal_min := lHdr2.cal_min;
+   lHdr1.slice_duration := lHdr2.slice_duration;
+   lHdr1.toffset := lHdr2.toffset;
+   lHdr1.slice_start := lHdr2.slice_start;
+   lHdr1.slice_end := lHdr2.slice_end;
+   for i := 1 to 80 do
+       lHdr1.descrip[i] := lHdr2.descrip[i];
+   for i := 1 to 24 do
+       lHdr1.aux_file[i] := lHdr2.aux_file[i];
+   lHdr1.qform_code := lHdr2.qform_code;
+   lHdr1.sform_code := lHdr2.sform_code;
+   lHdr1.quatern_b := lHdr2.quatern_b;
+   lHdr1.quatern_c := lHdr2.quatern_c;
+   lHdr1.quatern_d := lHdr2.quatern_d;
+   lHdr1.qoffset_x := lHdr2.qoffset_x;
+   lHdr1.qoffset_y := lHdr2.qoffset_y;
+   lHdr1.qoffset_z := lHdr2.qoffset_z;
+   for i := 0 to 3 do begin
+       lHdr1.srow_x[i] := lHdr2.srow_x[i];
+       lHdr1.srow_y[i] := lHdr2.srow_y[i];
+       lHdr1.srow_z[i] := lHdr2.srow_z[i];
+   end;
+   lHdr1.slice_code := lHdr2.slice_code;
+   lHdr1.xyzt_units := lHdr2.xyzt_units;
+   lHdr1.intent_code := lHdr2.intent_code;
+   for i := 1 to 16 do
+       lHdr1.intent_name[i] := lHdr2.intent_name[i];
+   lHdr1.dim_info := lHdr2.dim_info;
+   //removed fields https://brainder.org/2015/04/03/the-nifti-2-file-format/
+   for i := 1 to 10 do
+       lHdr1.data_type[i] := chr(0);
+   for i := 1 to 16 do
+       lHdr1.db_name[i] := chr(0);
+   lHdr1.extents := 0;
+   lHdr1.session_error := 0;
+   lHdr1.regular := 'r';
+   lHdr1.glmax := 0;
+   lHdr1.glmin := 0;
+   result := lHdr1;
+end;
 
 function NIFTIhdr_LoadHdr (var lFilename: string; out lHdr: TMRIcroHdr; lFlipYZ: boolean): boolean;
 var
@@ -839,6 +954,9 @@ begin
   end else if lSwappedReportedSz = lHdrSz then begin
 	  lHdr.DiskDataNativeEndian := false;
 	  NIFTIhdr_SwapBytes (lHdr.niftiHdr);
+  end else if (lReportedSz = 540) or (lSwappedReportedSz = 540) then begin
+     lHdr.niftiHdr := LoadNifti2(lFilename, (lHdr.gzBytes <> K_gzBytes_headerAndImageUncompressed));
+     lHdr.DiskDataNativeEndian := (lReportedSz = 540);
   end else begin
           //result := NIFTIhdr_LoadDCM (lFilename,lHdr); //2/2008
           //if not result then
@@ -846,7 +964,7 @@ begin
 	  exit;
   end;
   if (lHdr.NIFTIhdr.dim[0] > 7) or (lHdr.NIFTIhdr.dim[0] < 1) then begin //only 1..7 dims, so this
-	  Showmessage('Illegal NIfTI Format Header: this header does not specify 1..7 dimensions.');
+	  Showmessage('Illegal NIfTI Format Header: this header does not specify 1..7 dimensions, but '+inttostr(lHdr.NIFTIhdr.dim[0]));
 	  exit;
   end;
   FixDataType(lHdr);

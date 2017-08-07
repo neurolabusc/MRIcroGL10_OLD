@@ -14,7 +14,7 @@ type
   TMRU =  array [1..knMRU] of string;
   TPrefs = record
          {$IFDEF Darwin}isDoubleBuffer,{$ENDIF}
-         isTiledScreenShot,
+         isTiledScreenShot,isOrientationTriangles,
          OverlayHideZeros,SkipPrefWriting,
          FlipLR, FlipYZ, SliceDetailsCubeAndText,ThresholdDetection,
          FormMaximized,Debug,ColorEditor,ProportionalStretch,OverlayColorFromZero,
@@ -180,6 +180,7 @@ begin
             FontName := '';//default
             ThresholdDetection := true;
             isTiledScreenShot := true;
+            isOrientationTriangles := false;
             {$IFDEF Darwin} isDoubleBuffer := false; {$ENDIF}
             ForcePowerOfTwo:= false;
             OverlayHideZeros := false;

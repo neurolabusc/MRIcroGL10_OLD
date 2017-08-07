@@ -6,28 +6,28 @@ object ScriptForm: TScriptForm
   Width = 387
   ActiveControl = Memo1
   Caption = 'ScriptForm'
-  ClientHeight = 350
+  ClientHeight = 375
   ClientWidth = 387
-  DesignTimePPI = 120
   Menu = ScriptMenu1
   OnActivate = FormActivate
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDeactivate = FormDeactivate
+  OnHide = FormHide
   Position = poScreenCenter
-  LCLVersion = '1.8.0.3'
+  LCLVersion = '1.9.0.0'
   object Splitter1: TSplitter
     Cursor = crVSplit
     Left = 0
     Height = 3
-    Top = 271
+    Top = 296
     Width = 387
     Align = alBottom
     ResizeAnchor = akBottom
   end
   object Memo1: TMemo
     Left = 0
-    Height = 271
+    Height = 296
     Top = 0
     Width = 387
     Align = alClient
@@ -35,20 +35,19 @@ object ScriptForm: TScriptForm
     OnClick = Memo1Click
     OnKeyUp = Memo1KeyUp
     ParentFont = False
-    ScrollBars = ssAutoBoth
+    ScrollBars = ssAutoVertical
     TabOrder = 0
-    WantTabs = True
     WordWrap = False
   end
   object Memo2: TMemo
     Left = 0
     Height = 76
-    Top = 274
+    Top = 299
     Width = 387
     Align = alBottom
     ParentFont = False
     ReadOnly = True
-    ScrollBars = ssVertical
+    ScrollBars = ssAutoVertical
     TabOrder = 1
   end
   object ScriptMenu1: TMainMenu

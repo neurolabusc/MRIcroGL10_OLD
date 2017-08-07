@@ -1474,6 +1474,11 @@ object GLForm1: TGLForm1
         Hint = 'Convert MGH, LSM,  NRRD, PIC, TIFF'
         OnClick = ConvertForeign1Click
       end
+      object ReorientMenu: TMenuItem
+        Caption = 'Rotate volume'
+        Hint = 'Reorient image to standard space'
+        OnClick = ReorientMenuClick
+      end
     end
     object Draw1: TMenuItem
       Caption = 'Draw'

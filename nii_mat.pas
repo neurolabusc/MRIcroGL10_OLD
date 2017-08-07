@@ -15,7 +15,7 @@ type
   TVector = record
       vector: array [1..4] of single;
   end;
-
+  function zero3D: TMatrix;
   function eye3D: TMatrix; //identity matrix
   procedure invertMatrix(VAR a: TMatrix);
   function invertMatrixF(VAR a: TMatrix): TMatrix;
@@ -33,6 +33,11 @@ implementation
 function eye3D: TMatrix; //identity matrix
 begin
      result := Matrix3D(1,0,0,0,  0,1,0,0,  0,0,1,0);
+end;
+
+function zero3D: TMatrix;
+begin
+     result := Matrix3D(0,0,0,0,  0,0,0,0,  0,0,0,0);
 end;
 
 function invertMatrixF(VAR a: TMatrix): TMatrix;

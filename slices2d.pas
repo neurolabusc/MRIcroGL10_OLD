@@ -947,7 +947,7 @@ end;
 
 procedure DrawOrtho(var lTex: TTexture);
 var
-  scale,X,Y,Z,Yshift, W, H:single;
+  scale,X,Y,Z,Yshift, W, H, TriPix:single;
   drawID : GLuint;
   {$IFDEF COREGL} lineWid: single;
   mat44: TnMat44;{$ENDIF}
@@ -1166,6 +1166,55 @@ begin
     else
         ShowOrthoSliceText2(0,X,Y+Z+YShift,Y+YShift);
   end;
+  if gPrefs.isOrientationTriangles then begin
+     TriPix := min(X,Y);
+     TriPix := min(TriPix,Z);
+     TriPix := round(0.15 * TriPix);
+     if TriPix < 5 then TriPix := 5;
+     if gPrefs.FlipLR then
+         glColor4ub(0,255,0,255)
+     else
+         glColor4ub(255,0,0,255);
+     glBegin(GL_TRIANGLES); //Red: left
+      glVertex3f(TriPix,-TriPix+ Y*0.5+YShift, 0);
+      glVertex3f(0, Y*0.5+YShift, 0);
+      glVertex3f(TriPix,TriPix+Y*0.5+YShift, 0);
+     glEnd;
+     if gPrefs.FlipLR then
+         glColor4ub(255,0,0,255)
+     else
+         glColor4ub(0,255,0,255);//Green: right
+     glBegin(GL_TRIANGLES); //with OpenGL Core, lines are limited to 1 pixel...
+      glVertex3f(X-TriPix,-TriPix+ Y*0.5+YShift, 0);
+      glVertex3f(X, Y*0.5+YShift, 0);
+      glVertex3f(X-TriPix,TriPix+Y*0.5+YShift, 0);
+     glEnd;
+     glColor4ub(0,0,255,255);//Blue: posterior
+     glBegin(GL_TRIANGLES); //with OpenGL Core, lines are limited to 1 pixel...
+      glVertex3f(X*0.5+TriPix,TriPix+YShift, 0);
+      glVertex3f(X*0.5, 0+YShift, 0);
+      glVertex3f(X*0.5-TriPix,TriPix+YShift, 0);
+     glEnd;
+     glColor4ub(192,0,192,255);//Purple: anterior
+     glBegin(GL_TRIANGLES); //with OpenGL Core, lines are limited to 1 pixel...
+      glVertex3f(X+Y-TriPix,Y+0.5*Z+TriPix+YShift, 0);
+      glVertex3f(X+Y, Y+0.5*Z+YShift, 0);
+      glVertex3f(X+Y-TriPix,Y+0.5*Z-TriPix+YShift, 0);
+     glEnd;
+     glColor4ub(222,222,0,255);//Yellow: superior
+     glBegin(GL_TRIANGLES); //with OpenGL Core, lines are limited to 1 pixel...
+      glVertex3f(X+0.5*Y-TriPix,Y+Z-TriPix+YShift, 0);
+      glVertex3f(X+0.5*Y, Y+Z+YShift, 0);
+      glVertex3f(X+0.5*Y+TriPix,Y+Z-TriPix+YShift, 0);
+     glEnd;
+     glColor4ub(255,140,0,255);//Orange: inferior
+     glBegin(GL_TRIANGLES); //with OpenGL Core, lines are limited to 1 pixel...
+      glVertex3f(X+0.5*Y-TriPix,Y+TriPix+YShift, 0);
+      glVertex3f(X+0.5*Y, Y+YShift, 0);
+      glVertex3f(X+0.5*Y+TriPix,Y+TriPix+YShift, 0);
+     glEnd;
+  end;
+
   EndDraw2D;
 end;
 

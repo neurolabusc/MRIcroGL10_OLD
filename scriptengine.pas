@@ -134,6 +134,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure Exit1Click(Sender: TObject);
     procedure FormDeactivate(Sender: TObject);
+    procedure FormHide(Sender: TObject);
     procedure New1Click(Sender: TObject);
     procedure Open1Click(Sender: TObject);
     procedure Save1Click(Sender: TObject);
@@ -310,12 +311,13 @@ begin
   OpenDialog1.InitialDir := ScriptDir;
   SaveDialog1.InitialDir := ScriptDir;
  {$IFDEF Darwin}
-        Cut1.ShortCut := ShortCut(Word('X'), [ssMeta]);
-        Copy1.ShortCut := ShortCut(Word('C'), [ssMeta]);
-        Paste1.ShortCut := ShortCut(Word('V'), [ssMeta]);
 
-        Stop1.ShortCut := ShortCut(Word('H'), [ssMeta]);
-         Compile1.ShortCut := ShortCut(Word('R'), [ssMeta]);
+  Cut1.ShortCut := ShortCut(Word('X'), [ssMeta]);
+  Copy1.ShortCut := ShortCut(Word('C'), [ssMeta]);
+  Paste1.ShortCut := ShortCut(Word('V'), [ssMeta]);
+  Stop1.ShortCut := ShortCut(Word('H'), [ssMeta]);
+  Compile1.ShortCut := ShortCut(Word('R'), [ssMeta]);
+  Memo1.ScrollBars:= ssVertical;
  {$ENDIF}
 end;
 
@@ -496,6 +498,11 @@ end;
 procedure TScriptForm.FormDeactivate(Sender: TObject);
 begin
      GLForm1.Display1.Enabled:= true;
+end;
+
+procedure TScriptForm.FormHide(Sender: TObject);
+begin
+      {$IFDEF Darwin}Application.MainForm.SetFocus;{$ENDIF}
 end;
 
 procedure TScriptForm.Stop1Click(Sender: TObject);

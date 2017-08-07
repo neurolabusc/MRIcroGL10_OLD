@@ -36,6 +36,7 @@ Windows,{$IFDEF FPC}uscaledpi,{$ENDIF}{$ENDIF} glmtext,
     {$ENDIF}
 type { TGLForm1 }
 TGLForm1 = class(TForm)
+    ReorientMenu: TMenuItem;
     RadiologicalMenu: TMenuItem;
     ClrbarMenu: TMenuItem;
     WhiteClrbarMenu: TMenuItem;
@@ -267,6 +268,7 @@ TGLForm1 = class(TForm)
     procedure OrientClick(lOrient: integer);
     procedure OrientMenuClick(Sender: TObject);
     procedure RadiologicalMenuClick(Sender: TObject);
+    procedure ReorientMenuClick(Sender: TObject);
     procedure SetOverlayAlpha(Sender: TObject);
     //procedure StringGridSetCaption(aRow: integer);
     procedure StringGrid1DrawCell(Sender: TObject; aCol, aRow: Integer;
@@ -2999,8 +3001,12 @@ begin
   end;
   DisplayGL(gTexture3D);
   {$IFDEF FPC}
+  {$IFDEF LCLCarbon}
+   GLbox.SwapBuffers; //DoubleBuffered
+  {$ELSE}
   {$IFDEF Darwin} if gPrefs.isDoubleBuffer then {$ENDIF}
      GLbox.SwapBuffers; //DoubleBuffered
+  {$ENDIF}
   (*if ( gRayCast.WINDOW_WIDTH = GLBox.BackingWidth) and (gRayCast.WINDOW_HEIGHT = GLbox.BackingHeight) then begin
     if gPrefs.isDoubleBuffer then
        GLbox.SwapBuffers //DoubleBuffered
@@ -4518,6 +4524,190 @@ begin
   DisplayRadiological;
   GLbox.Invalidate;
 end;
+
+procedure TGLForm1.ReorientMenuClick(Sender: TObject);
+//{$DEFINE REORIENTDEBUG}
+label
+  245;
+var
+  lImg: Bytep;
+  s: string;
+  dx, dy, dz: single;
+  btn : array  [1..6] of string = ('red','green','blue','purple','orange','yellow');
+  M, Mhdr: TMatrix;
+  i, dim1,dim2,dim3, btnR,btnA,btnS: integer;
+  lHdr: TNIFTIHdr;
+begin
+ if (lHdr.bitpix = 24) then begin
+    showmessage('Rotation not available for RGB images');
+    exit;
+ end;
+ {$IFNDEF REORIENTDEBUG}
+ gPrefs.isOrientationTriangles := true;
+ if gPrefs.SliceView <> 4 then
+    MPR1.click;
+ btnR := QuestionDlg ('Reorient image','Which arrow is pointing toward participant’s RIGHT?',
+      mtInformation,[ 1,btn[1], 2,btn[2], 3,btn[3], 4,btn[4], 5,btn[5], 6,btn[6] ],'');
+ if (btnR <= 2) then
+    btnA := QuestionDlg ('Reorient image','Which arrow is pointing toward participant’s ANTERIOR?',
+         mtCustom,[ 3,btn[3], 4,btn[4], 5,btn[5], 6,btn[6] ],'')
+ else if (btnR <= 4) then
+    btnA := QuestionDlg ('Reorient image','Which arrow is pointing toward participant’s ANTERIOR?',
+         mtCustom,[ 1,btn[1], 2,btn[2], 5,btn[5], 6,btn[6] ],'')
+ else
+     btnA := QuestionDlg ('Reorient image','Which arrow is pointing toward participant’s ANTERIOR?',
+         mtCustom,[ 1,btn[1], 2,btn[2], 3,btn[3], 4,btn[4] ],'');
+ if (max(btnR,btnA) <= 4) then
+    btnS := QuestionDlg ('Reorient image','Which arrow is pointing toward participant’s SUPERIOR?',
+         mtCustom,[5,btn[5], 6,btn[6] ],'')
+ else if (min(btnR,btnA) >= 3) then
+    btnS := QuestionDlg ('Reorient image','Which arrow is pointing toward participant’s SUPERIOR?',
+         mtCustom,[1,btn[1], 2,btn[2] ],'')
+ else
+     btnS := QuestionDlg ('Reorient image','Which arrow is pointing toward participant’s SUPERIOR?',
+          mtCustom,[3,btn[3], 4,btn[4] ],'');
+ if (btnR=2) and (btnA=4) and (btnS=6) then begin
+    showmessage('Image already oriented');
+    goto 245;
+ end;
+ {$ELSE}
+ btnR := 2;
+ btnA := 4;
+ btnS := 5;
+ {$ENDIF}
+ dim1 := (btnR + 1) div 2;
+ dim2 := (btnA + 1) div 2;
+ dim3 := (btnS + 1) div 2;
+ M := zero3D;
+ if odd(btnR) then
+    M.matrix[1,dim1] := -1
+ else
+     M.matrix[1,dim1] := 1;
+ if odd(btnA) then
+    M.matrix[2,dim2] := -1
+ else
+     M.matrix[2,dim2] := 1;
+ if odd(btnS) then
+    M.matrix[3,dim3] := -1
+ else
+     M.matrix[3,dim3] := 1;
+ M.matrix[4,4] := 1;
+ lHdr := gTexture3D.NIFTIhdr;
+ s := format('M = [%g %g %g %g; %g %g %g %g; %g %g %g %g; %g %g %g %g]; nii_reorient('''',M);',
+     [M.matrix[1,1], M.matrix[1,2], M.matrix[1,3], M.matrix[1,4],
+     M.matrix[2,1], M.matrix[2,2], M.matrix[2,3], M.matrix[2,4],
+     M.matrix[3,1], M.matrix[3,2], M.matrix[3,3], M.matrix[3,4],
+     M.matrix[4,1], M.matrix[4,2], M.matrix[4,3], M.matrix[4,4] ]);
+ clipboard.AsText:= s;
+ Mhdr := matrix3D(
+      lHdr.srow_x[0],lHdr.srow_x[1],lHdr.srow_x[2],lHdr.srow_x[3],
+      lHdr.srow_y[0],lHdr.srow_y[1],lHdr.srow_y[2],lHdr.srow_y[3],
+      lHdr.srow_z[0],lHdr.srow_z[1],lHdr.srow_z[2],lHdr.srow_z[3]);
+ M := multiplymatrices(M,Mhdr);
+
+ //update S_Form
+ for i := 0 to 4 do begin
+     lHdr.srow_x[i] := M.matrix[1,i+1];
+     lHdr.srow_y[i] := M.matrix[2,i+1];
+     lHdr.srow_z[i] := M.matrix[3,i+1];
+ end;
+ //update q_form
+ nifti_mat44_to_quatern( M, lHdr.quatern_b,lHdr.quatern_c,lHdr.quatern_d,
+   lHdr.qoffset_x,lHdr.qoffset_y,lHdr.qoffset_z,dx, dy, dz, lHdr.pixdim[0]);
+
+ //check format
+ if (lHdr.bitpix > 24) then begin
+	lHdr.datatype := kDT_FLOAT;
+	lHdr.bitpix := 32;
+	lHdr.scl_slope := 1;
+	lHdr.scl_inter := 0;
+end;
+// showmessage(inttostr(lHdr.dim[4]));
+if (lHdr.dim[4] > 1) then
+   showmessage('Only able to rotate 1st volume. Check clipboard for Matlab script')
+else
+    showmessage('Check clipboard for Matlab script');
+lHdr.dim[0] := 3;//3D
+lHdr.dim[4] := 1;//3D
+ if gTexture3D.RawUnscaledImg16 <> nil then
+    lImg := bytep(gTexture3D.RawUnscaledImg16)
+ else if gTexture3D.RawUnscaledImg32 <> nil then
+      lImg := bytep(gTexture3D.RawUnscaledImg32)
+ else if (gTexture3D.RawUnscaledImg8 <> nil) then
+      lImg := bytep(gTexture3D.RawUnscaledImg8)
+ else
+     goto 245;
+ //save results
+ if fileexists(OpenDialog1.filename) then begin
+    //SaveDialogVoi.FileName :=  ChangeFileExtX (OpenDialog1.FileName,'.nii');
+    SaveDialogVoi.FileName :=  ChangeFilePrefixExt(OpenDialog1.FileName,'r', '.nii');
+    SaveDialogVoi.initialDir :=  ExtractFilePath (OpenDialog1.FileName);
+ end;
+ s := SaveDialogVoi.Filter;
+ SaveDialogVoi.Filter := 'SPM/FSL (.nii)|.nii|FSL (.nii.gz)|.nii.gz|Volume of Interest (.voi)|.voi';
+ if not SaveDialogVoi.Execute then begin
+   SaveDialogVoi.Filter := s;
+   goto 245;
+ end;
+ {$IFDEF FPC} //recent versions of Lazarus (1.2) do handle this, but will put .gz not .nii.gz
+  SaveDialogVoi.FileName := SetExtensionFromFilterAtIndex(SaveDialogVoi.FileName, SaveDialogVoi.Filter, SaveDialogVoi.FilterIndex); //8/8/2014 check on OSX 10.4
+ {$ENDIF}
+ SaveDialogVoi.Filter := s;
+ SaveImg (SaveDialogVoi.FileName, lHdr, lImg);
+ 245:
+ gPrefs.isOrientationTriangles := false;
+end;
+
+(*type
+  TVec =  array [1..3] of single;
+function isSame(a,b: TVec): boolean;
+begin
+     result := (a[1]=b[1]) and (a[2]=b[2]) and (a[3]=b[3]);
+end;
+
+var
+  mat: TMatrix;
+  Origin, Right, Anterior,Superior: TVec;
+  lAzimuth, lElevation: single;
+  dimx, dimy, dimz, integer;
+  //lXmm,lYmm,lZmm, ,lXmmR,lYmmR,lZmmR,lXmmA,lYmmA,lZmmA,lXmmS,lYmmS,lZmmS: single;
+begin
+
+ if gPrefs.DrawColor <> -1 then
+   NoDraw1.Click;
+  if gPrefs.SliceView <> 4 then
+     MPR1.click;
+  //set crosshair to center of volume
+  gRayCast.OrthoX := 0.5;
+  gRayCast.OrthoY := 0.5;
+  gRayCast.OrthoZ := 0.5;
+  ShowOrthoSliceInfo (true);
+  GLBox.Invalidate;
+  showmessage('Please click on a location on the RIGHT side of the image');
+  GetShareFloats(Origin[1],Origin[2],Origin[3], lAzimuth, lElevation);
+  repeat
+        application.ProcessMessages();
+        GetShareFloats(Right[1],Right[2],Right[3], lAzimuth, lElevation);
+  until not isSame(Origin, Right);
+  showmessage('Please click on a location on the ANTERIOR side of the image');
+  repeat
+        application.ProcessMessages();
+        GetShareFloats(Anterior[1],Anterior[2],Anterior[3], lAzimuth, lElevation);
+  until not isSame(Right, Anterior);
+  showmessage('Please click on a location on the SUPERIOR side of the image');
+  repeat
+        application.ProcessMessages();
+        GetShareFloats(Superior[1],Superior[2],Superior[3], lAzimuth, lElevation);
+  until not isSame(Anterior, Superior);
+  //compare each click to center of volume
+
+ mat := Eye3D;
+*)
+ (*  Origin[1] := SliceMM (0.5,kSagLeftOrient); //Sag
+  Origin[2] := SliceMM (0.5,kCoronalOrient); //Coronal
+  Origin[3] := SliceMM (0.5,kAxialOrient); //Axial
+*)
+
 
 procedure TGLForm1.InterpolateMenuClick(Sender: TObject);
 begin
