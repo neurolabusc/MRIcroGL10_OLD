@@ -58,7 +58,7 @@ type
     procedure CopyMenuClick(Sender: TObject);
     procedure outputFolderNameClick(Sender: TObject);
     procedure ResetMenuClick(Sender: TObject);
-    procedure RunCmd (lCmd: string; isDemo: boolean);
+    function RunCmd (lCmd: string; isDemo: boolean; out line1: string): integer;
     function getExeName : string; //return path for command line tool
     procedure readIni (ForceReset: boolean); //load preferences
     procedure writeIni; //save preferences
@@ -242,7 +242,7 @@ end; //readIni()
 {$ENDIF}
 
 {$IFDEF FPC}
-procedure Tdcm2niiForm.RunCmd (lCmd: string; isDemo: boolean);
+function Tdcm2niiForm.RunCmd (lCmd: string; isDemo: boolean; out line1: string): integer;
 //http://wiki.freepascal.org/Executing_External_Programs
 var
   OutputLines: TStringList;
@@ -253,6 +253,7 @@ var
 const
   READ_BYTES = 2048;
 begin
+     result := 1; //EXIT_FAILURE
    if (not isAppDoneInitializing) then exit;
    if (getExeName = '') then exit;
    Memo1.Lines.Clear;
@@ -286,16 +287,23 @@ begin
   OutputLines := TStringList.Create;
   OutputLines.LoadFromStream(MemStream);
   Memo1.Lines.AddStrings(OutputLines);
+  if OutputLines.Count > 0 then begin
+      Line1 := OutputLines[0];
+      //skip if line is "Compression will be faster with 'pigz'"
+      if (pos('Compression', Line1) = 1) and (OutputLines.Count > 0) then
+         Line1 := OutputLines[1];
+  end;
   if isDemo then
      Memo1.Lines.Add(lCmd+' "MyDicomFolder"')
   else
       Memo1.Lines.Add(lCmd);
   OutputLines.Free;
+  result := OurProcess.ExitCode;
   OurProcess.Free;
   MemStream.Free;
 end;
 {$ELSE} //if FPC else Delphi
-procedure Tdcm2niiForm.RunCmd (lCmd: string; isDemo: boolean);
+function Tdcm2niiForm.RunCmd (lCmd: string; isDemo: boolean; out line1: string): integer;
 const
      ReadBuffer = 2400;
   var
@@ -307,6 +315,8 @@ const
    BytesRead : DWord;
    Apprunning : DWord;
   begin
+    result := 0; //Unix only
+    line1 := '';
    if (not isAppDoneInitializing) then exit;
    if (getExeName = '') then exit;
    Memo1.Lines.Clear;
@@ -375,7 +385,7 @@ end; //getOutputFolder
 
 procedure Tdcm2niiForm.ProcessFile(infilename: string);
 var
-  cmd, outputFolder, inFolder: string;
+  cmd, outputFolder, inFolder, line1: string;
 begin
   inFolder := infilename;
   (*if isTGZ(inFolder) then begin
@@ -400,7 +410,7 @@ begin
  if length(inFolder) > 0 then
      cmd := cmd +'"'+inFolder+'"';
      //Caption := inttostr(length(inFolder));
- RunCmd(cmd, length(inFolder) = 0);
+ RunCmd(cmd, length(inFolder) = 0, line1);
 end; //ProcessFile()
 
 procedure Tdcm2niiForm.outnameEditKeyUp(Sender: TObject; var Key: Word;

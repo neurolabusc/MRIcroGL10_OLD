@@ -16,6 +16,7 @@ object GLForm1: TGLForm1
   OnDestroy = FormDestroy
   OnDropFiles = FormDropFiles
   OnKeyDown = FormKeyDown
+  OnShow = FormShow
   Position = poScreenCenter
   LCLVersion = '1.9.0.0'
   object ToolPanel: TPanel
@@ -1204,7 +1205,7 @@ object GLForm1: TGLForm1
     Left = 216
     Height = 855
     Top = 0
-    Width = 3
+    Width = 5
     Align = alLeft
     TabOrder = 1
     Visible = False

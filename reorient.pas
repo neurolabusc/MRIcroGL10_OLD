@@ -602,7 +602,7 @@ begin
       lMat.matrix[2,1], lMat.matrix[2,2], lMat.matrix[2,3], lMat.matrix[2,4],
       lMat.matrix[3,1], lMat.matrix[3,2], lMat.matrix[3,3], lMat.matrix[3,4]
       ]);
-end;*)
+end;  *)
 
 function ReorientCore(var lHdr: TNIFTIhdr; lBufferIn: bytep): boolean;
 var
@@ -630,9 +630,9 @@ begin
     lHdr.srow_x[0],lHdr.srow_x[1],lHdr.srow_x[2],lHdr.srow_x[3],
     lHdr.srow_y[0],lHdr.srow_y[1],lHdr.srow_y[2],lHdr.srow_y[3],
     lHdr.srow_z[0],lHdr.srow_z[1],lHdr.srow_z[2],lHdr.srow_z[3]);
-    //ShowMat(lInMat);
+   //ShowMat(lInMat);
    if (NIfTIAlignedM (lInMat)) then begin
-     //xxxMsg('According to header, image is already canonically oriented');
+     //Msg('According to header, image is canonically oriented');
      exit;
    end;
    lRotMat := nifti_mat44_orthogx( lInMat);

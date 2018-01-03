@@ -160,7 +160,7 @@ var
   maxLength : GLint;
 begin
   glGetProgramiv(glObjectID, GL_LINK_STATUS, @maxLength);
-  if (maxLength = GL_TRUE) then exit;
+  if (maxLength <= 1) then exit;
   maxLength := 4096;
   setlength(s, maxLength);
   {$IFDEF DGL}

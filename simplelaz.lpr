@@ -14,7 +14,7 @@ uses
 {$IFNDEF UNIX}{$R simplelaz.res}{$ENDIF}
 
 begin
-  Application.Title:='mricrogl';
+  Application.Title:='MRIcroGL';
   Application.Initialize;
   Application.CreateForm(TGLForm1, GLForm1);
   Application.CreateForm(TReadIntForm, ReadIntForm);

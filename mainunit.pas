@@ -23,7 +23,7 @@ types,clipbrd,
 {$ENDIF}Dialogs, ExtCtrls, Menus,  shaderu, texture2raycast,
   StdCtrls, Controls, ComCtrls, Reslice, glcube,glclrbar,
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unit_transfertexture, {$ELSE} texture_3d_unit,extract,{$ENDIF}
-  {$IFDEF FPC} FileUtil, GraphType, LCLProc,LCLtype,  LCLIntf,LResources,OpenGLContext,{$ELSE}glpanel, {$ENDIF}
+  {$IFDEF FPC} strutils, fphttpclient, FileUtil, GraphType, LCLProc,LCLtype,  LCLIntf,LResources,OpenGLContext,{$ELSE}glpanel, {$ENDIF}
 {$IFDEF UNIX}Process,  {$ELSE}//ShellApi,
 Windows,{$IFDEF FPC}uscaledpi,{$ENDIF}{$ENDIF} glmtext,
   Graphics, Classes, SysUtils, Forms, Buttons, Spin, Grids, clut, define_types,
@@ -366,6 +366,7 @@ function MouseUpVOI (Shift: TShiftState; X, Y: Integer): boolean;
     procedure UniformChange(Sender: TObject);
     procedure Exit1Click(Sender: TObject);
     procedure ExitButton1Click(Sender: TObject);
+    procedure CheckForUpdates(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure OverlayBoxCreate;
     procedure UpdateClrbar;
@@ -2630,7 +2631,7 @@ end;
    {$IFDEF LCLCocoa}str := str + ' (Cocoa) ';{$ENDIF}
    {$IFDEF LCLCarbon}str := str + ' (Carbon) '; {$ENDIF}
    {$IFDEF DGL} str := str +' (DGL) '; {$ENDIF}//the DGL library has more dependencies - report this if incompatibilities are found
-  str := 'MRIcroGL '+str+' 14 July 2017'
+  str := 'MRIcroGL '+str+' '+kVers
    {$IFDEF LCLCocoa}+kCR+' '+paramstr(0){$ENDIF}
    +kCR+' www.mricro.com :: BSD 2-Clause License (opensource.org/licenses/BSD-2-Clause)'
    +kCR+' Dimensions '+inttostr(gTexture3D.NIFTIhdr.dim[1])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[2])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[3])
@@ -3528,13 +3529,164 @@ begin
      end;
 end;
 
+{$IFDEF FPC}
+function latestGitRelease(url: string): string;
+//Returns string for latest release (error will return empty string)
+//example
+// latestGitRelease('https://api.github.com/repos/rordenlab/dcm2niix/releases/latest');
+//will return
+// "v1.0.20171204"
+const
+     key = '"tag_name":"';
+var
+  s, e: integer;
+  cli: TFPHTTPClient;
+begin
+  result := '';
+  cli := TFPHTTPClient.Create(nil);
+  cli.AddHeader('User-Agent','Mozilla/5.0 (compatible; fpweb)');
+  try
+    try
+      result := Cli.Get(url);
+    except
+      result := '';
+    end;
+  finally
+    cli.free
+  end;
+  if length(result) < 1 then exit;
+  s := posex(key, result);
+  if s < 1 then begin
+     result := '';
+     exit;
+  end;
+  s := s+length(key);
+  e:= posex('"', result, s);
+  if e < 1 then begin
+     result := '';
+     exit;
+  end;
+  result := copy(result, s, e-s);
+end;
+
+procedure ReportGitVer(localVer, api, url, exe: string);
+var
+  gitVer, exeNam: string;
+  git, local: integer;
+begin
+  if length(localVer) < 8 then begin  //last 8 digits are date: v.1.0.20170101
+    MessageDlg(exeNam,'Unable to detect version:  '+exe, mtConfirmation,[mbOK],0) ;
+    //showmessage('Unable to detect latest version:  '+exe);
+    Clipboard.AsText := exe+' : '+ localVer;
+    exit;
+  end;
+  gitVer := latestGitRelease(api);
+  if length(gitVer) < 8 then begin  //last 8 digits are date: v.1.0.20170101
+      showmessage('Unable to detect latest version: are you connected to the web? '+api);
+      exit;
+  end;
+  exeNam := ExtractFileName(exe);
+  if CompareText(gitVer, localVer) = 0 then begin
+      //showmessage('You are running the latest release '+localVer);
+      MessageDlg(exeNam,'You are running the latest release '+localVer, mtConfirmation,[mbOK],0) ;
+      exit;
+  end;
+  git := strtointdef(RightStr(gitVer,8),0);
+  local := strtointdef(RightStr(localVer,8),0);
+  if local > git then
+     MessageDlg(exeNam,'You are running a beta release '+localVer+', the latest stable release is '+gitVer+' Visit '+url +' to update '+exe, mtConfirmation,[mbOK],0)
+
+     //showmessage('You are running a beta release '+localVer+', the latest stable release is '+gitVer+' Visit '+url +' to update '+exe)
+  else
+    MessageDlg(exeNam,'You are running an old release '+localVer+', the latest stable release is '+gitVer+' Visit '+url +' to update '+exe, mtConfirmation,[mbOK],0)
+          //showmessage('You are running an old release '+localVer+', the latest stable release is '+gitVer+' Visit '+url +' to update '+exe);
+end;
+
+procedure CheckForUpdatesMRIcroGL;
+const
+     kBase = '/neurolabusc/MRIcroGL/releases/latest';
+     kUrl = 'https://github.com' + kBase;
+     kApi = 'https://api.github.com/repos' + kBase;
+begin
+     ReportGitVer(kVers, kApi, kUrl, paramstr(0));
+end;
+
+function delimStr(s, default: string; idx: integer): string;
+//e.g. delimStr('Chris Rorden's dcm2niiX version v1.0.20171215 GCC6.1.0',5) returns 'v1.0.20171215'
+var
+   strs : TStringList;
+begin
+     result := default;
+     strs := TStringList.Create;
+     strs.DelimitedText := s;
+     if (strs.Count >= idx) then
+        result := strs[idx-1]; //string lists are indexed from 0
+     strs.Free;
+end;
+
+procedure CheckForUpdatesDcm2niix;
+const
+     kBase = '/rordenlab/dcm2niix/releases/latest';
+     kUrl = 'https://github.com' + kBase;
+     kApi = 'https://api.github.com/repos' + kBase;
+var
+  exe, cmd, line1, localVer: string;
+begin
+    exe := dcm2niiForm.getExeName;
+    if not fileexists(exe) then begin
+       showmessage('Unable to find dcm2niix installed '+ exe);
+       exit;
+    end;
+    cmd := '"'+exe +'" -h';
+    dcm2niiForm.RunCmd(cmd, false, line1);
+    localVer := delimStr(line1, line1, 5);
+    ReportGitVer(localVer, kApi, kUrl, exe);
+end;
+
+(*
+//this is an alternate method, using dcm2niix's internal methods: has additional dependencies (sed, awk) and Unix only
+procedure CheckForUpdatesDcm2niix;
+var
+  exe, cmd: string;
+  ret: integer;
+begin
+     exe := dcm2niiForm.getExeName;
+     if not fileexists(exe) then begin
+        showmessage('Unable to find dcm2niix installed '+ exe);
+     end;
+     cmd := '"'+exe +'" -u';
+     ret := dcm2niiForm.RunCmd(cmd, false);
+     if ret = 3 then
+        showmessage('Unable to check dcm2niix version')
+     else if ret = 2 then
+          showmessage('Your version of dcm2niix is more recent than latest stable release '+exe)
+     else if ret = 1 then
+        showmessage('Your version of dcm2niix is obsolete '+exe)
+     else
+         showmessage('Your version of dcm2niix is up to date');
+end;*)
+
+
+procedure TGLForm1.CheckForUpdates(Sender: TObject);
+begin
+     CheckForUpdatesMRIcroGL;
+     CheckForUpdatesDcm2niix;
+end;
+{$ELSE}
+procedure TGLForm1.CheckForUpdates(Sender: TObject);
+begin
+	//not available for windows
+end;
+
+{$ENDIF}
+
 procedure PrefMenuClick;
 var
   PrefForm: TForm;
   bmpEdit: TEdit;
   {$IFDEF FPC}TiledCheck,{$ENDIF}
   {$IFDEF LCLCocoa} RetinaCheck,{$ENDIF} flipCheck: TCheckBox;
-  OkBtn, AdvancedBtn: TButton;
+  OkBtn, AdvancedBtn, UpdateBtn: TButton;
   bmpLabel: TLabel;
   searchRec: TSearchRec;
   s: string;
@@ -3608,6 +3760,18 @@ begin
   RetinaCheck.Top := 138;
   RetinaCheck.Parent:=PrefForm;
   {$ENDIF}
+  //UpdateBtn
+  {$IFDEF FPC}
+  UpdateBtn:=TButton.create(PrefForm);
+  UpdateBtn.Caption:='Check for updates';
+  UpdateBtn.Left := 28;
+  UpdateBtn.Width:= 168;
+  UpdateBtn.Top := 168;
+  UpdateBtn.Parent:=PrefForm;
+  UpdateBtn.OnClick:= GLForm1.CheckForUpdates;
+  {$ENDIF}
+  //UpdateBtn.ModalResult:= mrOK;
+
   //OK button
   OkBtn:=TButton.create(PrefForm);
   OkBtn.Caption:='OK';
@@ -3626,7 +3790,10 @@ begin
   AdvancedBtn.ModalResult:= mrYesToAll;
   {$IFDEF Windows} ScaleDPI(PrefForm, 96);  {$ENDIF}
   PrefForm.ShowModal;
-  if (PrefForm.ModalResult <> mrOK) and (PrefForm.ModalResult <> mrYesToAll) then exit; //if user closes window with out pressing "OK"
+  if (PrefForm.ModalResult <> mrOK) and (PrefForm.ModalResult <> mrYesToAll) then begin
+  	FreeAndNil(PrefForm);
+  	exit; //if user closes window with out pressing "OK"
+  end;
   isFlipChanged := (gPrefs.FlipYZ <> FlipCheck.Checked);
   gPrefs.FlipYZ:= FlipCheck.Checked;
   gPrefs.BitmapZoom:= strtointdef(bmpEdit.Text,1);
@@ -3661,7 +3828,6 @@ begin
     AreaInitialized := false;
     //M_Refresh := true;
      GLForm1.UpdateTimer.enabled := true;
-
   end;
   {$ENDIF}
 
@@ -5372,7 +5538,7 @@ end;
 
 procedure TGLForm1.FormShow(Sender: TObject);
 begin
-  //
+  //CheckForUpdates(nil);
 end;
 
 procedure TGLForm1.AppDropFiles(Sender: TObject; const FileNames: array of String);

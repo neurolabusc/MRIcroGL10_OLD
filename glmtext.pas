@@ -253,14 +253,11 @@ begin
   until strBlockStart < 1;
   if (fnt.scaleW < 1) or (fnt.scaleH < 1) then exit;
   for id := 0 to 255 do begin //normalize from pixels to 0..1
-      //these next lines seem arbitrary, but they seem to compensate for vertical/horizontal offset vs Hiero
-      //fnt.M[id].yo := fnt.base - (fnt.M[id].h + fnt.M[id].yo); //<- Hiero
-      fnt.M[id].yo := (0.17*fnt.base)-(fnt.M[id].h + fnt.M[id].yo); //<- msdf-bmfont
-      fnt.M[id].xo := fnt.M[id].xo- (0.17*fnt.base);// <-msdf-bmfont
-      fnt.M[id].x:=fnt.M[id].x/fnt.scaleW+1/fnt.scaleW ; //+1/scaleW : indexed from 1 not 0?
-      fnt.M[id].y:=fnt.M[id].y/fnt.scaleH+1/fnt.scaleH; //+1/scaleH : indexed from 1 not 0?
-      fnt.M[id].xEnd := fnt.M[id].x + (fnt.M[id].w/fnt.scaleW)-2/fnt.scaleW;
-      fnt.M[id].yEnd := fnt.M[id].y + (fnt.M[id].h/fnt.scaleH)-2/fnt.scaleH;
+    fnt.M[id].yo := fnt.base - (fnt.M[id].h + fnt.M[id].yo);
+    fnt.M[id].x:=fnt.M[id].x/fnt.scaleW;
+    fnt.M[id].y:=fnt.M[id].y/fnt.scaleH;
+    fnt.M[id].xEnd := fnt.M[id].x + (fnt.M[id].w/fnt.scaleW);
+    fnt.M[id].yEnd := fnt.M[id].y + (fnt.M[id].h/fnt.scaleH);
   end;
   result := true;
 end; //LoadMetricsJson()

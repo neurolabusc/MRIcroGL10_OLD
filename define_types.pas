@@ -6,12 +6,13 @@ interface
  {$DEFINE GUI}
         uses
         {$IFDEF FPC}
-               {$IFDEF GUI}LCLType,lclintf, {$ENDIF}
+               {$IFDEF GUI}LCLType, lclintf, {$ENDIF}
         {$ENDIF}
         {$IFNDEF Unix} Windows,{$ENDIF}
         SysUtils,classes,graphics,userdir,math,
         {$IFDEF GUI} forms,dialogs,controls;{$ELSE} dialogsx;{$ENDIF}
 const
+  kVers = 'v1.0.20171215';
      NaN : double = 1/0;
      kMagicDouble : double = -111666222;
      kTxtFilter = 'Text (*.txt)|*.txt;*.csv|Comma Separated (*.csv)|*.csv';

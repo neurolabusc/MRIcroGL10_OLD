@@ -7,7 +7,7 @@
   <key>CFBundleExecutable</key>
   <string>MRIcroGL</string>
   <key>CFBundleName</key>
-  <string>mricrogl</string>
+  <string>MRIcroGL</string>
   <key>CFBundleIdentifier</key>
   <string>com.company.MRIcroGL</string>
   <key>CFBundleInfoDictionaryVersion</key>

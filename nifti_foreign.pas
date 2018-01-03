@@ -552,29 +552,29 @@ begin
   sList.Free;
 end;
 
-function nii_readVmr (var fname: string; var nhdr: TNIFTIhdr; var gzBytes: int64; var swapEndian: boolean): boolean;
+function nii_readVmr (var fname: string; isV16: boolean; var nhdr: TNIFTIhdr; var gzBytes: int64; var swapEndian: boolean): boolean;
 //http://support.brainvoyager.com/automation-aamp-development/23-file-formats/385-developer-guide-26-the-format-of-vmr-files.html
 Type
-  Tvmr_header = packed record //Next: PIC Format Header structure
-        ver, nx, ny, nz, nvol: word; //  0,4,8,12
+  Tvmr_header = packed record //Next: VMR Format Header structure
+        ver, nx, ny, nz: word; //  0,4,8,12
   end; // Tbv_header;
-  Tvmr_tail = packed record //
-  	Xoff,Yoff,Zoff,FramingCube: int16;
+  (*Tvmr_tail = packed record //
+  	Xoff,Yoff,Zoff,FramingCube: int16; //v3
 	PosFlag,CoordSystem: int32;
 	X1, Y1, Z1,Xn,Yn,Zn, RXv,RYv,RZv, CXv,CYv,CZv: single;
 	nRmat, nCmat: int32;
 	Rfov, Cfov, Zthick, Zgap: single;
 	nTrans: int32;
-	LRconv, Ref: uint8;
+	LRconv: uint8;
 	vXres, vYres, vZres: single;
 	isResVerified, isTal: uint8;
 	min, mean, max: int32;
-  end;
+  end; *)
 var
    vhdr : Tvmr_header;
-   vtail : Tvmr_tail;
+   //vtail : Tvmr_tail;
    lHdrFile: file;
-   nvox, FSz : integer;
+   xSz, nvox, FSz, Hsz : integer;
 begin
   result := false;
   {$I-}
@@ -589,13 +589,33 @@ begin
   end;
   FSz := Filesize(lHdrFile);
   BlockRead(lHdrFile, vhdr, sizeof(Tvmr_header));
-  nVox := vhdr.nx * vhdr.ny * vhdr.nz * vhdr.nvol * 4; //*4 as 32-bpp
-  if (vhdr.ver < 3) or (vhdr.ver > 255) or ((nVox + sizeof(Tvmr_header)+ sizeof(Tvmr_tail) ) > FSz) then begin //docs do not specify endian - wrong endian?
+  nVox := vhdr.nx * vhdr.ny * vhdr.nz;
+  if isV16 then
+    xSz := (2 * nVox) + sizeof(Tvmr_header)
+  else
+    xSz := nVox + sizeof(Tvmr_header);//+ sizeof(Tvmr_tail);
+  Hsz := sizeof(Tvmr_header);
+  if (xSz > FSz) then begin //version 1? (6 byte header)
+     nVox := vhdr.ver * vhdr.nx * vhdr.ny;
+     if isV16 then
+        xSz := (2 * nVox) + 6
+     else
+         xSz := nVox + 6;
+     if (xSz = FSz) then begin //version 1
+        vhdr.nz := vhdr.ny;
+        vhdr.ny := vhdr.nx;
+        vhdr.nx := vhdr.ver;
+        vhdr.ver := 1;
+        Hsz := 6;
+     end;
+  end;
+  if (xSz > FSz) then begin //docs do not specify endian - wrong endian?
+     showmessage(format('Odd v16 or vmr format image %dx%dx%d ver %d sz %d', [vhdr.nx, vhdr.ny, vhdr.nz, vhdr.ver, FSz] ));
      CloseFile(lHdrFile);
      exit;
   end;
-  seek(lHdrFile, nVox + sizeof(Tvmr_header));
-  BlockRead(lHdrFile, vtail, sizeof(Tvmr_tail));
+  //seek(lHdrFile, nVox + sizeof(Tvmr_header));
+  //BlockRead(lHdrFile, vtail, sizeof(Tvmr_tail));
   CloseFile(lHdrFile);
   swapEndian := false;
   nhdr.dim[0]:=3;//3D
@@ -610,8 +630,13 @@ begin
   //if vtail.isResVerified > 0 then begin
   //  showmessage(format('%g %g %g',[vtail.X1, vtail.Y1, vtail.Z1]));
   //end;
+  nhdr.bitpix:= 8;
   nhdr.datatype := kDT_UNSIGNED_CHAR;
-  nhdr.vox_offset := sizeof(Tvmr_header);
+  if isV16 then begin
+     nhdr.bitpix:= 16;
+     nhdr.datatype := kDT_INT16;
+  end;
+  nhdr.vox_offset := HSz;
   nhdr.sform_code := 1;
   nhdr.srow_x[0]:=nhdr.pixdim[1];nhdr.srow_x[1]:=0.0;nhdr.srow_x[2]:=0.0;nhdr.srow_x[3]:=0.0;
   nhdr.srow_y[0]:=0.0;nhdr.srow_y[1]:=nhdr.pixdim[2];nhdr.srow_y[2]:=0.0;nhdr.srow_y[3]:=0.0;
@@ -1702,7 +1727,90 @@ begin
   result := true;
 end;//MHA
 
-//var gX : integer = 0;
+function readMIF(var fname: string; var nhdr: TNIFTIhdr; var gzBytes: int64; var swapEndian, isDimPermute2341: boolean): boolean;
+//https://github.com/MRtrix3/mrtrix3/blob/master/matlab/read_mrtrix.m
+label
+  666;
+var
+  FP: TextFile;
+  str, key, vals: string;
+  mArray: TStringList;
+  nItems, i: integer;
+begin
+  swapEndian :=false;
+  result := false;
+  Filemode := 0;
+  AssignFile(fp,fname);
+  reset(fp);
+  mArray := TStringList.Create;
+  if EOF(fp) then goto 666;
+  readln(fp,str);
+  if str <> 'mrtrix image' then goto 666;
+  while (not EOF(fp))  do begin
+    readln(fp,str);
+    if str = 'END' then break;
+    splitstrStrict(':',str,mArray);
+    if mArray.count < 2 then continue;
+    key := mArray[0]; //e.g. "dim: 1,2,3" -> "dim"
+    vals := mArray[1]; //e.g. "dim: 1,2,3" -> "1,2,3"
+    splitstrStrict(',',vals,mArray);
+    nItems :=mArray.count;
+    mArray[0] := Trim(mArray[0]);  //" Float32LE" -> "Float32LE"
+    //str := mArray[0];
+    //mArray.Delete(i);
+    if (ansipos('dim', key) = 1) and (nItems > 1) and (nItems < 7) then begin
+       for i := 1 to nItems do
+           nhdr.dim[i] := strtointdef(mArray[i-1],0);
+       continue;
+    end;
+    //NSLog('BINGO'+Key+inttostr(nItems));
+    if (ansipos('vox', key) = 1) and (nItems > 1) and (nItems < 7) then begin
+       //NSLog('BINGO'+mArray[0]);
+       for i := 1 to nItems do
+           nhdr.pixdim[i] := strtofloatdef(mArray[i-1],0);
+       continue;
+    end;
+
+    if (ansipos('datatype', key) = 1) and (nItems > 0) then begin
+      if (ansipos('Int8', mArray[0]) = 1) then
+         nhdr.datatype := kDT_INT8
+      else if (ansipos('UInt8', mArray[0]) = 1) then
+         nhdr.datatype := kDT_UINT8
+      else if (ansipos('UInt16', mArray[0]) = 1) then
+            nhdr.datatype := kDT_UINT16
+      else if (ansipos('Int16', mArray[0]) = 1) then
+        nhdr.datatype := kDT_INT16
+      else if (ansipos('Float32', mArray[0]) = 1) then
+         nhdr.datatype := kDT_FLOAT32
+      else
+         NSLog('unknown datatype '+mArray[0]+' '+inttostr(ansipos('Float32LX', mArray[0])));
+      {$IFDEF ENDIAN_BIG}
+      if (ansipos('LE', mArray[0]) > 0) then
+         swapEndian :=true;
+      {$ELSE}
+      if (ansipos('BE', mArray[0]) > 0) then
+         swapEndian :=true;
+      {$ENDIF}
+      continue;
+
+    end;
+    if (ansipos('file', key) = 1) and (nItems > 0) then begin
+       splitstrStrict(' ',mArray[0],mArray);
+       nItems :=mArray.count;
+       if (nItems > 1) then
+          nhdr.vox_offset := strtointdef(mArray[1],0); //"file: . 328" -> 328
+       continue;
+    end;
+    //NSLog(format('%d "%s" %d',[ansipos('file', key) , key, nItems]));
+  end;
+  convertForeignToNifti(nhdr);
+
+  result := true;
+666:
+    CloseFile(FP);
+    Filemode := 2;
+    mArray.Free;
+end;
 
 function readNRRDHeader (var fname: string; var nhdr: TNIFTIhdr; var gzBytes: int64; var swapEndian, isDimPermute2341: boolean): boolean;
 //http://www.sci.utah.edu/~gk/DTI-data/
@@ -2165,6 +2273,8 @@ begin
   swapEndian := false;
   //gzBytes := false;
   isDimPermute2341 := false;
+  if FSize(lFilename) < 140 then
+      exit (false);
   //result := false;
   lExt := UpCaseExt(lFilename);
   if (lExt = '.DV') then
@@ -2172,7 +2282,9 @@ begin
   else if (lExt = '.V') then
        result := nii_readEcat(lFilename, lHdr, gzBytes, swapEndian)
   else if (lExt = '.VMR') then
-       result := nii_readVmr(lFilename, lHdr, gzBytes, swapEndian)
+       result := nii_readVmr(lFilename, false, lHdr, gzBytes, swapEndian)
+  else if (lExt = '.V16') then
+       result := nii_readVmr(lFilename, true, lHdr, gzBytes, swapEndian)
   else if (lExt = '.BVOX') then
        result := nii_readBVox(lFilename, lHdr, gzBytes, swapEndian)
   else if (lExt = '.GIPL') then
@@ -2185,6 +2297,8 @@ begin
     result := readMGHHeader(lFilename, lHdr, gzBytes, swapEndian)
   else if (lExt = '.MHD') or (lExt = '.MHA') then
     result := readMHAHeader(lFilename, lHdr, gzBytes, swapEndian)
+  else if (lExt = '.MIF') then
+       result := readMIF(lFilename, lHdr, gzBytes, swapEndian, isDimPermute2341)
   else if (lExt = '.NRRD') or (lExt = '.NHDR') then
     result := readNRRDHeader(lFilename, lHdr, gzBytes, swapEndian, isDimPermute2341)
   else if (lExt = '.HEAD') then

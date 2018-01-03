@@ -491,9 +491,9 @@ begin
            St := FloatToStrF(lStep, ffFixed,7,tic.decimals);
            StWid := Txt.TextWidth(fntScale, St);
            if not fisVertical then
-              Txt.TextOut(lPosX-(StWid*0.5),BarTop-(BarThick*0.82),fntScale, St)
+              Txt.TextOut(lPosX-(StWid*0.5),BarTop-(BarThick*0.85),fntScale, St)
            else
-               Txt.TextOut(lPosX+(BarThick*0.82),lPosY-(StWid*0.5),fntScale,90, St)
+               Txt.TextOut(lPosX+(BarThick*0.85),lPosY-(StWid*0.5),fntScale,90, St)
         end;
         lStep := lStep + tic.stepSize;
   until lStep > (mx+(tic.stepSize*0.01));
@@ -537,7 +537,7 @@ begin
      fntScale := 0;
      if (BarThick > 9) and (isText) then begin
         txt.ClearText;
-        fntScale := (BarThick*0.7)/txt.BaseHeight;
+        fntScale := (BarThick*0.65)/txt.BaseHeight;
         Txt.TextColor(FontClr.rgbRed,FontClr.rgbGreen,FontClr.rgbBlue);//black
      end;
      {$IFDEF COREGL}

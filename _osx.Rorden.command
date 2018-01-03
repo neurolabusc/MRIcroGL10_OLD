@@ -20,7 +20,8 @@ cd ~/Documents/pas/MRIcroGL/
 # /Users/rorden/lazarus/lazbuild ./simplelaz.lpr --cpu=x86_64 --ws=cocoa --compiler="/usr/local/bin/ppcx64"
 #Current FPC 3.0.0 can not compile on OSX 10.11 El Capitan, so use 3.1.1
 #/Users/rorden/lazarus/lazbuild ./simplelaz.lpr --cpu=x86_64 --ws=cocoa --compiler="/usr/local/lib/fpc/3.1.1/ppcx64"
-lazbuild ./simplelaz.lpr --cpu=x86_64 --ws=cocoa
+#lazbuild ./simplelaz.lpr --cpu=x86_64 --ws=cocoa
+~/Lazarus/lazbuild ./simplelaz.lpr --cpu=x86_64 --ws=cocoa
 # lazbuild ./simplelaz.lpr --cpu=x86_64 --ws=cocoa --compiler="/usr/local/lib/fpc/3.0.0/ppcx64"
 
 
@@ -48,6 +49,7 @@ rm /Users/rorden/Documents/pas/MRIcroGL/DistroOSX/*.gz
 
 #remove Cocoa as widgetset
 awk '{gsub(/Active="MacOS"/,"");}1' simplelaz.lpi > simplelaz.tmp && mv simplelaz.tmp simplelaz.lpi
+awk '{gsub(/Active="MacOS"/,"Active=\"Default\"");}1' simplelaz.lps > simplelaz.tmp && mv simplelaz.tmp simplelaz.lps
 
 
 cd /Users/rorden/Documents/pas/

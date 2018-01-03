@@ -316,25 +316,43 @@ begin
   result := true;
 end;
 
+procedure showmat(lMat: TMatrix);
+begin
+ clipboard.AsText:= format('o=[%g %g %g %g; %g %g %g %g; %g %g %g %g; 0 0 0 1]',[
+      lMat.matrix[1,1], lMat.matrix[1,2], lMat.matrix[1,3], lMat.matrix[1,4],
+      lMat.matrix[2,1], lMat.matrix[2,2], lMat.matrix[2,3], lMat.matrix[2,4],
+      lMat.matrix[3,1], lMat.matrix[3,2], lMat.matrix[3,3], lMat.matrix[3,4]
+      ]);
+end;
+
 function EmptyMatrix(var lHdr: TMRIcroHdr): boolean;
 var
  lM: TMatrix;
  lRow,lCol: integer;
+ isUnity: boolean;
 begin
   result := false;
   lM := Matrix3D (
   lHdr.NIFTIhdr.srow_x[0],lHdr.NIFTIhdr.srow_x[1],lHdr.NIFTIhdr.srow_x[2],lHdr.NIFTIhdr.srow_x[3],
   lHdr.NIFTIhdr.srow_y[0],lHdr.NIFTIhdr.srow_y[1],lHdr.NIFTIhdr.srow_y[2],lHdr.NIFTIhdr.srow_y[3],
   lHdr.NIFTIhdr.srow_z[0],lHdr.NIFTIhdr.srow_z[1],lHdr.NIFTIhdr.srow_z[2],lHdr.NIFTIhdr.srow_z[3]);
+  isUnity := true;
   for lRow := 1 to 3 do begin {3/2008}
 	  for lCol := 1 to 4 do begin
               if (lRow = lCol) then begin
 		if lM.matrix[lRow,lCol] <> 1 then
-			exit;
+			isUnity := false;
               end else begin
 		if lM.matrix[lRow,lCol] <> 0 then
-			exit;
+			isUnity := false;
               end// unity matrix does not count - mriconvert creates bogus [1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 0]
+          end; //each col
+  end;//each row
+  if isUnity then exit;
+  for lRow := 1 to 3 do begin {3/2008}
+	  for lCol := 1 to 4 do begin
+              if lM.matrix[lRow,lCol] <> 0 then
+	         exit;
           end; //each col
   end;//each row
 (*  for lRow := 1 to 3 do
@@ -407,6 +425,8 @@ begin
     result := true;
 end;
 
+
+
 function Quat2Mat( var lHdr: TNIfTIHdr ): boolean;
 var lR :TMatrix;
 begin
@@ -430,7 +450,8 @@ begin
    lHdr.srow_z[1] := lR.matrix[3,2];
    lHdr.srow_z[2] := lR.matrix[3,3];
    lHdr.srow_z[3] := lR.matrix[3,4];
-		lHdr.sform_code := 1;   
+   lHdr.sform_code := 1;
+   showmat(lR);
 end;
 
 
@@ -973,11 +994,10 @@ begin
     lOri[1] := (lHdr.NIFTIhdr.dim[1]+1) div 2;
     lOri[2] := (lHdr.NIFTIhdr.dim[2]+1) div 2;
     lOri[3] := (lHdr.NIFTIhdr.dim[3]+1) div 2;
-	  if  (not HasQuat(lHdr.NiftiHdr)) {3/2008} and (lHdr.NIFTIhdr.sform_code = 0) and (orthogonalMatrix(lHdr)) then
-		  lHdr.NIFTIhdr.sform_code := 1;
+    if  (not HasQuat(lHdr.NiftiHdr)) {3/2008} and (lHdr.NIFTIhdr.sform_code = 0) and (orthogonalMatrix(lHdr)) then
+        lHdr.NIFTIhdr.sform_code := 1;
     //ShowHdr(lHdr.NIFTIHdr,3);
     if emptymatrix(lHdr) then begin
-
       if Quat2Mat(lHdr.NiftiHdr) then
                      //HasQuat will specify
       else begin
