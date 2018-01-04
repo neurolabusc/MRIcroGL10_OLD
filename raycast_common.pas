@@ -189,10 +189,9 @@ function  initVertFrag(vert, frag: string): GLuint;
 var
    fs, vs: GLuint;
 begin
-  result := 0;
   glGetError(); //clear errors
-
   result := glCreateProgram();
+  vs := 0;
   if (length(vert) > 0) then begin
      vs := compileShaderOfType(GL_VERTEX_SHADER, vert);
      if (vs = 0) then exit;

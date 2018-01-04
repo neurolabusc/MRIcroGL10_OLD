@@ -16,8 +16,8 @@
         <ComponentName Value="GLForm1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <TopLine Value="3631"/>
-        <CursorPos X="23" Y="3641"/>
+        <TopLine Value="3576"/>
+        <CursorPos X="114" Y="3586"/>
         <UsageCount Value="47"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -28,7 +28,7 @@
         <ComponentName Value="ScriptForm"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="4"/>
         <TopLine Value="444"/>
         <CursorPos X="50" Y="447"/>
         <UsageCount Value="24"/>
@@ -38,7 +38,7 @@
       </Unit2>
       <Unit3>
         <Filename Value="texture_3d_unit.pas"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="5"/>
         <TopLine Value="412"/>
         <CursorPos X="24" Y="417"/>
         <UsageCount Value="24"/>
@@ -50,8 +50,7 @@
         <ComponentName Value="dcm2niiForm"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="3"/>
         <TopLine Value="286"/>
         <CursorPos X="51" Y="296"/>
         <UsageCount Value="11"/>
@@ -61,7 +60,7 @@
       </Unit4>
       <Unit5>
         <Filename Value="define_types.pas"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="2"/>
         <CursorPos X="25" Y="15"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
@@ -70,132 +69,134 @@
       <Unit6>
         <Filename Value="../../../lazarus/lcl/interfaces/carbon/carbonproc.pp"/>
         <UnitName Value="CarbonProc"/>
-        <EditorIndex Value="-1"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
         <TopLine Value="552"/>
-        <CursorPos X="55" Y="563"/>
+        <CursorPos X="13" Y="563"/>
         <UsageCount Value="10"/>
+        <Loaded Value="True"/>
       </Unit6>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="3780" Column="46" TopLine="3766"/>
+        <Caret Line="369" Column="30" TopLine="361"/>
       </Position1>
       <Position2>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="5550" Column="20" TopLine="5535"/>
+        <Caret Line="3530" Column="26" TopLine="3527"/>
       </Position2>
       <Position3>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="369" Column="30" TopLine="361"/>
+        <Caret Line="3604" Column="24" TopLine="3589"/>
       </Position3>
       <Position4>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="3530" Column="26" TopLine="3527"/>
-      </Position4>
-      <Position5>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="3604" Column="24" TopLine="3589"/>
-      </Position5>
-      <Position6>
         <Filename Value="dcm2nii.pas"/>
         <Caret Line="179" TopLine="179"/>
-      </Position6>
-      <Position7>
+      </Position4>
+      <Position5>
         <Filename Value="dcm2nii.pas"/>
         <Caret Line="245" Column="71" TopLine="230"/>
+      </Position5>
+      <Position6>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="3592" Column="28" TopLine="3590"/>
+      </Position6>
+      <Position7>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="185" Column="13" TopLine="177"/>
       </Position7>
       <Position8>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="3592" Column="28" TopLine="3590"/>
+        <Caret Line="201" Column="8" TopLine="187"/>
       </Position8>
       <Position9>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="185" Column="13" TopLine="177"/>
+        <Caret Line="352" Column="20" TopLine="338"/>
       </Position9>
       <Position10>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="201" Column="8" TopLine="187"/>
+        <Caret Line="2621" TopLine="2618"/>
       </Position10>
       <Position11>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="352" Column="20" TopLine="338"/>
+        <Caret Line="3601" Column="6" TopLine="3585"/>
       </Position11>
       <Position12>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="2621" TopLine="2618"/>
+        <Caret Line="4337" Column="29" TopLine="4335"/>
       </Position12>
       <Position13>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="3601" Column="6" TopLine="3585"/>
+        <Caret Line="4338" Column="8" TopLine="4335"/>
       </Position13>
       <Position14>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="4337" Column="29" TopLine="4335"/>
+        <Caret Line="193" Column="8" TopLine="185"/>
       </Position14>
       <Position15>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="4338" Column="8" TopLine="4335"/>
+        <Caret Line="218" Column="14" TopLine="204"/>
       </Position15>
       <Position16>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="193" Column="8" TopLine="185"/>
+        <Caret Line="337" Column="22" TopLine="323"/>
       </Position16>
       <Position17>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="218" Column="14" TopLine="204"/>
+        <Caret Line="363" Column="20" TopLine="349"/>
       </Position17>
       <Position18>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="337" Column="22" TopLine="323"/>
+        <Caret Line="1255" Column="21" TopLine="1239"/>
       </Position18>
       <Position19>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="363" Column="20" TopLine="349"/>
+        <Caret Line="1270" Column="19" TopLine="1254"/>
       </Position19>
       <Position20>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="1255" Column="21" TopLine="1239"/>
+        <Caret Line="1325" Column="17" TopLine="1309"/>
       </Position20>
       <Position21>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="1270" Column="19" TopLine="1254"/>
+        <Caret Line="1334" Column="23" TopLine="1320"/>
       </Position21>
       <Position22>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="1325" Column="17" TopLine="1309"/>
+        <Caret Line="2711" Column="31" TopLine="2705"/>
       </Position22>
       <Position23>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="1334" Column="23" TopLine="1320"/>
+        <Caret Line="4346" Column="31" TopLine="4329"/>
       </Position23>
       <Position24>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="2711" Column="31" TopLine="2705"/>
+        <Caret Line="3580" Column="7" TopLine="3565"/>
       </Position24>
       <Position25>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="4346" Column="31" TopLine="4329"/>
+        <Caret Line="3626" TopLine="3607"/>
       </Position25>
       <Position26>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="3580" Column="7" TopLine="3565"/>
+        <Filename Value="dcm2nii.pas"/>
+        <Caret Line="12" Column="56"/>
       </Position26>
       <Position27>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="3626" TopLine="3607"/>
+        <Caret Line="3641" Column="23" TopLine="3631"/>
       </Position27>
       <Position28>
         <Filename Value="dcm2nii.pas"/>
-        <Caret Line="12" Column="56"/>
+        <Caret Line="61" Column="20" TopLine="51"/>
       </Position28>
       <Position29>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="3641" Column="23" TopLine="3631"/>
+        <Caret Line="3633" Column="30" TopLine="3632"/>
       </Position29>
       <Position30>
-        <Filename Value="dcm2nii.pas"/>
-        <Caret Line="61" Column="20" TopLine="51"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="3586" Column="114" TopLine="3576"/>
       </Position30>
     </JumpHistory>
     <RunParams>

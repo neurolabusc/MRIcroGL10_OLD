@@ -23,8 +23,9 @@ types,clipbrd,
 {$ENDIF}Dialogs, ExtCtrls, Menus,  shaderu, texture2raycast,
   StdCtrls, Controls, ComCtrls, Reslice, glcube,glclrbar,
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unit_transfertexture, {$ELSE} texture_3d_unit,extract,{$ENDIF}
-  {$IFDEF FPC} strutils, fphttpclient, FileUtil, GraphType, LCLProc,LCLtype,  LCLIntf,LResources,OpenGLContext,{$ELSE}glpanel, {$ENDIF}
-{$IFDEF UNIX}Process,  {$ELSE}//ShellApi,
+  {$IFDEF FPC}  FileUtil, GraphType, LCLProc,LCLtype,  LCLIntf,LResources,OpenGLContext,{$ELSE}glpanel, {$ENDIF}
+{$IFDEF UNIX}Process, strutils, fphttpclient,
+{$ELSE}//ShellApi,
 Windows,{$IFDEF FPC}uscaledpi,{$ENDIF}{$ENDIF} glmtext,
   Graphics, Classes, SysUtils, Forms, Buttons, Spin, Grids, clut, define_types,
   histogram2d, readint, {$IFDEF COREGL} raycast_core, {$ELSE} raycast_legacy, {$ENDIF} raycast_common, histogram, nifti_hdr, shaderui,
@@ -3529,7 +3530,7 @@ begin
      end;
 end;
 
-{$IFDEF FPC}
+{$IFDEF UNIX}
 function latestGitRelease(url: string): string;
 //Returns string for latest release (error will return empty string)
 //example
@@ -3582,7 +3583,7 @@ begin
   end;
   gitVer := latestGitRelease(api);
   if length(gitVer) < 8 then begin  //last 8 digits are date: v.1.0.20170101
-      showmessage('Unable to detect latest version: are you connected to the web? '+api);
+      showmessage('Unable to detect latest version: are you connected to the web and do you have libssl installed? '+api);
       exit;
   end;
   exeNam := ExtractFileName(exe);
@@ -3686,7 +3687,8 @@ var
   bmpEdit: TEdit;
   {$IFDEF FPC}TiledCheck,{$ENDIF}
   {$IFDEF LCLCocoa} RetinaCheck,{$ENDIF} flipCheck: TCheckBox;
-  OkBtn, AdvancedBtn, UpdateBtn: TButton;
+  {$IFDEF FPC}UpdateBtn: TButton;{$ENDIF}
+  OkBtn, AdvancedBtn: TButton;
   bmpLabel: TLabel;
   searchRec: TSearchRec;
   s: string;
@@ -3761,7 +3763,7 @@ begin
   RetinaCheck.Parent:=PrefForm;
   {$ENDIF}
   //UpdateBtn
-  {$IFDEF FPC}
+  {$IFDEF UNIX}
   UpdateBtn:=TButton.create(PrefForm);
   UpdateBtn.Caption:='Check for updates';
   UpdateBtn.Left := 28;
@@ -4692,6 +4694,12 @@ begin
 end;
 
 procedure TGLForm1.ReorientMenuClick(Sender: TObject);
+{$IFNDEF FPC}
+begin
+    showmessage('Feature not available for Delphi');
+
+end;
+{$ELSE}
 //{$DEFINE REORIENTDEBUG}
 label
   245;
@@ -4823,7 +4831,7 @@ lHdr.dim[4] := 1;//3D
  245:
  gPrefs.isOrientationTriangles := false;
 end;
-
+{$ENDIF}
 (*type
   TVec =  array [1..3] of single;
 function isSame(a,b: TVec): boolean;

@@ -1173,6 +1173,9 @@ object GLForm1: TGLForm1
       object ConvertForeign1: TMenuItem
         Caption = 'Convert foreign to NIfTI'
       end
+      object ReorientMenu: TMenuItem
+        Caption = 'Rotate volume'
+      end
     end
     object Draw1: TMenuItem
       Caption = 'Draw'

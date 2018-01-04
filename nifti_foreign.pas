@@ -2273,9 +2273,9 @@ begin
   swapEndian := false;
   //gzBytes := false;
   isDimPermute2341 := false;
+  result := false;
   if FSize(lFilename) < 140 then
-      exit (false);
-  //result := false;
+      exit;
   lExt := UpCaseExt(lFilename);
   if (lExt = '.DV') then
      result := nii_readDeltaVision(lFilename, lHdr, gzBytes, swapEndian)
