@@ -1,12 +1,12 @@
 object GLForm1: TGLForm1
-  Left = 248
-  Height = 855
-  Top = 23
+  Left = 625
+  Height = 755
+  Top = 55
   Width = 1032
   ActiveControl = ToolPanel
   AllowDropFiles = True
   Caption = 'MRIcroGL'
-  ClientHeight = 855
+  ClientHeight = 755
   ClientWidth = 1032
   KeyPreview = True
   Menu = MainMenu1
@@ -21,11 +21,11 @@ object GLForm1: TGLForm1
   LCLVersion = '1.9.0.0'
   object ToolPanel: TPanel
     Left = 0
-    Height = 855
+    Height = 755
     Top = 0
     Width = 216
     Align = alLeft
-    ClientHeight = 855
+    ClientHeight = 755
     ClientWidth = 216
     ParentFont = False
     TabOrder = 0
@@ -105,20 +105,20 @@ object GLForm1: TGLForm1
     end
     object ShaderBox: TGroupBox
       Left = 1
-      Height = 198
+      Height = 98
       Top = 656
       Width = 214
       Align = alClient
       Caption = 'Shader'
-      ClientHeight = 176
+      ClientHeight = 76
       ClientWidth = 206
       ParentFont = False
       TabOrder = 1
       OnResize = ShaderBoxResize
       object ShaderMemo: TMemo
         Left = 0
-        Height = 56
-        Top = 120
+        Height = 0
+        Top = 76
         Width = 206
         Align = alClient
         Lines.Strings = (
@@ -1203,7 +1203,7 @@ object GLForm1: TGLForm1
   end
   object CollapsedToolPanel: TPanel
     Left = 216
-    Height = 855
+    Height = 755
     Top = 0
     Width = 5
     Align = alLeft

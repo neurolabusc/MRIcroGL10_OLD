@@ -375,6 +375,7 @@ FGzipComments := '';
              mrAbort: exit;
         end;
  end;*)
+  FileMode := fmOpenReadWrite;
   AssignFile (infile, lSrcName);
   {$I-}
   Reset (infile,1);
@@ -1996,12 +1997,14 @@ begin
     end;
   end; //if overwrite  *)
   lTempName := changefileext(FFileDestination,'.tmp');
+  FileMode := fmOpenReadWrite;
   assignfile(lFdata,lTempName );
   filemode := 2;
   rewrite(lFdata,1);
   BlockWrite(lFdata,lxInBuffer^,lInSize);
   closefile(lFdata);
   file_compress2 (lTempName,FFileDestination );
+  FileMode := fmOpenRead;
 end;//GZipBuffer
 
 
@@ -2116,7 +2119,7 @@ begin
   else begin
 	s := gz_streamp(infile);
 	fsize := FileSize( s^.gzfile);
-
+	FileMode := fmOpenReadWrite;
 	AssignFile (outfile, FFileDestination);
 	{$I-}
 	Rewrite (outfile,1);

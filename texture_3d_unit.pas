@@ -1138,6 +1138,7 @@ begin //Proc Load_From_NIfTI
         LoadLabels(lFileName, lTexture.LabelRA, lHdr.NIFTIhdr.HdrSz, round( lHdr.NIFTIhdr.vox_offset))
       else
         LoadLabelsTxt(lFileName, lTexture.LabelRA);
+    LoadLabelCustomLut(lFileName);
     end else
         lTexture.LabelRA := nil;
     Int32ToFloat(lHdr,lImgBuffer);

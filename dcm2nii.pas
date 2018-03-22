@@ -13,7 +13,7 @@ uses
     {$IFDEF Darwin} userdir, {$ENDIF}
   //
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  StdCtrls, Menus;  
+  StdCtrls, Menus;
 
 type
   { Tdcm2niiForm }
@@ -141,6 +141,7 @@ procedure Tdcm2niiForm.writeIni;
 var
    iniFile : TextFile;
  begin
+   FileMode := fmOpenWrite;
    AssignFile(iniFile, iniName);
    ReWrite(iniFile);
    if (compressCheck.checked) then
@@ -153,6 +154,7 @@ var
        WriteLn(iniFile, 'isBIDS=0');
    WriteLn(iniFile, 'filename='+outnameEdit.caption);
    CloseFile(iniFile);
+   FileMode := fmOpenRead;
 end; //writeIni
 
 procedure Tdcm2niiForm.readIni (ForceReset: boolean);

@@ -334,6 +334,7 @@ begin
     exit;
   end;
   mode := knone;
+  FileMode := fmOpenRead;
   AssignFile(F,lFilename);
   Reset(F);
   while not Eof(F) do begin

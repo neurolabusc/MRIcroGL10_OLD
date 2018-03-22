@@ -459,7 +459,7 @@ var
   gOpenOverlays : integer = 0;
   gOverlayImg : array [kMinOverlayIndex..kMaxOverlays] of TMRIcroHdr;
   gTypeInCell: boolean = false;
-    gEnterCell: boolean = false;
+  gEnterCell: boolean = false;
   gOverlayCLUTrec : array [kMinOverlayIndex..kMaxOverlays] of TCLUTrec;
   gOverlayAlpha : array [kMinOverlayIndex..kMaxOverlays] of integer;
   gBackgroundAlpha : array [kMinOverlayIndex..kMaxOverlays] of integer;
@@ -1524,23 +1524,23 @@ function AddExtSearchImg (var lFilenameX: string): boolean;
 var lFilename: string;
 begin
   result := true;
-  if fileexists(lFilenameX) then exit;
+  if fileexistsEx(lFilenameX) then exit;
   lFilename := lFilenameX;
   lFilenameX := lFilename+'.hdr';
-  if fileexists(lFilenameX) then
+  if fileexistsEx(lFilenameX) then
     exit;
   lFilenameX := lFilename+'.nii';
-  if fileexists(lFilenameX) then
+  if fileexistsEx(lFilenameX) then
     exit;
   lFilenameX := lFilename+'.voi';
-  if fileexists(lFilenameX) then
+  if fileexistsEx(lFilenameX) then
     exit;
   lFilenameX := lFilename+'.nii.gz';
-  if fileexists(lFilenameX) then
+  if fileexistsEx(lFilenameX) then
     exit;
   if (UpCaseExt(lFilename) = '.NII') then begin
       lFilenameX := lFilename+'.gz';
-      if fileexists(lFilenameX) then
+      if fileexistsEx(lFilenameX) then
         exit;
   end;
   result := false;
@@ -1615,7 +1615,7 @@ begin
   result := false;
   if lFilenameX = '' then exit;
   result := true;
-  if fileexists(lFilenameX) then exit;
+  if fileexistsEx(lFilenameX) then exit;
   lFilename := lFilenameX;
   lFilenameX := GetCurrentDir + pathdelim + lFilename;
   if AddExtSearch(lFilenameX,lBitmap) then
@@ -1649,7 +1649,7 @@ begin
     exit;
   //unable to find a match!
   lFilenameX := lFilename;
-  if fileexists(lFilenameX) then exit;
+  if fileexistsEx(lFilenameX) then exit;
   result := false;
 end;
 
@@ -1917,17 +1917,36 @@ begin
  SetToolPanelWidth; //4/2017: show correct tool panel when script runs ResetDefaults()
 end;
 
+{$IFDEF LCLCocoa}
+function SimpleGetInt(lPrompt: string; lMin,lDefault,lMax: integer): integer;
+var
+  i: integer;
+begin
+  i := MessageDlg('Set graphics (abort=old, cancel=fair, ok=good)',mtInformation,[mbIgnore , mbAbort, mbCancel, mbOK],0);
+  if i  = mrIgnore then
+     result := 0
+  else if i = mrAbort then
+       result := 1
+  else if i = mrCancel then
+       result := 2
+  else
+      result := 3;
+  //(0=old, 1=poor, 2=ok, 3=great
+
+end;
+{$ELSE}
 function SimpleGetInt(lPrompt: string; lMin,lDefault,lMax: integer): integer;
 var
   lStr: string;
 begin
  result := lDefault;
  lStr := inttostr(lDefault);
+
  if not InputQuery ('Enter a value '+inttostr(lMin)+'..'+inttostr(lMax), lPrompt, lStr) then  exit;
  result := strtoint(lStr);
  result := Bound (result,lMin,lMax);
 end;
-
+{$ENDIF}
 const
 kFname=0;
 kLUT=1;
@@ -3536,7 +3555,7 @@ function latestGitRelease(url: string): string;
 //example
 // latestGitRelease('https://api.github.com/repos/rordenlab/dcm2niix/releases/latest');
 //will return
-// "v1.0.20171204"
+// "v1.0.20171204" / "v1.0.20180306"
 const
      key = '"tag_name":"';
 var
@@ -4940,7 +4959,7 @@ begin
   end;
   lFilenameX := lFilename;
   GLForm1.CheckFilename (lFilenameX,false);
-  if not fileexists(lFilenameX) then begin
+  if not fileexistsEx(lFilenameX) then begin
     {$IFDEF ENABLESCRIPT} ScriptForm.Stop1Click(nil); {$ENDIF} //OSX crashes if you give a modal dialog while script is running
     showmessage('Unable to find overlay named '+lFilename);
     exit;

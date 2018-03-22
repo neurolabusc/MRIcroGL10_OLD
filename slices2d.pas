@@ -1059,7 +1059,6 @@ begin
   end;
   StartDraw2D;
   //Enter2D;
-  gPrefs.CrosshairThick := 1;
   {$IFNDEF COREGL}glPopAttrib;{$ENDIF}
   if gPrefs.CrosshairThick > 0 then begin
     {$IFDEF COREGL}

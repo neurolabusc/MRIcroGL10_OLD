@@ -8,11 +8,11 @@ interface
         {$IFDEF FPC}
                {$IFDEF GUI}LCLType, lclintf, {$ENDIF}
         {$ENDIF}
-        {$IFNDEF Unix} Windows,{$ENDIF}
+        {$IFDEF UNIX} BaseUnix, {$ELSE} Windows,{$ENDIF}
         SysUtils,classes,graphics,userdir,math,
         {$IFDEF GUI} forms,dialogs,controls;{$ELSE} dialogsx;{$ENDIF}
 const
-  kVers = 'v1.0.20171215';
+  kVers = 'v1.0.20180306';
      NaN : double = 1/0;
      kMagicDouble : double = -111666222;
      kTxtFilter = 'Text (*.txt)|*.txt;*.csv|Comma Separated (*.csv)|*.csv';
@@ -1291,6 +1291,18 @@ begin
       result := result + lFilewExt[i];
 end;
 
+function FileExistsF(fnm: string): boolean; //returns false if file exists but is directory
+begin
+     result := FileExists(fnm);
+     if result = false then exit;
+     result := not DirectoryExists(fnm);
+     {$IFDEF UNIX}
+     if result = false then exit;
+     //showmessage(fnm + inttostr( fpAccess (fnm,R_OK)));
+     if fpAccess(fnm,R_OK) < 0 then
+        result := false;
+     {$ENDIF}
+end;
 Function FileExistsEX(Name: String): Boolean;
 var
    F: File;
@@ -1299,6 +1311,11 @@ begin
   if Name = '' then
      exit;
   result := FileExists(Name);
+  {$IFDEF UNIX}
+  if result = false then exit;
+  if fpAccess(Name,R_OK) < 0 then //report size of zero if no permission to read
+	result := false;
+  {$ELSE}
   if result then exit;
    //the next bit attempts to check for a file to avoid WinNT bug
    AssignFile(F, Name);
@@ -1308,7 +1325,10 @@ begin
    Result:=IOresult = 0;
    if Result then
      CloseFile(F);
+  {$ENDIF}
 end;
+
+
 
 function FSize (lFName: String): longint;
 var SearchRec: TSearchRec;

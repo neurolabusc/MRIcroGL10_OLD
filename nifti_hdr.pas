@@ -89,8 +89,10 @@ begin
 			exit;
 		 end;
 		 lFilename := changefileext(lFilename,'.nii')
-	 end else
+	 end else begin
          lFilename := changefileext(lFilename,'.hdr');
+         lHdr.magic := kNIFTI_MAGIC_SEPARATE_HDR;
+     end;
      if ((sizeof(TNIFTIhdr))> DiskFreeEx(lFileName)) then begin
         ShowMessage('There is not enough free space on the destination disk to save the header. '+kCR+
         lFileName+ kCR+' Bytes Required: '+inttostr(sizeof(TNIFTIhdr)) );
@@ -1207,8 +1209,10 @@ begin
 			exit;
 		 end;
 		 lFilename := changefileext(lFilename,'.nii')
-	 end else
+	 end else begin
          lFilename := changefileext(lFilename,'.hdr');
+         lHdr.NIFTIhdr.magic := kNIFTI_MAGIC_SEPARATE_HDR;
+	 end;
      if ((sizeof(TNIFTIhdr))> DiskFreeEx(lFileName)) then begin
         ShowMessage('There is not enough free space on the destination disk to save the header. '+kCR+
         lFileName+ kCR+' Bytes Required: '+inttostr(sizeof(TNIFTIhdr)) );
@@ -1291,4 +1295,4 @@ begin
 end; //proc NIFTIhdr_SwapBytes
 
 end.
- 
+

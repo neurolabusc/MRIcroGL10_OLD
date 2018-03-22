@@ -434,11 +434,12 @@ var
   text : string;
 begin
   result := '';
-  if not fileexists(lFilename) then begin
-    showDebug('Unable to find '+lFilename);
+  if not fileexistsEX(lFilename) then begin
+    showDebug('Unable to find or open '+lFilename);
     //GLForm1.ShowmessageError('Unable to find '+lFilename);
     exit;
   end;
+  FileMode := fmOpenRead;
   AssignFile(myFile,lFilename);
   Reset(myFile);
   while not Eof(myFile) do begin

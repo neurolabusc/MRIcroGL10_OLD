@@ -73,7 +73,7 @@ begin
   if (not lForce) and (lMRU[1] <> '') then begin
       //exit; //only fill empty MRUs...
       for lI := 1 to knMRU do begin
-        if (lMRU[lI] <> '') and (fileexists(lMRU[lI])) and (IsNovel (lMRU[lI], lMRU, lOK)) then begin
+        if (lMRU[lI] <> '') and (fileexistsEX(lMRU[lI])) and (IsNovel (lMRU[lI], lMRU, lOK)) then begin
           inc(lOK);
           lMRU[lOK] := lMRU[lI];
         end; //if file exists
@@ -408,7 +408,7 @@ begin
   result := false;
   if (lRead) then
     SetDefaultPrefsMRU (lPrefs);
-  if (lRead) and (not Fileexists(lFilename)) then
+  if (lRead) and (not FileexistsEX(lFilename)) then
         exit;
   //if lPrefs.SkipPrefWriting then showmessage('xxxx');
   if (not lRead) and (lPrefs.SkipPrefWriting) then exit; //avoid contention: user aborting program to edit prefs with text editor

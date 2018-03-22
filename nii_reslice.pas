@@ -597,7 +597,6 @@ begin
      lDestHdr.GlMinUnscaledS := lSrcHdr.GlMinUnscaledS;
      lDestHdr.GlMaxUnscaledS := lSrcHdr.GlMaxUnscaledS; }
      l8is := (@lSrcBuffer^);
-
      GetMem(lDestHdr.ImgBufferUnaligned ,(lBPP*lX*lY*lZ)+15);
      {$IFDEF FPC}
      lDestHdr.ImgBuffer := Align(lDestHdr.ImgBufferUnaligned,16); // not commented - check this
@@ -606,26 +605,24 @@ begin
      {$ENDIF}
      //lPos := 1;
      case lSrcHdr.NIFTIhdr.datatype of
-          kDT_UNSIGNED_CHAR : l8i  := @lDestHdr.ImgBuffer^;
-	        kDT_SIGNED_SHORT: l16i := SmallIntP(@lDestHdr.ImgBuffer^ );
-          kDT_SIGNED_INT:l32i := LongIntP(@lDestHdr.ImgBuffer^);
-	        kDT_FLOAT: l32f := SingleP(@lDestHdr.ImgBuffer^ );
+        kDT_UNSIGNED_CHAR : l8i  := @lDestHdr.ImgBuffer^;
+        kDT_SIGNED_SHORT: l16i := SmallIntP(@lDestHdr.ImgBuffer^ );
+        kDT_SIGNED_INT:l32i := LongIntP(@lDestHdr.ImgBuffer^);
+        kDT_FLOAT: l32f := SingleP(@lDestHdr.ImgBuffer^ );
      end; //case
      case lSrcHdr.NIFTIhdr.datatype of
-           //kDT_UNSIGNED_CHAR : l8is := l8is;
-	        kDT_SIGNED_SHORT: l16is := SmallIntP(l8is );
-          kDT_SIGNED_INT:l32is := LongIntP(l8is );
-	        kDT_FLOAT: l32fs := SingleP(l8is );
+        //kDT_UNSIGNED_CHAR : l8is := l8is;
+        kDT_SIGNED_SHORT: l16is := SmallIntP(l8is );
+        kDT_SIGNED_INT:l32is := LongIntP(l8is );
+        kDT_FLOAT: l32fs := SingleP(l8is );
      end; //case
      //next clear image
-
      case lSrcHdr.NIFTIhdr.datatype of
            kDT_UNSIGNED_CHAR : for lPos := 1 to (lX*lY*lZ) do l8i^[lPos] := 0;
 	        kDT_SIGNED_SHORT: for lPos := 1 to (lX*lY*lZ) do l16i^[lPos] := 0;
           kDT_SIGNED_INT:for lPos := 1 to (lX*lY*lZ) do l32i^[lPos] := 0;
 	        kDT_FLOAT: for lPos := 1 to (lX*lY*lZ) do l32f^[lPos] := 0;
      end; //case
-
      //now we can apply the transforms...
      //build lookup table - speed up inner loop
      getmem(lXx, lX*sizeof(single));
@@ -653,7 +650,6 @@ if lTrilinearInterpolation  then begin
              for lXi := 0 to (lX-1) do begin
                  //compute each column
                  inc(lPos);
-
                  lXreal := (lXx^[lXi]+lYx+lZx+lMat.matrix[1][4]);
                  lYreal := (lXy^[lXi]+lYy+lZy+lMat.matrix[2][4]);
                  lZreal := (lXz^[lXi]+lYz+lZz+lMat.matrix[3][4]);
@@ -791,6 +787,7 @@ end;
       kDT_SIGNED_INT:lDestHdr.ImgBufferBPP :=4;
 	    kDT_FLOAT: lDestHdr.ImgBufferBPP :=4;
      end; //case
+     GLForm1.Caption:=floattostr(lMinPositive)+'....'+floattostr(lMaxNegative);
      NIFTIhdr_ThreshPos(lDestHdr,lDestHdr.ImgBuffer, lMinPositive);
      NIFTIhdr_ThreshNeg(lDestHdr,lDestHdr.ImgBuffer, lMaxNegative);
      NIFTIhdr_MinMaxImg(lDestHdr,lDestHdr.ImgBuffer);//set global min/max

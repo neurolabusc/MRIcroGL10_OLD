@@ -48,7 +48,7 @@ Type
     if FSize(fnm) < 32 then exit;
     {$I-}
     AssignFile(f, fnm);
-    FileMode := 0;  //Set file access to read only
+    FileMode := fmOpenRead;  //Set file access to read only
     Reset(f, 1);
     {$I+}
     if ioresult <> 0 then
@@ -71,7 +71,7 @@ Type
     if FSize(fnm) < 32 then exit;
     {$I-}
     AssignFile(f, fnm);
-    FileMode := 0;  //Set file access to read only
+    FileMode := fmOpenRead;  //Set file access to read only
     Reset(f, 1);
     {$I+}
     if ioresult <> 0 then
@@ -579,7 +579,7 @@ begin
   result := false;
   {$I-}
   AssignFile(lHdrFile, fname);
-  FileMode := 0;  //Set file access to read only
+  FileMode := fmOpenRead;  //Set file access to read only
   Reset(lHdrFile, 1);
   {$I+}
   if ioresult <> 0 then begin
@@ -661,7 +661,7 @@ begin
   result := false;
   {$I-}
   AssignFile(lHdrFile, fname);
-  FileMode := 0;  //Set file access to read only
+  FileMode := fmOpenRead;  //Set file access to read only
   Reset(lHdrFile, 1);
   {$I+}
   if ioresult <> 0 then begin
@@ -740,7 +740,7 @@ begin
   result := false;
   {$I-}
   AssignFile(lHdrFile, fname);
-  FileMode := 0;  //Set file access to read only
+  FileMode := fmOpenRead;  //Set file access to read only
   Reset(lHdrFile, 1);
   {$I+}
   if ioresult <> 0 then begin
@@ -840,7 +840,7 @@ begin
   result := false;
   {$I-}
   AssignFile(lHdrFile, fname);
-  FileMode := 0;  //Set file access to read only
+  FileMode := fmOpenRead;  //Set file access to read only
   Reset(lHdrFile, 1);
   {$I+}
   if ioresult <> 0 then begin
@@ -969,7 +969,7 @@ begin
   result := false;
   {$I-}
   AssignFile(lHdrFile, fname);
-  FileMode := 0;  //Set file access to read only
+  FileMode := fmOpenRead;  //Set file access to read only
   Reset(lHdrFile, 1);
   {$I+}
   if ioresult <> 0 then begin
@@ -1135,7 +1135,7 @@ begin
   gzBytes := 0;
   {$I-}
   AssignFile(lHdrFile, fname);
-  FileMode := 0;  //Set file access to read only
+  FileMode := fmOpenRead;  //Set file access to read only
   Reset(lHdrFile, 1);
   {$I+}
   if ioresult <> 0 then begin
@@ -1237,7 +1237,7 @@ begin
      gzBytes := 0;
 	   {$I-}
 	   AssignFile(lHdrFile, fname);
-	   FileMode := 0;  //Set file access to read only
+	   FileMode := fmOpenRead;  //Set file access to read only
 	   Reset(lHdrFile, 1);
 	   {$I+}
 	   if ioresult <> 0 then begin
@@ -1399,6 +1399,7 @@ begin
   result := false;
   strlst:=TStringList.Create;
   AssignFile(f, fname);
+  FileMode := fmOpenRead;
   {$IFDEF FPC} Reset(f,1); {$ELSE} Reset(f); {$ENDIF}
   ReadLnBin(f, str); //signature: '# vtk DataFile'
   if pos('VTK', UpperCase(str)) <> 3 then begin
@@ -1739,7 +1740,7 @@ var
 begin
   swapEndian :=false;
   result := false;
-  Filemode := 0;
+  FileMode := fmOpenRead;
   AssignFile(fp,fname);
   reset(fp);
   mArray := TStringList.Create;
@@ -1849,8 +1850,8 @@ begin
   isDetachedFile :=false;
   matElements :=0;
   mArray := TStringList.Create;
-  Filemode := 0;
   isFirstLine := true;
+  FileMode := fmOpenRead;
   AssignFile(fp,fname);
   reset(fp);
   while (not EOF(fp))  do begin
