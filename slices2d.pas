@@ -2,6 +2,7 @@ unit slices2d;
 interface
 {$include opts.inc}
 uses
+
  {$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL}glcorearb, {$ELSE} gl, glext, {$ENDIF}  {$ENDIF DGL}
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unit_transfertexture, {$ELSE} texture_3d_unit,{$ENDIF}
    //types,
@@ -11,8 +12,12 @@ const
   kEmptyOrient = 0;
   kAxialOrient = 1;
   kCoronalOrient = 2;
-  kSagRightOrient = 3;
-  kSagLeftOrient = 4;
+  kSagRightOrient = 4;
+  kSagLeftOrient = 8;
+
+  kOrientMask = 63;
+  kRenderSliceOrient = 64;
+  kCrossSliceOrient = 128;
 function MosaicGL ( lMosaicString: string; var lTex: TTexture): single;
 procedure DrawOrtho(var lTex: TTexture);
 //procedure SetZooms (var lX,lY,lZ: single);
@@ -25,9 +30,9 @@ procedure MosaicScale(var w, h: int64; zoom: integer);
 
 implementation
 
-uses mainunit;
-
-  //kFontSize = 24;
+uses
+ //scriptengine,
+ mainunit;
 
 type
 TPointF = record
@@ -54,8 +59,7 @@ begin
     if lSlices < 1 then
       exit;
     //result := round(((lFrac+ (1/lSlices))*lSlices));
-
-    result := (lSlice-1)/lSlices;
+    result := (lSlice-0.5)/lSlices; //-0.5: consider dim=3, slice=2 means frac 0.5
     //bound in range 0..1
     if result < 0 then
       result := 0;
@@ -68,6 +72,7 @@ var
   X,Y,Z: single;
 
 begin
+    lOrient := (lOrient and kOrientMask);
     X := 0;
     Y := 0;
     Z := 0;
@@ -77,6 +82,7 @@ begin
       kSagRightOrient : X := lSliceMM;
       kSagLeftOrient : X := lSliceMM;
     end;
+    //ScriptForm.Memo2.Lines.Add(format('mm %g %g %g', [X,Y,Z]));
     mm2Voxel (X,Y,Z, lInvMat);
     //-1 as the values are indexed from zero...
     //X := SliceToFrac(X-1,gTexture3D.FiltDim[1]);
@@ -88,6 +94,7 @@ begin
       kSagRightOrient,kSagLeftOrient : result := SliceToFrac(X,gTexture3D.FiltDim[1]);
       else result := 0; //should be impossible - prevents compiler warning
     end;
+    //ScriptForm.Memo2.Lines.Add(format('vxl2frac %g %g %g -> %g', [X,Y,Z, result]));
 end; //SliceMM
 
 procedure MMToFrac(var X,Y,Z: single);
@@ -130,8 +137,36 @@ begin
   end;//row
 end;
 
+//
 function SliceXY(lOrient: integer): TPointF;
+var
+  i : integer;
+  maxMM,minMM: single;
+  scale: array[1..3] of single;
 begin
+  for i := 1 to 3 do
+      scale[i] := 1;
+  maxMM := max(max(abs(gTexture3D.PixMM[1]),abs(gTexture3D.PixMM[2])),abs(gTexture3D.PixMM[3]));
+  minMM := min(min(abs(gTexture3D.PixMM[1]),abs(gTexture3D.PixMM[2])),abs(gTexture3D.PixMM[3]));
+  if (minMM > 0) and (maxMM <> minMM) then
+     for i := 1 to 3 do
+         scale[i] := gTexture3D.PixMM[i]/minMM;
+  //GLForm1.Caption := format('%g %g %g',[scale[1],scale[2],scale[3]]);
+  lOrient := (lOrient and kOrientMask);
+  case lOrient of
+    kAxialOrient,kCoronalOrient: result.X :=gTexture3D.FiltDim[1]*scale[1];//screen L/R corresponds to X
+    kSagRightOrient,kSagLeftOrient: result.X :=gTexture3D.FiltDim[2]*scale[2];//screen L/R corresponds to Y dimension
+    else result.X := 0;
+  end;//case
+  case lOrient of
+    kAxialOrient: result.Y := gTexture3D.FiltDim[2]*scale[2];//screen vert is Y
+    kCoronalOrient,kSagRightOrient,kSagLeftOrient: result.Y :=gTexture3D.FiltDim[3]*scale[3];//screen vert is Z dimension
+    else result.Y := 0;
+  end;//case
+end;
+(*function SliceXY(lOrient: integer): TPointF;
+begin
+  lOrient := (lOrient and kOrientMask);
   case lOrient of
     kAxialOrient,kCoronalOrient: result.X :=gTexture3D.FiltDim[1];//screen L/R corresponds to X
     kSagRightOrient,kSagLeftOrient: result.X :=gTexture3D.FiltDim[2];//screen L/R corresponds to Y dimension
@@ -142,8 +177,7 @@ begin
     kCoronalOrient,kSagRightOrient,kSagLeftOrient: result.Y :=gTexture3D.FiltDim[3];//screen vert is Z dimension
     else result.Y := 0;
   end;//case
-
-end;
+end;*)
 
 procedure MosaicColorBarXY(var lMosaic: TMosaic);
 const
@@ -185,7 +219,7 @@ end;
 procedure MosaicSetXY (var lMosaic: TMosaic);
 var
   lRow,lCol: integer;
-  lMaxY,lX,Hfrac,Vfrac: single;
+  lMaxYDim, lMaxY,lX,Hfrac,Vfrac: single;
 begin
   if (lMosaic.Cols < 1) or (lMosaic.Rows < 1)  then
     exit;
@@ -210,33 +244,28 @@ begin
     end;
     //now...
     lX := 0;
+    lMaxYDim := 0;
     for lCol := 1 to lMosaic.Cols do begin
       lMosaic.Pos[lCol,lRow].X := lX;
       lMosaic.Pos[lCol,lRow].Y := lMaxY;
-      if lCol < lMosaic.Cols then
-        lX := lX +  Hfrac*lMosaic.Dim[lCol,lRow].X
-      else
+      if (lMosaic.Dim[lCol,lRow].Y > lMaxYDim) then lMaxYDim := lMosaic.Dim[lCol,lRow].Y;
+      if lCol < lMosaic.Cols then begin
+        if ((lMosaic.Orient[lCol+1,lRow] and kCrossSliceOrient) = kCrossSliceOrient)
+         or ((lMosaic.Orient[lCol+1,lRow] and kRenderSliceOrient) = kRenderSliceOrient) then
+        	lX := lX +  lMosaic.Dim[lCol,lRow].X
+        else
+        	lX := lX +  Hfrac*lMosaic.Dim[lCol,lRow].X
+      end else
         lX := lX +  lMosaic.Dim[lCol,lRow].X;
     end;//for each column
     if lX > lMosaic.MaxWid then
       lMosaic.MaxWid := ceil(lX);
-
   end;//for each row
-  lMosaic.MaxHt := ceil(lMosaic.Pos[1,1].Y+lMosaic.Dim[1,1].Y);
+  //lMosaic.MaxHt := ceil(lMosaic.Pos[1,1].Y+lMosaic.Dim[1,1].Y);
+  lMosaic.MaxHt := ceil(lMosaic.Pos[1,1].Y+lMaxYDim); //2018: e.g. in case tallest slice not in leftmost position
   MosaicColorBarXY(lMosaic);
 end;
 
-(*procedure ReportMosaic (var lMosaic: TMosaic);
-var
-  lRow,lCol: integer;
-  lMaxY,lX: single;
-begin
-  if (lMosaic.Cols < 1) or (lMosaic.Rows < 1)  then
-    exit;
-  for lRow := 1 to lMosaic.Rows do
-    for lCol := 1 to lMosaic.Cols do
-      fx(lRow,lCol,lMosaic.Dim[lCol,lRow].X,lMosaic.Dim[lCol,lRow].Y);
-end;   *)
 function Str2Mosaic ( lMosaicString: string): TMosaic;
 // '0.2 0.4 0.8; 0.9' has 3 columns and 2 rows
 // '0.2 0.4; 0.8 0.9' has 2 columns and 2 rows
@@ -250,7 +279,7 @@ function Str2Mosaic ( lMosaicString: string): TMosaic;
 function S2F (lStr: String): single;//float to string
 begin
   try
-    result := StrToFloat(lStr);    // Hexadecimal values are not supported
+    result := StrToFloatDef(lStr,1);    // Hexadecimal values are not supported
   except
     //report problem here..
     result := 1;
@@ -270,12 +299,14 @@ var
   lCh,lCh2: char;
   lNumStr: string;
   lFloat: single;
-  lX,lY,lPos,lLen,lCurrentOrient,lCol : integer;
+  lX,lY,lPos,lLen,lCurrentOrient,lCol, lCrossFlag, lRenderFlag : integer;
   lCurrentText : boolean;
 begin
   result.isMM := false;
   lCurrentOrient := kAxialOrient;
   lCurrentText := false;
+  lCrossFlag := 0; //assume slice is not a cross-section
+  lRenderFlag := 0; //assume slice is not a render
   for lX := 1 to kMaxMosaicDim do begin
     for lY := 1 to kMaxMosaicDim do begin
       result.Orient[lX,lY] := kEmptyOrient;
@@ -309,8 +340,13 @@ begin
         //if lMosaic.Slices[lCol,lRows] < 1 then
         //  fx(lMosaic.Slices[lCol,lRows]);
         //showmessage(floattostr(lMosaic.Slices[lCol,lRows])+'  '+lNumStr);
-        result.Orient[lCol,result.Rows] := lCurrentOrient;
-        result.Text[lCol,result.Rows] := lCurrentText;
+        result.Orient[lCol,result.Rows] := lCurrentOrient+lCrossFlag+lRenderFlag;
+        if ((lCrossFlag = kCrossSliceOrient) or ((lRenderFlag = kRenderSliceOrient))) then
+        	result.Text[lCol,result.Rows] := false
+        else
+        	result.Text[lCol,result.Rows] := lCurrentText;
+        lCrossFlag := 0;
+        lRenderFlag := 0;
       end;//if lNumStr <> ''
       lNumStr := '';
       //next - see if this is some other command, else whitespace
@@ -322,18 +358,19 @@ begin
         lCurrentOrient := kSagRightOrient;
       if lCh = 'Z' then
         lCurrentOrient := kSagLeftOrient;
+      if lCh = 'R' then
+         lRenderFlag := kRenderSliceOrient;
+      if lCh = 'X' then
+      	lCrossFlag := kCrossSliceOrient;
       if lCh = 'M' then
          result.isMM := true;
       if lCh = 'L' then begin
         lCurrentText := True;
-
         if (lPos < lLen) and (lMosaicString[lPos+1] = '-') then begin
           lCurrentText := False;
           inc(lPos);
         end else if (lPos < lLen) and (lMosaicString[lPos+1] = '+') then
           inc(lPos);
-
-
       end;
       if (lCh = 'V') or (lCh = 'H') then begin
         lDone := false;
@@ -458,6 +495,14 @@ begin
 end;
 
 {$ELSE}
+procedure DrawXYCoroRender ( lX,lY,lW,lH: single; isPosteriorView: boolean = false);
+begin
+ if (not isPosteriorView) then
+    DisplayRender(gTexture3D,lX,lY,lW,lH, -kCoronalOrient)
+ else
+     DisplayRender(gTexture3D,lX,lY,lW,lH, kCoronalOrient);
+end;
+
 procedure DrawXYCoro ( lX,lY,lW,lH, lSlice: single);
 begin
   if gPrefs.FlipLR then begin //Radiological convention: flips LR, camera anterior to object
@@ -486,8 +531,18 @@ begin
   glend;
 end;
 
-procedure DrawXYAx ( lX,lY,lW,lH, lSlice: single);
+
+procedure DrawXYAxRender ( lX,lY,lW,lH: single; isInferiorView: boolean = false);
 begin
+ if (isInferiorView) then
+    DisplayRender(gTexture3D,lX,lY,lW,lH, -kAxialOrient)
+ else
+     DisplayRender(gTexture3D,lX,lY,lW,lH, kAxialOrient);
+end;
+
+procedure DrawXYAx( lX,lY,lW,lH, lSlice: single);
+begin
+ //DrawXYAxRender(lX,lY,lW,lH); exit;
   if gPrefs.FlipLR then begin //radiological convention: camera inferior to object
     glBegin(GL_QUADS);
       glTexCoord3d (1, 1, lSlice);
@@ -512,6 +567,14 @@ begin
       glTexCoord3d (1,1, lSlice);
       glVertex2f(lX+LW,lY+lH);
   glend;
+end;
+
+procedure DrawXYSagRender ( lX,lY,lW,lH: single; lNoseLeft: boolean = false);
+begin
+ if (lNoseLeft) then
+    DisplayRender(gTexture3D,lX,lY,lW,lH, kSagLeftOrient)
+ else
+     DisplayRender(gTexture3D,lX,lY,lW,lH, kSagRightOrient);
 end;
 
 procedure DrawXYSag ( lX,lY,lW,lH, lSlice: single; lFlipLR: boolean);
@@ -601,6 +664,7 @@ function SliceMM (lSliceFrac: single; lOrient: integer): single;
 var
   X,Y,Z: single;
 begin
+    lOrient := (lOrient and kOrientMask);
     X := 0.5;
     Y := 0.5;
     Z := 0.5;
@@ -621,6 +685,35 @@ begin
       kSagRightOrient,kSagLeftOrient : result := X;
       else result := 0; //should be impossible - prevents compiler warning
     end;
+    //ScriptForm.Memo2.Lines.Add(format('%g -> %g', [lSliceFrac, result]));
+end; //SliceMM
+
+function SliceMM_NoFlipLR (lSliceFrac: single; lOrient: integer): single;
+var
+  X,Y,Z: single;
+begin
+    lOrient := (lOrient and kOrientMask);
+    X := 0.5;
+    Y := 0.5;
+    Z := 0.5;
+    case lOrient of
+      kAxialOrient : Z := lSLiceFrac;
+      kCoronalOrient : Y := lSliceFrac;
+      kSagRightOrient : X := lSliceFrac;
+      kSagLeftOrient : X := lSliceFrac;
+    end;
+    //if gPrefs.FlipLR then X := 1 - X;
+    X := FracToSlice(X,gTexture3D.FiltDim[1]);
+    Y := FracToSlice(Y,gTexture3D.FiltDim[2]);
+    Z := FracToSlice(Z,gTexture3D.FiltDim[3]);
+    Voxel2mm(X,Y,Z,gTexture3D.NIfTIHdr);
+    case lOrient of
+      kAxialOrient : result := Z;
+      kCoronalOrient : result := Y;
+      kSagRightOrient,kSagLeftOrient : result := X;
+      else result := 0; //should be impossible - prevents compiler warning
+    end;
+    //ScriptForm.Memo2.Lines.Add(format('%g -> %g', [lSliceFrac, result]));
 end; //SliceMM
 
 procedure TextLabelXY(X,Y,lSlice: single; lOrient,lDec: integer);
@@ -628,7 +721,7 @@ var
   lF: single;
   lS: string;
 begin
-     lF := SliceMM (lSlice, lOrient);
+     lF := SliceMM_NoFlipLR (lSlice, lOrient);
      if lDec = 0 then
         lF := round(lF);
     lS := realtostr(lF,lDec);
@@ -695,9 +788,102 @@ begin
   glDisable(GL_DEPTH_TEST);
 end;
 
+procedure GLLine(l,t,w,h: single);
+begin
+    glBegin(GL_LINES);
+      glVertex3f(l, t, 0);
+      glVertex3f(l+w,t+h, 0);
+    glEnd;
+    //glDisable (GL_BLEND);
+end;
+
+
+function isCross(lOrient: integer): boolean;
+//returns true if slice is Cross-Slice that should have lines drawn
+begin
+     result := (lOrient and kCrossSliceOrient) = kCrossSliceOrient;
+end;
+
+function isRender(lOrient: integer): boolean;
+//returns true if slice is Render that should have lines drawn
+begin
+     result := (lOrient and kRenderSliceOrient) = kRenderSliceOrient;
+end;
+function isSag(lOrient: integer): boolean;
+begin
+     result := (lOrient = kSagLeftOrient) or (lOrient = kSagRightOrient);
+end;
+
+procedure GLCrossLine(lMosaic: TMosaic; scale:single);
+var
+  i,j, lOrient, lCrossOrient, lColInc,lRow, lRowInc,lCol:integer;
+  fh, fw, l,b,w,h: single;
+begin
+ if gPrefs.CrosshairThick < 1 then exit;
+ glColor4ub(gPrefs.CrosshairColor.rgbRed,gPrefs.CrosshairColor.rgbGreen,gPrefs.CrosshairColor.rgbBlue,gPrefs.CrosshairColor.rgbReserved);
+ glLineWidth(gPrefs.CrosshairThick);
+ if lMosaic.HOverlap < 0 then
+   lColInc := -1
+ else
+   lColInc := 1;
+ if lMosaic.VOverlap < 0 then begin
+    lRow := lMosaic.Rows;
+    lRowInc := -1;
+  end else begin
+    lRow := 1;
+    lRowInc := 1;
+  end;
+    while (lRow >= 1) and (lRow <= lMosaic.Rows) do begin
+      if lMosaic.HOverlap < 0 then
+        lCol := lMosaic.Cols
+      else
+        lCol := 1;
+      while (lCol >= 1) and (lCol <= lMosaic.Cols) do begin
+        //if ((lMosaic.Orient[lCol,lRow] and kCrossSliceOrient) = kCrossSliceOrient) then
+          //TextLabelXY(scale*(lMosaic.Pos[lCol,lRow].X+(lMosaic.Dim[lCol,lRow].X/2) ),scale*(lMosaic.Pos[lCol,lRow].Y+lMosaic.Dim[lCol,lRow].Y),lMosaic.Slices[lCol,lRow],lMosaic.Orient[lCol,lRow],lDec);
+        if isCross(lMosaic.Orient[lCol,lRow]) then begin
+           lCrossOrient := (lMosaic.Orient[lCol,lRow] and kOrientMask);        //kCrossSliceOrient
+           l := scale*lMosaic.Pos[lCol,lRow].X;
+           b := scale*lMosaic.Pos[lCol,lRow].Y;
+           w := scale*lMosaic.dim[lCol,lRow].X;
+           h := scale*lMosaic.dim[lCol,lRow].Y;
+           for i := 1 to lMosaic.Cols do
+               for j := 1 to lMosaic.Rows do begin
+                 if isRender(lMosaic.Orient[i,j]) then continue;
+                 if isCross(lMosaic.Orient[i,j]) then continue;
+                 lOrient := (lMosaic.Orient[i,j] and kOrientMask);
+                 if lOrient = lCrossOrient then continue; //e.g. sagittal slice is not orthogonal to another sagittal
+                 if isSag(lOrient) and isSag(lCrossOrient) then continue; //e.g. sagittal left not orthogonal to sagittal right
+                 fh := lMosaic.Slices[i,j] * h;
+                 if (gPrefs.FlipLR) and ((lCrossOrient = kCoronalOrient) or (lCrossOrient = kAxialOrient)) then
+                    fw := (1.0 - lMosaic.Slices[i,j]) * w
+                 else
+                     fw := lMosaic.Slices[i,j] * w;
+                 if (lOrient = kSagRightOrient) or (lOrient = kSagLeftOrient) then
+                    GLLine(l+fw,b,0,h);
+                 if (lOrient = kAxialOrient) then
+                    GLLine(l,b+fh,w,0.0);
+                 if (lOrient = kCoronalOrient) then begin
+                    if (lCrossOrient = kSagLeftOrient) then
+                       GLLine(l+w-fw,b,0,h)
+                    else if (lCrossOrient =  kSagRightOrient) then
+                         GLLine(l+fw,b,0,h)
+                    else //necessarily: if (lCrossOrient =  kAxialOrient) then
+                         GLLine(l,b+fh,w,0.0);
+                 end;
+               end;
+                 //lOrient := (lMosaic.Orient[lCol,lRow] and kOrientMask)
+        end;
+        lCol := lCol + lColInc;
+      end;//col
+      lRow := lRow+lRowInc;
+    end;//row
+end;
+
 procedure DrawMosaic(lMosaic: TMosaic);
 var
-  lRowInc,lColInc,lRow,lCol,lDec:integer;
+  lRender: boolean;
+  lOrient,lRowInc,lColInc,lRow,lCol,lDec:integer;
   scale:single;
 begin
  //if (lMosaic.MaxWid = 0) or (lMosaic.MaxHt= 0) or (lMosaic.Cols < 1) or (lMosaic.Rows < 1) then
@@ -706,9 +892,7 @@ begin
   glUseProgram(0);
   glActiveTexture( GL_TEXTURE0 );  //required if we will draw 2d slices next
   glBindTexture(GL_TEXTURE_3D,gRayCast.intensityTexture3D);
-
-
-   for lRow := 1 to lMosaic.Rows do
+  for lRow := 1 to lMosaic.Rows do
     for lCol := 1 to lMosaic.Cols do begin
         lMosaic.Pos[lCol,lRow].X := lMosaic.Pos[lCol,lRow].X + lMosaic.LeftBorder;
         lMosaic.Pos[lCol,lRow].Y := lMosaic.Pos[lCol,lRow].Y + lMosaic.BottomBorder;
@@ -743,12 +927,27 @@ begin
     else
       lCol := 1;
     while (lCol >= 1) and (lCol <= lMosaic.Cols) do begin
-      case lMosaic.Orient[lCol,lRow] of
-        kAxialOrient: DrawXYAx (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow]{, gTexture3D});
-        kCoronalOrient: DrawXYCoro (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow]{, gTexture3D});
-        kSagRightOrient: DrawXYSag (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow]{, gTexture3D}, false);
-        kSagLeftOrient: DrawXYSagMirror (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow]{, gTexture3D},false);
-      end;//
+
+      lOrient := (lMosaic.Orient[lCol,lRow] and kOrientMask);
+      lRender := (lMosaic.Orient[lCol,lRow] and kRenderSliceOrient) = kRenderSliceOrient;
+      if lRender then begin
+        case lOrient of
+          kAxialOrient: DrawXYAxRender (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow] < 0.5);
+          kCoronalOrient: DrawXYCoroRender (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow] >= 0.5);
+          kSagRightOrient: DrawXYSagRender (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow] > 0.495);
+          kSagLeftOrient: DrawXYSagRender (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow] <= 0.495);
+        end;//
+        //GLForm1.Caption := floattostr(lMosaic.Slices[lCol,lRow]);
+
+      end else begin
+
+        case lOrient of
+          kAxialOrient: DrawXYAx (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow]{, gTexture3D});
+          kCoronalOrient: DrawXYCoro (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow]{, gTexture3D});
+          kSagRightOrient: DrawXYSag (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow]{, gTexture3D}, false);
+          kSagLeftOrient: DrawXYSagMirror (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow]{, gTexture3D},false);
+        end;//
+      end;
       lCol := lCol + lColInc;
     end;//col
     lRow := lRow+lRowInc;
@@ -769,10 +968,13 @@ begin
       while (lCol >= 1) and (lCol <= lMosaic.Cols) do begin
         if lMosaic.Text[lCol,lRow] then
           TextLabelXY(scale*(lMosaic.Pos[lCol,lRow].X+(lMosaic.Dim[lCol,lRow].X/2) ),scale*(lMosaic.Pos[lCol,lRow].Y+lMosaic.Dim[lCol,lRow].Y),lMosaic.Slices[lCol,lRow],lMosaic.Orient[lCol,lRow],lDec);
+        //GLLine(scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y);
+
         lCol := lCol + lColInc;
       end;//col
       lRow := lRow+lRowInc;
   end;//row
+  GLCrossLine(lMosaic, scale);
   {$IFNDEF COREGL}  glLoadIdentity(); {$ENDIF}
   EndDraw2D;
 end;
@@ -944,7 +1146,6 @@ begin
     {$IFNDEF COREGL}glLoadIdentity();{$ENDIF}
 end;
 
-
 procedure DrawOrtho(var lTex: TTexture);
 var
   scale,X,Y,Z,Yshift, W, H, TriPix:single;
@@ -1040,7 +1241,9 @@ begin
     glBindTexture(GL_TEXTURE_3D,gRayCast.intensityTexture3D);
     {$IFNDEF COREGL}glPushAttrib (GL_ENABLE_BIT); {$ENDIF}
     glEnable (GL_TEXTURE_3D);
+
     glDisable (GL_BLEND);
+
     {$IFNDEF COREGL}
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GEQUAL,1/255);// 2015*)
@@ -1122,7 +1325,9 @@ begin
     end;
     {$ELSE}
     //glColor4f(gPrefs.CrosshairColor.rgbRed/255,gPrefs.CrosshairColor.rgbGreen/255,gPrefs.CrosshairColor.rgbBlue/255,1{gPrefs.CrosshairColor.rgbReserved/255});
-    glColor4ub(gPrefs.CrosshairColor.rgbRed,gPrefs.CrosshairColor.rgbGreen,gPrefs.CrosshairColor.rgbBlue,255);
+    glEnable (GL_BLEND);
+
+    glColor4ub(gPrefs.CrosshairColor.rgbRed,gPrefs.CrosshairColor.rgbGreen,gPrefs.CrosshairColor.rgbBlue,gPrefs.CrosshairColor.rgbReserved);
 
     glLineWidth(gPrefs.CrosshairThick);
     glBegin(GL_LINES);

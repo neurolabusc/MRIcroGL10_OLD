@@ -2,16 +2,9 @@
 const
  pth = '/Users/rorden/Downloads/thresh/';
 begin
- RESETDEFAULTS;
-OVERLAYLOADSMOOTH(true);
- LOADIMAGE(pth+'mni152_2009bet.nii');
- //OVERLAYLOAD(pth+'new_prethresh_spmT_5.nii');
-OVERLAYLOAD(pth+'spmT_5.nii');
-
-OVERLAYMINMAX(1, 4, 8);
-OVERLAYCOLORNAME(1, 'actc');
-
-MOSAIC('45, 50, 55,60');
+ //RESETDEFAULTS;
+ //LOADIMAGE(pth+'mni152_2009bet.nii');
+MOSAIC('L+ 0 ,30');
 
 	
 

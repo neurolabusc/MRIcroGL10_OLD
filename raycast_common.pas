@@ -40,7 +40,7 @@ lightPositionLoc, clipPlaneDepthLoc, clipPlaneLoc: GLint; //glint not gluint: al
   intensityOverlay3D,
   gradientTexture3D,gradientOverlay3D,
   intensityTexture3D,finalImage,
-  renderBuffer, frameBuffer, //<--666 not needed {$IFNDEF COREGL} {$ENDIF}
+  renderBuffer, frameBuffer, drawFrameBuffer, //<--666 not needed {$IFNDEF COREGL} {$ENDIF}
   backFaceBuffer: GLuint;
   MosaicString,ModelessString: string;
  end;

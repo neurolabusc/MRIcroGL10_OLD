@@ -24,9 +24,10 @@ uses
  define_types,
     sysutils, histogram2d, math, raycast_common;
 
-procedure DisplayGL(var lTex: TTexture);
 procedure DisplayGLz(var lTex: TTexture; zoom, zoomOffsetX, zoomOffsetY: integer; framebuff: GLUint; isTiled: boolean);
 procedure  InitGL (InitialSetup: boolean);// (var lTex: TTexture);
+procedure DisplayRender(var lTex: TTexture; lX,lY,lW,lH: single; lOrient: integer);
+procedure DisplayGL(var lTex: TTexture);
 
 implementation
 uses
@@ -589,9 +590,9 @@ begin
 end;
 
 // render the backface to the offscreen buffer backFaceBuffer
-procedure renderBackFace(var lTex: TTexture);
+procedure renderBackFace(var lTex: TTexture; var backFace: GLuint);
 begin
-  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, gRayCast.backFaceBuffer, 0);
+  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, backFace, 0);
   glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT );
   glEnable(GL_CULL_FACE);
   glCullFace(GL_FRONT);
@@ -676,19 +677,20 @@ glGetFloatv(GL_TRANSPOSE_MODELVIEW_MATRIX, @lMgl);
        );
 end;*)
 
-procedure rayCasting (var lTex: TTexture);
+procedure rayCastingX (var lTex: TTexture; w,h : integer; finalImage, backFaceBuffer: GLuint);
 begin
-          glUseProgram(gRayCast.glslprogram);
+            glUseProgram(gRayCast.glslprogram);
+            //glUseProgram(0);
      //glUseProgram(gRayCast.glslprogramGradient);
-     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, gRayCast.finalImage, 0);
+     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, finalImage, 0);
 	glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT );
 	//glEnable(GL_TEXTURE_2D);
         if gShader.SinglePass <> 1 then  begin
            glActiveTexture( GL_TEXTURE0 );
-	   glBindTexture(GL_TEXTURE_2D, gRayCast.backFaceBuffer);
+	   glBindTexture(GL_TEXTURE_2D, backFaceBuffer);
            glUniform1i( gRayCast.backFaceLoc, 0 );		// backFaceBuffer -> texture0
-           glUniform1f( gRayCast.viewWidthLoc, gRayCast.WINDOW_WIDTH );
-           glUniform1f( gRayCast.viewHeightLoc, gRayCast.WINDOW_HEIGHT );
+           glUniform1f( gRayCast.viewWidthLoc, w );
+           glUniform1f( gRayCast.viewHeightLoc, h );
         end;
 
         glActiveTexture( GL_TEXTURE1 );
@@ -737,6 +739,11 @@ begin
   glUseProgram(0);
   glActiveTexture( GL_TEXTURE0 );
   //glDisable(GL_TEXTURE_2D);
+end;
+
+procedure rayCasting (var lTex: TTexture);
+begin
+     rayCastingX(lTex,gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT, gRayCast.finalImage, gRayCast.backFaceBuffer);
 end;
 
 procedure MakeCube(sz: single);
@@ -826,6 +833,7 @@ var
    ClrbarSizeFracX: single;
 begin
   //if (gPrefs.SliceView  = 5) and (length(gRayCast.MosaicString) < 1) then exit; //we need to draw something, otherwise swapbuffer crashes
+  gRayCast.drawFrameBuffer := framebuff;
   if (gPrefs.SliceView  <> 5) then  gRayCast.MosaicString := '';
   doShaderBlurSobel(lTex);
   disableRenderBuffers(framebuff);
@@ -862,9 +870,6 @@ begin
     reshapeOrtho(gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT);
     if gPrefs.Colorbar then
        GLForm1.drawClrbar(gRayCast.WINDOW_WIDTH*zoom, gRayCast.WINDOW_HEIGHT*zoom, zoom, zoomOffsetX, zoomOffsetY,0);
-    //resizeGL(gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT,zoom, zoomOffsetX, zoomOffsetY);
-
-
   end else begin //else draw 3D rendering
     enableRenderbuffers();
     glTranslatef(0,0,-gRayCast.Distance);
@@ -874,7 +879,7 @@ begin
     glMatrixMode(GL_MODELVIEW);
     glScalef(lTex.Scale[1],lTex.Scale[2],lTex.Scale[3]);
     if gShader.SinglePass <> 1 then
-       renderBackFace(lTex);
+       renderBackFace(lTex, gRayCast.backFaceBuffer);
     rayCasting(lTex);
     disableRenderBuffers(framebuff);
     renderBufferToScreen();
@@ -907,6 +912,703 @@ begin
   DisplayGLz(lTex,1,0,0,0, false);
 end;
 
+(*procedure resizeGLX(w,h, zoom, zoomOffsetX, zoomOffsetY: integer);
+var
+  whratio,scale: single;
+begin
+  if (h = 0) then
+     h := 1;
+  glViewport(zoomOffsetX, zoomOffsetY, w*zoom, h*zoom);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+       //if gRayCast.Distance = 0 then
+          scale := 1;
+       //else
+       //    scale := 1/abs(kDefaultDistance/(gRayCast.Distance+1.0));
+       //whratio := w/h;
+       whratio := 1;
+      // glOrtho(whratio*-0.5*scale,whratio*0.5*scale,-0.5*scale,0.5*scale, 0.01, kMaxDistance);
+      glOrtho(-0.5,0.5,-0.5,0.5, 0.01, kMaxDistance);
+
+      // glOrtho(0, w, 0, h,0.01, kMaxDistance);
+
+  //glOrtho(0, gRayCast.WINDOW_WIDTH, 0, gRayCast.WINDOW_HEIGHT,-1,1);//<- same effect as previous line
+
+  glMatrixMode(GL_MODELVIEW);//?
+end;     *)
+
+(*procedure drawQuad(lX,lY,lW,lH: single);
+begin
+	glDisable(GL_DEPTH_TEST);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0,0);
+	glVertex2f(lX,lY);
+	glTexCoord2f(1,0);
+	glVertex2f(lX+lW,lY);
+	glTexCoord2f(1, 1);
+	glVertex2f(lX+lW, lY+lH);
+	glTexCoord2f(0, 1);
+	glVertex2f(lX, lY+lH);
+	glEnd();
+	glEnable(GL_DEPTH_TEST);
+end;
+
+
+procedure reshapeOrthoX(w,h: integer);
+begin
+  if (h = 0) then h := 1;
+  glViewport(0, 0,w,h);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  {$IFDEF DGL}
+  gluOrtho2D(0, 1, 0, 1.0);
+  //glOrtho2D(0, gRayCast.WINDOW_WIDTH, 0, gRayCast.WINDOW_HEIGHT,-1,1);
+  {$ELSE}
+  //glOrtho(0, gRayCast.WINDOW_WIDTH, 0, gRayCast.WINDOW_HEIGHT,-1,1);
+  glOrtho (0, 1,0, 1, -1, 1);  //https://www.opengl.org/sdk/docs/man2/xhtml/gluOrtho2D.xml
+  {$ENDIF}
+  glMatrixMode(GL_MODELVIEW);//?
+end;  *)
+
+(*procedure renderBufferToScreenX(lX,lY,lW,lH: single);
+begin
+	glLoadIdentity();
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D,gRayCast.finalImage);
+        if true then begin
+	   reshapeOrthoX(gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT);
+           drawQuad(lX,lY,1,1);
+        end else begin
+          glViewport(0, 0,gRayCast.WINDOW_WIDTH,gRayCast.WINDOW_HEIGHT);
+          glMatrixMode(GL_PROJECTION);
+          glLoadIdentity();
+
+          glOrtho(0, gRayCast.WINDOW_WIDTH, 0, gRayCast.WINDOW_HEIGHT,-1,1);
+          glMatrixMode(GL_MODELVIEW);//?
+          drawQuad(lX,lY,lW,lh);
+	end;
+           //glOrtho(0, gRayCast.WINDOW_WIDTH, 0, gRayCast.WINDOW_HEIGHT,-1,1);
+	glDisable(GL_TEXTURE_2D);
+end;*)
+
+(*Type
+TFrameBuffer = record
+  backTex, finalTex, renderBuf, depthBuf,frameBuf, tex: GLUint; //we need depth buffer for 2D cube
+  w, h: integer;
+end;
+
+procedure initFrame (var f : TFrameBuffer);
+begin
+     f.tex := 0;
+     f.depthBuf := 0;
+     f.frameBuf := 0;
+     f.renderBuf := 0;
+     f.backTex := 0;
+     f.finalTex := 0;
+end;
+
+procedure freeFrame (var f : TFrameBuffer);
+begin
+  glDeleteTextures(1, @f.tex);
+  glDeleteTextures(1, @f.depthBuf);
+  glDeleteTextures(1, @f.backTex);
+  glDeleteTextures(1, @f.finalTex);
+
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+  glDeleteFramebuffersEXT(1, @f.frameBuf);
+  glDeleteFramebuffersEXT(1, @f.renderBuf);
+  glDeleteRenderbuffersEXT(1,@f.renderBuf);
+  //Bind 0, which means render to back buffer, as a result, frameBuf is unbound
+end; *)
+
+(*procedure drawBuffers ;
+var
+  drawBuf: array[0..1] of GLenum;
+begin
+  drawBuf[0] := GL_COLOR_ATTACHMENT0;
+  drawBuf[1] := GL_COLOR_ATTACHMENT1;
+  glDrawBuffers(1, @drawBuf[0]); // draw colors only
+end;*)
+(*function setFrame (wid, ht: integer; var f : TFrameBuffer; isMultiSample: boolean) : boolean; //returns true if multi-sampling
+//http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
+var
+   w,h: integer;
+   drawBuf: array[0..1] of GLenum;
+begin
+     w := wid;
+     h := ht;
+     if isMultiSample then begin
+        w := w * 2;
+        h := h * 2;
+     end;
+     result := isMultiSample;
+     if (w = f.w) and (h = f.h) then begin
+         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, f.frameBuf);
+         exit;
+     end;
+     freeframe(f);
+     f.w := w;
+     f.h := h;
+     //https://www.opengl.org/wiki/Framebuffer_Object_Examples#Quick_example.2C_render_to_texture_.282D.29
+     glGenTextures(1, @f.tex);
+     glBindTexture(GL_TEXTURE_2D, f.tex);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+     glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA8, f.w, f.h, 0,GL_RGBA, GL_UNSIGNED_BYTE, nil); //RGBA16 for AO
+     glGenFramebuffersEXT(1, @f.frameBuf);
+     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, f.frameBuf);
+     glDrawBuffer(f.tex);
+	glReadBuffer(f.tex);
+     //Attach 2D texture to this FBO
+     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, f.tex, 0);
+     //
+     glBindTexture(GL_TEXTURE_2D, f.backTex);
+     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+     glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA16F_ARB, w, h, 0, GL_RGBA, GL_FLOAT, nil);
+     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, f.backTex, 0);
+     //
+     glBindTexture(GL_TEXTURE_2D, f.finalTex);
+     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+     glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA16F_ARB, f.w, f.h, 0, GL_RGBA, GL_FLOAT, nil);
+
+     //glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, f.tex, 0);
+     // Create the depth buffer
+    glGenTextures(1, @f.depthBuf);
+    glBindTexture(GL_TEXTURE_2D, f.depthBuf);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, f.w, f.h, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nil);
+    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, f.depthBuf, 0);
+     //glDrawBuffers(1, @drawBuf); // "1" is the size of DrawBuffers
+     (*drawBuf[0] := GL_COLOR_ATTACHMENT0;
+     drawBuf[1] := GL_COLOR_ATTACHMENT1;
+     glDrawBuffers(1, @drawBuf[0]); // draw colors only  *)
+     glGenRenderbuffersEXT(1, @f.renderBuf);
+     glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, f.renderBuf);
+     glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, f.w, f.h);
+     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, f.frameBuf);
+     glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, f.renderBuf);
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
+     if(glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) <> GL_FRAMEBUFFER_COMPLETE) then begin
+       GLForm1.ShowmessageError('Frame buffer error 0x'+inttohex(glCheckFramebufferStatus(GL_FRAMEBUFFER),4) );
+       exit;
+     end;
+end; *)
+//// render the backface to the offscreen buffer backFaceBuffer
+
+(*procedure drawQuadX(lX,lY,lW,lH: single);
+begin
+  //GLform1.Caption := format('%g %g',[lW,lH]);
+  glDisable(GL_CULL_FACE); //<-this is important, otherwise nodes and quads not filled
+  //glDisable(GL_TEXTURE_2D);
+  glDisable(GL_DEPTH_TEST);
+	glBegin(GL_QUADS);
+        glColor4f(1,0,1,1);
+        //glTexCoord2f(0,0);
+	glVertex2f(lX,lY);
+	//glTexCoord2f(1,0);
+	glVertex2f(lX+lW,lY);
+	//glTexCoord2f(1, 1);
+	glVertex2f(lX+lW, lY+lH/2);
+	//glTexCoord2f(0, 1);
+	glVertex2f(lX, lY+lH);
+	glEnd();
+	glEnable(GL_DEPTH_TEST);
+end;*)
+(*procedure drawQuadX(lX,lY,lW,lH: single);
+begin
+  //GLform1.Caption := format('%g %g',[lW,lH]);
+  //glDisable(GL_CULL_FACE); //<-this is important, otherwise nodes and quads not filled
+  glEnable(GL_TEXTURE_2D);
+  glDisable(GL_DEPTH_TEST);
+	glBegin(GL_QUADS);
+        glColor4f(1,0,1,1);
+        //glTexCoord2f(0,0);
+	glVertex2f(lX,lY);
+	//glTexCoord2f(1,0);
+	glVertex2f(lX+lW,lY);
+	//glTexCoord2f(1, 1);
+	glVertex2f(lX+lW, lY+lH/2);
+	//glTexCoord2f(0, 1);
+	glVertex2f(lX, lY+lH);
+	glEnd();
+	glEnable(GL_DEPTH_TEST);
+end;
+
+
+procedure renderBufferToScreenXY(lX,lY,lW,lH: single; var f: TFrameBuffer);
+begin
+	glLoadIdentity();
+
+        glEnable(GL_TEXTURE_2D);
+	//glBindTexture(GL_TEXTURE_2D,f.backTex);
+        if false then begin
+	   reshapeOrthoX(gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT);
+           drawQuad(lX,lY,1,1);
+        end else begin
+          glViewport(0, 0,gRayCast.WINDOW_WIDTH,gRayCast.WINDOW_HEIGHT);
+          glMatrixMode(GL_PROJECTION);
+          glLoadIdentity();
+
+          glOrtho(0, gRayCast.WINDOW_WIDTH, 0, gRayCast.WINDOW_HEIGHT,-1,1);
+          glMatrixMode(GL_MODELVIEW);//?
+          drawQuadX(lX,lY,lW,lh);
+	end;
+           //glOrtho(0, gRayCast.WINDOW_WIDTH, 0, gRayCast.WINDOW_HEIGHT,-1,1);
+	glDisable(GL_TEXTURE_2D);
+end; *)
+
+(*procedure DisplaySimpleX(var lTex: TTexture;  lX,lY,lW,lH: single);
+var
+  f: TFrameBuffer;
+  w,h: integer;
+begin
+  initFrame(f);
+  disableRenderBuffers(f.frameBuf);
+
+  w := round(lw);
+  h := round(lh);
+  setFrame (w, h, f, false);
+
+  resizeGLX(w, h,1, 0, 0);
+ //resizeGLX(round(lW), round(lH),zoom, zoomOffsetX, zoomOffsetY);
+
+ //resizeGLX(mx, mx,zoom, zoomOffsetX, zoomOffsetY);
+ glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+ //glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, f.frameBuf); //<- required for 2D views
+ //glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, f.renderBuf);
+ //glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, w, h);
+//glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, f.renderBuf);
+
+ //glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, f.renderBuf);
+ //glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, w, h);  //required by VirtualBox
+
+ //enableRenderbuffers();
+   glTranslatef(0,0,-0.5);
+
+   glTranslatef(-lTex.Scale[1]/2,-lTex.Scale[2]/2,-lTex.Scale[3]/2);
+   glMatrixMode(GL_MODELVIEW);
+   glScalef(lTex.Scale[1],lTex.Scale[2],lTex.Scale[3]);
+   renderBackFace(lTex, f.backTex);
+   rayCastingX (lTex, w,h,f.finalTex, f.backTex);
+   glFlush;
+   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
+   renderBufferToScreenXY(lX,lY,128,128, f);
+
+
+   freeFrame(f);
+
+end;*)
+(*procedure drawBox;
+begin
+glBegin(GL_QUADS);
+glTexCoord2f(0, 0);
+glVertex2f(0, 0);
+glTexCoord2f(1.0, 0);
+glVertex2f(1.0, 0.0);
+glTexCoord2f(1.0, 1.0);
+glVertex2f(1.0, 1.0);
+glTexCoord2f(0, 1.0);
+glVertex2f(0.0, 1.0);
+glEnd();
+end;*)
+
+(*
+procedure DisplaySimpleXX(var lTex: TTexture;  lX,lY,lW,lH: single);
+var
+  f: TFrameBuffer;
+  w,h: integer;
+begin
+  initFrame(f);
+  disableRenderBuffers(f.frameBuf);
+
+  //w := gRayCast.WINDOW_WIDTH ;
+  //h := gRayCast.WINDOW_HEIGHT;
+  w := round(lw);
+  h := round(lh);
+  setFrame (w, h, f, false);
+  glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, f.frameBuf);
+  glViewport(0,0,w,h);
+  glBindTexture(GL_TEXTURE_2D, 0);
+  glEnable(GL_TEXTURE_2D);
+  resizeGLX(w, h,1, 0, 0);
+ //resizeGLX(round(lW), round(lH),zoom, zoomOffsetX, zoomOffsetY);
+
+ //resizeGLX(mx, mx,zoom, zoomOffsetX, zoomOffsetY);
+ //glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
+ //glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, f.renderBuf);
+ //glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, w, h);  //required by VirtualBox
+
+ //glViewport(0,0,w,h);
+
+
+ glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, f.renderBuf);
+ //glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, f.frameBuf); //<- required for 2D views
+ //glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, f.renderBuf);
+ //glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, w, h);
+//glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, f.renderBuf);
+  //glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, 0);
+   glBindTexture(GL_TEXTURE_2D, f.backTex);
+
+glClearColor(1,0,0.5, 0.5);
+
+glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT );
+
+ //enableRenderbuffers();
+   glTranslatef(0,0,-0.5);
+
+   glTranslatef(-lTex.Scale[1]/2,-lTex.Scale[2]/2,-lTex.Scale[3]/2);
+   glMatrixMode(GL_MODELVIEW);
+   glScalef(lTex.Scale[1],lTex.Scale[2],lTex.Scale[3]);
+   glUseProgram(0);
+   //renderBackFace(lTex, f.backTex);
+   renderBackFace(lTex, f.tex);
+
+   //rayCastingX (lTex, w,h,f.finalTex, f.backTex);
+   glFlush;
+   //glBindTexture(GL_TEXTURE_2D, f.backTex);
+   //glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+   //drawBuffers;
+   glClearColor(1,1,1, 0.5);
+   glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT);
+
+
+   //glViewport(0,0,w,h);
+   glBindTexture(GL_TEXTURE_2D, f.tex);
+
+        glDisable(GL_CULL_FACE); //<-this is important, otherwise nodes and quads not filled
+    glEnable (GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+
+   //glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+ //  glBindFramebufferEXT(GL_READ_FRAMEBUFFER,f.frameBuf);
+ // bind the source framebuffer and select a color attachment to copy from
+ //glReadBuffers(GL_COLOR_ATTACHMENT0);
+
+// bind the destination framebuffer and select the color attachments to copy to
+
+//GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+//glDrawBuffers(2, attachments);
+
+// copy
+//glBlitFramebuffer(0,0,W, H, 0,0,512,512, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+   //renderBufferToScreenXY(lX,lY,128,128, f);
+   //glEnable (GL_BLEND);
+   glUseProgram(0);
+   renderBufferToScreenXY(lX,lY,lW,lH, f);
+
+   glDisable(GL_TEXTURE_2D);
+   freeFrame(f);
+
+end;*)
+
+
+
+(*procedure DisplaySimpleX2(var lTex: TTexture;  lX,lY,lW,lH: single);
+var
+  framebuff: GLUint = 0;
+  zoom: integer;
+  f: TFrameBuffer;
+  zoomOffsetX, zoomOffsetY: integer;
+  w,h: integer;
+begin
+  initFrame(f);
+  setFrame (round(lw), round(lh), f, false);
+
+  zoom := 1;
+  zoomOffsetX := 0;
+  zoomOffsetY := 0;
+  //w := gRayCast.WINDOW_WIDTH div 2;
+  //h := gRayCast.WINDOW_HEIGHT div 2;
+
+  w := round(lw);
+  h := round(lh);
+//  GLForm1.Caption := format('%d %d',[w,h]);
+ resizeGLX(w, h,zoom, zoomOffsetX, zoomOffsetY);
+
+ //resizeGLX(round(lW), round(lH),zoom, zoomOffsetX, zoomOffsetY);
+
+ //resizeGLX(mx, mx,zoom, zoomOffsetX, zoomOffsetY);
+
+ enableRenderbuffers();
+   glTranslatef(0,0,-0.5);
+   //glTranslatef(0,0,-gRayCast.Distance);
+   //glRotatef(90,-1,0,0);
+   //glRotatef(0,0,0,1);
+
+   //glTranslatef(0,0,-gRayCast.Distance);
+   //glRotatef(90-gRayCast.Elevation,-1,0,0);
+   //glRotatef(gRayCast.Azimuth,0,0,1);
+   glTranslatef(-lTex.Scale[1]/2,-lTex.Scale[2]/2,-lTex.Scale[3]/2);
+   glMatrixMode(GL_MODELVIEW);
+   glScalef(lTex.Scale[1],lTex.Scale[2],lTex.Scale[3]);
+   if gShader.SinglePass <> 1 then
+      renderBackFace(lTex, gRayCast.backFaceBuffer);
+   rayCasting(lTex);
+   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, framebuff);
+   // disableRenderBuffers(framebuff);
+
+   //,lY,lW,lH
+
+   renderBufferToScreenX(lX,lY,128,128);
+   freeFrame(f);
+
+end;*)
+
+(*procedure renderBufferToScreenXX(lX,lY,lW,lH: single);
+begin
+	glLoadIdentity();
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D,gRayCast.finalImage);
+        if false then begin
+	   reshapeOrthoX(gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT);
+           drawQuad(lX,lY,1,1);
+        end else begin
+          glViewport(0, 0,gRayCast.WINDOW_WIDTH,gRayCast.WINDOW_HEIGHT);
+          glMatrixMode(GL_PROJECTION);
+          glLoadIdentity();
+
+          glOrtho(0, gRayCast.WINDOW_WIDTH, 0, gRayCast.WINDOW_HEIGHT,-1,1);
+          glMatrixMode(GL_MODELVIEW);//?
+          drawQuad(lX,lY,lW,lh);
+	end;
+           //glOrtho(0, gRayCast.WINDOW_WIDTH, 0, gRayCast.WINDOW_HEIGHT,-1,1);
+	glDisable(GL_TEXTURE_2D);
+end;
+
+
+procedure DisplaySimpleXWorks(var lTex: TTexture;  lX,lY,lW,lH: single);
+var
+  framebuff: GLUint = 0;
+  zoom: integer;
+  f: TFrameBuffer;
+  zoomOffsetX, zoomOffsetY: integer;
+  w,h: integer;
+begin
+  initFrame(f);
+  setFrame (round(lw), round(lh), f, false);
+
+  zoom := 1;
+  zoomOffsetX := 0;
+  zoomOffsetY := 0;
+
+  w := round(lw);
+  h := round(lh);
+ resizeGLX(w, h,zoom, zoomOffsetX, zoomOffsetY);
+ enableRenderbuffers();
+   glTranslatef(0,0,-0.5);
+   //glTranslatef(0,0,-gRayCast.Distance);
+   //glRotatef(90,-1,0,0);
+   //glRotatef(0,0,0,1);
+
+   //glTranslatef(0,0,-gRayCast.Distance);
+   //glRotatef(90-gRayCast.Elevation,-1,0,0);
+   //glRotatef(gRayCast.Azimuth,0,0,1);
+   glTranslatef(-lTex.Scale[1]/2,-lTex.Scale[2]/2,-lTex.Scale[3]/2);
+   glMatrixMode(GL_MODELVIEW);
+   glScalef(lTex.Scale[1],lTex.Scale[2],lTex.Scale[3]);
+   if gShader.SinglePass <> 1 then
+      renderBackFace(lTex, gRayCast.backFaceBuffer);
+   //rayCasting(lTex);
+   rayCastingX(lTex,gRayCast.WINDOW_WIDTH, gRayCast.WINDOW_HEIGHT, gRayCast.finalImage, gRayCast.backFaceBuffer);
+   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, framebuff);
+   // disableRenderBuffers(framebuff);
+
+   renderBufferToScreenXX(lX,lY,lW,lH);
+   freeFrame(f);
+
+end;    *)
+
+
+procedure resizeDepth(d: integer);
+begin
+  glViewport(0, 0,gRayCast.WINDOW_WIDTH,gRayCast.WINDOW_HEIGHT);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+
+  //glOrtho(0,30,0,30, 0.001, d);
+  //glOrtho(0,gRayCast.WINDOW_WIDTH,0,gRayCast.WINDOW_HEIGHT, 0.001, d);
+  glOrtho(0, gRayCast.WINDOW_WIDTH, 0, gRayCast.WINDOW_HEIGHT,0.001,d);//<- same effect as previous line
+
+  glMatrixMode(GL_MODELVIEW);//?
+end;
+
+procedure drawQuadD(lX,lY,lW,lH, lXf, lYf: single);
+begin
+	glDisable(GL_DEPTH_TEST);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0,0);
+	glVertex2f(lX,lY);
+	glTexCoord2f(lXf,0);
+	glVertex2f(lX+lW,lY);
+	glTexCoord2f(lXf, lYf);
+	glVertex2f(lX+lW, lY+lH);
+	glTexCoord2f(0, lYf);
+	glVertex2f(lX, lY+lH);
+	glEnd();
+	glEnable(GL_DEPTH_TEST);
+end;
+
+
+procedure renderBufferToScreenD(lX,lY,lW,lH, lXf, lYf: single);
+begin
+	glLoadIdentity();
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D,gRayCast.finalImage);
+
+        glViewport(0, 0,gRayCast.WINDOW_WIDTH,gRayCast.WINDOW_HEIGHT);
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+
+        glOrtho(0, gRayCast.WINDOW_WIDTH, 0, gRayCast.WINDOW_HEIGHT,-1,1);
+        glMatrixMode(GL_MODELVIEW);//?
+        drawQuadD(lX,lY,lW,lh, lXf, lYf );
+	glDisable(GL_TEXTURE_2D);
+end;
+
+
+procedure DisplayRenderCore(var lTex: TTexture;  lX,lY,lW,lH: single; lOrient: integer);
+var
+  w,h,d: integer;
+  lXf, lYf: single;
+begin
+  w := round(lw);
+  h := round(lh);
+  lXf := w/gRayCast.WINDOW_WIDTH;
+  lYf := h/gRayCast.WINDOW_HEIGHT;
+  //if axial:
+  if abs(lOrient) = kAxialOrient then
+     d := round(lw * lTex.Scale[3]/lTex.Scale[1]) //depth z, width is x
+  else if abs(lOrient) = kCoronalOrient then
+       d := round(lw * lTex.Scale[2]/lTex.Scale[1]) //depth y, width is X
+  else if (lOrient = kSagRightOrient) or (lOrient = kSagLeftOrient) then
+       d := round(lw * lTex.Scale[1]/lTex.Scale[2]) //depth x , width is Y
+  else
+      exit;
+  resizeDepth(d*3);
+  enableRenderbuffers();
+
+  glTranslatef(0,0,-d * 1.5);
+
+  if (lOrient = kSagRightOrient) then begin
+     (*glScalef(w,h,d/2);
+     glTranslatef(w,0,0);
+
+     glRotatef(90,-1,0,0);
+     glRotatef(90,0,0,1);*)
+
+     glTranslatef(w,0,0);
+           glScalef(w,h,d);
+      glRotatef(90,-1,0,0);
+      glRotatef(90,0,0,1);
+
+  end;
+  if (lOrient = kSagLeftOrient) then begin
+      //glTranslatef(w,0,0);
+      glScalef(w,h,d);
+      glRotatef(90,-1,0,0);
+      glRotatef(270,0,0,1);
+   end;
+   if lOrient = kCoronalOrient then begin
+      //glRotatef(10,1,0,0); //coronal: back of head
+      //glTranslatef(0,0,0.1*d);
+      glTranslatef(w,0,0);
+      glScalef(w,h,d);
+      glRotatef(90,-1,0,0);
+      glRotatef(180,0,0,1);
+   end;
+   if lOrient = -kCoronalOrient then begin
+      glScalef(w,h,d);
+      glRotatef(90,-1,0,0); //coronal: back of head
+   end;
+
+   //glRotatef(90,-1,0,0); //coronal: back of head
+   //axial Back:
+   if lOrient = -kAxialOrient then begin
+      glTranslatef(w,0,0);
+      glRotatef(180,0,1,0); //coronal
+   end;
+   //glRotatef(gRayCast.Azimuth,0,0,1);
+
+
+
+
+   //glTranslatef(-k,-k,-k);
+
+
+   //glTranslatef(0,0,-gRayCast.Distance);
+   //glRotatef(90,-1,0,0);
+   //glRotatef(0,0,0,1);
+
+   //glTranslatef(0,0,-gRayCast.Distance);
+   //glRotatef(90-gRayCast.Elevation,-1,0,0);
+   //glRotatef(gRayCast.Azimuth,0,0,1);
+
+   //glTranslatef(-lTex.Scale[1]/2,-lTex.Scale[2]/2,-lTex.Scale[3]/2);
+
+   //glTranslatef(0,0,-lTex.Scale[3]/2);
+
+
+    //glTranslatef(0,0,-1.5* d);
+
+   //glRotatef(90,0,0,1);
+   //glTranslatef(-1,-1,-lTex.Scale[3]/2);
+   glMatrixMode(GL_MODELVIEW);
+   (*if abs(lOrient) = kAxialOrient then
+      d := round(lw * lTex.Scale[3]/lTex.Scale[1]) //depth z, width is x
+   else if abs(lOrient) = kCoronalOrient then
+        d := round(lw * lTex.Scale[2]/lTex.Scale[1]) //depth y, width is X
+   else //if (lOrient = kSagRightOrient) or (lOrient = kSagLeftOrient) then
+        d := round(lw * lTex.Scale[1]/lTex.Scale[2]) //depth x , width is Y
+   else
+       exit;
+                     *)
+   //glScalef(w,h,d/2);
+   if abs(lOrient) = kAxialOrient then
+      glScalef(w,h,d/2);
+
+   if gShader.SinglePass <> 1 then
+      renderBackFace(lTex, gRayCast.backFaceBuffer);
+   rayCasting(lTex);
+   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+   disableRenderBuffers(gRayCast.drawFrameBuffer);
+   renderBufferToScreenD(lX,lY,lW,lH, lXf, lYf);
+end;
+
+
+
+procedure DisplayRender(var lTex: TTexture; lX,lY,lW,lH: single; lOrient: integer);
+begin
+  glDisable (GL_TEXTURE_3D);
+  //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_CULL_FACE); //<-this is important, otherwise nodes and quads not filled
+  //glDisable (GL_BLEND);
+  doShaderBlurSobel(lTex);
+  disableRenderBuffers(gRayCast.drawFrameBuffer);
+  //glClearColor(gPrefs.BackColor.rgbRed/255,gPrefs.BackColor.rgbGreen/255,gPrefs.BackColor.rgbBlue/255, 0);
+  DisplayRenderCore(lTex,lX,lY,lW,lH, lOrient);
+  //   glFlush;
+  glDisable (GL_BLEND); //just in case one of the previous functions forgot...
+  glEnable (GL_TEXTURE_3D);
+end;
 
 end.
 

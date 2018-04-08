@@ -34,6 +34,7 @@ procedure COLORBARVISIBLE (VISIBLE: boolean);
 procedure COLORNAME(Filename: string);
 procedure CONTRASTFORMVISIBLE (VISIBLE: boolean);
 procedure CONTRASTMINMAX(MIN,MAX: single);
+//procedure VXL2MM(X,Y,Z: single);
 procedure CUTOUT (L,A,S,R,P,I: single);
 procedure CUTOUTFORMVISIBLE (VISIBLE: boolean);
 procedure EDGEDETECT (lThresh: single; lDilateCycles: integer);//new
@@ -45,6 +46,8 @@ procedure MEDIANSMOOTH;//new
 procedure DECIMATE (lPercent: integer);
 procedure ELEVATION (DEG: integer);
 procedure FRAMEVISIBLE (VISIBLE: boolean);
+procedure LINECOLOR (R,G,B: byte);
+procedure LINEWIDTH (W: byte);
 procedure LOADDRAWING(lFilename: string);
 procedure LOADDTI(lFAFilename: string);
 procedure LOADIMAGE(lFilename: string);
@@ -112,7 +115,7 @@ const
     (Ptr:@OVERLAYLOADCLUSTER;Decl:'OVERLAYLOADCLUSTER';Vars:'(lFilename: string; lThreshold, lClusterMM3: single; lSaveToDisk: boolean): integer'),
 
      (Ptr:@OVERLAYLOADVOL;Decl:'OVERLAYLOADVOL';Vars:'(lFilename: string; lVol: integer): integer'));
-  knProc = 82;
+  knProc = 84;
   kProcRA : array [1..knProc] of TScriptRec =
     (
       (Ptr:@AZIMUTH;Decl:'AZIMUTH';Vars:'(DEG: integer)'),
@@ -145,6 +148,8 @@ const
       (Ptr:@DECIMATE;Decl:'DECIMATE';Vars:'(lPercent: integer)'),
       (Ptr:@ELEVATION;Decl:'ELEVATION';Vars:'(DEG: integer)'),
       (Ptr:@FRAMEVISIBLE;Decl:'FRAMEVISIBLE';Vars:'(VISIBLE: boolean)'),
+      (Ptr:@LINECOLOR;Decl:'LINECOLOR';Vars:'(R, G, B: byte)'),
+      (Ptr:@LINEWIDTH;Decl:'LINEWIDTH';Vars:'(W: byte)'),
       (Ptr:@LOADDRAWING;Decl:'LOADDRAWING';Vars:'(lFilename: string)'),
       (Ptr:@LOADDTI;Decl:'LOADDTI';Vars:'(lFAFilename: string)'),
       (Ptr:@LOADIMAGE;Decl:'LOADIMAGE';Vars:'(lFilename: string)'),
@@ -629,6 +634,17 @@ begin
   {$ENDIF}
 end;
 
+(*procedure VXL2MM(X,Y,Z: single);
+var
+  x1,y1,z1: single;
+begin
+  x1 := x;
+  y1 := y;
+  z1 := z;
+  Voxel2mm(x1,y1,z1,gTexture3D.NIfTIHdr);
+  ScriptForm.Memo2.Lines.Add(format('%g %g %g', [x1,y1,z1]));
+end;*)
+
 procedure CUTOUTFORMVISIBLE (VISIBLE: boolean);
 begin
   {$IFDEF ENABLECUTOUT}
@@ -801,7 +817,18 @@ end;
 procedure BACKCOLOR (R,G,B: byte);
 begin
   gPrefs.BackColor :=RGBA(R,G,B,0); //2014
+  ReRender(false);
+end;
 
+procedure LINECOLOR (R,G,B: byte);
+begin
+  gPrefs.CrosshairColor :=RGBA(R,G,B,0); //2014
+  ReRender(false);
+end;
+
+procedure LINEWIDTH (W: byte);
+begin
+  gPrefs.CrosshairThick := W;
   ReRender(false);
 end;
 

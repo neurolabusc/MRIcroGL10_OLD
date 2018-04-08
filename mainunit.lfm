@@ -1,12 +1,12 @@
 object GLForm1: TGLForm1
-  Left = 625
-  Height = 755
-  Top = 55
+  Left = 248
+  Height = 787
+  Top = 23
   Width = 1032
   ActiveControl = ToolPanel
   AllowDropFiles = True
   Caption = 'MRIcroGL'
-  ClientHeight = 755
+  ClientHeight = 787
   ClientWidth = 1032
   KeyPreview = True
   Menu = MainMenu1
@@ -21,11 +21,11 @@ object GLForm1: TGLForm1
   LCLVersion = '1.9.0.0'
   object ToolPanel: TPanel
     Left = 0
-    Height = 755
+    Height = 787
     Top = 0
     Width = 216
     Align = alLeft
-    ClientHeight = 755
+    ClientHeight = 787
     ClientWidth = 216
     ParentFont = False
     TabOrder = 0
@@ -105,12 +105,12 @@ object GLForm1: TGLForm1
     end
     object ShaderBox: TGroupBox
       Left = 1
-      Height = 98
-      Top = 656
+      Height = 80
+      Top = 706
       Width = 214
       Align = alClient
       Caption = 'Shader'
-      ClientHeight = 76
+      ClientHeight = 58
       ClientWidth = 206
       ParentFont = False
       TabOrder = 1
@@ -118,7 +118,7 @@ object GLForm1: TGLForm1
       object ShaderMemo: TMemo
         Left = 0
         Height = 0
-        Top = 76
+        Top = 58
         Width = 206
         Align = alClient
         Lines.Strings = (
@@ -928,6 +928,7 @@ object GLForm1: TGLForm1
         Lines.Strings = (
           'MosaicText'
         )
+        OnChange = MosaicTextChange
         TabOrder = 0
       end
       object MosaicPanel: TPanel
@@ -998,7 +999,7 @@ object GLForm1: TGLForm1
           Max = 9
           Min = -9
           OnChange = UpdateMosaic
-          Position = -3
+          Position = 0
           TickStyle = tsNone
           TabOrder = 3
         end
@@ -1034,7 +1035,9 @@ object GLForm1: TGLForm1
           Top = 70
           Width = 87
           Caption = 'Cross slice'
+          Checked = True
           OnChange = UpdateMosaic
+          State = cbChecked
           TabOrder = 5
         end
         object CopyScriptBtn: TButton
@@ -1054,6 +1057,7 @@ object GLForm1: TGLForm1
           Caption = 'Run Script'
           OnClick = RunScriptClick
           TabOrder = 7
+          Visible = False
         end
         object LabelCheck: TCheckBox
           Left = 104
@@ -1061,7 +1065,9 @@ object GLForm1: TGLForm1
           Top = 70
           Width = 91
           Caption = 'Label slices'
+          Checked = True
           OnChange = UpdateMosaic
+          State = cbChecked
           TabOrder = 8
         end
       end
@@ -1135,6 +1141,45 @@ object GLForm1: TGLForm1
       ShowHint = True
       TabOrder = 7
     end
+    object LineBox: TGroupBox
+      Left = 1
+      Height = 50
+      Top = 656
+      Width = 214
+      Align = alTop
+      Caption = 'Lines'
+      ClientHeight = 28
+      ClientWidth = 206
+      ParentFont = False
+      TabOrder = 9
+      object LineWidthLabel: TLabel
+        Left = 3
+        Height = 16
+        Top = 2
+        Width = 36
+        Caption = 'Width'
+        ParentColor = False
+      end
+      object LineColorBtn: TButton
+        Left = 124
+        Height = 22
+        Top = 2
+        Width = 78
+        Caption = 'Color'
+        OnClick = LineColorBtnClick
+        TabOrder = 0
+      end
+      object LineWidthEdit: TSpinEdit
+        Left = 48
+        Height = 16
+        Top = 2
+        Width = 70
+        MaxValue = 7
+        OnChange = LineWidthEditChange
+        TabOrder = 1
+        Value = 3
+      end
+    end
     object Slice2DBox: TGroupBox
       Left = 1
       Height = 88
@@ -1203,7 +1248,7 @@ object GLForm1: TGLForm1
   end
   object CollapsedToolPanel: TPanel
     Left = 216
-    Height = 755
+    Height = 787
     Top = 0
     Width = 5
     Align = alLeft

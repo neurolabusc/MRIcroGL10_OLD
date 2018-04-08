@@ -21,7 +21,7 @@ types,clipbrd,
 {$IFNDEF FPC}
   messages,ShellAPI, detectmsaa,{$IFDEF PNG}pngimage, JPEG,{$ENDIF}
 {$ENDIF}Dialogs, ExtCtrls, Menus,  shaderu, texture2raycast,
-  StdCtrls, Controls, ComCtrls, Reslice, glcube,glclrbar,
+  StdCtrls, Controls, ComCtrls, Reslice, glcube,glclrbar, dcm_load,
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unit_transfertexture, {$ELSE} texture_3d_unit,extract,{$ENDIF}
   {$IFDEF FPC}  FileUtil, GraphType, LCLProc,LCLtype,  LCLIntf,LResources,OpenGLContext,{$ELSE}glpanel, {$ENDIF}
 {$IFDEF UNIX}Process, strutils, fphttpclient,
@@ -37,6 +37,9 @@ Windows,{$IFDEF FPC}uscaledpi,{$ENDIF}{$ENDIF} glmtext,
     {$ENDIF}
 type { TGLForm1 }
 TGLForm1 = class(TForm)
+    LineWidthEdit: TSpinEdit;
+    LineColorBtn: TButton;
+    LineWidthLabel: TLabel;
     ReorientMenu: TMenuItem;
     RadiologicalMenu: TMenuItem;
     ClrbarMenu: TMenuItem;
@@ -101,6 +104,7 @@ TGLForm1 = class(TForm)
     S9Track: TTrackBar;
     ShaderDrop: TComboBox;
     Slice2DBox: TGroupBox;
+    LineBox: TGroupBox;
     InterpolateDrawMenu: TMenuItem;
     LeftBtn: TSpeedButton;
     AnteriorBtn: TSpeedButton;
@@ -259,6 +263,9 @@ TGLForm1 = class(TForm)
     procedure ConvertForeign1Click(Sender: TObject);
     procedure FormChangeBounds(Sender: TObject);
     procedure InterpolateDrawMenuClick(Sender: TObject);
+    procedure LineColorBtnClick(Sender: TObject);
+    procedure LineWidthEditChange(Sender: TObject);
+    procedure MosaicTextChange(Sender: TObject);
     function OpenVOI(lFilename: string): boolean;
     procedure BackgroundMaskMenuClick(Sender: TObject);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
@@ -540,7 +547,6 @@ glEnable (GL_BLEND);
 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 glDisable(GL_DEPTH_TEST);  *)
 gText.DrawText;
-
 end;
 
 procedure SetLutFromZero(var lMin,lMax: single);
@@ -1692,13 +1698,47 @@ begin
  {$ENDIF}
 end;
 
+function lerpFraction (frac: single; min,max: single): integer;
+var
+  f: single;
+begin
+     if frac < 0.0 then
+        f := min
+     else if frac > 1.0 then
+        f := max
+     else
+         f := min + (frac * (max-min));
+     result := round (f);
+     if odd(result) then result := result + 1;
+     if result > max then result := result -2;
+end;
+
 procedure TGLForm1.UpdateMosaic(Sender: TObject);
 var
-  lRi,lCi,lR,lC,lRxC,lI: integer;
-  lInterval: single;
+  lXYZmmMin, lXYZmmMax : array[1..3] of single;
+  isMNISpace: boolean;
+  lRi,lCi,lR,lC,lRxC,lI, lmm, lO: integer;
+  lInterval, lFrac: single;
   lOrthoCh: Char;
   lStr: string;
 begin
+	//work out MNI space
+	//gTexture3D.FiltDim[1]);
+    lXYZmmMin[1] := 1;
+    lXYZmmMin[2] := 1;
+    lXYZmmMin[3] := 1;
+    Voxel2mm(lXYZmmMin[1],lXYZmmMin[2],lXYZmmMin[3],gTexture3D.NIfTIHdr);
+    lXYZmmMax[1] := gTexture3D.FiltDim[1];
+    lXYZmmMax[2] := gTexture3D.FiltDim[2];
+    lXYZmmMax[3] := gTexture3D.FiltDim[3];
+    Voxel2mm(lXYZmmMax[1],lXYZmmMax[2],lXYZmmMax[3],gTexture3D.NIfTIHdr);
+    SortSingle(lXYZmmMin[1],lXYZmmMax[1]);
+    SortSingle(lXYZmmMin[2],lXYZmmMax[2]);
+    SortSingle(lXYZmmMin[3],lXYZmmMax[3]);
+    isMNISpace := (lXYZmmMin[1] < -70) and (lXYZmmMax[1] > 70) and
+      (lXYZmmMin[2] < -100) and (lXYZmmMax[2] > 70) and
+      (lXYZmmMin[3] < -38) and (lXYZmmMax[3] > 76);
+  //caption := format('%g..%g %g..%g %g..%g',[lXYZmmMin[1],lXYZmmMax[1],lXYZmmMin[2],lXYZmmMax[2],lXYZmmMin[3],lXYZmmMax[3] ]);
   //if not MosaicPrefsForm.Visible then exit;
   lR := RowEdit.value;
   lC := ColEdit.value;
@@ -1716,6 +1756,7 @@ begin
     3 : lStr := 'Z'; //rev Sag
     else lStr := 'A'; //axial
   end; //Case
+  lO := lCi;
   case lCi of
     1 : lOrthoCh := 'S';//coronal
     2 : lOrthoCh := 'C'; //Sag
@@ -1728,25 +1769,39 @@ begin
     lStr := lStr + 'L+ ';
   //next horizonatal overlap
   if ColOverlap.Position <> 0 then
-    lStr := lStr +'H '+ FloatToStrF(ColOverlap.Position/10, ffFixed, 4, 3)+ ' ';
+    lStr := lStr +'H '+ FloatToStrF(ColOverlap.Position/10, ffGeneral, 4, 3)+ ' ';
   //next vertical overlap
   if RowOverlap.Position <> 0 then
-    lStr := lStr +'V '+ FloatToStrF(RowOverlap.Position/10, ffFixed, 4, 3) + ' ';
+    lStr := lStr +'V '+ FloatToStrF(RowOverlap.Position/10, ffGeneral, 4, 3) + ' ';
   //next draw rows....
   lI := 0;
   for lRi := 1 to lR do begin
     for lCi := 1 to lC do begin
       inc(lI);
-      if (lI = lRxC) and (CrossCheck.Checked) then
-        lStr := lStr +lOrthoCh + ' 0.5' //maybe "X" used to disable text on cross slice? perhaps "L-"
+      if (lI = lRxC) and (CrossCheck.Checked) then begin
+        if isMNISpace then
+            lStr := lStr +lOrthoCh + ' X R 0' //maybe "X" used to disable text on cross slice? perhaps "L-"
+        else
+            lStr := lStr +lOrthoCh + ' X R 0.5' //maybe "X" used to disable text on cross slice? perhaps "L-"
         //lStr := lStr + 'X '+lOrthoCh + ' 0.5'
-      else
-        lStr := lStr + FloatToStrF(lI * lInterval, ffFixed, 8, 4);
+      end else begin
+        lFrac := lI * lInterval;
+        if isMNISpace then begin
+           case lO of
+              1 : lmm := lerpFraction(lFrac, lXYZmmMin[2],lXYZmmMax[2]);//coronal
+              2,3 : lmm := lerpFraction(lFrac, lXYZmmMin[1],lXYZmmMax[1]); //Sag
+              else lmm := lerpFraction(lFrac, lXYZmmMin[3],lXYZmmMax[3]); //axial
+            end; //Case
+             lStr := lStr + InttoStr(lmm);
+             //lStr := lStr + FloatToStrF(lFrac, ffFixed, 8, 4);
+        end else
+            lStr := lStr + FloatToStrF(lFrac, ffGeneral, 8, 4);
+      end;
       if lCi < lC then
         lStr := lStr + ' ';
     end; //for each column
     if lRi < lR then
-      lStr := lStr +';';
+      lStr := lStr +'; ';
   end;//for each row
   MosaicText.Text := lStr;
   GLForm1.DrawMosaic(lStr);
@@ -1883,6 +1938,7 @@ begin
       else Render1.checked := true;
 
  end;
+ SetToolPanelWidth;
  //{$IFDEF FPC} GLBox.Invalidate; {$ENDIF} //this will crash Delphi as GLBox not yet created
 end;
 
@@ -1914,6 +1970,7 @@ begin
  VisibleClrbarMenu.Checked := gPrefs.Colorbar;
  SelectSliceView(gPrefs.SliceView);
  OverlayColorFromZeroMenu.checked := gPrefs.OverlayColorFromZero;
+ LineWidthEdit.Value := gPrefs.CrosshairThick;
  SetToolPanelWidth; //4/2017: show correct tool panel when script runs ResetDefaults()
 end;
 
@@ -2101,10 +2158,12 @@ begin
   GLBox.OnResize:= GLboxResize;
   //GLBox.DepthBits:= 0; //if set to zero, uncomment raycastglsl.pas glEnable(GL_CULL_FACE);
  ShaderDropChange(Sender);
- if gPrefs.FormMaximized then
+  {$IFNDEF Cocoa}
+  if gPrefs.FormMaximized then
   GLForm1.WindowState := wsMaximized
  else
   SetFormSize(gPrefs.FormWidth,gPrefs.FormHeight);
+ {$ENDIF}
  //VolumeFilename := '+';
   MousePt.X := -1;
   //  loadlabelsITK('/Users/rorden/Documents/test.txt');
@@ -3021,6 +3080,7 @@ begin
       M_Refresh := false;
   end;
   DisplayGL(gTexture3D);
+  //DisplaySimple(gTexture3D);
   {$IFDEF FPC}
   {$IFDEF LCLCarbon}
    GLbox.SwapBuffers; //DoubleBuffered
@@ -3273,12 +3333,14 @@ const
   //p : integer;
   //s: string;
 begin
+
  case Key of
   '-','0'..'9'  : ;
   '.',','   : if AllowDec AND (pos(DecimalSeparator,(Sender as TEdit).Text)=0)
                 then  Key := DecimalSeparator
                 else  Key:=#0;
   #8        : ;
+  chr(127): ;
   (*#45       : if FAllowNeg then
                 begin
                   s := (Sender as TEdit).Text;
@@ -3375,7 +3437,6 @@ end;
 procedure TGLForm1.Mosaic1Click(Sender: TObject);
 begin
  gPrefs.SliceView := (Sender as TMenuItem).tag;
-
  SetToolPanelWidth;
  //AdjustFormPos(TFOrm(MosaicPrefsForm));
  UpdateMosaic(Sender);
@@ -4166,6 +4227,31 @@ begin
  GLForm1.UpdateGL;
 end;
 
+procedure TGLForm1.LineColorBtnClick(Sender: TObject);
+begin
+   ColorDialog1.Color := RGBA2TColor(gPrefs.CrosshairColor);
+   if not ColorDialog1.Execute then
+    exit;
+   TColor2RGBA(ColorDialog1.Color,gPrefs.CrosshairColor);
+   //caption := ColorDialog1.Color.
+   gPrefs.CrosshairColor.rgbReserved := 255;
+   //ColorDialog1.
+   //gPrefs.CrosshairColor.rgbReserved :=  (ColorDialog1.Color shr 24) and 255;
+   GLForm1.UpdateGL;
+end;
+
+procedure TGLForm1.LineWidthEditChange(Sender: TObject);
+begin
+  if LineWidthEdit.Value = gPrefs.CrosshairThick then exit;
+  gPrefs.CrosshairThick:= LineWidthEdit.Value;
+  GLForm1.UpdateGL;
+end;
+
+procedure TGLForm1.MosaicTextChange(Sender: TObject);
+begin
+  GLForm1.DrawMosaic(MosaicText.Text); //2018
+end;
+
 procedure TGLForm1.ConvertForeign1Click(Sender: TObject);
 var
   Opt : TOpenOptions;
@@ -4340,6 +4426,7 @@ begin
  SuperiorMenu.Visible := ShowRenderTools; *)
  CutoutBox.visible := ShowRenderTools;
  Slice2DBox.Visible := ((not ShowRenderTools) and (gPrefs.SliceView <> 5));
+ LineBox.Visible := not ShowRenderTools;
  MosaicBox.Visible := gPrefs.SliceView = 5;
 end;
 
@@ -4519,8 +4606,7 @@ ACol := abs(GLForm1.StringGrid1.Selection.Right);
   //if ((ACol <> gPrevCol) or (ACol <> gPrevCol)) and    ChangeOverlayUpdate;
   gPrevCol := ACol;
   gPrevRow := ARow;
-
-  if (not (IsDigit (Key) or (Key = decimalseparator) or (Key = '+') or (Key = '-') or
+  if not( (IsDigit (Key) or (Key = chr(127)) or (Key = decimalseparator) or (Key = '+') or (Key = '-') or
         (Key = ControlC) or (Key = ControlV) or (Key = BackspaceKey) or
         (Key = EnterKey))) then begin
     Key := #0;
@@ -5560,7 +5646,14 @@ if AutoRunTimer1.enabled then exit;
 if length(FileNames) < 1 then
    exit;
 lFilename := Filenames[0];
-LoadDatasetNIFTIvolx(lFileName,true);
+if NIFTIvolumes(lFilename) > 0 then begin
+   LoadDatasetNIFTIvolx(lFileName,true);
+   exit;
+end;
+//check for NIfTI
+ lFilename := dcm2Nifti(dcm2niiForm.getExeName, lFilename);
+ if lFilename = '' then exit;
+ LoadDatasetNIFTIvolx(lFileName,true);
 end;
 
 procedure TGLForm1.FormShow(Sender: TObject);

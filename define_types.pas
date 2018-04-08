@@ -12,7 +12,7 @@ interface
         SysUtils,classes,graphics,userdir,math,
         {$IFDEF GUI} forms,dialogs,controls;{$ELSE} dialogsx;{$ENDIF}
 const
-  kVers = 'v1.0.20180306';
+  kVers = 'v1.0.20180331';
      NaN : double = 1/0;
      kMagicDouble : double = -111666222;
      kTxtFilter = 'Text (*.txt)|*.txt;*.csv|Comma Separated (*.csv)|*.csv';
