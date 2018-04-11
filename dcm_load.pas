@@ -125,7 +125,7 @@ var
   PrefForm: TForm;
   rg: TRadioGroup;
   dcmStrings: TStringlist;
-  OKBtn: TButton;
+  OKBtn, CancelBtn: TButton;
   w,h: integer;
 label
   123;
@@ -172,9 +172,20 @@ begin
   OkBtn.Top := rg.Height+rg.Top+4;
   OkBtn.Parent:=PrefForm;
   OkBtn.ModalResult:= mrOK;
+  //Cancel button
+  CancelBtn:=TButton.create(PrefForm);
+  CancelBtn.Caption:='Cancel';
+  CancelBtn.Left := 28;
+  CancelBtn.Width:= 100;
+  CancelBtn.Top := rg.Height+rg.Top+4;
+  CancelBtn.Parent:=PrefForm;
+  CancelBtn.ModalResult:= mrCancel;
+
   PrefForm.Height:= OkBtn.Top + OkBtn.Height+4;
   PrefForm.ShowModal;
   result := rg.Items[rg.ItemIndex];//seriesNum(rg.Items[rg.ItemIndex]);
+  if PrefForm.ModalResult = mrCancel then
+    result :=  '';
   FreeAndNil(PrefForm);
  123: //cleanup
   dcmStrings.Free;

@@ -48,7 +48,7 @@ type
     // You may want to draw differently if the current apperance is vibrant.
     function allowsVibrancy: Boolean; message 'allowsVibrancy';
   end;
-  procedure setThemeModeX(FormHandle: HWND; isDarkMode: boolean);
+  procedure setThemeMode(FormHandle: HWND; isDarkMode: boolean);
 
 
 var
@@ -74,7 +74,7 @@ type
 
 implementation
 
-procedure setThemeModeX(FormHandle: HWND; isDarkMode: boolean);
+procedure setThemeMode(FormHandle: HWND; isDarkMode: boolean);
 var
   theWindow : CocoaAll.NSWindow;
 begin

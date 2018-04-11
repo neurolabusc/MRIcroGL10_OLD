@@ -635,14 +635,19 @@ end;
 {$IFDEF LCLCocoa}
 procedure TGLForm1.SetDarkMode;
 begin
-  setThemeModeX(Self.Handle, gPrefs.DarkMode);
+  setThemeMode(Self.Handle, gPrefs.DarkMode);
   if gPrefs.DarkMode then begin
      MosaicText.Color := clGray;
      ShaderMemo.Color := clGray;
      StringGrid1.Color := clGray;
      StringGrid1.AlternateColor:= clGray;
      StringGrid1.FixedColor:= clBlack;
-
+     (*LeftBtn.Color := clDefault;
+     AnteriorBtn.Color := clGray;
+     RightBtn.Color := clSilver;
+     PosteriorBtn.Color := clMedGray;
+     SuperiorBtn.Color := clBtnFace;
+     InferiorBtn.Color := clBlack; *)
   end else begin
       MosaicText.Color:= clDefault;
       ShaderMemo.Color := clDefault;
