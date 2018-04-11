@@ -1,11 +1,15 @@
 unit mainunit;
 {$IFDEF FPC}{$H+}{$mode delphi}   {$ENDIF}
 {$D-,O+,Q-,R-,S-}
+
+
+
 {$include opts.inc}
 interface
 //{$IFDEF FPC}
 {$DEFINE COMPILEYOKE}
 //{$ENDIF}
+
 
 {$IFDEF LCLcarbon}
  This program does not support Carbon
@@ -442,7 +446,10 @@ function MouseUpVOI (Shift: TShiftState; X, Y: Integer): boolean;
     procedure YokeTimerTimer(Sender: TObject);
     procedure ClearText(ScrnWid, lScrnHt: integer);
     procedure DrawText(lScrnWid, lScrnHt, zoom, zoomOffsetX, zoomOffsetY: integer);
-    {$IFDEF LCLCocoa} procedure SetRetina; {$ENDIF}
+    {$IFDEF LCLCocoa}
+    procedure SetRetina;
+    procedure SetDarkMode;
+    {$ENDIF}
   private
     {$IFNDEF FPC}    procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES; {$ENDIF}
   public
@@ -479,7 +486,7 @@ var
 
 implementation
 
-{$IFDEF ENABLEOVERLAY} uses {$IFDEF LCLCocoa}glcocoanscontext,{$ENDIF} nifti_types, savethreshold, nii_reslice {$IFDEF ENABLESCRIPT}, scriptengine{$ENDIF};{$ENDIF}
+{$IFDEF ENABLEOVERLAY} uses {$IFDEF LCLCocoa} nsappkitext, glcocoanscontext,{$ENDIF} nifti_types, savethreshold, nii_reslice {$IFDEF ENABLESCRIPT}, scriptengine{$ENDIF};{$ENDIF}
 {$IFDEF FPC} {$R *.lfm}   {$ENDIF}
 {$IFNDEF FPC} {$R *.dfm} {$ENDIF}
 var
@@ -626,6 +633,37 @@ begin
 end;
 
 {$IFDEF LCLCocoa}
+procedure TGLForm1.SetDarkMode;
+begin
+  setThemeModeX(Self.Handle, gPrefs.DarkMode);
+  if gPrefs.DarkMode then begin
+     MosaicText.Color := clGray;
+     ShaderMemo.Color := clGray;
+     StringGrid1.Color := clGray;
+     StringGrid1.AlternateColor:= clGray;
+     StringGrid1.FixedColor:= clBlack;
+
+  end else begin
+      MosaicText.Color:= clDefault;
+      ShaderMemo.Color := clDefault;
+      StringGrid1.Color := clDefault;
+      StringGrid1.AlternateColor:= clDefault;
+      StringGrid1.FixedColor:= clBtnFace;
+  end;
+  (*  if CheckBox1.Checked then begin
+    theWindow.setAppearance (NSAppearance.appearanceNamed(NSAppearanceNameVibrantDark))  ;
+    StringGrid1.Color := clGray;
+    StringGrid1.AlternateColor:= clGray;
+
+    StringGrid1.FixedColor:= clBlack;
+  end else begin
+    theWindow.setAppearance (NSAppearance.appearanceNamed(NSAppearanceNameAqua));
+    StringGrid1.Color := clDefault;
+    StringGrid1.AlternateColor:= clDefault;
+    StringGrid1.FixedColor:= clBtnFace;
+  end;                    *)
+end;
+
 procedure TGLForm1.SetRetina;
 begin
   (*if gPrefs.RetinaDisplay then
@@ -2677,7 +2715,7 @@ var
   i: integer;
   str, fpsstr: string;
 begin
-   If (ssShift in KeyDataToShiftState(vk_Shift)) then begin
+    If (ssShift in KeyDataToShiftState(vk_Shift)) then begin
       M_Refresh := TRUE;
       GLForm1.UpdateTimer.Enabled := true;
       //GLbox.Invalidate;
@@ -3391,6 +3429,7 @@ var
   lPos: integer;
   lVidX,lVidY,lLeft,lTop: integer;
 begin
+
   ScreenRes(lVidX,lVidY);
   lPos := lForm.Tag;
   if odd(lPos) then begin//form on left
@@ -3766,17 +3805,17 @@ var
   PrefForm: TForm;
   bmpEdit: TEdit;
   {$IFDEF FPC}TiledCheck,{$ENDIF}
-  {$IFDEF LCLCocoa} RetinaCheck,{$ENDIF} flipCheck: TCheckBox;
+  {$IFDEF LCLCocoa} DarkModeCheck, RetinaCheck,{$ENDIF} flipCheck: TCheckBox;
   {$IFDEF FPC}UpdateBtn: TButton;{$ENDIF}
   OkBtn, AdvancedBtn: TButton;
   bmpLabel: TLabel;
   searchRec: TSearchRec;
   s: string;
   FontCombo : TComboBox;
-  isFontChanged, isFlipChanged,isAdvancedPrefs  {$IFDEF LCLCocoa}, isRetinaChanged {$ENDIF}: boolean;
+  isFontChanged, isFlipChanged,isAdvancedPrefs  {$IFDEF LCLCocoa}, isDarkModeChanged, isRetinaChanged {$ENDIF}: boolean;
 begin
   PrefForm:=TForm.Create(nil);
-  PrefForm.SetBounds(100, 100, 520, 212);
+  PrefForm.SetBounds(100, 100, 520, 242);
   PrefForm.Caption:='Preferences';
   PrefForm.Position := poScreenCenter;
   PrefForm.BorderStyle := bsDialog;
@@ -3841,6 +3880,14 @@ begin
   RetinaCheck.Left := 8;
   RetinaCheck.Top := 138;
   RetinaCheck.Parent:=PrefForm;
+  //
+  DarkModeCheck:=TCheckBox.create(PrefForm);
+  //
+  DarkModeCheck.Checked := gPrefs.DarkMode;
+  DarkModeCheck.Caption:='Dark Mode';
+  DarkModeCheck.Left := 8;
+  DarkModeCheck.Top := 168;
+  DarkModeCheck.Parent:=PrefForm;
   {$ENDIF}
   //UpdateBtn
   {$IFDEF UNIX}
@@ -3848,7 +3895,7 @@ begin
   UpdateBtn.Caption:='Check for updates';
   UpdateBtn.Left := 28;
   UpdateBtn.Width:= 168;
-  UpdateBtn.Top := 168;
+  UpdateBtn.Top := 198;
   UpdateBtn.Parent:=PrefForm;
   UpdateBtn.OnClick:= GLForm1.CheckForUpdates;
   {$ENDIF}
@@ -3859,7 +3906,7 @@ begin
   OkBtn.Caption:='OK';
   OkBtn.Left := PrefForm.Width - 128;
   OkBtn.Width:= 100;
-  OkBtn.Top := 168;
+  OkBtn.Top := 198;
   OkBtn.Parent:=PrefForm;
   OkBtn.ModalResult:= mrOK;
   //Advanced button
@@ -3867,7 +3914,7 @@ begin
   AdvancedBtn.Caption:='Advanced';
   AdvancedBtn.Left := PrefForm.Width - 256;
   AdvancedBtn.Width:= 100;
-  AdvancedBtn.Top := 168;
+  AdvancedBtn.Top := 198;
   AdvancedBtn.Parent:=PrefForm;
   AdvancedBtn.ModalResult:= mrYesToAll;
   {$IFDEF Windows} ScaleDPI(PrefForm, 96);  {$ENDIF}
@@ -3888,6 +3935,8 @@ begin
   {$IFDEF LCLCocoa}
   isRetinaChanged := gPrefs.RetinaDisplay <> RetinaCheck.Checked;
   gPrefs.RetinaDisplay := RetinaCheck.Checked;
+  isDarkModeChanged := gPrefs.DarkMode <> DarkModeCheck.Checked;
+  gPrefs.DarkMode := DarkModeCheck.Checked;
   {$ENDIF}
   s := '';
   if FontCombo.ItemIndex > 0 then
@@ -3904,6 +3953,8 @@ begin
   if isFontChanged then
        GLForm1.UpdateFont(false);
   {$IFDEF LCLCocoa}
+  if isDarkModeChanged then
+       GLForm1.SetDarkMode();
   if isRetinaChanged then begin
      GLForm1.SetRetina;
      //GLBox.WantsBestResolutionOpenGLSurface:=gPrefs.RetinaDisplay;
@@ -5065,7 +5116,6 @@ begin
   end;
   ComputeThreshOverlay (gOverlayImg[gOpenOverlays]);
   //caption := format('%g %g',[gOverlayImg[gOpenOverlays].AutoBalMinUnscaled, gOverlayImg[gOpenOverlays].AutoBalMaxUnscaled]);
-
   if (gOverlayImg[gOpenOverlays].RGB)  then begin //RGB images
     gOverlayImg[gOpenOverlays].AutoBalMinUnscaled := 0.1;
     gOverlayImg[gOpenOverlays].AutoBalMaxUnscaled := 255;
@@ -5659,6 +5709,9 @@ end;
 procedure TGLForm1.FormShow(Sender: TObject);
 begin
   //CheckForUpdates(nil);
+  {$IFDEF LCLCocoa}
+  SetDarkMode;
+  {$ENDIF}
 end;
 
 procedure TGLForm1.AppDropFiles(Sender: TObject; const FileNames: array of String);

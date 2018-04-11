@@ -22,7 +22,7 @@ type
          ShowToolbar,//ColorbarText,
          Colorbar,ForcePowerOfTwo,
          RayCastShowGLSLWarnings,RayCastViewCenteredLight,EnableYoke,
-         NoveauWarning, StartupScript, RetinaDisplay : boolean;
+         NoveauWarning, StartupScript, RetinaDisplay, DarkMode: boolean;
          PlanarRGB,SliceView,DrawColor,RayCastQuality1to10,MaxStartupRayCastQuality1to10, FormWidth,FormHeight,
          BackgroundAlpha,OverlayAlpha,CrosshairThick,MaxVox, BitmapZoom, ColorbarColor,ColorbarPosition: integer;
          CLUTWindowColor,CLUTIntensityColor: TColor;
@@ -194,6 +194,7 @@ begin
             BitmapZoom := 2;
             StartupScript := false;
             RetinaDisplay := true;
+            DarkMode := false;
             FormMaximized := false;
             Debug := false;
             {$IFNDEF FPC}
@@ -426,8 +427,7 @@ begin
  	IniBool(lRead,lIniFile, 'ForcePowerOfTwo',lPrefs.ForcePowerOfTwo);
 	IniBool(lRead,lIniFile, 'StartScript',lPrefs.StartupScript);
         IniBool(lRead,lIniFile, 'RetinaDisplay',lPrefs.RetinaDisplay);
-
-
+        IniBool(lRead,lIniFile, 'DarkMode',lPrefs.DarkMode);
 	//IniBool(lRead,lIniFile, 'IntelWarning',lPrefs.IntelWarning);
         IniBool(lRead,lIniFile, 'NoveauWarning',lPrefs.NoveauWarning);
         IniBool(lRead,lIniFile, 'FlipYZ',lPrefs.FlipYZ);

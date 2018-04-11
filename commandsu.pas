@@ -28,6 +28,7 @@ procedure CLIPAZIMUTHELEVATION (DEPTH,AZI,ELEV: single);
 procedure CLIPFORMVISIBLE (VISIBLE: boolean);
 procedure COLORBARCOORD (L,T,R,B: single);
 procedure COLORBARPOSITION (P: integer);
+procedure COLORBARSIZE (F: single);
 procedure COLORBARFORMVISIBLE (VISIBLE: boolean);
 procedure COLORBARTEXT (VISIBLE: boolean);
 procedure COLORBARVISIBLE (VISIBLE: boolean);
@@ -115,7 +116,7 @@ const
     (Ptr:@OVERLAYLOADCLUSTER;Decl:'OVERLAYLOADCLUSTER';Vars:'(lFilename: string; lThreshold, lClusterMM3: single; lSaveToDisk: boolean): integer'),
 
      (Ptr:@OVERLAYLOADVOL;Decl:'OVERLAYLOADVOL';Vars:'(lFilename: string; lVol: integer): integer'));
-  knProc = 84;
+  knProc = 85;
   kProcRA : array [1..knProc] of TScriptRec =
     (
       (Ptr:@AZIMUTH;Decl:'AZIMUTH';Vars:'(DEG: integer)'),
@@ -130,6 +131,7 @@ const
       (Ptr:@CLIPFORMVISIBLE;Decl:'CLIPFORMVISIBLE';Vars:'(VISIBLE: boolean)'),
       (Ptr:@COLORBARCOORD;Decl:'COLORBARCOORD';Vars:'(L,T,R,B: single)'),
       (Ptr:@COLORBARPOSITION;Decl:'COLORBARPOSITION';Vars:'(P: integer)'),
+      (Ptr:@COLORBARSIZE;Decl:'COLORBARSIZE';Vars:'(F: single)'),
       (Ptr:@ADDNODE;Decl:'ADDNODE';Vars:'(INTENSITY, R,G,B,A: byte)'),
       (Ptr:@COLORBARFORMVISIBLE;Decl:'COLORBARFORMVISIBLE';Vars:'(VISIBLE: boolean)'),
       (Ptr:@COLORBARTEXT;Decl:'COLORBARTEXT';Vars:'(VISIBLE: boolean)'),
@@ -527,6 +529,17 @@ procedure COLORBARPOSITION(P: integer);
 begin
   gPrefs.ColorBarPosition:= P;
   GLForm1.SetColorBarPosition;
+  ReRender(false);
+end;
+
+procedure COLORBARSIZE (F: single);
+begin
+  if (F < 0.0099) or (F > 0.50001) then begin
+     ScriptForm.Memo2.Lines.Add('COLORBARSIZE should be a value between 0.01 and 0.5');
+     exit;
+  end;
+  gPrefs.ColorbarSize:= F;
+  gClrbar.SizeFraction := F;
   ReRender(false);
 end;
 

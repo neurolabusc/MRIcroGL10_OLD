@@ -3,15 +3,16 @@ program simplelaz;
 {$mode objfpc}{$H+}
 {$include opts.inc}
 uses
-{$IFDEF FPC}{$IFNDEF UNIX} uscaledpi, 
+{$IFDEF FPC}{$IFNDEF UNIX} uscaledpi,
 
 {$ENDIF}{$IFDEF LINUX} Graphics, uscaledpi, {$ENDIF}{$ENDIF}
   {$IFDEF UNIX}{$IFDEF UseCThreads}
   cthreads,
   {$ENDIF}{$ENDIF}
-  Interfaces, Forms, lazopenglcontext, mainunit, autoroi, readint, scriptengine,
+  Interfaces, Forms, lazopenglcontext, mainunit, autoroi, readint,
   nifti_dicom, clustering, savethreshold, reslice, drawu, dcm2nii, shaderui,
-  clut, raycast_legacy, raycast_common, pascalscript, extractui, nifti_tiff;
+  clut, raycast_legacy, raycast_common, pascalscript, extractui, nifti_tiff,
+  dcm_load, commandsu, prefs, define_types, scriptengine;
 
 {$IFNDEF UNIX}{$R simplelaz.res}{$ENDIF}
 

@@ -39,6 +39,7 @@ object ScriptForm: TScriptForm
     ParentFont = False
     ScrollBars = ssAutoVertical
     TabOrder = 0
+    WantTabs = True
     WordWrap = False
   end
   object Memo2: TMemo
@@ -206,6 +207,12 @@ object ScriptForm: TScriptForm
           Tag = 2
           Caption = 'colorbarposition'
           Hint = 'COLORBARPOSITION (P: integer). Sets the position of the colorbar: 1=bottom, 2=left, 3=top, 4=right.'
+          OnClick = InsertCommand
+        end
+        object colorbarsize1: TMenuItem
+          Tag = 3
+          Caption = 'colorbarsize'
+          Hint = 'colorbarsize(f) : f is a value 0.01..0.5 that specifies the fraction of the screen used by the colorbar'
           OnClick = InsertCommand
         end
         object colorbartext1: TMenuItem

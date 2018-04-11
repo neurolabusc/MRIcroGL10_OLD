@@ -23,8 +23,8 @@ type
 
   { TScriptForm }
   TScriptForm = class(TForm)
+    colorbarsize1: TMenuItem;
     radiological1: TMenuItem;
-
     MRU10: TMenuItem;
     MRU9: TMenuItem;
     MRU8: TMenuItem;

@@ -180,13 +180,15 @@ begin
 end;*)
 
 procedure MosaicColorBarXY(var lMosaic: TMosaic);
-const
-  SizeFrac = 0.035;
+//const
+//  SizeFrac = 0.035;
 //we need to compute space for a colorbar
 var
   //a,b,
+  SizeFrac: single;
   BGThick, nLUTs, BarThick: integer;
 begin
+  SizeFrac := gPrefs.ColorbarSize;
   lMosaic.ClrBarSizeFracX := 0;
   lMosaic.LeftBorder := 0; //assume no left colorbar
   lMosaic.BottomBorder := 0; //assume no bottom colorbar
@@ -210,7 +212,6 @@ begin
     lMosaic.MaxWid := lMosaic.MaxWid + BGThick;
     if (gPrefs.ColorBarPosition = 2) then
          lMosaic.LeftBorder := BGThick;
-
   end;
   lMosaic.ClrBarSizeFracX :=  BarThick/lMosaic.MaxWid;
   //GLForm1.caption := format('%d %d -> %d %d',[a,b, lMosaic.MaxHt,lMosaic.MaxWid]);
@@ -814,13 +815,29 @@ begin
      result := (lOrient = kSagLeftOrient) or (lOrient = kSagRightOrient);
 end;
 
+
+procedure SetLineColor;
+var
+  c, b: TGLRGBQuad;
+begin
+     c := gPrefs.CrosshairColor;
+     b := gPrefs.BackColor;
+     if(c.rgbRed = b.rgbRed) and (c.rgbGreen = b.rgbGreen) and (c.rgbBlue = b.rgbBlue) then begin
+       c.rgbRed := 255 - b.rgbRed;
+       c.rgbGreen := 255 - b.rgbGreen;
+       c.rgbBlue := 255 - b.rgbBlue;
+     end;
+     glColor4ub(c.rgbRed,c.rgbGreen,c.rgbBlue,c.rgbReserved);
+end;
+
 procedure GLCrossLine(lMosaic: TMosaic; scale:single);
 var
   i,j, lOrient, lCrossOrient, lColInc,lRow, lRowInc,lCol:integer;
   fh, fw, l,b,w,h: single;
 begin
  if gPrefs.CrosshairThick < 1 then exit;
- glColor4ub(gPrefs.CrosshairColor.rgbRed,gPrefs.CrosshairColor.rgbGreen,gPrefs.CrosshairColor.rgbBlue,gPrefs.CrosshairColor.rgbReserved);
+ SetLineColor;
+ //glColor4ub(gPrefs.CrosshairColor.rgbRed,gPrefs.CrosshairColor.rgbGreen,gPrefs.CrosshairColor.rgbBlue,gPrefs.CrosshairColor.rgbReserved);
  glLineWidth(gPrefs.CrosshairThick);
  if lMosaic.HOverlap < 0 then
    lColInc := -1
@@ -1326,8 +1343,8 @@ begin
     {$ELSE}
     //glColor4f(gPrefs.CrosshairColor.rgbRed/255,gPrefs.CrosshairColor.rgbGreen/255,gPrefs.CrosshairColor.rgbBlue/255,1{gPrefs.CrosshairColor.rgbReserved/255});
     glEnable (GL_BLEND);
-
-    glColor4ub(gPrefs.CrosshairColor.rgbRed,gPrefs.CrosshairColor.rgbGreen,gPrefs.CrosshairColor.rgbBlue,gPrefs.CrosshairColor.rgbReserved);
+    setLineColor;
+    //glColor4ub(gPrefs.CrosshairColor.rgbRed,gPrefs.CrosshairColor.rgbGreen,gPrefs.CrosshairColor.rgbBlue,gPrefs.CrosshairColor.rgbReserved);
 
     glLineWidth(gPrefs.CrosshairThick);
     glBegin(GL_LINES);

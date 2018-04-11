@@ -787,7 +787,7 @@ end;
       kDT_SIGNED_INT:lDestHdr.ImgBufferBPP :=4;
 	    kDT_FLOAT: lDestHdr.ImgBufferBPP :=4;
      end; //case
-     GLForm1.Caption:=floattostr(lMinPositive)+'....'+floattostr(lMaxNegative);
+     //GLForm1.Caption:=floattostr(lMinPositive)+'....'+floattostr(lMaxNegative);
      NIFTIhdr_ThreshPos(lDestHdr,lDestHdr.ImgBuffer, lMinPositive);
      NIFTIhdr_ThreshNeg(lDestHdr,lDestHdr.ImgBuffer, lMaxNegative);
      NIFTIhdr_MinMaxImg(lDestHdr,lDestHdr.ImgBuffer);//set global min/max

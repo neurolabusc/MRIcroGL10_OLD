@@ -96,6 +96,28 @@ Begin
    hProcess.Free;
 end;
 
+
+function HomeDir: string; //set path to home if not provided
+{$IFDEF UNIX}
+begin
+   result := expandfilename('~/');
+end;
+{$ELSE}
+var
+  SpecialPath: PWideChar;
+begin
+  Result := '';
+  SpecialPath := WideStrAlloc(MAX_PATH);
+  try
+    FillChar(SpecialPath^, MAX_PATH, 0);
+    if SHGetSpecialFolderPathW(0, SpecialPath, CSIDL_PERSONAL, False) then
+      Result := SpecialPath+pathdelim;
+  finally
+    StrDispose(SpecialPath);
+  end;
+end;
+{$ENDIF}
+
 function dcmSeriesSelectForm(dcm2niixExe, dicomDir: string): string;
 const
   kMaxItems = 16;
@@ -117,7 +139,8 @@ begin
   end;
   PrefForm:=TForm.Create(nil);
   PrefForm.SetBounds(100, 100, 520, 212);
-  PrefForm.Caption:='DICOM Loading '+dcm2niixExe;
+  //PrefForm.Caption:='DICOM Loading '+dcm2niixExe;
+  PrefForm.Caption:='Save converted images to '+HomeDir;
   PrefForm.Position := poScreenCenter;
   PrefForm.BorderStyle := bsDialog;
   {$IFNDEF FPC}PrefForm.AutoSize := true;{$ENDIF}
@@ -156,27 +179,6 @@ begin
  123: //cleanup
   dcmStrings.Free;
 end; // PrefMenuClick()
-
-function HomeDir: string; //set path to home if not provided
-{$IFDEF UNIX}
-begin
-   result := expandfilename('~/');
-end;
-{$ELSE}
-var
-  SpecialPath: PWideChar;
-begin
-  Result := '';
-  SpecialPath := WideStrAlloc(MAX_PATH);
-  try
-    FillChar(SpecialPath^, MAX_PATH, 0);
-    if SHGetSpecialFolderPathW(0, SpecialPath, CSIDL_PERSONAL, False) then
-      Result := SpecialPath+pathdelim;
-  finally
-    StrDispose(SpecialPath);
-  end;
-end;
-{$ENDIF}
 
 function findNiiFile(baseName: string): string;
 //if baseName '~/d/img.nii' does not exist but '~/d/img_e1.nii' does

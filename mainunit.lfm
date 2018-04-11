@@ -1,5 +1,5 @@
 object GLForm1: TGLForm1
-  Left = 248
+  Left = 108
   Height = 787
   Top = 23
   Width = 1032
@@ -25,20 +25,21 @@ object GLForm1: TGLForm1
     Top = 0
     Width = 216
     Align = alLeft
+    BevelOuter = bvNone
     ClientHeight = 787
     ClientWidth = 216
     ParentFont = False
     TabOrder = 0
     OnClick = ToolPanelClick
     object ClipBox: TGroupBox
-      Left = 1
+      Left = 0
       Height = 92
-      Top = 125
-      Width = 214
+      Top = 124
+      Width = 216
       Align = alTop
       Caption = 'Clipping'
       ClientHeight = 70
-      ClientWidth = 206
+      ClientWidth = 208
       ParentFont = False
       TabOrder = 0
       object Label4: TLabel
@@ -104,22 +105,22 @@ object GLForm1: TGLForm1
       end
     end
     object ShaderBox: TGroupBox
-      Left = 1
-      Height = 80
-      Top = 706
-      Width = 214
+      Left = 0
+      Height = 82
+      Top = 705
+      Width = 216
       Align = alClient
       Caption = 'Shader'
-      ClientHeight = 58
-      ClientWidth = 206
+      ClientHeight = 60
+      ClientWidth = 208
       ParentFont = False
       TabOrder = 1
       OnResize = ShaderBoxResize
       object ShaderMemo: TMemo
         Left = 0
         Height = 0
-        Top = 58
-        Width = 206
+        Top = 60
+        Width = 208
         Align = alClient
         Lines.Strings = (
           'Memo1'
@@ -304,11 +305,11 @@ object GLForm1: TGLForm1
         Left = 0
         Height = 120
         Top = 0
-        Width = 206
+        Width = 208
         Align = alTop
         BevelOuter = bvNone
         ClientHeight = 120
-        ClientWidth = 206
+        ClientWidth = 208
         TabOrder = 1
         object ShaderDrop: TComboBox
           Left = 2
@@ -742,14 +743,14 @@ object GLForm1: TGLForm1
     end
     object IntensityBox: TGroupBox
       Tag = 270
-      Left = 1
+      Left = 0
       Height = 50
-      Top = 1
-      Width = 214
+      Top = 0
+      Width = 216
       Align = alTop
       Caption = 'Intensity Minimum..Maximum'
       ClientHeight = 28
-      ClientWidth = 206
+      ClientWidth = 208
       ParentFont = False
       TabOrder = 2
       object MinEdit: TEdit
@@ -777,14 +778,14 @@ object GLForm1: TGLForm1
       end
     end
     object CutoutBox: TGroupBox
-      Left = 1
+      Left = 0
       Height = 92
-      Top = 476
-      Width = 214
+      Top = 475
+      Width = 216
       Align = alTop
       Caption = 'Cutout'
       ClientHeight = 70
-      ClientWidth = 206
+      ClientWidth = 208
       ParentFont = False
       TabOrder = 3
       object Xx: TLabel
@@ -908,14 +909,14 @@ object GLForm1: TGLForm1
       TabOrder = 4
     end
     object MosaicBox: TGroupBox
-      Left = 1
+      Left = 0
       Height = 259
-      Top = 217
-      Width = 214
+      Top = 216
+      Width = 216
       Align = alTop
       Caption = 'Mosaic'
       ClientHeight = 237
-      ClientWidth = 206
+      ClientWidth = 208
       ParentFont = False
       TabOrder = 5
       Visible = False
@@ -923,7 +924,7 @@ object GLForm1: TGLForm1
         Left = 0
         Height = 121
         Top = 116
-        Width = 206
+        Width = 208
         Align = alClient
         Lines.Strings = (
           'MosaicText'
@@ -935,11 +936,11 @@ object GLForm1: TGLForm1
         Left = 0
         Height = 116
         Top = 0
-        Width = 206
+        Width = 208
         Align = alTop
         BevelOuter = bvNone
         ClientHeight = 116
-        ClientWidth = 206
+        ClientWidth = 208
         TabOrder = 1
         object ColOverlap: TTrackBar
           Left = 126
@@ -1073,14 +1074,14 @@ object GLForm1: TGLForm1
       end
     end
     object OverlayBox: TGroupBox
-      Left = 1
+      Left = 0
       Height = 74
-      Top = 51
-      Width = 214
+      Top = 50
+      Width = 216
       Align = alTop
       Caption = 'Overlays'
       ClientHeight = 52
-      ClientWidth = 206
+      ClientWidth = 208
       ParentFont = False
       TabOrder = 6
       Visible = False
@@ -1088,7 +1089,7 @@ object GLForm1: TGLForm1
         Left = 0
         Height = 52
         Top = 0
-        Width = 206
+        Width = 208
         Align = alClient
         AutoEdit = False
         BorderStyle = bsNone
@@ -1142,14 +1143,14 @@ object GLForm1: TGLForm1
       TabOrder = 7
     end
     object LineBox: TGroupBox
-      Left = 1
+      Left = 0
       Height = 50
-      Top = 656
-      Width = 214
+      Top = 655
+      Width = 216
       Align = alTop
       Caption = 'Lines'
       ClientHeight = 28
-      ClientWidth = 206
+      ClientWidth = 208
       ParentFont = False
       TabOrder = 9
       object LineWidthLabel: TLabel
@@ -1181,14 +1182,14 @@ object GLForm1: TGLForm1
       end
     end
     object Slice2DBox: TGroupBox
-      Left = 1
+      Left = 0
       Height = 88
-      Top = 568
-      Width = 214
+      Top = 567
+      Width = 216
       Align = alTop
       Caption = '2D Slices'
       ClientHeight = 66
-      ClientWidth = 206
+      ClientWidth = 208
       ParentFont = False
       TabOrder = 8
       object LeftBtn: TSpeedButton
@@ -1869,9 +1870,9 @@ object GLForm1: TGLForm1
     end
   end
   object OpenDialog1: TOpenDialog
-    FileName = '/Users/rorden/Documents/pas/raycast'
+    FileName = '/Users/rorden/Documents/pas'
     Filter = 'NIfTI|*.nii;*.hdr;*.nii.gz|PIC|*.PIC'
-    InitialDir = '/Users/rorden/Documents/pas/'
+    InitialDir = '/Users/rorden/Documents/'
     left = 320
     top = 16
   end

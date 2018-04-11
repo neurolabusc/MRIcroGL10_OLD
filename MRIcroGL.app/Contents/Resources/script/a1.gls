@@ -4,7 +4,8 @@ const
 begin
  //RESETDEFAULTS;
  //LOADIMAGE(pth+'mni152_2009bet.nii');
-MOSAIC('L+ 0 ,30');
+colorbarsize(0.1);
+//MOSAIC('L+ 0 ,30');
 
 	
 
