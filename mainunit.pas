@@ -41,6 +41,12 @@ Windows,{$IFDEF FPC}uscaledpi,{$ENDIF}{$ENDIF} glmtext,
     {$ENDIF}
 type { TGLForm1 }
 TGLForm1 = class(TForm)
+    LeftBtn: TButton;
+    AnteriorBtn: TButton;
+    PosteriorBtn: TButton;
+    RightBtn: TButton;
+    SuperiorBtn: TButton;
+    InferiorBtn: TButton;
     LineWidthEdit: TSpinEdit;
     LineColorBtn: TButton;
     LineWidthLabel: TLabel;
@@ -110,12 +116,6 @@ TGLForm1 = class(TForm)
     Slice2DBox: TGroupBox;
     LineBox: TGroupBox;
     InterpolateDrawMenu: TMenuItem;
-    LeftBtn: TSpeedButton;
-    AnteriorBtn: TSpeedButton;
-    PosteriorBtn: TSpeedButton;
-    RightBtn: TSpeedButton;
-    SuperiorBtn: TSpeedButton;
-    InferiorBtn: TSpeedButton;
     voiBinarize1: TMenuItem;
     NearBtn: TButton;
   LUTdrop: TComboBox;
@@ -4839,7 +4839,8 @@ end;
 
 procedure TGLForm1.OrientBtnClick(Sender: TObject);
 begin
-OrientClick( (Sender as TSpeedButton).tag);
+//OrientClick( (Sender as TSpeedButton).tag);
+   OrientClick( (Sender as TButton).tag);
 end;
 
 procedure TGLForm1.OrientMenuClick(Sender: TObject);

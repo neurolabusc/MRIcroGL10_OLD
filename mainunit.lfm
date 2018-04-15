@@ -1192,58 +1192,64 @@ object GLForm1: TGLForm1
       ClientWidth = 208
       ParentFont = False
       TabOrder = 8
-      object LeftBtn: TSpeedButton
+      object LeftBtn: TButton
         Left = 4
-        Height = 28
+        Height = 20
         Top = 18
-        Width = 28
+        Width = 40
         Caption = 'L'
         OnClick = OrientBtnClick
+        TabOrder = 0
       end
-      object AnteriorBtn: TSpeedButton
-        Tag = 3
-        Left = 36
-        Height = 28
-        Top = 2
-        Width = 28
-        Caption = 'A'
-        OnClick = OrientBtnClick
-      end
-      object PosteriorBtn: TSpeedButton
-        Tag = 2
-        Left = 36
-        Height = 28
-        Top = 34
-        Width = 28
-        Caption = 'P'
-        OnClick = OrientBtnClick
-      end
-      object RightBtn: TSpeedButton
-        Tag = 1
-        Left = 68
-        Height = 28
-        Top = 18
-        Width = 28
-        Caption = 'R'
-        OnClick = OrientBtnClick
-      end
-      object SuperiorBtn: TSpeedButton
+      object SuperiorBtn: TButton
         Tag = 5
-        Left = 128
-        Height = 28
+        Left = 148
+        Height = 20
         Top = 2
-        Width = 28
+        Width = 40
         Caption = 'S'
         OnClick = OrientBtnClick
+        TabOrder = 1
       end
-      object InferiorBtn: TSpeedButton
+      object InferiorBtn: TButton
         Tag = 4
-        Left = 128
-        Height = 28
+        Left = 148
+        Height = 20
         Top = 34
-        Width = 28
-        Caption = 'I'
+        Width = 40
+        Caption = 'L'
         OnClick = OrientBtnClick
+        TabOrder = 2
+      end
+      object AnteriorBtn: TButton
+        Tag = 3
+        Left = 48
+        Height = 20
+        Top = 2
+        Width = 40
+        Caption = 'A'
+        OnClick = OrientBtnClick
+        TabOrder = 3
+      end
+      object PosteriorBtn: TButton
+        Tag = 2
+        Left = 48
+        Height = 20
+        Top = 34
+        Width = 40
+        Caption = 'P'
+        OnClick = OrientBtnClick
+        TabOrder = 4
+      end
+      object RightBtn: TButton
+        Tag = 1
+        Left = 92
+        Height = 20
+        Top = 16
+        Width = 40
+        Caption = 'R'
+        OnClick = OrientBtnClick
+        TabOrder = 5
       end
     end
   end

@@ -426,9 +426,11 @@ begin
         IniBool(lRead,lIniFile, 'ThresholdDetection',lPrefs.ThresholdDetection);
  	IniBool(lRead,lIniFile, 'ForcePowerOfTwo',lPrefs.ForcePowerOfTwo);
 	IniBool(lRead,lIniFile, 'StartScript',lPrefs.StartupScript);
+	{$IFDEF LCLCocoa}
         IniBool(lRead,lIniFile, 'RetinaDisplay',lPrefs.RetinaDisplay);
         IniBool(lRead,lIniFile, 'DarkMode',lPrefs.DarkMode);
-	//IniBool(lRead,lIniFile, 'IntelWarning',lPrefs.IntelWarning);
+    {$ENDIF}
+    	//IniBool(lRead,lIniFile, 'IntelWarning',lPrefs.IntelWarning);
         IniBool(lRead,lIniFile, 'NoveauWarning',lPrefs.NoveauWarning);
         IniBool(lRead,lIniFile, 'FlipYZ',lPrefs.FlipYZ);
         IniBool(lRead,lIniFile, 'FlipLR_Radiological',lPrefs.FlipLR);
