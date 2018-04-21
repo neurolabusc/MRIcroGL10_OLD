@@ -9,6 +9,7 @@ uses
 {$ELSE}
     Windows,
 {$ENDIF}
+{$IFDEF LCLCocoa} nsappkitext,{$ENDIF}
 {$IFDEF Unix} LCLIntf,  {$ENDIF}    //Messages,
  //{$IFNDEF USETRANSFERTEXTURE}  scaleimageintensity,{$ENDIF}
 ClipBrd, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
@@ -135,6 +136,7 @@ type
     procedure Exit1Click(Sender: TObject);
     procedure FormDeactivate(Sender: TObject);
     procedure FormHide(Sender: TObject);
+    procedure FormShow(Sender: TObject);
     procedure New1Click(Sender: TObject);
     procedure Open1Click(Sender: TObject);
     procedure Save1Click(Sender: TObject);
@@ -503,6 +505,20 @@ end;
 procedure TScriptForm.FormHide(Sender: TObject);
 begin
       {$IFDEF Darwin}Application.MainForm.SetFocus;{$ENDIF}
+end;
+
+procedure TScriptForm.FormShow(Sender: TObject);
+begin
+{$IFDEF LCLCocoa}
+setThemeMode(Self.Handle, gPrefs.DarkMode);
+  if gPrefs.DarkMode then begin
+     Memo1.Color := clGray;
+     Memo2.Color := clGray;
+  end else begin
+      Memo1.Color := Graphics.clDefault;
+      Memo2.Color := Graphics.clDefault;
+  end;
+{$ENDIF}
 end;
 
 procedure TScriptForm.Stop1Click(Sender: TObject);

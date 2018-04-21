@@ -284,13 +284,11 @@ begin
   GLForm1.UpdateGL;
 end;
 
-
 procedure view2D;
 begin
 //if not gPrefs.OrthoSliceView then
   GLForm1.SelectSliceView(4);
 end;
-
 
 procedure RESETDEFAULTS;
 begin
@@ -299,8 +297,6 @@ begin
   GLForm1.ResetSliders;
   GLForm1.DisplayPrefs;
 end;
-
-
 
 function ChangeEnd (lInStr,lNewEnd: string): string;
 // filename_FA,V1 will return Filename_V1

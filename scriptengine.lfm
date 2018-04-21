@@ -14,6 +14,7 @@ object ScriptForm: TScriptForm
   OnCreate = FormCreate
   OnDeactivate = FormDeactivate
   OnHide = FormHide
+  OnShow = FormShow
   Position = poScreenCenter
   LCLVersion = '1.9.0.0'
   object Splitter1: TSplitter

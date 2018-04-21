@@ -43,6 +43,7 @@ type { TGLForm1 }
 TGLForm1 = class(TForm)
     LeftBtn: TButton;
     AnteriorBtn: TButton;
+    ResetDefaults1: TMenuItem;
     PosteriorBtn: TButton;
     RightBtn: TButton;
     SuperiorBtn: TButton;
@@ -281,6 +282,7 @@ TGLForm1 = class(TForm)
     procedure OrientMenuClick(Sender: TObject);
     procedure RadiologicalMenuClick(Sender: TObject);
     procedure ReorientMenuClick(Sender: TObject);
+    procedure ResetDefaults1Click(Sender: TObject);
     procedure SetOverlayAlpha(Sender: TObject);
     //procedure StringGridSetCaption(aRow: integer);
     procedure StringGrid1DrawCell(Sender: TObject; aCol, aRow: Integer;
@@ -633,6 +635,13 @@ begin
 end;
 
 {$IFDEF LCLCocoa}
+procedure SetFormDarkMode(var f: TForm);
+begin
+  f.PopupMode:= pmAuto;
+  f.HandleNeeded;
+  setThemeMode(f.Handle, true);
+end;
+
 procedure TGLForm1.SetDarkMode;
 begin
   setThemeMode(Self.Handle, gPrefs.DarkMode);
@@ -3893,6 +3902,7 @@ begin
   DarkModeCheck.Left := 8;
   DarkModeCheck.Top := 168;
   DarkModeCheck.Parent:=PrefForm;
+  if gPrefs.DarkMode then SetFormDarkMode(PrefForm);
   {$ENDIF}
   //UpdateBtn
   {$IFDEF UNIX}
@@ -5044,6 +5054,13 @@ begin
   Origin[3] := SliceMM (0.5,kAxialOrient); //Axial
 *)
 
+procedure TGLForm1.ResetDefaults1Click(Sender: TObject);
+begin
+  //FinishRender;
+  SetDefaultPrefs(gPrefs,false);
+  GLForm1.ResetSliders;
+  GLForm1.DisplayPrefs;
+end;
 
 procedure TGLForm1.InterpolateMenuClick(Sender: TObject);
 begin

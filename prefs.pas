@@ -86,7 +86,9 @@ begin
   lS := TStringList.Create;
   if FindFirst(lSearchPath+'*'+lSearchExt, faAnyFile, lSearchRec) = 0 then
 	 repeat
-      if IsNovel (lSearchPath+lSearchRec.Name, lMRU, lOK) then
+      //if IsNovel (lSearchPath+lSearchRec.Name, lMRU, lOK) then
+      if (lSearchRec.Name <> '') and (lSearchRec.Name[1] <> '.') and IsNovel (lSearchPath+lSearchRec.Name, lMRU, lOK) then
+
         lS.Add(lSearchPath+lSearchRec.Name) ;
 	 until (FindNext(lSearchRec) <> 0);
   FindClose(lSearchRec);
