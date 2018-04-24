@@ -33,6 +33,7 @@ object ScriptForm: TScriptForm
     Width = 387
     Align = alClient
     Constraints.MinHeight = 3
+    Lines.Strings = (    )
     OnChange = Memo1Change
     OnClick = Memo1Click
     OnKeyUp = Memo1KeyUp
@@ -50,6 +51,7 @@ object ScriptForm: TScriptForm
     Width = 387
     Align = alBottom
     Constraints.MinHeight = 3
+    Lines.Strings = (    )
     ParentFont = False
     ReadOnly = True
     ScrollBars = ssAutoVertical

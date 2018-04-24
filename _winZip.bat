@@ -6,7 +6,7 @@ REM copy c:\dcm2niix\console\dcm2niix.exe c:\mricrogl\dcm2niix.exe
 REM COMPILE MRIcroGL
 cd c:\pas\MRIcroGL
 c:\lazarus\lazbuild --cpu=x86_64 -B simplelaz.lpi
-move /Y "C:\pas\MRIcroGL\MRIcroGL.exe" "c:\mricrogl\MRIcroGL64.exe"
+move /Y "C:\pas\MRIcroGL\MRIcroGL.exe" "c:\mricrogl\MRIcroGL.exe"
 
 REM copy new compilation to server
 del c:\mricrogl\*.ini

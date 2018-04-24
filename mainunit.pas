@@ -449,6 +449,7 @@ function MouseUpVOI (Shift: TShiftState; X, Y: Integer): boolean;
     procedure ClearText(ScrnWid, lScrnHt: integer);
     procedure DrawText(lScrnWid, lScrnHt, zoom, zoomOffsetX, zoomOffsetY: integer);
     {$IFDEF LCLCocoa}
+    procedure SetFormDarkMode(var f: TForm);
     procedure SetRetina;
     procedure SetDarkMode;
     {$ENDIF}
@@ -635,8 +636,9 @@ begin
 end;
 
 {$IFDEF LCLCocoa}
-procedure SetFormDarkMode(var f: TForm);
+procedure TGLForm1.SetFormDarkMode(var f: TForm);
 begin
+  if not gPrefs.DarkMode then exit;
   f.PopupMode:= pmAuto;
   f.HandleNeeded;
   setThemeMode(f.Handle, true);
@@ -1470,11 +1472,12 @@ begin
 
  ScreenRes(lVidX,lVidY);
  {$IFDEF FPC} {$IFNDEF UNIX}
+ (*  //2018 - bad idea with high dpi Windows screens
  if Screen.PixelsPerInch <> 96 then begin
   FormWidth := round(FormWidth* (96/Screen.PixelsPerInch));
   FormHeight := round(FormHeight* (96/Screen.PixelsPerInch));
    //ClipBox.Caption := INTTOSTR(Screen.PixelsPerInch)+'  '+ inttostr(FormWidth)+'x'+inttostr(FormHeight)+'  '+inttostr(lVidx)+'x'+inttostr(lVidY);
- end;
+ end;*)
 {$ENDIF}{$ENDIF}
 
   if lVidX > FormWidth then
@@ -3593,6 +3596,10 @@ begin
    showmessage('Only able to extract grayscale images (not RGB color images).');
     exit;
  end;
+ {$IFDEF LCLCocoa}
+ ExtractForm.PopupMode:= pmAuto; //see issue 33616
+ setThemeMode(ExtractForm.Handle, gPrefs.DarkMode);
+ {$ENDIF}
  ExtractForm.ShowModal;
  ExtractTexture (gTexture3D, ExtractForm.OtsuLevelsEdit.value, ExtractForm.DilateEdit.value, ExtractForm.OneContiguousObjectCheck.checked);
  M_refresh := true;
@@ -3902,7 +3909,7 @@ begin
   DarkModeCheck.Left := 8;
   DarkModeCheck.Top := 168;
   DarkModeCheck.Parent:=PrefForm;
-  if gPrefs.DarkMode then SetFormDarkMode(PrefForm);
+  GLForm1.SetFormDarkMode(PrefForm);
   {$ENDIF}
   //UpdateBtn
   {$IFDEF UNIX}
@@ -5739,7 +5746,8 @@ end;
 
 procedure TGLForm1.AppDropFiles(Sender: TObject; const FileNames: array of String);
 begin
-     FormDropFiles(Sender, Filenames);
+ //With MacOS and Lazarus 1.9, this causees FormDropFIiles to be called twice
+     //FormDropFiles(Sender, Filenames);
 end;
 
 initialization

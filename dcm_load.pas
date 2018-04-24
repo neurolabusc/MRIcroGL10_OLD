@@ -13,6 +13,10 @@ function dcm2Nifti(dcm2niixExe, dicomDir: string): string;
 
 implementation
 
+{$ifdef LCLCocoa}
+uses mainunit; //darkmode
+{$ENDIF}
+
 function seriesNum (s: string): single; //"601 myName" returns 601
 begin
   result := StrToFloatDef(Copy(s, 1, pos(' ',s)-1),-1);
@@ -182,6 +186,7 @@ begin
   CancelBtn.ModalResult:= mrCancel;
 
   PrefForm.Height:= OkBtn.Top + OkBtn.Height+4;
+  {$IFDEF LCLCocoa}GLForm1.SetFormDarkMode(PrefForm); {$ENDIF}
   PrefForm.ShowModal;
   result := rg.Items[rg.ItemIndex];//seriesNum(rg.Items[rg.ItemIndex]);
   if PrefForm.ModalResult = mrCancel then

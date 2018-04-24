@@ -3,7 +3,7 @@ unit readint;
 interface
 
 uses
- {$IFDEF FPC} LResources,uscaledpi,{$ENDIF} 
+ {$IFDEF FPC} LResources,{$ENDIF}
   Buttons{only Lazarus?},SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, Spin, types;
 
@@ -36,18 +36,35 @@ implementation
   {$IFNDEF FPC}
 {$R *.DFM}
 {$ENDIF}
- function TReadIntForm.GetInt(lStr: string; lMin,lDefault,lMax: integer): integer;
- begin
-	  //result := lDefault;
-      ReadIntLabel.caption := lStr+' ['+inttostr(lMin)+'..'+inttostr(lMax)+']';
-	  ReadIntEdit.MinValue := lMin;
-	  ReadIntEdit.MaxValue := lMax;
-	  ReadIntEdit.Value := lDefault;
 
-   //ReadIntForm.OKBtn.Focused := true;
-     //ReadIntForm.OKBtn.SetFocus;
-	  ReadIntForm.ShowModal;
-	  result :=  ReadIntEdit.Value;
+  {$ifdef LCLCocoa}
+uses mainunit, nsappkitext; //darkmode
+{$ENDIF}
+ function TReadIntForm.GetInt(lStr: string; lMin,lDefault,lMax: integer): integer;
+ var
+   w,h: integer;
+ begin
+      ReadIntLabel.caption := lStr+' ['+inttostr(lMin)+'..'+inttostr(lMax)+']';
+      ReadIntEdit.AnchorSide[akLeft].Side := asrRight;
+      ReadIntEdit.AnchorSide[akLeft].Control := ReadIntLabel;
+      ReadIntEdit.Anchors := ReadIntEdit.Anchors + [akLeft];
+      ReadIntEdit.BorderSpacing.Left := 12;
+      ReadIntEdit.MinValue := lMin;
+      ReadIntEdit.MaxValue := lMax;
+      ReadIntEdit.Value := lDefault;
+      OKBtn.AnchorSide[akLeft].Side := asrRight;
+      OKBtn.AnchorSide[akLeft].Control := ReadIntLabel;
+      OKBtn.Anchors := OKBtn.Anchors + [akLeft];
+      OKBtn.BorderSpacing.Left := 12;
+      ReadIntForm.HandleNeeded;
+      ReadIntForm.GetPreferredSize(w,h);
+      ReadIntForm.Width:= w+12;
+      {$IFDEF LCLCocoa}
+      //ReadIntForm.PopupMode:= pmAuto; //see issue 33616
+      setThemeMode(ReadIntForm.Handle, gPrefs.DarkMode);
+      {$ENDIF}
+      ReadIntForm.ShowModal;
+      result :=  ReadIntEdit.Value;
  end;
 
 procedure TReadIntForm.FormCreate(Sender: TObject);
@@ -57,7 +74,7 @@ end;
 
 procedure TReadIntForm.OKBtnClick(Sender: TObject);
 begin
-	  ReadIntForm.ModalResult := mrOK;
+     ReadIntForm.ModalResult := mrOK;
 end;
 
 
