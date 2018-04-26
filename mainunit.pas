@@ -41,8 +41,10 @@ Windows,{$IFDEF FPC}uscaledpi,{$ENDIF}{$ENDIF} glmtext,
     {$ENDIF}
 type { TGLForm1 }
 TGLForm1 = class(TForm)
+    CoordLabel: TLabel;
     LeftBtn: TButton;
     AnteriorBtn: TButton;
+    XCoordEdit: TEdit;
     ResetDefaults1: TMenuItem;
     PosteriorBtn: TButton;
     RightBtn: TButton;
@@ -180,6 +182,8 @@ TGLForm1 = class(TForm)
   MinEdit: TEdit;
   MaxEdit: TEdit;
   CutoutBox: TGroupBox;
+  YCoordEdit: TEdit;
+  ZCoordEdit: TEdit;
   Xx: TLabel;
   XTrackBar: TTrackBar;
   X2TrackBar: TTrackBar;
@@ -270,6 +274,7 @@ TGLForm1 = class(TForm)
     procedure InterpolateDrawMenuClick(Sender: TObject);
     procedure LineColorBtnClick(Sender: TObject);
     procedure LineWidthEditChange(Sender: TObject);
+    procedure CoordEditChange(Sender: TObject);
     procedure MosaicTextChange(Sender: TObject);
     function OpenVOI(lFilename: string): boolean;
     procedure BackgroundMaskMenuClick(Sender: TObject);
@@ -489,7 +494,7 @@ var
 
 implementation
 
-{$IFDEF ENABLEOVERLAY} uses {$IFDEF LCLCocoa} nsappkitext, glcocoanscontext,{$ENDIF} nifti_types, savethreshold, nii_reslice {$IFDEF ENABLESCRIPT}, scriptengine{$ENDIF};{$ENDIF}
+{$IFDEF ENABLEOVERLAY} uses {$IFDEF LCLCocoa} UserNotification, nsappkitext, glcocoanscontext,{$ENDIF} nifti_types, savethreshold, nii_reslice {$IFDEF ENABLESCRIPT}, scriptengine{$ENDIF};{$ENDIF}
 {$IFDEF FPC} {$R *.lfm}   {$ENDIF}
 {$IFNDEF FPC} {$R *.dfm} {$ENDIF}
 var
@@ -1768,10 +1773,30 @@ begin
      if result > max then result := result -2;
 end;
 
+function isMNISpace: boolean;
+var
+    lXYZmmMin, lXYZmmMax : array[1..3] of single;
+begin
+     lXYZmmMin[1] := 1;
+     lXYZmmMin[2] := 1;
+     lXYZmmMin[3] := 1;
+     Voxel2mm(lXYZmmMin[1],lXYZmmMin[2],lXYZmmMin[3],gTexture3D.NIfTIHdr);
+     lXYZmmMax[1] := gTexture3D.FiltDim[1];
+     lXYZmmMax[2] := gTexture3D.FiltDim[2];
+     lXYZmmMax[3] := gTexture3D.FiltDim[3];
+     Voxel2mm(lXYZmmMax[1],lXYZmmMax[2],lXYZmmMax[3],gTexture3D.NIfTIHdr);
+     SortSingle(lXYZmmMin[1],lXYZmmMax[1]);
+     SortSingle(lXYZmmMin[2],lXYZmmMax[2]);
+     SortSingle(lXYZmmMin[3],lXYZmmMax[3]);
+     result := (lXYZmmMin[1] < -70) and (lXYZmmMax[1] > 70) and
+       (lXYZmmMin[2] < -100) and (lXYZmmMax[2] > 70) and
+       (lXYZmmMin[3] < -38) and (lXYZmmMax[3] > 76);
+
+end;
 procedure TGLForm1.UpdateMosaic(Sender: TObject);
 var
   lXYZmmMin, lXYZmmMax : array[1..3] of single;
-  isMNISpace: boolean;
+  isMNISpaceV: boolean;
   lRi,lCi,lR,lC,lRxC,lI, lmm, lO: integer;
   lInterval, lFrac: single;
   lOrthoCh: Char;
@@ -1790,9 +1815,10 @@ begin
     SortSingle(lXYZmmMin[1],lXYZmmMax[1]);
     SortSingle(lXYZmmMin[2],lXYZmmMax[2]);
     SortSingle(lXYZmmMin[3],lXYZmmMax[3]);
-    isMNISpace := (lXYZmmMin[1] < -70) and (lXYZmmMax[1] > 70) and
+    (*isMNISpace := (lXYZmmMin[1] < -70) and (lXYZmmMax[1] > 70) and
       (lXYZmmMin[2] < -100) and (lXYZmmMax[2] > 70) and
-      (lXYZmmMin[3] < -38) and (lXYZmmMax[3] > 76);
+      (lXYZmmMin[3] < -38) and (lXYZmmMax[3] > 76);      *)
+     isMNISpaceV := isMNISpace;
   //caption := format('%g..%g %g..%g %g..%g',[lXYZmmMin[1],lXYZmmMax[1],lXYZmmMin[2],lXYZmmMax[2],lXYZmmMin[3],lXYZmmMax[3] ]);
   //if not MosaicPrefsForm.Visible then exit;
   lR := RowEdit.value;
@@ -1834,14 +1860,14 @@ begin
     for lCi := 1 to lC do begin
       inc(lI);
       if (lI = lRxC) and (CrossCheck.Checked) then begin
-        if isMNISpace then
+        if isMNISpaceV then
             lStr := lStr +lOrthoCh + ' X R 0' //maybe "X" used to disable text on cross slice? perhaps "L-"
         else
             lStr := lStr +lOrthoCh + ' X R 0.5' //maybe "X" used to disable text on cross slice? perhaps "L-"
         //lStr := lStr + 'X '+lOrthoCh + ' 0.5'
       end else begin
         lFrac := lI * lInterval;
-        if isMNISpace then begin
+        if isMNISpaceV then begin
            case lO of
               1 : lmm := lerpFraction(lFrac, lXYZmmMin[2],lXYZmmMax[2]);//coronal
               2,3 : lmm := lerpFraction(lFrac, lXYZmmMin[1],lXYZmmMax[1]); //Sag
@@ -2191,6 +2217,13 @@ begin
   {$IFDEF COREGL}
   GLbox.OpenGLMajorVersion:= 3;
   GLbox.OpenGLMinorVersion:= 3;
+   {$IFDEF Linux}
+   writeln('OpenGL 3.3 with 8/8/8/24 bits of R/G/B/Dpth required. Use glxinfo to test capabilities.');
+   {$ENDIF}
+  {$ELSE}
+   {$IFDEF Linux}
+   writeln('OpenGL 2.1 with 8/8/8/24 bits of R/G/B/Dpth required. Use glxinfo to test capabilities.');
+   {$ENDIF}
   {$ENDIF}
   GLbox.AutoResizeViewport:= true;   // http://www.delphigl.com/forum/viewtopic.php?f=10&t=11311
   GLBox.Parent := GLForm1;
@@ -2730,7 +2763,7 @@ var
   s: dword;
   debug : boolean;
   i: integer;
-  str, fpsstr: string;
+  titleStr, str, fpsstr: string;
 begin
     If (ssShift in KeyDataToShiftState(vk_Shift)) then begin
       M_Refresh := TRUE;
@@ -2766,17 +2799,24 @@ end;
    {$IFDEF LCLCarbon}str := str + ' (Carbon) '; {$ENDIF}
    {$IFDEF DGL} str := str +' (DGL) '; {$ENDIF}//the DGL library has more dependencies - report this if incompatibilities are found
   str := 'MRIcroGL '+str+' '+kVers
-   {$IFDEF LCLCocoa}+kCR+' '+paramstr(0){$ENDIF}
-   +kCR+' www.mricro.com :: BSD 2-Clause License (opensource.org/licenses/BSD-2-Clause)'
+   //{$IFDEF LCLCocoa}+kCR+' '+paramstr(0){$ENDIF}
+   {$IFDEF LCLCocoa}+''; titleStr := str; str :=
+   {$ELSE}
+   +kCR+
+   {$ENDIF}
+
+   ' www.mricro.com :: BSD 2-Clause License (opensource.org/licenses/BSD-2-Clause)'
    +kCR+' Dimensions '+inttostr(gTexture3D.NIFTIhdr.dim[1])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[2])+'x'+inttostr(gTexture3D.NIFTIhdr.dim[3])
    +kCR+' Bytes per voxel '+inttostr(gTexture3D.NIFTIhdr.bitpix div 8)
    +kCR+' Spacing '+realtostr(gTexture3D.NIFTIhdr.pixdim[1],2)+'x'+realtostr(gTexture3D.NIFTIhdr.pixdim[2],2)+'x'+realtostr(gTexture3D.NIFTIhdr.pixdim[3],2)
     +kCR+' Description  '+  trim(gTexture3D.NIFTIhdr.descrip)
     +kCR + gShader.Vendor
-    + fpsstr
-   +kCR+'Press "Abort" to quit and open settings '+ininame;
-  i := MessageDlg(str,mtInformation,[mbAbort, mbOK],0);
-  if i  = mrAbort then Quit2TextEditor;
+    + fpsstr;
+  {$IFDEF LCLCocoa}
+  ShowAlertSheet(GLForm1.Handle,titleStr, str);
+  {$ELSE}
+  MessageDlg(str,mtInformation,[mbOK],0);
+  {$ENDIF}
 end;
 
 procedure TGLForm1.GLboxMouseWheel(Sender: TObject; Shift: TShiftState;
@@ -2986,6 +3026,9 @@ end;
 
 procedure TGLForm1.AutoRoi1Click(Sender: TObject);
 begin
+{$IFDEF LCLCocoa}
+setThemeMode(AutoROIForm.Handle, gPrefs.DarkMode);
+ {$ENDIF}
      AutoROIForm.Show;
 end;
 
@@ -3615,7 +3658,8 @@ var
 begin
  //if not GLForm1.Focused then exit; //e.g. do not intercept key srokes if use is editing a script!
  //Requires Form.KeyPreview := true;
- if gPrefs.SliceView < 1 then exit;
+ if (gPrefs.SliceView < 1) or (gPrefs.SliceView >= 5 ) then exit; //not for render or mosaic
+ if MinEdit.Focused or MaxEdit.Focused or LineWidthEdit.Focused or  XCoordEdit.Focused or YCoordEdit.Focused or ZCoordEdit.Focused then exit;
  X := 0; Y := 0; Z := 0;
  Case Key of
    36: Y := -1.0; //home  Fn+left_arrow on OSX
@@ -4320,6 +4364,49 @@ begin
   GLForm1.UpdateGL;
 end;
 
+function OutOfRange(val, min,max: single): boolean;
+begin
+     result := (val < min) or (val > max);
+end;
+
+function is0or1(val: single): boolean;
+begin
+     result := (val = 0) or (val = 1);
+end;
+
+procedure SetXHairPosition (lX,lY,lZ: single);
+var
+  isMNISpaceV: boolean;
+  X,Y,Z: single;
+begin
+ X := lX;
+ Y := lY;
+ Z := lZ;
+ //if (isMNISpace) then //or OutOfRange(X,0,1) or OutOfRange(Y,0,1) or OutOfRange(Z,0,1) then
+ isMNISpaceV := isMNISpace;
+ if OutOfRange(X,0,1) or OutOfRange(Y,0,1) or OutOfRange(Z,0,1) then
+  isMNISpaceV := true;
+ //0,0,0/1,1,1 do not make sense for fractions as they are at edge
+ if is0or1(X) and is0or1(Y) and is0or1(Z) then
+    isMNISpaceV := true;
+ if isMNISpaceV then
+    MMToFrac(X,Y,Z);
+ //GLForm1.CoordLabel.Caption := format('%g %g %g :: %g %g %g',[lX,lY,lZ,X,Y,Z]);
+ gRayCast.OrthoX := X;
+ gRayCast.OrthoY := Y;
+ gRayCast.OrthoZ := Z;
+ //GLForm1.SelectSliceView(4);
+ GLForm1.UpdateGL;
+
+end;
+
+procedure TGLForm1.CoordEditChange(Sender: TObject);
+begin
+  //CoordLabel.caption := inttostr(random(888));
+ SetXHairPosition(StrToFloatDef(XCoordEdit.Text,0),StrToFloatDef(YCoordEdit.Text,0),StrToFloatDef(ZCoordEdit.Text,0) );
+
+end;
+
 procedure TGLForm1.MosaicTextChange(Sender: TObject);
 begin
   GLForm1.DrawMosaic(MosaicText.Text); //2018
@@ -4345,6 +4432,8 @@ begin
   for lF := 0 to (OpenDialog1.Files.Count-1) do
     SaveForeignAsNifti(OpenDialog1.Files[lF]);
 end;
+
+
 
 procedure TGLForm1.FormChangeBounds(Sender: TObject);
 {$IFDEF LCLCocoa} var lprev: single; {$ENDIF}

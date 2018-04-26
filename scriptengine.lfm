@@ -33,7 +33,6 @@ object ScriptForm: TScriptForm
     Width = 387
     Align = alClient
     Constraints.MinHeight = 3
-    Lines.Strings = (    )
     OnChange = Memo1Change
     OnClick = Memo1Click
     OnKeyUp = Memo1KeyUp
@@ -51,7 +50,6 @@ object ScriptForm: TScriptForm
     Width = 387
     Align = alBottom
     Constraints.MinHeight = 3
-    Lines.Strings = (    )
     ParentFont = False
     ReadOnly = True
     ScrollBars = ssAutoVertical
@@ -393,6 +391,12 @@ object ScriptForm: TScriptForm
           Tag = 33
           Caption = 'orthoview'
           Hint = 'ORTHOVIEW (X,Y,Z: single) Shows a 2D projection view of the brain.'
+          OnClick = InsertCommand
+        end
+        object orthoviewmm1: TMenuItem
+          Tag = 33
+          Caption = 'orthoviewmm'
+          Hint = 'ORTHOVIEWMM (X,Y,Z: single) Shows a 2D projection view of the brain. Crosshair at X,Y,Z coordinates specified in millimeters.'
           OnClick = InsertCommand
         end
         object mosaic1: TMenuItem

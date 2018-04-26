@@ -10,6 +10,10 @@ uses
 {$IFDEF USETRANSFERTEXTURE}texture_3d_unit_transfertexture, {$ELSE} {$ENDIF}
   shaderu,dialogs,Classes,define_types, sysUtils;  //clut, texture_3d_unit,
 
+const
+ kDrawModeAppend = 0;
+ kDrawModeDelete = 1;
+ kDrawModeConstrain = 2;
 type
  TDraw = packed record //Next: analyze Format Header structure
    dim3d: array [0..3] of integer; //unused,X,Y,Z voxels in volume space
@@ -34,7 +38,7 @@ procedure voiMouseUp(autoClose, overwriteColors: boolean);
 function voiMouseMove (Xfrac, Yfrac, Zfrac:  single): boolean;
 procedure voiMouseDown(Color, Orient: integer; Xfrac, Yfrac, Zfrac:  single);
 procedure voiMouseFloodFill(Color, Orient: integer; Xfrac, Yfrac, Zfrac:  single);
-procedure voiMorphologyFill(RGBAimg: bytep0; Color: integer; Xmm, Ymm, Zmm, Xfrac, Yfrac, Zfrac:  single; dxOrigin, radiusMM: integer; constrain: boolean);
+procedure voiMorphologyFill(RGBAimg: bytep0; Color: integer; Xmm, Ymm, Zmm, Xfrac, Yfrac, Zfrac:  single; dxOrigin, radiusMM: integer; drawMode: integer);
 function voiOpenGLDraw: GLuint; //must be called from OpenGL
 procedure voiChangeAlpha (a: byte);
 procedure voiCreate(X,Y,Z: integer; ptr: byteP0);
@@ -373,6 +377,7 @@ begin
      i := 0;
      while (i < vx) and (gDraw.view3d[i] = 0) do
        inc(i);
+     //showmessage(inttostr(i)+' '+inttostr(gDraw.view3d[i]));
      if (i < vx) then
         result := false;
 end;
@@ -1280,7 +1285,7 @@ begin
 end;
 
 
-procedure morphFill(volImg, volVoi: bytep0; Color: integer; Xmm,Ymm,Zmm: single; xOri, yOri, zOri, dxOrigin,  radiusMM : integer; constrain: boolean);
+procedure morphFill(volImg, volVoi: bytep0; Color: integer; Xmm,Ymm,Zmm: single; xOri, yOri, zOri, dxOrigin,  radiusMM : integer; drawMode: integer);
 var
   //vol,
    queue: longintp0;
@@ -1305,7 +1310,7 @@ begin
              volImg[i] := 0;
      end;
      //(optional) constrain with current voi
-     if (constrain)  then
+     if (drawMode =kDrawModeConstrain)  then
         for i := 0 to (xyzPix - 1) do
             if(volVoi[i] <> 0) then volImg[i] := 0;
      //constrain with radius
@@ -1363,6 +1368,7 @@ begin
      while (qLo <= qHi) do
            retireQLo;
      freemem(queue);
+     if drawMode = kDrawModeDelete then color := 0;
      for xPix := 0 to (xyzPix-1) do
          if (volImg^[xPix] = 2) then
             gDraw.view2d[xPix] := color;
@@ -1370,7 +1376,7 @@ begin
      //GLForm1.Caption := floattostr(Xmm)+'x'+floattostr(Ymm)+'x'+floattostr(Zmm);
 end;
 
-procedure voiMorphologyFill(RGBAimg: bytep0; Color: integer; Xmm, Ymm, Zmm, Xfrac, Yfrac, Zfrac:  single; dxOrigin, radiusMM: integer; constrain: boolean);
+procedure voiMorphologyFill(RGBAimg: bytep0; Color: integer; Xmm, Ymm, Zmm, Xfrac, Yfrac, Zfrac:  single; dxOrigin, radiusMM: integer; drawMode: integer);
 var
   nPix,  i, x, y, z: integer;
   intenVol: Bytep0;
@@ -1403,7 +1409,7 @@ begin
      y := frac2pix(Yfrac, gDraw.dim3d[2]);
      z := frac2pix(Zfrac, gDraw.dim3d[3]);
      //morphFill(volImg, volVoi: bytep0; Color: integer; Xmm,Ymm,Zmm: single; xOri, yOri, zOri, dxOrigin, dxEdge, radiusMM, erodeCycles, growStyle: integer; constrain0: boolean);
-     morphFill(intenVol, gDraw.view3d,  Color, Xmm, Ymm, Zmm, x,y,z, dxOrigin,  radiusMM, constrain);
+     morphFill(intenVol, gDraw.view3d,  Color, Xmm, Ymm, Zmm, x,y,z, dxOrigin,  radiusMM, drawMode);
      freemem(intenVol);
      gDraw.doRedraw := true;
      UpdateView3d;

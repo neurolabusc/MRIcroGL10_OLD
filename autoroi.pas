@@ -16,17 +16,17 @@ uses
 type
   { TAutoROIForm }
   TAutoROIForm = class(TForm)
+    AutoROIBtn: TButton;
+    CancelBtn: TButton;
+    OriginBtn: TButton;
+    ROIconstraint: TComboBox;
     OriginLabel: TLabel;
-    OriginBtn: TSpeedButton;
     //RadiusEdit: TSpinEdit;
     //VarianceEdit: TSpinEdit;
     DiffLabel: TLabel;
     Label2: TLabel;
-    AutoROIBtn: TSpeedButton;
-    CancelBtn: TSpeedButton;
     Timer1: TTimer;
     Label4: TLabel;
-    ConstrainCheck: TCheckBox;
     VarianceEdit: TSpinEdit;
     RadiusEdit: TSpinEdit;
         procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
@@ -73,27 +73,29 @@ begin
 end;
 
 procedure TAutoROIForm.PreviewBtnClick(Sender: TObject);
+var
+  clr: integer;
 begin
  {$IFDEF USETRANSFERTEXTURE}
  showmessage('recompile');
  {$ELSE}
- if (gPrefs.DrawColor < 0) then begin
-    GLFOrm1.DrawTool1.Items[2].click;
-    exit; //do not call twice!
- end;
-   //GLForm1.DrawTool1.Menu.Items[2].click;
+    //GLForm1.DrawTool1.Menu.Items[2].click;
    //showmessage('Please select a drawing color (Draw menu)');
  if  (not voiIsOpen) then begin //clicked after VOI/Close - lets create a new one
     voiCreate(gTexture3D.FiltDim[1], gTexture3D.FiltDim[2],gTexture3D.FiltDim[3], nil);
  end;
  voiUndo;
- voiMorphologyFill(gTexture3D.FiltImg, gPrefs.DrawColor, gTexture3D.PixMM[1], gTexture3D.PixMM[2], gTexture3D.PixMM[3], gOriginX, gOriginY, gOriginZ, VarianceEdit.Value,  RadiusEdit.value, ConstrainCheck.checked);
+ clr :=  gPrefs.DrawColor;
+ if (clr < 1) then clr := 1;
+ voiMorphologyFill(gTexture3D.FiltImg, clr, gTexture3D.PixMM[1], gTexture3D.PixMM[2], gTexture3D.PixMM[3], gOriginX, gOriginY, gOriginZ, VarianceEdit.Value,  RadiusEdit.value, ROIconstraint.itemIndex);
  GLForm1.UpdateGL;
  {$ENDIF}
 end;
 
 procedure TAutoROIForm.FormShow(Sender: TObject);
 begin
+ (*if (gPrefs.DrawColor < 1) and (GLForm1.DrawTool1.Count > 2) then
+    GLForm1.DrawTool1.Items[2].Click;*)
  if (GLForm1.Width+GLForm1.Left+AutoRoiForm.Width) < Screen.Width then begin
     AutoRoiForm.Left := GLForm1.Width+GLForm1.Left+1;
     AutoRoiForm.Top := GLForm1.Top+GLForm1.Height-AutoRoiForm.Height;
@@ -107,6 +109,7 @@ begin
 	AutoROIForm.ModalResult := mrCancel;
 	//ROIconstraint.Enabled := true;// (gMRIcroOverlay[kVOIOverlayNum].ScrnBufferItems > 1);
 	OriginBtn.OnClick(sender);
+        AutoROIForm.Refresh;
 	 //DeleteCheck.enabled := (gROIBupSz > 1);
 	 //ROIConstrainCheck.enabled := (gROIBupSz > 1);
 end;
@@ -120,11 +123,6 @@ procedure TAutoROIForm.FormHide(Sender: TObject);
 begin
      //767 GLForm1.DrawTool1.Items[0].click;
      GLForm1.NoDraw1.Click;
-
- (*if (AutoROIForm.ModalResult = mrCancel) then
-		UndoVolVOI;
-	 if not (AutoROIForm.ModalResult = mrCancel) then
-		gBGImg.VOIchanged := true;   *)
 
 end;
 

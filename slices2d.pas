@@ -104,15 +104,15 @@ var
 begin
     lInvMat := Hdr2InvMat (gTexture3D.NIftiHdr,lOK);
     mm2Voxel (X,Y,Z, lInvMat);
-    SliceToFrac(X,gTexture3D.FiltDim[1]);
-    SliceToFrac(Y,gTexture3D.FiltDim[2]);
-    SliceToFrac(Z,gTexture3D.FiltDim[3]);
+    X := SliceToFrac(X,gTexture3D.FiltDim[1]);
+    Y := SliceToFrac(Y,gTexture3D.FiltDim[2]);
+    Z := SliceToFrac(Z,gTexture3D.FiltDim[3]);
 end;
 
 procedure StereoTaxicSpaceToFrac (var lMosaic: TMosaic);
 var
   lRow,lCol: integer;
-  lFrac: boolean;
+  lFrac, lBetween0and1: boolean;
   lInvMat: TMatrix;
   lOK: boolean;
 begin
@@ -120,11 +120,19 @@ begin
     exit;
   if not lMosaic.isMM then begin
      lFrac := true;
+     lBetween0and1 := false;
      for lRow := 1 to lMosaic.Rows do
-         for lCol := 1 to lMosaic.Cols do
-         if (lMosaic.Orient[lCol,lRow] <> kEmptyOrient) and ((lMosaic.Slices[lCol,lRow] < 0) or (lMosaic.Slices[lCol,lRow] > 1)) then
-            lFrac := false;
+         for lCol := 1 to lMosaic.Cols do begin
+             if (lMosaic.Orient[lCol,lRow] <> kEmptyOrient) and ((lMosaic.Slices[lCol,lRow] < 0) or (lMosaic.Slices[lCol,lRow] > 1)) then
+                lFrac := false;
+             if (lMosaic.Orient[lCol,lRow] <> kEmptyOrient) and (lMosaic.Slices[lCol,lRow] > 0) and (lMosaic.Slices[lCol,lRow] < 1) then
+                lBetween0and1 := true;
+         end;
+     if (lFrac) and (not lBetween0and1) then //treat '0' or '1' as spatial coordinates, but "0,0.5,1" are fractions
+        lFrac := false;
      if lFrac then exit;
+
+
   end;
   lMosaic.isMM := true;
   lInvMat := Hdr2InvMat (gTexture3D.NIftiHdr,lOK);
