@@ -507,6 +507,15 @@ GLBox:TOpenGLControl;
 GLbox : TGLPanel;
 {$ENDIF}
 
+{$IFDEF LCLCocoa}
+procedure ShowMessage(Str: string);
+begin
+ ShowAlertSheet(GLForm1.Handle,'Note', str);
+
+end;
+
+{$ENDIF}
+
 procedure TGLForm1.ClearText(ScrnWid, lScrnHt: integer);
 const
   sizeFrac = 0.035;
@@ -3593,8 +3602,19 @@ begin
 end;
 
 procedure TGLForm1.voiDescriptives1Click(Sender: TObject);
+var
+  nPix : integer;
+  loutmm3: single;
 begin
-  voiDescriptives;
+  nPix := voiDescriptives;
+  if nPix < 1 then begin
+     showmessage('Unable to generate descriptives: no open drawing');
+     exit;
+  end;
+  loutmm3 := abs(gTexture3D.NIFTIhdr.pixdim[1]*gTexture3D.NIFTIhdr.pixdim[2]*gTexture3D.NIFTIhdr.pixdim[3]);
+
+  showmessage (format('Volume of drawing is %d voxels (%.0fmm^3, %.03fcc).',[nPix, nPix * loutmm3, nPix * loutmm3/1000]));
+
 end;
 
 procedure TGLForm1.GradientsIdleTimerTimer(Sender: TObject);
@@ -3671,6 +3691,7 @@ begin
  end; //case Key
  if (X = 0) and (Y = 0) and (Z = 0) then exit;
  OrthoCoordMidSlice(X,Y,Z);
+ ShowOrthoSliceInfo (false);
  (*X := round(FracToSlice(gRayCast.OrthoX,gTexture3D.FiltDim[1]))-0.5 + X;
  Y := round(FracToSlice(gRayCast.OrthoY,gTexture3D.FiltDim[2]))-0.5 + Y;
  Z := round(FracToSlice(gRayCast.OrthoZ,gTexture3D.FiltDim[3]))-0.5 + Z;
@@ -4396,6 +4417,7 @@ begin
  gRayCast.OrthoY := Y;
  gRayCast.OrthoZ := Z;
  //GLForm1.SelectSliceView(4);
+ GLForm1.ShowOrthoSliceInfo (false);
  GLForm1.UpdateGL;
 
 end;

@@ -909,7 +909,8 @@ var
   lOri: array [1..3] of single;
   lBuff: Bytep;
   lAHdr: TAnalyzeHdrSection;
-  lReportedSz, lSwappedReportedSz,lHdrSz,lFileSz: Longint;
+  lHdrSz,lReportedSz, lSwappedReportedSz: integer;
+  lFileSz: Int64;
   lExt: string; //1494
   swapEndian, isDimPermute2341: boolean;
 begin

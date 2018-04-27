@@ -716,7 +716,7 @@ begin
     exit;
    end;
    if (lImgBytes >= (1073741824 * 2)) then begin
-     GLForm1.ShowmessageError(format('Image exceeds 2gb (x*y*z*bpp = %d*%d*%d*%d)',[lHdr.NIFTIhdr.dim[1], lHdr.NIFTIhdr.dim[2], lHdr.NIFTIhdr.dim[3], (lHdr.NIFTIhdr.bitpix div 8)]) );
+     GLForm1.ShowmessageError(format('Image exceeds 2 Gb (x*y*z*bpp = %d*%d*%d*%d)',[lHdr.NIFTIhdr.dim[1], lHdr.NIFTIhdr.dim[2], lHdr.NIFTIhdr.dim[3], (lHdr.NIFTIhdr.bitpix div 8)]) );
      exit;
    end;
    lVolOffset := (lVol-1) * lImgBytes;
@@ -737,12 +737,13 @@ begin
       GLForm1.ShowmessageError(format('Unable to allocate memory (%d bytes)',[lFileBytes]) );
       exit;
    end;
+
    Filemode := 0;  //Read Only - allows us to open images where we do not have permission to modify
    if (lHdr.gzBytes = K_gzBytes_headerAndImageUncompressed) then begin
      AssignFile(lInF, lImgName);
      {$IFNDEF NIFTIBLOCK}
      Reset(lInF,1);
-     Seek(lInF,lVolOffset+round(lHdr.NiftiHdr.vox_offset));
+     Seek(lInF,int64(lVolOffset+round(lHdr.NiftiHdr.vox_offset)));
      BlockRead(lInF, lImgBuffer^[1],lImgBytes);
      {$ELSE}
      lBlockSize := lImgBytes div lHdr.NIFTIhdr.dim[3];
@@ -750,8 +751,13 @@ begin
      Seek(lInF,lVolOffset+round(lHdr.NiftiHdr.vox_offset));
      for i := 1 to 100 do
            BlockRead(lInF, lImgBuffer^[1],1);
-     CloseFile(lInF);
      {$ENDIF}
+     CloseFile(lInF);
+     (*if (lImgBytes >= (1073741824 * 2)) then begin
+       GLForm1.ShowmessageError(format('>>Image exceeds 2 Gb (x*y*z*bpp = %d*%d*%d*%d)',[lHdr.NIFTIhdr.dim[1], lHdr.NIFTIhdr.dim[2], lHdr.NIFTIhdr.dim[3], (lHdr.NIFTIhdr.bitpix div 8)]) );
+       FreeMem(lImgBuffer) ;
+       exit;
+     end;*)
    end else begin
        lBuf := @lImgBuffer^[1];
       {$IFDEF GZIP}
