@@ -122,7 +122,7 @@ END;
 	HistoRA = array [0..kHistoBins] of longint;
          HistoDoubleRA = array [0..kHistoBins] of double;
 function specialsingle (var s:single): boolean; //check if 32-bit float is Not-A-Number, infinity, etc
-function FSize (lFName: String): longint;
+function FSize (lFName: String): int64;
 function FileExistsEX(Name: String): Boolean;
 function ParseFileName (lFilewExt:String): string;
 function ParseFileFinalDir (lFileName:String): string;
@@ -862,7 +862,7 @@ begin
 end;
 
 procedure CopyFileEXoverwrite (lInName,lOutName: string);
-var lFSize: Integer;
+var lFSize: Int64                                ;
    lBuff: bytep0;
    lFData: file;
 begin
@@ -883,7 +883,7 @@ begin
 end;
 
 procedure CopyFileEX (lInName,lOutName: string);
-var lFSize: Integer;
+var lFSize: Int64;
 begin
 	 lFSize := FSize(lInName);
 	 if (lFSize < 1) or (fileexistsEX(lOutName)) then exit;
@@ -1330,7 +1330,7 @@ end;
 
 
 
-function FSize (lFName: String): longint;
+function FSize (lFName: String): Int64;
 var SearchRec: TSearchRec;
 begin
   result := 0;

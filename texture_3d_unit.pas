@@ -689,7 +689,8 @@ function NIFTIhdr_LoadImg (var lFilename: string; var lHdr: TMRIcroHdr; var lImg
 var
 
   lImgName: string;
-   lVolOffset,lnVol,lVol,lFileBytes,lImgBytes: integer;
+   lVolOffset,lnVol,lVol,lFileBytes,lImgBytes: int64;
+   {$IFDEF NIFTIBLOCK}lBlockSize,i: int64; {$ENDIF}
    lBuf: ByteP;
    lInF: File;
 begin
@@ -713,7 +714,10 @@ begin
    if lImgBytes < 1 then begin
     GLForm1.ShowmessageError(format('Image dimensions do not make sense (x*y*z*bpp = %d*%d*%d*%d)',[lHdr.NIFTIhdr.dim[1], lHdr.NIFTIhdr.dim[2], lHdr.NIFTIhdr.dim[3], (lHdr.NIFTIhdr.bitpix div 8)]) );
     exit;
-
+   end;
+   if (lImgBytes >= (1073741824 * 2)) then begin
+     GLForm1.ShowmessageError(format('Image exceeds 2gb (x*y*z*bpp = %d*%d*%d*%d)',[lHdr.NIFTIhdr.dim[1], lHdr.NIFTIhdr.dim[2], lHdr.NIFTIhdr.dim[3], (lHdr.NIFTIhdr.bitpix div 8)]) );
+     exit;
    end;
    lVolOffset := (lVol-1) * lImgBytes;
    lImgName := lHdr.ImgFileName;
@@ -724,20 +728,30 @@ begin
    if (lHdr.NiftiHdr.vox_offset < 0) then lHdr.NiftiHdr.vox_offset := 0;
    if (lHdr.gzBytes = K_gzBytes_headerAndImageUncompressed) and (FSize (lImgName) < (lHdr.NiftiHdr.vox_offset+ lImgBytes)) then begin
      GLForm1.ShowmessageError(format('LoadImg Error: File smaller (%d) than expected (%d+%d): %s',[FSize (lImgName), round(lHdr.NiftiHdr.vox_offset), lImgBytes,  lImgName]) );
-     //GLForm1.ShowmessageError(format('LoadImg Error: File smaller (%dx%dx%d)',[lHdr.NIFTIhdr.dim[1],lHdr.NIFTIhdr.dim[2],lHdr.NIFTIhdr.dim[3]]) );
-
-     //GLForm1.ShowmessageError(format('LoadImg Error: File smaller (%d+%d) than expected (%d) : %s',[FSize (lImgName),lHdr.NiftiHdr.vox_offset, lImgBytes,  lImgName]) );
-       exit;
+     exit;
    end;
    lFileBytes := lImgBytes;
-   GetMem(lImgBuffer,lFileBytes);
+   try
+      GetMem(lImgBuffer,lFileBytes);
+   except
+      GLForm1.ShowmessageError(format('Unable to allocate memory (%d bytes)',[lFileBytes]) );
+      exit;
+   end;
    Filemode := 0;  //Read Only - allows us to open images where we do not have permission to modify
    if (lHdr.gzBytes = K_gzBytes_headerAndImageUncompressed) then begin
-      AssignFile(lInF, lImgName);
-       Reset(lInF,1);
-       Seek(lInF,lVolOffset+round(lHdr.NiftiHdr.vox_offset));
-       BlockRead(lInF, lImgBuffer^[1],lImgBytes);
-       CloseFile(lInF);
+     AssignFile(lInF, lImgName);
+     {$IFNDEF NIFTIBLOCK}
+     Reset(lInF,1);
+     Seek(lInF,lVolOffset+round(lHdr.NiftiHdr.vox_offset));
+     BlockRead(lInF, lImgBuffer^[1],lImgBytes);
+     {$ELSE}
+     lBlockSize := lImgBytes div lHdr.NIFTIhdr.dim[3];
+     Reset(lInF,lBlockSize);
+     Seek(lInF,lVolOffset+round(lHdr.NiftiHdr.vox_offset));
+     for i := 1 to 100 do
+           BlockRead(lInF, lImgBuffer^[1],1);
+     CloseFile(lInF);
+     {$ENDIF}
    end else begin
        lBuf := @lImgBuffer^[1];
       {$IFDEF GZIP}
@@ -1100,6 +1114,7 @@ var
   CalRange, ImgRange: double;
   lPadX,lPadY,lPadZ,lI,lZ,lY,lX,lSLiceStart,lLineStart,
   lPos,lInVox,lOutVox, lLog10: integer;
+  lIsDummy: boolean = false;
   lMinS,lMaxS: single;
   lFilename: string;
   lHdr: TMRIcroHdr;
@@ -1113,11 +1128,13 @@ begin //Proc Load_From_NIfTI
 //  2.) Reorient data to be in closest orthogonal plane to OpenGL space - see reorientcore
 //  Here I take the latter approach
     result :=false;
+    lIsDummy := false;
     lFilename := F_Filename;
     InitTexture(lTexture);
     if lFilename = '' then begin
       if not NIFTIhdr_LoadDummyImg (lHdr, lImgBuffer) then
         exit;
+      lIsDummy := true;
     end else
     {$IFDEF LOADDUMMY}
     if not NIFTIhdr_LoadDummyImg (lHdr, lImgBuffer) then
@@ -1127,6 +1144,7 @@ begin //Proc Load_From_NIfTI
       //exit;
       if not NIFTIhdr_LoadDummyImg (lHdr, lImgBuffer) then
         exit;
+      lIsDummy := true;
     end;
     {$ENDIF}
     lTexture.NIFTIhdr := lHdr.NIFTIhdr;
@@ -1370,7 +1388,7 @@ begin //Proc Load_From_NIfTI
     lTexture.NIFTIhdr := lHdr.NIFTIhdr;
     for lI := 1 to 3 do
       lTexture.NIFTIhdr.dim[lI] := lTexture.FiltDim[lI];
-    result :=true;
+    if not lIsDummy then result :=true;
     SetOriginXYZ(lTexture);
 
 end; //Proc Load_From_NIfTI
