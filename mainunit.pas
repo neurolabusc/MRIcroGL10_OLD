@@ -2306,7 +2306,7 @@ begin
         InferiorMenu.ShortCut :=  ShortCut(Word('I'), [ssAlt]);
    AppleMenu.visible := false;
  {$ENDIF}
- {$IFNDEF UNIX}BET1.Visible := false; {$ENDIF}
+ //{$IFNDEF UNIX} BET1.Visible := false; {$ENDIF}
  QualityTrack.Position := gPrefs.RayCastQuality1to10;
  loadLabelsDefault;
  {$IFDEF COMPILEYOKE}
@@ -3558,7 +3558,7 @@ begin
 {$ENDIF}
 end;
 
-function GetFloat(lStr: string; lMin,lDefault,lMax: single): single;
+(*function GetFloat(lStr: string; lMin,lDefault,lMax: single): single;
 var
    s: string;
 begin
@@ -3573,16 +3573,66 @@ begin
   if result < lmin then
   	 result := lmin;
   if result > lmax then
-end;
+end;*)
+function GetFloat(prompt: string; min,def,max: extended): extended;
+var
+    PrefForm: TForm;
+    OkBtn: TButton;
+    promptLabel: TLabel;
+    valEdit: TEdit;
+begin
+  PrefForm:=TForm.Create(nil);
+  PrefForm.SetBounds(100, 100, 640, 112);
+  PrefForm.Caption:='Value required';
+  PrefForm.Position := poScreenCenter;
+  PrefForm.BorderStyle := bsDialog;
+  //label
+  promptLabel:=TLabel.create(PrefForm);
+  promptLabel.Caption:= prompt;
+  if (min < max) then
+     promptLabel.Caption:= format('%s (range %g..%g)', [prompt, min, max]);
+  promptLabel.Left := 8;
+  promptLabel.Top := 12;
+  promptLabel.Parent:=PrefForm;
+  //edit
+  valEdit:=TEdit.create(PrefForm);
+  valEdit.Caption := FloatToStrF(def, ffGeneral, 8, 4);
+  valEdit.Top := 42;
+  valEdit.Width := PrefForm.Width - 16;
+  valEdit.Left :=  8;
+  valEdit.Parent:=PrefForm;
+  //OK button
+  OkBtn:=TButton.create(PrefForm);
+  OkBtn.Caption:='OK';
+  OkBtn.Top := 78;
+  OkBtn.Width := 128;
+  OkBtn.Left := PrefForm.Width - OkBtn.Width - 8;
+  OkBtn.Parent:=PrefForm;
+  OkBtn.ModalResult:= mrOK;
+  {$IFNDEF Darwin} ScaleDPIX(PrefForm, 96);{$ENDIF}
+  {$IFDEF LCLCocoa}
+  if gPrefs.DarkMode then GLForm1.SetFormDarkMode(PrefForm);
+  {$ENDIF}
+  PrefForm.ShowModal;
+  result := def;
+  if (PrefForm.ModalResult = mrOK) then begin
+    result := StrToFloatDef(valEdit.Caption, def);
+    if (min < max) and (result < min) then
+      result := min;
+    if (min < max) and (result > max) then
+      result := max;
+  end;
+  FreeAndNil(PrefForm);
+end; //GetFloat()
 
 procedure TGLForm1.BET1Click(Sender: TObject);
 var
   lFrac: single;
   lB: string;
 begin
+  lFrac := GetFloat('Brain extraction fraction (smaller values lead to larger brain volume)',0.1,0.45,0.9);
   if not OpenDialog1.Execute then
     exit;
-  lFrac := GetFloat('Brain extraction fraction (smaller values lead to larger brain volume)',0.1,0.45,0.9);
   lB := FSLbet(OpenDialog1.FileName,lFrac);
    LoadDatasetNIFTIvol1(lB,true);
 end;

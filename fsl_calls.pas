@@ -19,9 +19,61 @@ var gFSLbase: string;
 implementation
 
 {$IFNDEF UNIX}
-function FSLbet (lFilename: string; lFrac: single): string;
+uses Process, FileUtil;
+
+function FindDefaultExecutablePathX(const Executable: string): string;
 begin
-  msg('FSL is only available for Unix');
+     result := FindDefaultExecutablePath(Executable);
+     if result = '' then
+        result := FindDefaultExecutablePath(ExtractFilePath  (paramstr(0)) +Executable);
+end;
+
+procedure Riteln(S: string);
+begin
+     //
+end;
+
+procedure FSLcmd (lCmd: string);
+const
+  FSLOUTPUTTYPE = 'FSLOUTPUTTYPE=NIFTI_GZ';
+ var
+ AProcess: TProcess;
+ i: integer;
+   AStringList: TStringList;
+   //PATH,FSLDIR,lS,FULL,FSLDIRBIN: string;
+ begin
+   AProcess := TProcess.Create(nil);
+   AStringList := TStringList.Create;
+   AProcess.Environment.Add(FSLOUTPUTTYPE);
+   AProcess.CommandLine := lCmd;
+   AProcess.Options := AProcess.Options + [poWaitOnExit, poStderrToOutPut, poUsePipes];
+   riteln(AProcess.CommandLine);
+   {$IFDEF GUI}application.processmessages;{$ENDIF}
+   AProcess.Execute;
+   AStringList.LoadFromStream(AProcess.Output);
+   if AStringList.Count > 0 then
+      for i := 1 to AStringList.Count do
+       riteln(AStringList.Strings[i-1]);
+   AStringList.Free;
+   AProcess.Free;
+end;
+
+function FSLbet (lFilename: string; lFrac: single): string;
+const
+  kExe = 'bet2.exe';
+var
+   lCmd, lExe,OutName: string;
+begin
+  lExe := FindDefaultExecutablePathX(kExe);
+  if lExe = '' then begin
+    msg('Unable to find executable '+kExe);
+    exit;
+  end;
+  result := ChangeFilePrefix(lFilename,'b');
+  result := ChangeFileExtX( result, '.nii.gz');  //e.g. .nii -> .nii.gz
+  lCmd := lExe+' "'+lFilename+'" "'+result +'" -f '+floattostr(lFrac);
+  FSLCmd (lCmd);
+  //msg('FSL is only available for Unix');
 end;
 
 function FSLmcflirt (lFilename4D: string): string;

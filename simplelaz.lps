@@ -3,7 +3,7 @@
   <ProjectSession>
     <Version Value="11"/>
     <BuildModes Active="Default"/>
-    <Units Count="42">
+    <Units Count="44">
       <Unit0>
         <Filename Value="simplelaz.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -19,8 +19,8 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="4411"/>
-        <CursorPos X="10" Y="4420"/>
+        <TopLine Value="3569"/>
+        <CursorPos X="67" Y="3577"/>
         <UsageCount Value="211"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -29,7 +29,7 @@
       <Unit2>
         <Filename Value="define_types.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="4"/>
         <TopLine Value="97"/>
         <CursorPos Y="106"/>
         <UsageCount Value="135"/>
@@ -100,7 +100,7 @@
       </Unit8>
       <Unit9>
         <Filename Value="texture_3d_unit.pas"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="3"/>
         <TopLine Value="711"/>
         <CursorPos X="31" Y="729"/>
         <UsageCount Value="102"/>
@@ -162,9 +162,9 @@
       </Unit15>
       <Unit16>
         <Filename Value="slices2d.pas"/>
-        <EditorIndex Value="1"/>
-        <TopLine Value="115"/>
-        <CursorPos X="29" Y="115"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="116"/>
+        <CursorPos X="60" Y="117"/>
         <UsageCount Value="103"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -229,7 +229,7 @@
       </Unit23>
       <Unit24>
         <Filename Value="nifti_hdr.pas"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="7"/>
         <TopLine Value="898"/>
         <CursorPos X="10" Y="912"/>
         <UsageCount Value="10"/>
@@ -355,7 +355,7 @@
       <Unit40>
         <Filename Value="../../../lazarus/components/opengl/openglcontext.pas"/>
         <UnitName Value="OpenGLContext"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="6"/>
         <TopLine Value="566"/>
         <CursorPos Y="575"/>
         <UsageCount Value="10"/>
@@ -363,133 +363,149 @@
       </Unit40>
       <Unit41>
         <Filename Value="/usr/local/share/fpcsrc/rtl/inc/systemh.inc"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="5"/>
         <TopLine Value="1189"/>
         <CursorPos X="11" Y="1198"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit41>
+      <Unit42>
+        <Filename Value="../../../lazarus/lcl/include/imglist.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="423"/>
+        <CursorPos X="57" Y="426"/>
+        <UsageCount Value="10"/>
+      </Unit42>
+      <Unit43>
+        <Filename Value="../../../lazarus/lcl/menus.pp"/>
+        <UnitName Value="Menus"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="280"/>
+        <CursorPos X="25" Y="289"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit43>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="513" Column="5" TopLine="501"/>
+        <Filename Value="nifti_hdr.pas"/>
+        <Caret Line="912" Column="56" TopLine="905"/>
       </Position1>
       <Position2>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="2825" Column="3" TopLine="2809"/>
+        <Filename Value="texture_3d_unit.pas"/>
+        <Caret Line="721" Column="10" TopLine="709"/>
       </Position2>
       <Position3>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="513" Column="34" TopLine="504"/>
+        <Filename Value="texture_3d_unit.pas"/>
+        <Caret Line="766" Column="8" TopLine="756"/>
       </Position3>
       <Position4>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="3606" Column="18" TopLine="3604"/>
+        <Filename Value="texture_3d_unit.pas"/>
+        <Caret Line="742" Column="24" TopLine="726"/>
       </Position4>
       <Position5>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="3606" Column="25" TopLine="3604"/>
+        <Filename Value="texture_3d_unit.pas"/>
+        <Caret Line="760" Column="10" TopLine="742"/>
       </Position5>
       <Position6>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="3613" Column="7" TopLine="3604"/>
+        <Filename Value="texture_3d_unit.pas"/>
+        <Caret Line="747" Column="40" TopLine="729"/>
       </Position6>
       <Position7>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="5076" Column="72" TopLine="5060"/>
+        <Filename Value="texture_3d_unit.pas"/>
+        <Caret Line="694" Column="11" TopLine="684"/>
       </Position7>
       <Position8>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="5205" Column="3" TopLine="5195"/>
+        <Caret Line="504" Column="28" TopLine="503"/>
       </Position8>
       <Position9>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="3616" Column="87" TopLine="3602"/>
+        <Caret Line="2251" Column="41" TopLine="2235"/>
       </Position9>
       <Position10>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="3613" Column="30" TopLine="3603"/>
+        <Caret Line="2527" Column="15" TopLine="2522"/>
       </Position10>
       <Position11>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="3616" Column="71" TopLine="3603"/>
+        <Caret Line="2444" Column="4" TopLine="2430"/>
       </Position11>
       <Position12>
-        <Filename Value="texture_3d_unit.pas"/>
-        <Caret Line="1319" Column="36" TopLine="1316"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="3694" Column="29" TopLine="3688"/>
       </Position12>
       <Position13>
-        <Filename Value="texture_3d_unit.pas"/>
-        <Caret Line="765" Column="58" TopLine="752"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="4427" Column="18" TopLine="4418"/>
       </Position13>
       <Position14>
-        <Filename Value="texture_3d_unit.pas"/>
-        <Caret Line="698" Column="28" TopLine="695"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="4418" Column="33" TopLine="4408"/>
       </Position14>
       <Position15>
-        <Filename Value="nifti_hdr.pas"/>
-        <Caret Line="45" Column="27" TopLine="36"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="4420" Column="10" TopLine="4412"/>
       </Position15>
       <Position16>
-        <Filename Value="nifti_hdr.pas"/>
-        <Caret Line="85" Column="21" TopLine="66"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="15" Column="2" TopLine="4"/>
       </Position16>
       <Position17>
-        <Filename Value="nifti_hdr.pas"/>
-        <Caret Line="912" Column="56" TopLine="905"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="3583" Column="6" TopLine="3578"/>
       </Position17>
       <Position18>
-        <Filename Value="texture_3d_unit.pas"/>
-        <Caret Line="721" Column="10" TopLine="709"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="156" Column="7" TopLine="146"/>
       </Position18>
       <Position19>
-        <Filename Value="texture_3d_unit.pas"/>
-        <Caret Line="766" Column="8" TopLine="756"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="350" Column="17" TopLine="332"/>
       </Position19>
       <Position20>
-        <Filename Value="texture_3d_unit.pas"/>
-        <Caret Line="742" Column="24" TopLine="726"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="2311" Column="4" TopLine="2291"/>
       </Position20>
       <Position21>
-        <Filename Value="texture_3d_unit.pas"/>
-        <Caret Line="760" Column="10" TopLine="742"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="3586" Column="3" TopLine="3574"/>
       </Position21>
       <Position22>
-        <Filename Value="texture_3d_unit.pas"/>
-        <Caret Line="747" Column="40" TopLine="729"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="156" Column="7" TopLine="146"/>
       </Position22>
       <Position23>
-        <Filename Value="texture_3d_unit.pas"/>
-        <Caret Line="694" Column="11" TopLine="684"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="350" Column="17" TopLine="332"/>
       </Position23>
       <Position24>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="504" Column="28" TopLine="503"/>
+        <Caret Line="2309" Column="42" TopLine="2292"/>
       </Position24>
       <Position25>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="2251" Column="41" TopLine="2235"/>
+        <Caret Line="2295" Column="10" TopLine="2292"/>
       </Position25>
       <Position26>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="2527" Column="15" TopLine="2522"/>
+        <Caret Line="2309" Column="23" TopLine="2292"/>
       </Position26>
       <Position27>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="2444" Column="4" TopLine="2430"/>
+        <Caret Line="3583" Column="20" TopLine="3573"/>
       </Position27>
       <Position28>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="3694" Column="29" TopLine="3688"/>
+        <Caret Line="3599" Column="36" TopLine="3584"/>
       </Position28>
       <Position29>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="4427" Column="18" TopLine="4418"/>
+        <Caret Line="3565" Column="18" TopLine="3550"/>
       </Position29>
       <Position30>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="4418" Column="33" TopLine="4408"/>
+        <Caret Line="3600" Column="34" TopLine="3589"/>
       </Position30>
     </JumpHistory>
     <RunParams>
