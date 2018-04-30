@@ -3630,7 +3630,7 @@ begin
   OkBtn.Left := PrefForm.Width - OkBtn.Width - 8;
   OkBtn.Parent:=PrefForm;
   OkBtn.ModalResult:= mrOK;
-  {$IFNDEF Darwin} ScaleDPIX(PrefForm, 96);{$ENDIF}
+  {$IFDEF Windows} ScaleDPI(PrefForm, 96);  {$ENDIF}
   {$IFDEF LCLCocoa}
   if gPrefs.DarkMode then GLForm1.SetFormDarkMode(PrefForm);
   {$ENDIF}

@@ -237,16 +237,23 @@ var
    lScale,lZf, lYf,lXf,lXl,lYl,lZl : single;
    lIn: bytep;
 begin
-  if (lHdr.dim[1] > lHdr.dim[2]) and  (lHdr.dim[1] > lHdr.dim[3]) then
-     lMax := lHdr.dim[1]
-  else if (lHdr.dim[2] > lHdr.dim[3])  then
-       lMax := lHdr.dim[2]
-  else
-      lMax := lHdr.dim[3];
-  if (lMax <= lMaxDim) or (lMax < 3) then
-     exit; //not a large image or not a 3D image
   if lHdr.datatype <> kDT_UNSIGNED_CHAR then
-     exit;
+    exit;
+  if (lHdr.dim[1] > lHdr.dim[2]) and  (lHdr.dim[1] > lHdr.dim[3]) then
+   lMax := lHdr.dim[1]
+  else if (lHdr.dim[2] > lHdr.dim[3])  then
+     lMax := lHdr.dim[2]
+  else
+    lMax := lHdr.dim[3];
+  if (lMax <= lMaxDim) or (lMax < 3) then begin
+     {$IFDEF UNIX}
+     writeln(format('Loading image at full size: maximum image dimension (%d) is less than "MaxVox" (%d). Edit "MaxVox" preference to downsample.',[lMax, lMaxDim]));
+     {$ENDIF}
+     exit; //not a large image or not a 3D image
+  end;
+  {$IFDEF UNIX}
+  writeln(format('Downsampling image: maximum image dimension (%d) is greater than "MaxVox" (%d). Edit "MaxVox" preference to load at full resolution.',[lMax, lMaxDim]));
+  {$ENDIF}
   lScale := lMaxDim/lMax;// from source to target: 256->128 = 0.5
   lXYi := lHdr.dim[1]*lHdr.dim[2]; //input XY
   lXi := lHdr.dim[1]; //input X
@@ -316,16 +323,23 @@ var
    lScale,lZf, lYf,lXf,lXl,lYl,lZl : single;
    lIn,lOut: SmallIntP; //16
 begin
+  if lHdr.datatype <> kDT_SIGNED_SHORT then //16
+     exit;
   if (lHdr.dim[1] > lHdr.dim[2]) and  (lHdr.dim[1] > lHdr.dim[3]) then
      lMax := lHdr.dim[1]
   else if (lHdr.dim[2] > lHdr.dim[3])  then
        lMax := lHdr.dim[2]
   else
       lMax := lHdr.dim[3];
-  if (lMax <= lMaxDim) or (lMax < 3) then
+  if (lMax <= lMaxDim) or (lMax < 3) then begin
+     {$IFDEF UNIX}
+     writeln(format('Loading image at full size: maximum image dimension (%d) is less than "MaxVox" (%d). Edit "MaxVox" preference to downsample.',[lMax, lMaxDim]));
+     {$ENDIF}
      exit; //not a large image or not a 3D image
-  if lHdr.datatype <> kDT_SIGNED_SHORT then //16
-     exit;
+  end;
+  {$IFDEF UNIX}
+  writeln(format('Downsampling image: maximum image dimension (%d) is greater than "MaxVox" (%d). Edit "MaxVox" preference to load at full resolution.',[lMax, lMaxDim]));
+  {$ENDIF}
   lScale := lMaxDim/lMax;// from source to target: 256->128 = 0.5
   lXYi := lHdr.dim[1]*lHdr.dim[2]; //input XY
   lXi := lHdr.dim[1]; //input X
@@ -400,16 +414,23 @@ var
    lScale,lZf, lYf,lXf,lXl,lYl,lZl : single;
    lIn: bytep;
 begin
+  if lHdr.datatype <> kDT_RGB then
+     exit;
   if (lHdr.dim[1] > lHdr.dim[2]) and  (lHdr.dim[1] > lHdr.dim[3]) then
      lMax := lHdr.dim[1]
   else if (lHdr.dim[2] > lHdr.dim[3])  then
        lMax := lHdr.dim[2]
   else
       lMax := lHdr.dim[3];
-  if (lMax <= lMaxDim) or (lMax < 3) then
+  if (lMax <= lMaxDim) or (lMax < 3) then begin
+     {$IFDEF UNIX}
+     writeln(format('Loading image at full size: maximum image dimension (%d) is less than "MaxVox" (%d). Edit "MaxVox" preference to downsample.',[lMax, lMaxDim]));
+     {$ENDIF}
      exit; //not a large image or not a 3D image
-  if lHdr.datatype <> kDT_RGB then
-     exit;
+  end;
+  {$IFDEF UNIX}
+  writeln(format('Downsampling image: maximum image dimension (%d) is greater than "MaxVox" (%d). Edit "MaxVox" preference to load at full resolution.',[lMax, lMaxDim]));
+  {$ENDIF}
   lScale := lMaxDim/lMax;// from source to target: 256->128 = 0.5
   lXYi24 := lHdr.dim[1]*lHdr.dim[2]*3; //slice size in bytes * 3 since  RGB planes
   lXi := lHdr.dim[1]; //input X
@@ -505,16 +526,23 @@ var
    lScale,lZf, lYf,lXf,lXl,lYl,lZl : single;
    lIn,lOut: SingleP; //32
 begin
+  if lHdr.datatype <> kDT_FLOAT then //32
+     exit;
   if (lHdr.dim[1] > lHdr.dim[2]) and  (lHdr.dim[1] > lHdr.dim[3]) then
      lMax := lHdr.dim[1]
   else if (lHdr.dim[2] > lHdr.dim[3])  then
        lMax := lHdr.dim[2]
   else
       lMax := lHdr.dim[3];
-  if (lMax <= lMaxDim) or (lMax < 3) then
+  if (lMax <= lMaxDim) or (lMax < 3) then begin
+     {$IFDEF UNIX}
+     writeln(format('Loading image at full size: maximum image dimension (%d) is less than "MaxVox" (%d). Edit "MaxVox" preference to downsample.',[lMax, lMaxDim]));
+     {$ENDIF}
      exit; //not a large image or not a 3D image
-  if lHdr.datatype <> kDT_FLOAT then //32
-     exit;
+  end;
+  {$IFDEF UNIX}
+  writeln(format('Downsampling image: maximum image dimension (%d) is greater than "MaxVox" (%d). Edit "MaxVox" preference to load at full resolution.',[lMax, lMaxDim]));
+  {$ENDIF}
   lScale := lMaxDim/lMax;// from source to target: 256->128 = 0.5
   lXYi := lHdr.dim[1]*lHdr.dim[2]; //input XY
   lXi := lHdr.dim[1]; //input X
