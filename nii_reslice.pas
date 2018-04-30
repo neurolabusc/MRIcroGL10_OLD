@@ -166,7 +166,7 @@ end;
 procedure NIFTIhdr_MinMaxImg (var lHdr: TMRIcroHdr; var lImgBuffer: byteP); //ensures image data is in native space
 //Sets lHdr.GlMinUnscaledS and lHdr.GlMaxUnscaledS - worth doing when image is loaded....
 var
-   lInc,lImgSamples, lMini,lMaxi : integer;
+   lInc,lImgSamples, lMini,lMaxi : int64;
    lMaxS,lMinS: single;
    l32i : LongIntP;
    l32f: SingleP;
@@ -331,7 +331,7 @@ end; *)
 
 procedure Int32ToFloat (var lHdr: TMRIcroHdr; var lImgBuffer: byteP);
 var
-  lI,lInVox: integer;
+  lI,lInVox: int64;
   l32Buf : SingleP;
 begin
 	  if lHdr.NIFTIHdr.datatype <> kDT_SIGNED_INT then
@@ -350,7 +350,7 @@ end;//Int32ToFloat
 
 procedure Uint32ToFloat (var lHdr: TMRIcroHdr; var lImgBuffer: byteP);
 var
-  lI,lInVox: integer;
+  lI,lInVox: int64;
   l32Buf : SingleP;
 begin
     if lHdr.NIFTIHdr.datatype <> kDT_UINT32 then
@@ -369,7 +369,7 @@ end;//Uint32ToFloat
 
 function ImgToUint8  (var lHdr: TMRIcroHdr; var lImgBuffer: byteP): boolean; //binarizes image <=0 -> 0, else 1
 var
-  lI, lInVox, lBPP: integer;
+  lI, lInVox, lBPP: int64;
   l32f : SingleP;
   l16i : SmallIntP;
   l8i: bytep;
@@ -422,7 +422,7 @@ end;//Uint32ToFloat
 procedure Float32RemoveNAN (var lHdr: TMRIcroHdr; var lImgBuffer: byteP);
 //set "Not-A-Number" values to be zero... SPM uses NaN for voxels it can not compute
 var
-  lI,lInVox: integer;
+  lI,lInVox: int64;
   l32Buf : SingleP;
 begin
 	  if lHdr.NIFTIHdr.datatype <> kDT_FLOAT then

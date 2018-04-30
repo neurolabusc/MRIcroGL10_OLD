@@ -11,7 +11,7 @@ uses
 {$IFNDEF FPC}
   gziod,
 {$ELSE}
-  gzio2,
+  gzio2,  zstream, Classes,
 {$ENDIF}
 //{$IFDEF Unix}LCLIntf, {$ELSE} Windows,{$ENDIF}
   SysUtils,
@@ -684,15 +684,31 @@ begin
   result := true;
 end;
 
+function LoadGZ64(FileName : string; nSkip, nBytes: Int64; var buff: Bytep): boolean;
+var
+   stream: TGZFileStream;
+   data: array of Byte;
+begin
+  result := false;
+  stream := TGZFileStream.Create (FileName, gzopenread);
+  try
+    stream.Seek(nSkip,soFromBeginning);
+    setlength(data,nBytes);
+    stream.ReadBuffer (buff[1], nBytes);
+  finally
+    stream.Free;
+  end; //try
+  result := true;
+end;
+
 function NIFTIhdr_LoadImg (var lFilename: string; var lHdr: TMRIcroHdr; var lImgBuffer: byteP; lVolume: integer): boolean;
 //loads img to byteP - if this returns successfully you must freemem(lImgBuffer)
 var
-
   lImgName: string;
-   lVolOffset,lnVol,lVol,lFileBytes,lImgBytes: int64;
-   {$IFDEF NIFTIBLOCK}lBlockSize,i: int64; {$ENDIF}
-   lBuf: ByteP;
-   lInF: File;
+  lBlockBytes, lBlockSum, lVolOffset,lnVol,lVol,lFileBytes,lImgBytes: int64;
+  {$IFDEF NIFTIBLOCK}lBlockSize,i: int64; {$ENDIF}
+  lBuf: ByteP;
+  lInF: File;
 begin
     result := false;
     if not NIFTIhdr_LoadHdr (lFilename, lHdr, gPrefs.FlipYZ) then
@@ -715,10 +731,10 @@ begin
     GLForm1.ShowmessageError(format('Image dimensions do not make sense (x*y*z*bpp = %d*%d*%d*%d)',[lHdr.NIFTIhdr.dim[1], lHdr.NIFTIhdr.dim[2], lHdr.NIFTIhdr.dim[3], (lHdr.NIFTIhdr.bitpix div 8)]) );
     exit;
    end;
-   if (lImgBytes >= (1073741824 * 2)) then begin
+   (*if (lImgBytes >= (1 shl 31)) then begin
      GLForm1.ShowmessageError(format('Image exceeds 2 Gb (x*y*z*bpp = %d*%d*%d*%d)',[lHdr.NIFTIhdr.dim[1], lHdr.NIFTIhdr.dim[2], lHdr.NIFTIhdr.dim[3], (lHdr.NIFTIhdr.bitpix div 8)]) );
      exit;
-   end;
+   end;*)
    lVolOffset := (lVol-1) * lImgBytes;
    lImgName := lHdr.ImgFileName;
    if not fileexists(lImgName) then begin
@@ -737,34 +753,38 @@ begin
       GLForm1.ShowmessageError(format('Unable to allocate memory (%d bytes)',[lFileBytes]) );
       exit;
    end;
-
    Filemode := 0;  //Read Only - allows us to open images where we do not have permission to modify
    if (lHdr.gzBytes = K_gzBytes_headerAndImageUncompressed) then begin
      AssignFile(lInF, lImgName);
-     {$IFNDEF NIFTIBLOCK}
      Reset(lInF,1);
      Seek(lInF,int64(lVolOffset+round(lHdr.NiftiHdr.vox_offset)));
-     BlockRead(lInF, lImgBuffer^[1],lImgBytes);
-     {$ELSE}
-     lBlockSize := lImgBytes div lHdr.NIFTIhdr.dim[3];
-     Reset(lInF,lBlockSize);
-     Seek(lInF,lVolOffset+round(lHdr.NiftiHdr.vox_offset));
-     for i := 1 to 100 do
-           BlockRead(lInF, lImgBuffer^[1],1);
-     {$ENDIF}
+     if (lImgBytes >= (1 shl 31)) then begin
+        //block write must be less than 2147483648 bytes!
+        lBlockBytes := (1 shl 30);
+        lBlockSum := 0;
+        while lBlockSum < lFileBytes do begin
+	        if (lBlockSum + lBlockBytes) > lFileBytes then
+		        lBlockBytes := lFileBytes - lBlockSum;
+	        BlockRead(lInF, lImgBuffer^[lBlockSum+1],lBlockBytes);
+	        lBlockSum := lBlockSum + lBlockBytes;
+        end;
+        writeln(format('Reading %d byte blocks of %d bytes',[lBlockBytes, lFileBytes]));
+     end else
+         BlockRead(lInF, lImgBuffer^[1],lImgBytes);
      CloseFile(lInF);
-     (*if (lImgBytes >= (1073741824 * 2)) then begin
-       GLForm1.ShowmessageError(format('>>Image exceeds 2 Gb (x*y*z*bpp = %d*%d*%d*%d)',[lHdr.NIFTIhdr.dim[1], lHdr.NIFTIhdr.dim[2], lHdr.NIFTIhdr.dim[3], (lHdr.NIFTIhdr.bitpix div 8)]) );
-       FreeMem(lImgBuffer) ;
-       exit;
-     end;*)
    end else begin
        lBuf := @lImgBuffer^[1];
       {$IFDEF GZIP}
+      //if (lImgBytes >= (1 shl 31)) then begin
+      if (lHdr.gzBytes = K_gzBytes_onlyImageCompressed) then
+         LoadGZ64(lImgName, lVolOffset, lImgBytes, lBuf)
+      else
+          LoadGZ64(lImgName, lVolOffset+round(lHdr.NIFtiHdr.vox_offset), lImgBytes, lBuf);
+      (*
       if (lHdr.gzBytes = K_gzBytes_onlyImageCompressed) then
         UnGZip2 (lImgName,lBuf, lVolOffset ,lImgBytes, round(lHdr.NIFtiHdr.vox_offset))
       else
-        UnGZip (lImgName,lBuf, lVolOffset+round(lHdr.NIFtiHdr.vox_offset),lImgBytes);
+        UnGZip (lImgName,lBuf, lVolOffset+round(lHdr.NIFtiHdr.vox_offset),lImgBytes);  *)
       {$ENDIF}
    end;
    Filemode := 2;  //Read/Write
@@ -849,7 +869,7 @@ end;
 
 procedure Float64ToFloat32 (var lHdr: TMRIcroHdr; var lImgBuffer: byteP);
 var
-  lI,lInVox: integer;
+  lI,lInVox: int64;
   l64Buf : DoubleP;
   lV: double;
   l32TempBuf,l32Buf : SingleP;
@@ -930,7 +950,7 @@ end;
 
 procedure Uint16ToFloat32 (var lHdr: TMRIcroHdr; var lImgBuffer: byteP);
 var
-  lI,lInVox: integer;
+  lI,lInVox: int64;
   l16Buf : WordP;
   lV: double;
   l32TempBuf,l32Buf : SingleP;
@@ -1101,7 +1121,6 @@ begin
   if true and  (lTexture3D.FiltDim[1] > 1) or (lTexture3D.FiltDim[2] > 1) or (lTexture3D.FiltDim[3] > 1) then begin
       lInvMat := Hdr2InvMat (lTexture3D.NIftiHdr,lOK);
       if not lOK or isIdentity(lInvMat) then exit;
-
       lXmm := 0;
       lYmm := 0;
       lZmm := 0;
@@ -1118,8 +1137,9 @@ end;
 Function Load_From_NIfTI (var lTexture: TTexture; Const F_FileName : String; lPowerOfTwo: boolean; lVol: integer) : boolean;
 var
   CalRange, ImgRange: double;
-  lPadX,lPadY,lPadZ,lI,lZ,lY,lX,lSLiceStart,lLineStart,
-  lPos,lInVox,lOutVox, lLog10: integer;
+  lPadX,lPadY,lPadZ: integer;
+  lI,lZ,lY,lX,lSLiceStart,lLineStart,
+  lPos,lInVox,lOutVox, lLog10: int64;
   lIsDummy: boolean = false;
   lMinS,lMaxS: single;
   lFilename: string;
@@ -1178,8 +1198,14 @@ begin //Proc Load_From_NIfTI
       exit;//abort - unsupported format
     end;
     if lHdr.NIFTIHdr.datatype <> kDT_RGB then
-    ReorientCore(lHdr.NIFTIHdr, lImgBuffer);   //deal with planar
+       ReorientCore(lHdr.NIFTIHdr, lImgBuffer);   //deal with planar
     ShrinkLarge(lHdr.NIFTIHdr, lImgBuffer, gPrefs.MaxVox);
+    (* //use to determine processing of large images
+    if lHdr.NIFTIHdr.dim[1] > 256 then begin
+      freemem(lImgBuffer);
+      GLForm1.ShowmessageError('FX');
+      exit;//abort - unsupported format
+    end;*)
     //GLForm1.Label4.Caption := inttostr(lHdr.NIFTIhdr.dim[1])+'x'+inttostr(lHdr.NIFTIhdr.dim[2])+'x'+inttostr(lHdr.NIFTIhdr.dim[3]);
     lInVox :=  lHdr.NIFTIhdr.dim[1] *  lHdr.NIFTIhdr.dim[2] * lHdr.NIFTIhdr.dim[3];
     for lI := 1 to 3 do

@@ -153,7 +153,7 @@ function DiskFreeEx (DriveStr: String): Int64;
 function DiskFreeEx (DriveStr: String): Int64;
 {$ENDIF}
 procedure SortSingle(var lLo,lHi: single);
-procedure SortInteger(var lLo,lHi: integer);
+//procedure SortInteger(var lLo,lHi: integer);
 procedure CopyFileEX (lInName,lOutName: string);
 procedure CopyFileEXoverwrite (lInName,lOutName: string);
 procedure fx (a: double); overload; //fx used to help debugging - reports number values
@@ -176,7 +176,9 @@ function ChangeFilePrefixExt (lInName,lPrefix,lExt: string): string;
 function ChangeFilePrefix(lInName,lPrefix: string): string;
 function makesmallint (b0,b1: byte): smallint;
 function makesingle( b0,b1,b2,b3: byte): single;
-procedure SortInt (var lMin,lMax: integer);
+procedure SortInt (var lMin,lMax: integer); overload;
+procedure SortInt (var lMin,lMax: int64); overload;
+
 function Bound (lDefault,lMin,lMax: integer): integer;
 function IsNiftiExt(lStr: string): boolean;
 function IsVOIExt(lStr: string): boolean;
@@ -488,7 +490,18 @@ begin
         result := true;
 end;
 
-procedure SortInt (var lMin,lMax: integer);
+procedure SortInt (var lMin,lMax: int64); overload;
+var
+   lSwap: int64;
+begin
+     if lMin <= lMax then
+        exit;
+     lSwap := lMax;
+     lMax := lMin;
+     lMin := lSwap;
+end;
+
+procedure SortInt (var lMin,lMax: integer); overload;
 var
    lSwap: integer;
 begin
@@ -890,7 +903,7 @@ begin
 	CopyFileEXoverwrite (lInName,lOutName);
 end;
 
-procedure SortInteger(var lLo,lHi: integer);
+(*procedure SortInteger(var lLo,lHi: integer);
 var lSwap: integer;
 begin
 	if lLo > lHi then begin
@@ -898,7 +911,7 @@ begin
 		lLo := lHi;
 		lHi := lSwap;
 	end; //if Lo>Hi
-end; //proc SortInteger
+end; //proc SortInteger*)
 
 procedure SortSingle(var lLo,lHi: single);
 var lSwap: single;

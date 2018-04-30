@@ -2608,8 +2608,8 @@ var
 begin
      if (Xa = Xb) and (Ya = Yb) then exit;
      Xs := Xa; Xe := Xb; Ys := Ya; Ye := Yb;
-     SortInteger(Xs,Xe);
-     SortInteger(Ys,Ye);
+     SortInt(Xs,Xe);
+     SortInt(Ys,Ye);
      if gTexture3D.isLabels then exit;
      OrthoPix2Frac (Xs, Ys, lOrients,lXfrac,lYfrac,lZfrac);
      OrthoPix2Frac (Xe, Ye, lOriente,lXfrac,lYfrac,lZfrac);
@@ -3422,6 +3422,27 @@ begin
 end; *)
 
 function Str2FloatSafe(S: string; var FloatVal: single): boolean;
+//like StrToFloat but accepts either decimal separator: '1.23' or '1,23'
+var
+  inVal: single;
+  fmt: TFormatSettings;
+begin
+  result := false;
+  if length(S) < 1 then exit;
+  result := true;
+  inVal := FloatVal;
+  fmt := DefaultFormatSettings;
+  fmt.DecimalSeparator := '.';
+  if TryStrToFloat(s, FloatVal, fmt) then
+    exit;
+  fmt.DecimalSeparator := ',';
+  if TryStrToFloat(s, FloatVal, fmt) then
+    exit;
+  result := false;
+  FloatVal := inVal;
+end;
+
+(*function Str2FloatSafe(S: string; var FloatVal: single): boolean;
 var
   NewVal: single;
   errorPos: integer;
@@ -3431,7 +3452,7 @@ begin
    Val(S, NewVal, errorPos);
   result := (errorPos = 0);
   if result then FloatVal := NewVal;
-end;
+end;*)
 
 procedure TGLForm1.MinMaxEditKeyPress(Sender: TObject; var Key: Char);
 const

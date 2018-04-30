@@ -16,10 +16,10 @@ const
  kDrawModeConstrain = 2;
 type
  TDraw = packed record //Next: analyze Format Header structure
-   dim3d: array [0..3] of integer; //unused,X,Y,Z voxels in volume space
-   dim2d: array [0..3] of integer; //orient,X,Y,Slice in slice space
-   currSlice, prevSlice, prevOrient: integer;
-   clickStartX, clickStartY,clickPrevX,clickPrevY: integer; //location of previous mouse buttons
+   dim3d: array [0..3] of int64; //unused,X,Y,Z voxels in volume space
+   dim2d: array [0..3] of int64; //orient,X,Y,Slice in slice space
+   currSlice, prevSlice, prevOrient: int64;
+   clickStartX, clickStartY,clickPrevX,clickPrevY: int64; //location of previous mouse buttons
    colorLut: array [0..255] of TGLRGBQuad;
    glslprogramId,view3dId, colorLutId: GLuint;
    penColor : byte;
@@ -29,23 +29,23 @@ type
  end;
 
 var gDraw: TDraw;
-function voiDescriptives: integer;
+function voiDescriptives: int64;
 procedure StartDrawGLSL;
 procedure voiUndo;
 procedure voiCloseSlice;
-procedure voiInterpolate(Orient: integer);
+procedure voiInterpolate(Orient: int64);
 procedure voiMouseUp(autoClose, overwriteColors: boolean);
 function voiMouseMove (Xfrac, Yfrac, Zfrac:  single): boolean;
-procedure voiMouseDown(Color, Orient: integer; Xfrac, Yfrac, Zfrac:  single);
-procedure voiMouseFloodFill(Color, Orient: integer; Xfrac, Yfrac, Zfrac:  single);
-procedure voiMorphologyFill(RGBAimg: bytep0; Color: integer; Xmm, Ymm, Zmm, Xfrac, Yfrac, Zfrac:  single; dxOrigin, radiusMM: integer; drawMode: integer);
+procedure voiMouseDown(Color, Orient: int64; Xfrac, Yfrac, Zfrac:  single);
+procedure voiMouseFloodFill(Color, Orient: int64; Xfrac, Yfrac, Zfrac:  single);
+procedure voiMorphologyFill(RGBAimg: bytep0; Color: int64; Xmm, Ymm, Zmm, Xfrac, Yfrac, Zfrac:  single; dxOrigin, radiusMM: int64; drawMode: int64);
 function voiOpenGLDraw: GLuint; //must be called from OpenGL
 procedure voiChangeAlpha (a: byte);
-procedure voiCreate(X,Y,Z: integer; ptr: byteP0);
-procedure voiBinarize(Color: integer);
+procedure voiCreate(X,Y,Z: int64; ptr: byteP0);
+procedure voiBinarize(Color: int64);
 procedure voiClose;
 function voiGetVolume: byteP0;
-function voiActiveOrient: integer;
+function voiActiveOrient: int64;
 function voiIsModified: boolean;
 function voiIsEmpty: boolean;
 function voiActiveX: boolean;
@@ -67,9 +67,9 @@ begin
        gDraw.isModified := b;  //2015
 end;
 
-function voiDescriptives: integer;
+function voiDescriptives: int64;
 var
-  i, nPix, nPixDraw: integer;
+  i, nPix, nPixDraw: int64;
 begin
      if not voiIsOpen then begin
         exit (-1);
@@ -84,32 +84,32 @@ begin
      exit (nPixDraw);//('Volume of drawing is '+inttostr(nPixDraw)+' pixels.');
 end;
 
-function numThresh (v: singlep0; lStart,lEnd: integer; thresh: single): integer; //how many members of the array are >= thresh?
+function numThresh (v: singlep0; lStart,lEnd: int64; thresh: single): int64; //how many members of the array are >= thresh?
 var
-  i: integer;
+  i: int64;
 begin
      result := 0;
      for i := lStart to lEnd do
          if v[i] >= thresh then inc(result);
 end;
 
-function maxVol (v: singlep0; lStart,lEnd: integer): single; //brightest and darkest
+function maxVol (v: singlep0; lStart,lEnd: int64): single; //brightest and darkest
 var
-  i: integer;
+  i: int64;
 begin
      result := v[0];
      for i := lStart to lEnd do
          if v[i] >= result then result := v[i];
 end;
 
-procedure meanStdInMask(mask, v: singlep0; lStart,lEnd: integer) ;
+procedure meanStdInMask(mask, v: singlep0; lStart,lEnd: int64) ;
 //modulate mask based on variance - in v
 const
   kFrac = 0.7; //0..1 what proportion of signal modulatated by intensity
 var
   mx: single;
   mean, stdev, delta,m2: double;
-  i,n: integer;
+  i,n: int64;
 begin
      //1.) determine max intensity in mask, e.g. if a binary 0/1 mask this will be 1
      mx := maxVol(mask,lStart,lEnd);
@@ -140,10 +140,10 @@ begin
      end;
 end;
 
-procedure SmoothImg(vol: singlep0; X,Y,Z: integer);
+procedure SmoothImg(vol: singlep0; X,Y,Z: int64);
 var
    vol2: singlep0;
-   i, nPix, dimOff: integer;
+   i, nPix, dimOff: int64;
 begin
      if (X < 5) or (Y < 5) or (Z < 5) then exit;
      nPix := X * Y * Z;
@@ -160,14 +160,13 @@ begin
       freemem(vol2);
 end;
 
-procedure SmoothVol(lColor: integer; intenVol: singlep0);
+procedure SmoothVol(lColor: int64; intenVol: singlep0);
 label
   666;
 var
   vol: singlep0;
-  nPix,i,  origVol : integer;
-  tLo,tMid,tHi, nMid : integer;
-  t1stVox, tLastVox: integer;
+  nPix,i,  origVol,
+  tLo,tMid,tHi, nMid,t1stVox, tLastVox: int64;
 begin
      //volume dimensions must be at least 5x5x5 voxels for smooth
      nPix := gDraw.dim3d[1] * gDraw.dim3d[2]*gDraw.dim3d[3];
@@ -220,9 +219,9 @@ const
   kOrientAx = 1;
   kOrient3D = 0;
 
-  procedure PasteSlice2D(Orient: integer; var in2D, out3D: bytep0); //gDraw.view3d
+  procedure PasteSlice2D(Orient: int64; var in2D, out3D: bytep0); //gDraw.view3d
 var
-  volOffset, i, j, k, nPix: integer;
+  volOffset, i, j, k, nPix: int64;
 begin
   nPix := gDraw.dim2d[1] * gDraw.dim2d[2]; //number of pixels in 2D slice
   if (nPix < 1) or (Orient = kOrient3D) then exit;
@@ -251,9 +250,9 @@ begin
         Move(in2D^, out3D^[volOffset],nPix);//source/dest
   end;
 end;
-(*procedure PasteSlice2D(Orient: integer; var in2D: bytep0);
+(*procedure PasteSlice2D(Orient: int64; var in2D: bytep0);
 var
-  volOffset, i, j, k, nPix: integer;
+  volOffset, i, j, k, nPix: int64;
 begin
   nPix := gDraw.dim2d[1] * gDraw.dim2d[2]; //number of pixels in 2D slice
   if (nPix < 1) or (Orient = kOrient3D) then exit;
@@ -285,7 +284,7 @@ end;*)
 
 procedure UpdateView3d;
 var
-  nPix: integer;
+  nPix: int64;
 begin
      if (gDraw.undo2d = nil) or (gDraw.view3d = nil) then exit;
      if (gDraw.dim2d[0] = kOrient3D) then begin //3D volume
@@ -309,7 +308,7 @@ end;
 
 procedure voiSmoothIntensity (RGBAimg: bytep0);
 var
-  nPix, dark, bright, i, alpha: integer;
+  nPix, dark, bright, i, alpha: int64;
   intenVol: singlep0;
 begin
      if (gDraw.view3d = nil) then exit;
@@ -368,7 +367,7 @@ end;
 
 function voiIsEmpty: boolean;
 var
-  i,vx: integer;
+  i,vx: int64;
 begin
      result := true;
      vx := gDraw.dim3d[1] * gDraw.dim3d[2]*gDraw.dim3d[3];
@@ -381,7 +380,7 @@ begin
         result := false;
 end;
 
-function frac2pix (frac: single; dimPix: integer): integer;
+function frac2pix (frac: single; dimPix: int64): int64;
 begin
   //result := round(((frac- (0.5/dimPix))*dimPix))-1; //e.g. if 6 slices anything greater than 0.167 counted in slice 2
   //result := round(frac * dimPix);
@@ -390,7 +389,7 @@ begin
   if (result >= dimPix) then result := dimPix - 1;
 end;
 
-procedure click2pix (var Xpix, Ypix: integer; Xfrac, Yfrac, Zfrac:  single);
+procedure click2pix (var Xpix, Ypix: int64; Xfrac, Yfrac, Zfrac:  single);
 begin
   if (gDraw.dim2d[0] = kOrientSag) then begin //Sag
      Xpix := frac2pix(Yfrac, gDraw.dim2d[1]); //Sag is Y*Z
@@ -413,7 +412,7 @@ begin
        result := true;
 end;
 
-function voiActiveOrient: integer;
+function voiActiveOrient: int64;
 begin
      if (gDraw.view3d <> nil) and  (gDraw.isMouseDown) then
         result := gDraw.dim2d[0] //return 3D(0), Axial(1), Coronal(2) or Sagittal(3)
@@ -421,7 +420,7 @@ begin
        result := -1;
 end;
 
-function setDim2D(Orient: integer): integer;
+function setDim2D(Orient: int64): int64;
 begin
      gDraw.dim2d[0] := Orient; //dim[0] = slice orient
      if (Orient = 3) then begin
@@ -443,9 +442,9 @@ begin
      result := gDraw.dim2d[3];
 end;
 
-procedure CopySlice2D(Orient: integer; var out2D: bytep0);
+procedure CopySlice2D(Orient: int64; var out2D: bytep0);
 var
-  volOffset, i, j, k, nPix: integer;
+  volOffset, i, j, k, nPix: int64;
 begin
   nPix := gDraw.dim2d[1] * gDraw.dim2d[2]; //dim[3] = number of pixels
   if (Orient = 3) then begin//Sag
@@ -475,10 +474,10 @@ begin
   end;
 end;
 
-procedure voiMouseDown(Color, Orient: integer; Xfrac, Yfrac, Zfrac:  single);
+procedure voiMouseDown(Color, Orient: int64; Xfrac, Yfrac, Zfrac:  single);
 //Orient: Ax(1), Cor(2), Sag(3)
 var
-  nPix, nSlices, volOffset: integer;
+  nPix, nSlices, volOffset: int64;
 begin
      if (gDraw.view3d = nil) then exit;
      if ((gDraw.dim3d[1] * gDraw.dim3d[2]*gDraw.dim3d[3]) < 1) then exit;
@@ -528,18 +527,18 @@ const
   kIgnoreColor = 253;//253;
   kFillOldColor = 0;
 
-procedure borderPixel (x,y: integer);
+procedure borderPixel (x,y: int64);
 var
-  px : integer;
+  px : int64;
 begin
      px := x + y* gDraw.dim2d[1];
      if gDraw.modified2d[px] = kFillOldColor then
         gDraw.modified2d[px] := kFillNewColor;
 end;
 
-procedure fillPixel (x,y: integer);
+procedure fillPixel (x,y: int64);
 var
-   px : integer;
+   px : int64;
 begin
        px := x + y* gDraw.dim2d[1];
        if gDraw.modified2d[px] <> kFillOldColor then exit;
@@ -550,10 +549,10 @@ begin
        fillPixel (x,y+1);
 end;
 
-procedure fillPixelBound (x,y: integer);
+procedure fillPixelBound (x,y: int64);
 //fill pixel with range checking
 var
-   px : integer;
+   px : int64;
 begin
        px := x + y* gDraw.dim2d[1];
        if gDraw.modified2d[px] <> kFillOldColor then exit;
@@ -564,12 +563,12 @@ begin
        if (y < (gDraw.dim2d[2]-1)) then fillPixelBound (x,y+1);
 end;
 
-function isFillNewColor (x,y: integer): boolean;
+function isFillNewColor (x,y: int64): boolean;
 begin
        result := (gDraw.modified2d[x + y* gDraw.dim2d[1] ] = kFillNewColor);
 end;
 
-procedure setColor (x,y: integer; clr: byte);
+procedure setColor (x,y: int64; clr: byte);
 begin
        gDraw.modified2d[x + y* gDraw.dim2d[1]] := clr;
 end;
@@ -577,7 +576,7 @@ end;
 procedure fillBubbles;
 //from borders identifies all connected voxels of kFillOldColor and makes them kFillNewColor
 var
-  i: integer;
+  i: int64;
 begin
      if (gDraw.view2d = nil) or (gDraw.modified2d = nil) then exit;
      if (gDraw.dim2d[1] < 3) or (gDraw.dim2d[2] < 3) then exit;
@@ -605,7 +604,7 @@ end;
 
 procedure fillRegion;
 var
-  i: integer;
+  i: int64;
 begin
      if (gDraw.view2d = nil) or (gDraw.modified2d = nil) then exit;
      if (gDraw.dim2d[1] < 3) or (gDraw.dim2d[2] < 3) then exit;
@@ -615,10 +614,10 @@ begin
             gDraw.view2d[i] := gDraw.penColor;
 end;
 
-procedure doFloodFill(x,y: integer; newColor, oldColor: byte);
+procedure doFloodFill(x,y: int64; newColor, oldColor: byte);
 //set all voxels connected to location x,y of oldColor to have newColor
 var
-   nPix, i: integer;
+   nPix, i: int64;
 begin
      nPix := gDraw.dim2d[1]*gDraw.dim2d[2];
      for i := 0 to (nPix-1) do begin
@@ -648,9 +647,9 @@ begin
             gDraw.view2d[i] := newColor;
 end;
 
-procedure voiMouseFloodFill(Color, Orient: integer; Xfrac, Yfrac, Zfrac:  single);
+procedure voiMouseFloodFill(Color, Orient: int64; Xfrac, Yfrac, Zfrac:  single);
 var
-   x,y: integer;
+   x,y: int64;
    oldColor: byte;
 begin
      voiMouseDown(Color, Orient, Xfrac, Yfrac, Zfrac);
@@ -665,20 +664,20 @@ begin
      UpdateView3d;
 end;
 
-procedure drawPixel (x,y: integer);
+procedure drawPixel (x,y: int64);
 var
-  px : integer;
+  px : int64;
 begin
      px := x + y* gDraw.dim2d[1];
      gDraw.modified2d[px] := kIgnoreColor;//1;
      gDraw.view2d[px] := gDraw.penColor;
 end;
 
-procedure DrawLine (x,y, x2, y2:  integer);
+procedure DrawLine (x,y, x2, y2:  int64);
 //http://www.edepot.com/lineb.html
 var
   yLonger: boolean;
-  i,incrementVal, shortLen, longLen, swap: integer;
+  i,incrementVal, shortLen, longLen, swap: int64;
   multDiff: double;
 begin
      //drawPixel(x,y);
@@ -717,7 +716,7 @@ end; //DrawX
 
 function voiMouseMove (Xfrac, Yfrac, Zfrac:  single): boolean;
 var
-  clickX, clickY: integer;
+  clickX, clickY: int64;
 begin
   result := false;
   if not gDraw.isMouseDown then exit;
@@ -732,7 +731,7 @@ end;
 
 procedure preserveColors;
 var
-  i: integer;
+  i: int64;
 begin
        for i := 0 to ((gDraw.dim2d[1]*gDraw.dim2d[2])-1) do
          if (gDraw.undo2d[i] <> 0) then
@@ -756,7 +755,7 @@ end;
 procedure voiUndo;
 var
   temp: bytep0;
-  nPix: integer;
+  nPix: int64;
 begin
 
      if (gDraw.view3dId = 0) or ( gDraw.view2d = nil) or ( gDraw.undo2d = nil) then exit;
@@ -811,7 +810,7 @@ end;
 
 procedure voiChangeAlpha (a: byte);
 var
-  i: integer;
+  i: int64;
 begin
       //gDraw.alpha := a;
       gDraw.doAlpha := true;
@@ -834,7 +833,7 @@ end;
 
 procedure voiDefaultLUT;
 var
-  i:integer;
+  i:int64;
 begin
      with gDraw do begin
     colorLut[0] := makeRGB(0,0,0);
@@ -888,9 +887,9 @@ end;
 
 type TSlice2D = array of single;
 
-procedure SmoothSlice(var slice: TSlice2D; Xdim, Ydim: integer);
+procedure SmoothSlice(var slice: TSlice2D; Xdim, Ydim: int64);
 var
-  x,y, pos: integer;
+  x,y, pos: int64;
   sliceTemp : TSlice2D;
 begin
      if (Xdim < 3) or (Ydim < 3) then exit;
@@ -918,10 +917,10 @@ begin
      sliceTemp := nil; //free
 end;
 
-function CopySlice2DSingle(Orient: integer; out out2D: TSlice2D): boolean;
+function CopySlice2DSingle(Orient: int64; out out2D: TSlice2D): boolean;
 var
    u8_2D: bytep0;
-   nPix, i: integer;
+   nPix, i: int64;
 begin
      nPix := gDraw.dim2d[1]*gDraw.dim2d[2];
      getmem(u8_2D, nPix);
@@ -937,12 +936,12 @@ begin
      freemem(u8_2D);
 end;
 
-procedure voiInterpolateCore(orient, zLoIn, zHiIn: integer);
+procedure voiInterpolateCore(orient, zLoIn, zHiIn: int64);
 //interpolate voi between two 2D slices, slices indexed from 0
 label
   666;
 var
-  xy, z, zLo, zHi, nSlices, nPix: integer;
+  xy, z, zLo, zHi, nSlices, nPix: int64;
   FracLo, FracHi: single;
   sliceLo, sliceHi: TSlice2D;
   outSlice: byteP0;
@@ -987,11 +986,11 @@ begin
      setLength(sliceHi, 0);
 end;
 
-procedure voiInterpolateAllGaps(Orient: integer);
+procedure voiInterpolateAllGaps(Orient: int64);
 label
   666;
 var
-   zHi, zLo, i, z, nPix2D, nZ, nGaps: integer;
+   zHi, zLo, i, z, nPix2D, nZ, nGaps: int64;
    isEmpty: array of boolean;
    slice2D: bytep0;
    s :string;
@@ -1050,14 +1049,14 @@ begin
     freemem(slice2D);
 end;
 
-procedure voiInterpolate (Orient: integer);
+procedure voiInterpolate (Orient: int64);
 //mode is one of these options:
 //  kOrientSag = 3;
 //  kOrientCoro = 2;
 //  kOrientAx = 1;
 //  kLast = 0; //last two slices
 var
-  nPix3D: integer;
+  nPix3D: int64;
 begin
      if (gDraw.view3d = nil)  then begin
         showmessage('No drawing to interpolate');
@@ -1088,9 +1087,9 @@ begin
      gDraw.isModified := true;
 end;
 
-procedure voiBinarize (Color: integer); //set all non-zero voxels to Color
+procedure voiBinarize (Color: int64); //set all non-zero voxels to Color
 var
-  nPix,  i: integer;
+  nPix,  i: int64;
 begin
      if (Color < 0) then exit;
      if (gDraw.view3d = nil) and (Color = 0)  then exit; //nothing to erase
@@ -1111,9 +1110,9 @@ begin
      gDraw.isModified := true;
 end;
 
-procedure voiCreate(X,Y,Z: integer; Ptr: ByteP0);
+procedure voiCreate(X,Y,Z: int64; Ptr: ByteP0);
 var
-  vx: integer;
+  vx: int64;
 begin
   gDraw.isModified := false;
   gDraw.dim3d[1] := X;
@@ -1284,18 +1283,18 @@ begin
 end;
 
 
-procedure morphFill(volImg, volVoi: bytep0; Color: integer; Xmm,Ymm,Zmm: single; xOri, yOri, zOri, dxOrigin,  radiusMM : integer; drawMode: integer);
+procedure morphFill(volImg, volVoi: bytep0; Color: int64; Xmm,Ymm,Zmm: single; xOri, yOri, zOri, dxOrigin,  radiusMM : int64; drawMode: int64);
 var
   //vol,
    queue: longintp0;
-   qLo, qHi,xyPix, xPix, xyzPix: integer;
-function clrImg(X,Y,Z: integer) : byte;
+   qLo, qHi,xyPix, xPix, xyzPix: int64;
+function clrImg(X,Y,Z: int64) : byte;
 begin
      result := volImg[X+ xPix * Y + Z * xyPix];
 end; //clrImg()
 procedure filterImg;  //set volImg so 1=possible target, 0=not target
 var
-   clrOri, i, mn, mx, x, y, z: integer;
+   clrOri, i, mn, mx, x, y, z: int64;
    dxZ,dxY, dxThresh: single;
 begin
      //intensity filter
@@ -1335,7 +1334,7 @@ begin
      volImg[xOri + (yOri * xPix) + (zOri * xyPix)] := 2; //select this voxel
 end; //
 
-procedure addQueue (pix: integer);
+procedure addQueue (pix: int64);
 begin
      if (pix < 0) or (pix > (xyzPix -1)) then exit;
      if (volImg[pix] <> 1) then exit;
@@ -1375,9 +1374,9 @@ begin
      //GLForm1.Caption := floattostr(Xmm)+'x'+floattostr(Ymm)+'x'+floattostr(Zmm);
 end;
 
-procedure voiMorphologyFill(RGBAimg: bytep0; Color: integer; Xmm, Ymm, Zmm, Xfrac, Yfrac, Zfrac:  single; dxOrigin, radiusMM: integer; drawMode: integer);
+procedure voiMorphologyFill(RGBAimg: bytep0; Color: int64; Xmm, Ymm, Zmm, Xfrac, Yfrac, Zfrac:  single; dxOrigin, radiusMM: int64; drawMode: int64);
 var
-  nPix,  i, x, y, z: integer;
+  nPix,  i, x, y, z: int64;
   intenVol: Bytep0;
 begin
      if (Color < 0) then exit;
@@ -1407,7 +1406,7 @@ begin
      x := frac2pix(Xfrac, gDraw.dim3d[1]);
      y := frac2pix(Yfrac, gDraw.dim3d[2]);
      z := frac2pix(Zfrac, gDraw.dim3d[3]);
-     //morphFill(volImg, volVoi: bytep0; Color: integer; Xmm,Ymm,Zmm: single; xOri, yOri, zOri, dxOrigin, dxEdge, radiusMM, erodeCycles, growStyle: integer; constrain0: boolean);
+     //morphFill(volImg, volVoi: bytep0; Color: int64; Xmm,Ymm,Zmm: single; xOri, yOri, zOri, dxOrigin, dxEdge, radiusMM, erodeCycles, growStyle: int64; constrain0: boolean);
      morphFill(intenVol, gDraw.view3d,  Color, Xmm, Ymm, Zmm, x,y,z, dxOrigin,  radiusMM, drawMode);
      freemem(intenVol);
      gDraw.doRedraw := true;

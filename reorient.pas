@@ -233,7 +233,7 @@ end;
 procedure ShrinkLarge8(var lHdr: TNIFTIhdr; var lBuffer: bytep; lMaxDim: integer);
 //rescales images with any dimension larger than lMaxDim to have a maximum dimension of maxdim...
 var
-   lBase,lO,lX,lY,lZ,lMax,lXYi,lXi,lYi,lZi,lZt,lYt,lXt,lOffset: integer;
+   lBase,lO,lX,lY,lZ,lMax,lXYi,lXi,lYi,lZi,lZt,lYt,lXt,lOffset: int64;
    lScale,lZf, lYf,lXf,lXl,lYl,lZl : single;
    lIn: bytep;
 begin
@@ -312,7 +312,7 @@ end; //ShrinkLarge8
 procedure ShrinkLarge16(var lHdr: TNIFTIhdr; var lBuffer: bytep; lMaxDim: integer);
 //rescales images with any dimension larger than lMaxDim to have a maximum dimension of maxdim...
 var
-   lBase,lO,lX,lY,lZ,lMax,lXYi,lXi,lYi,lZi,lZt,lYt,lXt,lOffset: integer;
+   lBase,lO,lX,lY,lZ,lMax,lXYi,lXi,lYi,lZi,lZt,lYt,lXt,lOffset: int64;
    lScale,lZf, lYf,lXf,lXl,lYl,lZl : single;
    lIn,lOut: SmallIntP; //16
 begin
@@ -396,7 +396,7 @@ procedure ShrinkLarge24(var lHdr: TNIFTIhdr; var lBuffer: bytep; lMaxDim: intege
 //rescales images with any dimension larger than lMaxDim to have a maximum dimension of maxdim...
 //WARNING: this code is for 24-bit RGB format, which is planar RRRRRRGGGGGBBBBB!!!!
 var
-   lBase,lO,lX,lY,lZ,lMax,lXYo,lXYi24,lXi,lYi,lZi,lZt,lYt,lXt,lOffset: integer;
+   lBase,lO,lX,lY,lZ,lMax,lXYo,lXYi24,lXi,lYi,lZi,lZt,lYt,lXt,lOffset: int64;
    lScale,lZf, lYf,lXf,lXl,lYl,lZl : single;
    lIn: bytep;
 begin
@@ -501,7 +501,7 @@ end; //ShrinkLarge24
 procedure ShrinkLarge32(var lHdr: TNIFTIhdr; var lBuffer: bytep; lMaxDim: integer);
 //rescales images with any dimension larger than lMaxDim to have a maximum dimension of maxdim...
 var
-   lBase,lO,lX,lY,lZ,lMax,lXYi,lXi,lYi,lZi,lZt,lYt,lXt,lOffset: integer;
+   lBase,lO,lX,lY,lZ,lMax,lXYi,lXi,lYi,lZi,lZt,lYt,lXt,lOffset: int64;
    lScale,lZf, lYf,lXf,lXl,lYl,lZl : single;
    lIn,lOut: SingleP; //32
 begin
@@ -613,8 +613,8 @@ var
    lStartX,
    lZ,lY,lX,lB,
    lOutZ,lOutY,
-   lXInc, lYInc, lZInc,lBPP: integer;
-   lInPos,lVolBytes,lOutPos: integer;
+   lXInc, lYInc, lZInc,lBPP: int64;
+   lInPos,lVolBytes,lOutPos: int64;
    lBufferOut: bytep;
    lFlipX,lFlipY,lFlipZ: boolean;
    lInMat,lRotMat: TMatrix;
