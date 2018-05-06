@@ -11,6 +11,7 @@ uses
 {$IFDEF Unix} LCLIntf,{$ELSE} Windows,{$ENDIF}
  {$IFNDEF USETRANSFERTEXTURE}  scaleimageintensity,{$ENDIF}ClipBrd, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   shaderui,ExtCtrls, define_types, Menus,histogram2d,extract,slices2d, {$IFDEF COREGL} raycast_core, {$ELSE} raycast_legacy, {$ENDIF} raycast_common, savethreshold;
+function VERSION(): string;
 function EXISTS(lFilename: string): boolean; //function
 function OVERLAYLOAD(lFilename: string): integer; //function
 function OVERLAYLOADVOL(lFilename: string; lVol: integer): integer; //function
@@ -99,7 +100,7 @@ procedure WAIT(MSEC: integer);
 procedure XBARCOLOR (R,G,B: byte);
 procedure XBARTHICK (PIXELS: integer);
 procedure SETPREF (PREFNAME: string; PREFVAL: integer);
-procedure QUIT;//new
+procedure QUIT;
 
 type
   TScriptRec =  RECORD //peristimulus plot
@@ -107,14 +108,13 @@ type
     Decl,Vars: string[255];
   end;
 const
-  knFunc = 4;
+  knFunc = 5;
   kFuncRA : array [1..knFunc] of TScriptRec =
     ( (Ptr:@EXISTS;Decl:'EXISTS';Vars:'(lFilename: string): boolean'),
-
+      (Ptr:@VERSION;Decl:'VERSION';Vars:'(): string'),
     (Ptr:@OVERLAYLOAD;Decl:'OVERLAYLOAD';Vars:'(lFilename: string): integer'),
     (Ptr:@OVERLAYLOADCLUSTER;Decl:'OVERLAYLOADCLUSTER';Vars:'(lFilename: string; lThreshold, lClusterMM3: single; lSaveToDisk: boolean): integer'),
-
-     (Ptr:@OVERLAYLOADVOL;Decl:'OVERLAYLOADVOL';Vars:'(lFilename: string; lVol: integer): integer'));
+    (Ptr:@OVERLAYLOADVOL;Decl:'OVERLAYLOADVOL';Vars:'(lFilename: string; lVol: integer): integer'));
   knProc = 85;
   kProcRA : array [1..knProc] of TScriptRec =
     (
@@ -378,7 +378,6 @@ begin
   GLForm1.ChangeOverlayUpdate;
 end;
 
-
 procedure OVERLAYCOLORNAME(lOverlay: integer; lFilename: string);
 var
   lLUTIndex: integer;
@@ -387,6 +386,11 @@ begin
   lLUTIndex :=  GLForm1.LUTDrop.ItemIndex;
   GLForm1.UpdateLUT(lOverlay,lLUTIndex,true);
   GLForm1.ChangeOverlayUpdate;
+end;
+
+function VERSION(): string;
+begin
+  result := kVers;
 end;
 
 function EXISTS(lFilename: string): boolean;

@@ -163,7 +163,7 @@ type
     procedure Paste1Click(Sender: TObject);
     procedure DemoProgram;
     {$IFDEF MYPY}
-    procedure PyCreate;
+    function PyCreate: boolean;
     function PyExec(): boolean;
     procedure PyEngineAfterInit(Sender: TObject);
     procedure PyIOSendData(Sender: TObject; const Data: AnsiString);
@@ -200,12 +200,52 @@ var
   PyMod: TPythonModule;
   PyEngine: TPythonEngine = nil;
 
-procedure TScriptForm.PyCreate;
-const
- cPyLibraryMac = '/Library/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib';
+function findPythonLib(def: string): string;
+  {$IFDEF Darwin}
+  const
+       basePath = '/Library/Frameworks/Python.framework/Versions/';
+  {$ENDIF}
+  var
+     searchResult : TSearchRec;
+     fnm: string;
+     vers : TStringList;
+  begin
+       result := def;
+       if fileexists(def) then exit;
+       result :=''; //assume failure
+       if not DirectoryExists(basePath) then exit;
+       result := '';
+       vers := TStringList.Create;
+       if FindFirst(basePath+'*', faDirectory, searchResult) = 0 then begin
+          repeat
+                if (length(searchResult.Name) < 1) or (searchResult.Name[1] = '.') or (not (searchResult.Name[1] in ['0'..'9'])) then continue;
+            //ShowMessage('File name = '+searchResult.Name);
+            vers.Add(searchResult.Name);
+          until findnext(searchResult) <> 0;
+       end;
+      FindClose(searchResult);
+      if vers.Count < 1 then begin
+         vers.Free;
+         exit;
+      end;
+      vers.Sort;
+      fnm := vers.Strings[vers.Count-1]; //newest version? what if 3.10 vs 3.9?
+      vers.Free;
+      fnm := basePath+fnm+'/lib/libpython'+fnm+'.dylib';
+      if fileexists(fnm) then
+         result := fnm;
+  end;
+
+function TScriptForm.PyCreate: boolean;
+//const
+// cPyLibraryMac = '/Library/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib';
 var
   S: string;
 begin
+  result := false;
+  S:= findPythonLib('');
+  if (S = '') then exit;
+  result := true;
   PythonIO := TPythonInputOutput.Create(ScriptForm);
   PyMod := TPythonModule.Create(ScriptForm);
   PyEngine := TPythonEngine.Create(ScriptForm);
@@ -217,11 +257,7 @@ begin
   PyMod.OnInitialization:=PyModInitialization;
   PythonIO.OnSendData := PyIOSendData;
   PythonIO.OnSendUniData:= PyIOSendUniData;
-  //S := FindDefaultExecutablePath('python');
-  S:=
-    {$ifdef windows} cPyLibraryWindows {$endif}
-    {$ifdef linux} cPyLibraryLinux {$endif}
-    {$ifdef darwin} cPyLibraryMac {$endif} ;
+
   PyEngine.DllPath:= ExtractFileDir(S);
   PyEngine.DllName:= ExtractFileName(S);
   PyEngine.LoadDll
@@ -683,7 +719,7 @@ var
 begin
   Result:= GetPythonEngine.PyBool_FromLong(Ord(FALSE));
   with GetPythonEngine do
-    if Bool(PyArg_ParseTuple(Args, 'sf:loadimagevol', @PtrName, @f)) then
+    if Bool(PyArg_ParseTuple(Args, 'sf:shaderadjust', @PtrName, @f)) then
     begin
       StrName:= string(PtrName);
       SHADERADJUST(StrName, f);
@@ -902,7 +938,64 @@ begin
        OVERLAYVISIBLE(A,BOOL(B));
 end;
 
+function PyADDNODE(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  I,R,G,B,A: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'iiiii:addnode',@I, @R,@G,@B, @A)) then
+      ADDNODE(I,R,G,B,A);
+end;
 
+function PyOVERLAYLOAD(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  PtrName: PChar;
+  StrName: string;
+  Ret: integer;
+begin
+  Result:= GetPythonEngine.PyInt_FromLong(-1);
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 's:overlayload', @PtrName)) then
+    begin
+      StrName:= string(PtrName);
+      ret := OVERLAYLOAD(StrName);
+      Result:= GetPythonEngine.PyInt_FromLong(ret);
+    end;
+end;
+
+function PyOVERLAYLOADVOL(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  PtrName: PChar;
+  StrName: string;
+  V, Ret: integer;
+begin
+  Result:= GetPythonEngine.PyInt_FromLong(-1);
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'si:overlayloadvol', @PtrName, @V)) then
+    begin
+      StrName:= string(PtrName);
+      ret := OVERLAYLOADVOL(StrName, V);
+      Result:= GetPythonEngine.PyInt_FromLong(ret);
+    end;
+end;
+
+function PyOVERLAYLOADCLUSTER(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  PtrName: PChar;
+  StrName: string;
+  f1,f2: single;
+  B, Ret: integer;
+begin
+  Result:= GetPythonEngine.PyInt_FromLong(-1);
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'sff:overlayloadcluster', @PtrName, @f1,@f2,@B)) then
+    begin
+      StrName:= string(PtrName);
+      ret := OVERLAYLOADCLUSTER(StrName, f1, f2, BOOL(B));
+      Result:= GetPythonEngine.PyInt_FromLong(ret);
+    end;
+end;
 
 function PyVIEWSAGITTAL(Self, Args : PPyObject): PPyObject; cdecl;
 var
@@ -916,7 +1009,7 @@ end;
 procedure TScriptForm.PyModInitialization(Sender: TObject);
 begin
   with Sender as TPythonModule do begin
-    AddMethod('version', @PyVERSION, '');
+    AddMethod('addnode', @PyADDNODE, '');
     AddMethod('azimuth', @PyAZIMUTH, '');
     AddMethod('azimuthelevation', @PyAZIMUTHELEVATION, '');
     AddMethod('backcolor', @PyBACKCOLOR, '');
@@ -926,7 +1019,9 @@ begin
     AddMethod('clip', @PyCLIP, '');
     AddMethod('clipazimuthelevation', @PyCLIPAZIMUTHELEVATION, '');
     AddMethod('colorbarposition', @PyCOLORBARPOSITION, '');
+    AddMethod('colorbarposition', @PyLOADIMAGE, '');
     AddMethod('colorbarsize', @PyCOLORBARSIZE, '');
+    AddMethod('colorbarvisible', @PyCOLORBARVISIBLE, '');
     AddMethod('colorname', @PyCOLORNAME, '');
     AddMethod('contrastminmax', @PyCONTRASTMINMAX, '');
     AddMethod('cutout', @PyCUTOUT, '');
@@ -953,7 +1048,10 @@ begin
     AddMethod('overlayhidezeros', @PyOVERLAYHIDEZEROS, '');
     AddMethod('overlaylayertransparencyonbackground', @PyOVERLAYLAYERTRANSPARENCYONBACKGROUND, '');
     AddMethod('overlaylayertransparencyonoverlay', @PyOVERLAYLAYERTRANSPARENCYONOVERLAY, '');
+    AddMethod('overlayload', @PyOVERLAYLOAD, '');
+    AddMethod('overlayloadcluster', @PyOVERLAYLOADCLUSTER, '');
     AddMethod('overlayloadsmooth', @PyOVERLAYLOADSMOOTH, '');
+    AddMethod('overlayloadvol', @PyOVERLAYLOADVOL, '');
     AddMethod('overlaymaskedbybackground', @PyOVERLAYMASKEDBYBACKGROUND, '');
     AddMethod('overlayminmax', @PyOVERLAYMINMAX, '');
     AddMethod('overlaytransparencyonbackground', @PyOVERLAYTRANSPARENCYONBACKGROUND, '');
@@ -973,6 +1071,7 @@ begin
     AddMethod('shaderupdategradients', @PySHADERUPDATEGRADIENTS, '');
     AddMethod('sharpen', @PySHARPEN, '');
     AddMethod('slicetext', @PySLICETEXT, '');
+    AddMethod('version', @PyVERSION, '');
     AddMethod('viewaxial', @PyVIEWAXIAL, '');
     AddMethod('viewcoronal', @PyVIEWCORONAL, '');
     AddMethod('viewsagittal', @PyVIEWSAGITTAL, '');
@@ -989,8 +1088,9 @@ begin
   if iPos < 1 then exit;
   Memo2.lines.Clear;
   if PyEngine = nil then begin
-    PyCreate; //do this the first time
-    Memo2.lines.Add('Launching Python');
+    if not PyCreate then begin //do this the first time
+       Memo2.lines.Add('Failed to launch Python');
+    end;
   end;
   result := true;
   Memo2.lines.Add('Running Python script');
