@@ -24,7 +24,8 @@ type
          RayCastShowGLSLWarnings,RayCastViewCenteredLight,EnableYoke,
          NoveauWarning, StartupScript, RetinaDisplay, DarkMode: boolean;
          PlanarRGB,SliceView,DrawColor,RayCastQuality1to10,MaxStartupRayCastQuality1to10, FormWidth,FormHeight,
-         BackgroundAlpha,OverlayAlpha,CrosshairThick,MaxVox, BitmapZoom, ColorbarColor,ColorbarPosition: integer;
+         BackgroundAlpha,OverlayAlpha,CrosshairThick,MaxVox, BitDepth,
+         BitmapZoom, ColorbarColor,ColorbarPosition: integer;
          CLUTWindowColor,CLUTIntensityColor: TColor;
          GridAndBorder,BackColor,TextColor,TextBorder,CrosshairColor,HistogramColor,HistogramBack: TGLRGBQuad;
          ColorbarSize: single;
@@ -187,6 +188,7 @@ begin
             ForcePowerOfTwo:= false;
             OverlayHideZeros := false;
             MaxVox := 2048;
+            BitDepth := 24;
             //RenderQuality := kNormalRender;
             RayCastShowGLSLWarnings := false;
             RayCastViewCenteredLight := true;
@@ -458,6 +460,7 @@ begin
         IniInt(lRead,lIniFile, 'ColorBarPosition',lPrefs.ColorBarPosition);
 
         IniInt(lRead,lIniFile, 'MaxVox',lPrefs.MaxVox);
+        IniInt(lRead,lIniFile, 'BitDepth',lPrefs.BitDepth);
   IniInt(lRead,lIniFile, 'PlanarRGB',lPrefs.PlanarRGB);
   IniInt(lRead,lIniFile, 'BitmapZoom',lPrefs.BitmapZoom);
   IniInt(lRead,lIniFile, 'RayCastQuality1to10',lPrefs.RayCastQuality1to10);

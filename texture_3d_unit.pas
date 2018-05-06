@@ -606,42 +606,26 @@ end;
 
 procedure MakeBorg(Dim: integer; var lImgBuffer: byteP);
 const
-  Border = 4;//margin so we can calculate gradients at edge
+ Border = 4;//margin so we can calculate gradients at edge
 var
-  F: array of single;
-  mn, mx, scale: single;
-  I, X, Y, Z: integer;
+ v: single;
+ sins: array of single;
+ i, X, Y, Z: int64;
 begin
-  SetLength(F, Dim*Dim*Dim);
-  Scale := 0.005;
-  I := 0;
-  for X := 0 to Dim-1 do
-    for Y := 0 to Dim-1 do
-      for Z := 0 to Dim-1 do
-      begin
-        if (X < Border) or (Y < Border) or (Z < Border) or ((Dim-X) < Border) or ((Dim-Y) < Border) or ((Dim-Z) < Border) then
-          F[I] := 0
-        else
-          F[I] := sin(scale *x *y) + sin(scale *y * z) + sin(scale *z * x);
-        Inc(I);
-      end;
-  //next find range...
-  mn := F[0];
-  for I := 0 to Dim*Dim*Dim-1 do
-    if F[I] < mn then
-      mn := F[I];
-  mx := F[0];
-  for I := 0 to Dim*Dim*Dim-1 do
-    if F[I] > mx then
-      mx := F[I];
-  scale := 255/(mx-mn);
-  for I := 0 to Dim*Dim*Dim-1 do begin
-    if F[I] <= 0 then
-      lImgBuffer^[I+1] := 0
-    else
-      lImgBuffer^[I+1] := Round((F[I]-mn)*scale);
-  end;
-  F := nil;
+ v := 0.005;//0.2/Dim;
+ SetLength(sins, dim * dim);
+ for i := 0 to (length(sins)-1) do
+   sins[i] := sin(i * v);
+ i := 1;
+ for X := 0 to Dim-1 do
+  for Y := 0 to Dim-1 do
+   for Z := 0 to Dim-1 do begin
+       v := sins[x * y] + sins[y * z] + sins[z * x];
+       if (v < 0) or (X < Border) or (Y < Border) or (Z < Border) or ((Dim-X) < Border) or ((Dim-Y) < Border) or ((Dim-Z) < Border) then
+          v := 0;
+       lImgBuffer^[I] := round(255.0 * (v / 3.0));
+       i := i + 1;
+   end;
 end;
 
 procedure MakeL(Dim: integer; var lImgBuffer: byteP);

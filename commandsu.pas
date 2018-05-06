@@ -35,7 +35,6 @@ procedure COLORBARVISIBLE (VISIBLE: boolean);
 procedure COLORNAME(Filename: string);
 procedure CONTRASTFORMVISIBLE (VISIBLE: boolean);
 procedure CONTRASTMINMAX(MIN,MAX: single);
-//procedure VXL2MM(X,Y,Z: single);
 procedure CUTOUT (L,A,S,R,P,I: single);
 procedure CUTOUTFORMVISIBLE (VISIBLE: boolean);
 procedure EDGEDETECT (lThresh: single; lDilateCycles: integer);//new
@@ -831,7 +830,7 @@ end;
 
 procedure LINECOLOR (R,G,B: byte);
 begin
-  gPrefs.CrosshairColor :=RGBA(R,G,B,0); //2014
+  gPrefs.CrosshairColor :=RGBA(R,G,B,255); //2014
   ReRender(false);
 end;
 

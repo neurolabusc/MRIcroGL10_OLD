@@ -10,6 +10,7 @@ uses
     Windows,
 {$ENDIF}
 {$IFDEF LCLCocoa} nsappkitext,{$ENDIF}
+{$IFDEF MYPY}PythonEngine, {$ENDIF}
 {$IFDEF Unix} LCLIntf,  {$ENDIF}    //Messages,
  //{$IFNDEF USETRANSFERTEXTURE}  scaleimageintensity,{$ENDIF}
 ClipBrd, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
@@ -161,6 +162,14 @@ type
     procedure Cut1Click(Sender: TObject);
     procedure Paste1Click(Sender: TObject);
     procedure DemoProgram;
+    {$IFDEF MYPY}
+    procedure PyCreate;
+    function PyExec(): boolean;
+    procedure PyEngineAfterInit(Sender: TObject);
+    procedure PyIOSendData(Sender: TObject; const Data: AnsiString);
+    procedure PyIOSendUniData(Sender: TObject; const Data: UnicodeString);
+    procedure PyModInitialization(Sender: TObject);
+   {$ENDIF}
   private
     fn: string;
     gchanged: Boolean;
@@ -175,12 +184,836 @@ var
   ScriptForm: TScriptForm;
 
 implementation
-uses
-    mainunit,userdir, prefs  ;
 {$IFDEF FPC} {$R *.lfm}   {$ENDIF}
 {$IFNDEF FPC}
 {$R *.DFM}
 {$ENDIF}
+
+{$IFNDEF MYPY}
+uses
+    mainunit,userdir, prefs;
+{$ELSE}
+uses mainunit,userdir, prefs, proc_py;
+
+var
+  PythonIO : TPythonInputOutput;
+  PyMod: TPythonModule;
+  PyEngine: TPythonEngine = nil;
+
+procedure TScriptForm.PyCreate;
+const
+ cPyLibraryMac = '/Library/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib';
+var
+  S: string;
+begin
+  PythonIO := TPythonInputOutput.Create(ScriptForm);
+  PyMod := TPythonModule.Create(ScriptForm);
+  PyEngine := TPythonEngine.Create(ScriptForm);
+  PyEngine.IO := PythonIO;
+  PyEngine.PyFlags:=[pfIgnoreEnvironmentFlag];
+  PyEngine.UseLastKnownVersion:=false;
+  PyMod.Engine := PyEngine;
+  PyMod.ModuleName := 'gl';
+  PyMod.OnInitialization:=PyModInitialization;
+  PythonIO.OnSendData := PyIOSendData;
+  PythonIO.OnSendUniData:= PyIOSendUniData;
+  //S := FindDefaultExecutablePath('python');
+  S:=
+    {$ifdef windows} cPyLibraryWindows {$endif}
+    {$ifdef linux} cPyLibraryLinux {$endif}
+    {$ifdef darwin} cPyLibraryMac {$endif} ;
+  PyEngine.DllPath:= ExtractFileDir(S);
+  PyEngine.DllName:= ExtractFileName(S);
+  PyEngine.LoadDll
+end;
+
+procedure TScriptForm.PyIOSendData(Sender: TObject;
+  const Data: AnsiString);
+begin
+  Memo2.Lines.Add(Data);
+end;
+
+procedure TScriptForm.PyIOSendUniData(Sender: TObject;
+  const Data: UnicodeString);
+begin
+  Memo2.Lines.Add(Data);
+end;
+
+function PyVERSION(Self, Args : PPyObject): PPyObject; cdecl;
+begin
+  with GetPythonEngine do
+    Result:= PyString_FromString(kVers);
+end;
+
+function PyRESETDEFAULTS(Self, Args : PPyObject): PPyObject; cdecl;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  RESETDEFAULTS;
+end;
+
+function BOOL(i: integer): boolean;
+begin
+     result := i <> 0;
+end;
+
+function PySAVEBMP(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  PtrName: PChar;
+  StrName: string;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 's:savebmp', @PtrName)) then
+    begin
+      StrName:= string(PtrName);
+      SAVEBMP(StrName);
+    end;
+end;
+
+function PyBACKCOLOR(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  R,G,B: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'iii:backcolor', @R,@G,@B)) then
+      BACKCOLOR(R,G,B);
+end;
+
+function PyEXISTS(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  PtrName: PChar;
+  StrName: string;
+begin
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 's:exists', @PtrName)) then
+    begin
+      StrName:= string(PtrName);
+      Result:= GetPythonEngine.PyBool_FromLong(Ord(EXISTS(StrName)));
+    end;
+end;
+
+function PyAZIMUTH(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'i:azimuth', @A)) then
+      AZIMUTH(A);
+end;
+
+function PyAZIMUTHELEVATION(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A,E: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'ii:azimuthelevation', @A, @E)) then
+      AZIMUTHELEVATION(A,E);
+end;
+
+function PyBMPZOOM(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  Z: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'i:bmpzoom', @Z)) then
+      BMPZOOM(Z);
+end;
+
+function PyCAMERADISTANCE(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  Z: single;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'f:cameradistance', @Z)) then
+      CAMERADISTANCE(Z);
+end;
+
+function PyCHANGENODE(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  INDEX, INTENSITY, R,G,B,A: byte;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'bbbbbb:changenode', @INDEX, @INTENSITY, @R,@G,@B,@A)) then
+      CHANGENODE(INDEX, INTENSITY, R,G,B,A);
+end;
+
+function PyCLIP(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  D: single;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'f:clip', @D)) then
+      CLIP(D);
+end;
+
+function PyCLIPAZIMUTHELEVATION(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  D,A,E: single;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'fff:clipazimuthelevation', @D,@A,@E)) then
+      CLIPAZIMUTHELEVATION(D,A,E);
+end;
+
+function PyCOLORBARPOSITION(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  P: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'i:colorbarposition', @P)) then
+      COLORBARPOSITION (P);
+end;
+
+function PyCOLORBARSIZE(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  Sz: single;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'f:colorbarsize', @Sz)) then
+      COLORBARSIZE(Sz);
+end;
+
+function PyCOLORBARVISIBLE(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'i:colorbarvisible', @A)) then
+      COLORBARVISIBLE(BOOL(A));
+end;
+
+function PyCOLORNAME(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  PtrName: PChar;
+  StrName: string;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(FALSE));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 's:colorname', @PtrName)) then
+    begin
+      StrName:= string(PtrName);
+      COLORNAME(StrName);
+      Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+    end;
+end;
+
+function PyCONTRASTMINMAX(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  MN,MX: single;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'ff:contrastminmax', @MN,@MX)) then
+      CONTRASTMINMAX(MN,MX);
+end;
+
+function PyCUTOUT(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  L,A,S,R,P,I: single;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'ffffff:cutout', @L,@A,@S,@R,@P,@I)) then
+      CUTOUT(L,A,S,R,P,I);
+end;
+
+function PyEXTRACT(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  Otsu,Dil,One: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'iii:extract', @Otsu,@Dil,@One)) then
+      EXTRACT(Otsu,Dil,Bool(One));
+end;
+
+function PyFONTNAME(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  PtrName: PChar;
+  StrName: string;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(FALSE));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 's:fontname', @PtrName)) then
+    begin
+      StrName:= string(PtrName);
+      FONTNAME(StrName);
+      Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+    end;
+end;
+
+function PyELEVATION(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  E: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'i:elevation', @E)) then
+      ELEVATION(E);
+end;
+
+function PyLINECOLOR(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  R,G,B: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'iii:linecolor', @R,@G,@B)) then
+      LINECOLOR(R,G,B);
+end;
+
+function PyLINEWIDTH(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  W: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'i:linewidth', @W)) then
+      LINEWIDTH(W);
+end;
+
+function PyLOADDRAWING(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  PtrName: PChar;
+  StrName: string;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(FALSE));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 's:loaddrawing', @PtrName)) then
+    begin
+      StrName:= string(PtrName);
+      LOADDRAWING(StrName);
+      Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+    end;
+end;
+
+function PyLOADDTI(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  PtrName: PChar;
+  StrName: string;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(FALSE));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 's:loaddti', @PtrName)) then
+    begin
+      StrName:= string(PtrName);
+      LOADDTI(StrName);
+      Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+    end;
+end;
+
+function PyLOADIMAGE(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  PtrName: PChar;
+  StrName: string;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(FALSE));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 's:loadimage', @PtrName)) then
+    begin
+      StrName:= string(PtrName);
+      LOADIMAGE(StrName);
+      Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+    end;
+end;
+
+function PyLOADIMAGEVOL(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  PtrName: PChar;
+  StrName: string;
+  V: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(FALSE));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'si:loadimagevol', @PtrName, @V)) then
+    begin
+      StrName:= string(PtrName);
+      LOADIMAGEVOL(StrName, V);
+      Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+    end;
+end;
+
+function PyMAXIMUMINTENSITY(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'i:maximumintensity', @A)) then
+      MAXIMUMINTENSITY(BOOL(A));
+end;
+
+function PyMODALMESSAGE(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  PtrName: PChar;
+  StrName: string;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(FALSE));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 's:modalmessage', @PtrName)) then
+    begin
+      StrName:= string(PtrName);
+      MODALMESSAGE(StrName);
+      Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+    end;
+end;
+
+function PyMODELESSMESSAGE(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  PtrName: PChar;
+  StrName: string;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(FALSE));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 's:modelessmessage', @PtrName)) then
+    begin
+      StrName:= string(PtrName);
+      MODELESSMESSAGE(StrName);
+      Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+    end;
+end;
+
+function PyMOSAIC(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  PtrName: PChar;
+  StrName: string;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(FALSE));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 's:mosaic', @PtrName)) then
+    begin
+      StrName:= string(PtrName);
+      MOSAIC(StrName);
+      Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+    end;
+end;
+
+function PyORTHOVIEW(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  X,Y,Z: single;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'fff:orthoview', @X,@Y,@Z)) then
+      ORTHOVIEW(X,Y,Z);
+end;
+
+function PyORTHOVIEWMM(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  X,Y,Z: single;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'fff:orthoviewmm', @X,@Y,@Z)) then
+      ORTHOVIEWMM(X,Y,Z);
+end;
+
+function PyOVERLAYCLOSEALL(Self, Args : PPyObject): PPyObject; cdecl;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(TRUE));
+  OVERLAYCLOSEALL;
+end;
+
+function PySHARPEN(Self, Args : PPyObject): PPyObject; cdecl;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(TRUE));
+  SHARPEN;
+end;
+
+function PyQUIT(Self, Args : PPyObject): PPyObject; cdecl;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(TRUE));
+  QUIT;
+end;
+
+function PySHADERUPDATEGRADIENTS(Self, Args : PPyObject): PPyObject; cdecl;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(TRUE));
+  SHADERUPDATEGRADIENTS;
+end;
+
+function PyOVERLAYCOLORNAME(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  PtrName: PChar;
+  StrName: string;
+  V: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(FALSE));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'is:overlaycolorname', @V, @PtrName)) then
+    begin
+      StrName:= string(PtrName);
+      OVERLAYCOLORNAME(V, StrName);
+      Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+    end;
+end;
+
+function PySHADERNAME(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  PtrName: PChar;
+  StrName: string;
+  V: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(FALSE));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 's:shadername', @PtrName)) then
+    begin
+      StrName:= string(PtrName);
+      SHADERNAME(StrName);
+      Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+    end;
+end;
+
+function PySHADERADJUST(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  PtrName: PChar;
+  StrName: string;
+  f: single;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(FALSE));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'sf:loadimagevol', @PtrName, @f)) then
+    begin
+      StrName:= string(PtrName);
+      SHADERADJUST(StrName, f);
+      Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+    end;
+end;
+
+function PyOVERLAYLOADSMOOTH(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'i:overlayloadsmooth', @A)) then
+       OVERLAYLOADSMOOTH(BOOL(A));
+end;
+
+function PyOVERLAYCOLORFROMZERO(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'i:overlaycolorfromzero', @A)) then
+       OVERLAYCOLORFROMZERO(BOOL(A));
+end;
+
+function PyOVERLAYHIDEZEROS(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'i:overlayhidezeros', @A)) then
+       OVERLAYHIDEZEROS(BOOL(A));
+end;
+
+function PyOVERLAYMASKEDBYBACKGROUND(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'i:overlaymaskedbybackground', @A)) then
+       OVERLAYMASKEDBYBACKGROUND(BOOL(A));
+end;
+
+function PyPERSPECTIVE(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'i:perspective', @A)) then
+       PERSPECTIVE(BOOL(A));
+end;
+
+function PyRADIOLOGICAL(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'i:radiological', @A)) then
+       RADIOLOGICAL(BOOL(A));
+end;
+
+function PySCRIPTFORMVISIBLE(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'i:scriptformvisible', @A)) then
+       SCRIPTFORMVISIBLE(BOOL(A));
+end;
+
+function PySLICETEXT(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'i:slicetext', @A)) then
+       SLICETEXT(BOOL(A));
+end;
+
+function PyVIEWAXIAL(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'i:viewaxial', @A)) then
+       VIEWAXIAL(BOOL(A));
+end;
+
+function PyVIEWCORONAL(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'i:viewcoronal', @A)) then
+       VIEWCORONAL(BOOL(A));
+end;
+
+function PyOVERLAYTRANSPARENCYONBACKGROUND(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'i:overlaytransparencyonbackground', @A)) then
+       OVERLAYTRANSPARENCYONBACKGROUND(A);
+end;
+
+function PyOVERLAYTRANSPARENCYONOVERLAY(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'i:overlaytransparencyonoverlay', @A)) then
+       OVERLAYTRANSPARENCYONOVERLAY(A);
+end;
+
+function PyWAIT(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'i:wait', @A)) then
+       WAIT(A);
+end;
+
+function PySHADERQUALITY1TO10(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'i:shaderquality1to10', @A)) then
+       SHADERQUALITY1TO10(A);
+end;
+
+function PySETCOLORTABLE(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'i:setcolortable', @A)) then
+       SETCOLORTABLE(A);
+end;
+
+function PyOVERLAYCOLORNUMBER(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A,B: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'ii:overlaycolornumber', @A, @B)) then
+       OVERLAYCOLORNUMBER(A,B);
+end;
+
+function PySHADERLIGHTAZIMUTHELEVATION(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A,B: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'ii:shaderlightazimuthelevation', @A, @B)) then
+       SHADERLIGHTAZIMUTHELEVATION(A,B);
+end;
+
+function PyOVERLAYLAYERTRANSPARENCYONOVERLAY(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A,B: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'ii:overlaylayertransparencyonoverlay', @A, @B)) then
+       OVERLAYLAYERTRANSPARENCYONOVERLAY(A,B);
+end;
+
+function PyOVERLAYLAYERTRANSPARENCYONBACKGROUND(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A,B: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'ii:overlaylayertransparencyonbackground', @A, @B)) then
+       OVERLAYLAYERTRANSPARENCYONBACKGROUND(A,B);
+end;
+
+function PyOVERLAYMINMAX(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A: integer;
+  B,C: single;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'iff:overlayminmax', @A, @B, @C)) then
+       OVERLAYMINMAX(A,B,C);
+end;
+
+function PyOVERLAYVISIBLE(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A,B: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'ii:overlayvisible', @A, @B)) then
+       OVERLAYVISIBLE(A,BOOL(B));
+end;
+
+
+
+function PyVIEWSAGITTAL(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'i:viewsagittal', @A)) then
+       VIEWSAGITTAL(BOOL(A));
+end;
+procedure TScriptForm.PyModInitialization(Sender: TObject);
+begin
+  with Sender as TPythonModule do begin
+    AddMethod('version', @PyVERSION, '');
+    AddMethod('azimuth', @PyAZIMUTH, '');
+    AddMethod('azimuthelevation', @PyAZIMUTHELEVATION, '');
+    AddMethod('backcolor', @PyBACKCOLOR, '');
+    AddMethod('bmpzoom', @PyBMPZOOM, '');
+    AddMethod('cameradistance', @PyCAMERADISTANCE, '');
+    AddMethod('changenode', @PyCHANGENODE, '');
+    AddMethod('clip', @PyCLIP, '');
+    AddMethod('clipazimuthelevation', @PyCLIPAZIMUTHELEVATION, '');
+    AddMethod('colorbarposition', @PyCOLORBARPOSITION, '');
+    AddMethod('colorbarsize', @PyCOLORBARSIZE, '');
+    AddMethod('colorname', @PyCOLORNAME, '');
+    AddMethod('contrastminmax', @PyCONTRASTMINMAX, '');
+    AddMethod('cutout', @PyCUTOUT, '');
+    AddMethod('elevation', @PyELEVATION, '');
+    AddMethod('exists', @PyEXISTS, '');
+    AddMethod('extract', @PyEXTRACT, '');
+    AddMethod('fontname', @PyFONTNAME, '');
+    AddMethod('linecolor', @PyLINECOLOR, '');
+    AddMethod('linewidth', @PyLINEWIDTH, '');
+    AddMethod('loaddrawing', @PyLOADDRAWING, '');
+    AddMethod('loaddti', @PyLOADDTI, '');
+    AddMethod('loadimage', @PyLOADIMAGE, '');
+    AddMethod('loadimagevol', @PyLOADIMAGEVOL, '');
+    AddMethod('maximumintensity', @PyMAXIMUMINTENSITY, '');
+    AddMethod('modalmessage', @PyMODALMESSAGE, '');
+    AddMethod('modelessmessage', @PyMODELESSMESSAGE, '');
+    AddMethod('mosaic', @PyMOSAIC, '');
+    AddMethod('orthoview', @PyORTHOVIEW, '');
+    AddMethod('orthoviewmm', @PyORTHOVIEWMM, '');
+    AddMethod('overlaycloseall', @PyOVERLAYCLOSEALL, '');
+    AddMethod('overlaycolorfromzero', @PyOVERLAYCOLORFROMZERO, '');
+    AddMethod('overlaycolorname', @PyOVERLAYCOLORNAME, '');
+    AddMethod('overlaycolornumber', @PyOVERLAYCOLORNUMBER, '');
+    AddMethod('overlayhidezeros', @PyOVERLAYHIDEZEROS, '');
+    AddMethod('overlaylayertransparencyonbackground', @PyOVERLAYLAYERTRANSPARENCYONBACKGROUND, '');
+    AddMethod('overlaylayertransparencyonoverlay', @PyOVERLAYLAYERTRANSPARENCYONOVERLAY, '');
+    AddMethod('overlayloadsmooth', @PyOVERLAYLOADSMOOTH, '');
+    AddMethod('overlaymaskedbybackground', @PyOVERLAYMASKEDBYBACKGROUND, '');
+    AddMethod('overlayminmax', @PyOVERLAYMINMAX, '');
+    AddMethod('overlaytransparencyonbackground', @PyOVERLAYTRANSPARENCYONBACKGROUND, '');
+    AddMethod('overlaytransparencyonoverlay', @PyOVERLAYTRANSPARENCYONOVERLAY, '');
+    AddMethod('overlayvisible', @PyOVERLAYVISIBLE, '');
+    AddMethod('perspective', @PyPERSPECTIVE, '');
+    AddMethod('quit', @PyQUIT, '');
+    AddMethod('radiological', @PyRADIOLOGICAL, '');
+    AddMethod('resetdefaults', @PyRESETDEFAULTS, '');
+    AddMethod('savebmp', @PySAVEBMP, '');
+    AddMethod('scriptformvisible', @PySCRIPTFORMVISIBLE, '');
+    AddMethod('setcolortable', @PySETCOLORTABLE, '');
+    AddMethod('shaderadjust', @PySHADERADJUST, '');
+    AddMethod('shaderlightazimuthelevation', @PySHADERLIGHTAZIMUTHELEVATION, '');
+    AddMethod('shadername', @PySHADERNAME, '');
+    AddMethod('shaderquality1to10', @PySHADERQUALITY1TO10, '');
+    AddMethod('shaderupdategradients', @PySHADERUPDATEGRADIENTS, '');
+    AddMethod('sharpen', @PySHARPEN, '');
+    AddMethod('slicetext', @PySLICETEXT, '');
+    AddMethod('viewaxial', @PyVIEWAXIAL, '');
+    AddMethod('viewcoronal', @PyVIEWCORONAL, '');
+    AddMethod('viewsagittal', @PyVIEWSAGITTAL, '');
+    AddMethod('wait', @PyWAIT, '');
+  end;
+end;
+
+function TScriptForm.PyExec(): boolean;
+var
+  iPos: integer;
+begin
+  result := false; //assume code is not Python
+  iPos := Pos('import gl', Memo1.Text); //any python project must import gl
+  if iPos < 1 then exit;
+  Memo2.lines.Clear;
+  if PyEngine = nil then begin
+    PyCreate; //do this the first time
+    Memo2.lines.Add('Launching Python');
+  end;
+  result := true;
+  Memo2.lines.Add('Running Python script');
+  try
+  PyEngine.ExecStrings(ScriptForm.Memo1.Lines);
+  except
+    caption := 'Python Engine Failed';
+  end;
+  result := true;
+end;
+
+procedure TScriptForm.PyEngineAfterInit(Sender: TObject);
+var
+  dir: string;
+begin
+  dir:= ExtractFilePath(Application.ExeName);
+  {$ifdef windows}
+  Py_SetSysPath([dir+'DLLs', dir+cPyZipWindows], false);
+  {$endif}
+  Py_SetSysPath([dir+'Py'], true);
+end;
+{$ENDIF} //IFDEF MYPY
+
 procedure TScriptForm.DemoProgram;
 begin
 Memo1.lines.clear;
@@ -194,10 +1027,6 @@ Memo1.SelStart := 32;
 {$ELSE}
 Memo1.SelStart := 34;//windows uses CR+LF line ends, UNIX uses LF
 {$ENDIF}
-//p.X := 2;
-//p.Y := 2;
-//Memo1.CaretPos := p;
-//Memo1.CaretPos := Point(2,2);
 end;
 
 procedure MyWriteln(const s: string);
@@ -276,6 +1105,9 @@ var
   i: integer;
   compiled: boolean;
 begin
+  {$IFDEF MYPY}
+  if PyExec() then exit;
+  {$ENDIF}
   Memo2.Lines.Clear;
   PSScript1.Script.Text := Memo1.Lines.Text;
   //PSScript1.Script.Text := Memo1.Lines.GetText; //<- this will leak! requires StrDispose

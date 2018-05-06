@@ -1075,21 +1075,22 @@ end;
 //not IFDEF TILED_SCREENSHOT
 Type
 TFrameBuffer = record
-  depthBuf,frameBuf, tex: GLUint; //we need depth buffer for 2D cube
+  //depthBuf,
+  frameBuf, tex: GLUint; //we need depth buffer for 2D cube
   w, h: integer;
 end;
 
 procedure initFrame (var f : TFrameBuffer);
 begin
      f.tex := 0;
-     f.depthBuf := 0;
+     //f.depthBuf := 0;
      f.frameBuf := 0;
 end;
 
 procedure freeFrame (var f : TFrameBuffer);
 begin
   glDeleteTextures(1, @f.tex);
-  glDeleteTextures(1, @f.depthBuf);
+  //glDeleteTextures(1, @f.depthBuf);
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
   glDeleteFramebuffersEXT(1, @f.frameBuf);
   //Bind 0, which means render to back buffer, as a result, frameBuf is unbound
@@ -1136,8 +1137,8 @@ begin
      glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, f.tex, 0);
 
      //glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, f.tex, 0);
-     // Create the depth buffer
-    glGenTextures(1, @f.depthBuf);
+     //--> Create the depth buffer
+    (*glGenTextures(1, @f.depthBuf);
     glBindTexture(GL_TEXTURE_2D, f.depthBuf);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -1148,7 +1149,7 @@ begin
      //glDrawBuffers(1, @drawBuf); // "1" is the size of DrawBuffers
      drawBuf[0] := GL_COLOR_ATTACHMENT0;
      drawBuf[1] := GL_COLOR_ATTACHMENT1;
-     glDrawBuffers(1, @drawBuf[0]); // draw colors only
+     glDrawBuffers(1, @drawBuf[0]); // draw colors only *)
      if(glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) <> GL_FRAMEBUFFER_COMPLETE) then begin
        GLForm1.ShowmessageError('Frame buffer error 0x'+inttohex(glCheckFramebufferStatus(GL_FRAMEBUFFER),4) );
        exit;
@@ -2186,9 +2187,9 @@ begin
     if lQuality = 0 then gPrefs.ForcePowerOfTwo := True
     else
         gPrefs.ForcePowerOfTwo := False;
-    if lQuality = 1 then begin gPrefs.MaxVox := 90; gPrefs.RayCastQuality1to10 := 8; end;
-    if lQuality = 2 then begin gPrefs.MaxVox := 256;  gPrefs.RayCastQuality1to10 := 5; end;
-    if lQuality = 3 then begin gPrefs.MaxVox := 2048; gPrefs.RayCastQuality1to10 := 8; end;
+    if lQuality = 1 then begin gPrefs.BitDepth:= 16; gPrefs.MaxVox := 90; gPrefs.RayCastQuality1to10 := 8; end;
+    if lQuality = 2 then begin gPrefs.BitDepth := 24; gPrefs.MaxVox := 256;  gPrefs.RayCastQuality1to10 := 5; end;
+    if lQuality = 3 then begin gPrefs.BitDepth := 24; gPrefs.MaxVox := 2048; gPrefs.RayCastQuality1to10 := 8; end;
     if gPrefs.FasterGradientCalculations then
       lQuality := 1
     else
@@ -2234,6 +2235,10 @@ begin
    writeln('OpenGL 2.1 with 8/8/8/24 bits of R/G/B/Dpth required. Use glxinfo to test capabilities.');
    {$ENDIF}
   {$ENDIF}
+  if gPrefs.BitDepth = 16 then
+     GLbox.DepthBits:= 16 //Some mesa implementations do not support 16 bit depths
+  else
+      gPrefs.BitDepth := 24;
   GLbox.AutoResizeViewport:= true;   // http://www.delphigl.com/forum/viewtopic.php?f=10&t=11311
   GLBox.Parent := GLForm1;
   GLBox.MultiSampling:= 4;

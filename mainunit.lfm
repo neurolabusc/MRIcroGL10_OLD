@@ -1266,7 +1266,7 @@ object GLForm1: TGLForm1
         Left = 2
         Height = 22
         Top = 80
-        Width = 68
+        Width = 66
         AutoSize = False
         OnChange = CoordEditChange
         OnKeyPress = MinMaxEditKeyPress
@@ -1275,10 +1275,10 @@ object GLForm1: TGLForm1
         Text = '0'
       end
       object YCoordEdit: TEdit
-        Left = 72
+        Left = 70
         Height = 22
         Top = 80
-        Width = 68
+        Width = 66
         AutoSize = False
         OnChange = CoordEditChange
         OnKeyPress = MinMaxEditKeyPress
@@ -1287,10 +1287,10 @@ object GLForm1: TGLForm1
         Text = '0'
       end
       object ZCoordEdit: TEdit
-        Left = 142
+        Left = 138
         Height = 22
         Top = 80
-        Width = 68
+        Width = 66
         AutoSize = False
         OnChange = CoordEditChange
         OnKeyPress = MinMaxEditKeyPress
