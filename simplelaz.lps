@@ -18,8 +18,8 @@
         <ComponentName Value="GLForm1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <TopLine Value="1119"/>
-        <CursorPos X="24" Y="1119"/>
+        <TopLine Value="1359"/>
+        <CursorPos X="22" Y="1371"/>
         <UsageCount Value="211"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -31,25 +31,26 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="441"/>
         <CursorPos X="14" Y="444"/>
-        <UsageCount Value="149"/>
+        <UsageCount Value="154"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit2>
       <Unit3>
         <Filename Value="prefs.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="450"/>
-        <CursorPos X="3" Y="457"/>
-        <UsageCount Value="125"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="492"/>
+        <CursorPos X="34" Y="501"/>
+        <UsageCount Value="130"/>
+        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit3>
       <Unit4>
         <Filename Value="commandsu.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="2"/>
-        <TopLine Value="2"/>
-        <CursorPos X="8" Y="14"/>
-        <UsageCount Value="139"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="998"/>
+        <CursorPos X="26" Y="1008"/>
+        <UsageCount Value="144"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit4>
@@ -59,7 +60,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="119"/>
         <CursorPos X="53" Y="143"/>
-        <UsageCount Value="69"/>
+        <UsageCount Value="74"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit5>
       <Unit6>
@@ -69,10 +70,10 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <EditorIndex Value="1"/>
-        <TopLine Value="246"/>
-        <CursorPos X="18" Y="248"/>
-        <UsageCount Value="82"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="1530"/>
+        <CursorPos Y="1542"/>
+        <UsageCount Value="87"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -85,7 +86,7 @@
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="58" Y="10"/>
-        <UsageCount Value="114"/>
+        <UsageCount Value="119"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit7>
       <Unit8>
@@ -97,7 +98,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="77"/>
         <CursorPos X="2" Y="96"/>
-        <UsageCount Value="42"/>
+        <UsageCount Value="47"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit8>
       <Unit9>
@@ -385,9 +386,9 @@
         <Filename Value="../../../lazarus/lcl/interfaces/carbon/carbonproc.pp"/>
         <UnitName Value="CarbonProc"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="548"/>
+        <TopLine Value="557"/>
         <CursorPos X="13" Y="563"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="11"/>
       </Unit44>
       <Unit45>
         <Filename Value="../../../lazarus/lcl/interfaces/cocoa/cocoaint.pas"/>
@@ -440,124 +441,124 @@
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="commandsu.pas"/>
-        <Caret Line="17" Column="9" TopLine="10"/>
+        <Filename Value="scriptengine.pas"/>
+        <Caret Line="1054" Column="41" TopLine="1042"/>
       </Position1>
       <Position2>
-        <Filename Value="commandsu.pas"/>
-        <Caret Line="35" Column="24" TopLine="11"/>
+        <Filename Value="scriptengine.pas"/>
+        <Caret Line="1095" Column="58" TopLine="1085"/>
       </Position2>
       <Position3>
-        <Filename Value="commandsu.pas"/>
-        <Caret Line="137" Column="48" TopLine="113"/>
+        <Filename Value="scriptengine.pas"/>
+        <Caret Line="1096" Column="58" TopLine="1086"/>
       </Position3>
       <Position4>
         <Filename Value="scriptengine.pas"/>
-        <Caret Line="956" Column="44" TopLine="954"/>
+        <Caret Line="1098" Column="58" TopLine="1088"/>
       </Position4>
       <Position5>
         <Filename Value="scriptengine.pas"/>
-        <Caret Line="963" Column="38" TopLine="954"/>
+        <Caret Line="1280" Column="25" TopLine="1277"/>
       </Position5>
       <Position6>
         <Filename Value="scriptengine.pas"/>
-        <Caret Line="744" Column="7" TopLine="737"/>
+        <Caret Line="141" Column="5" TopLine="135"/>
       </Position6>
       <Position7>
         <Filename Value="scriptengine.pas"/>
-        <Caret Line="74" Column="12" TopLine="61"/>
+        <Caret Line="1285" TopLine="1271"/>
       </Position7>
       <Position8>
-        <Filename Value="commandsu.pas"/>
-        <Caret Line="499" Column="53" TopLine="498"/>
+        <Filename Value="scriptengine.pas"/>
+        <Caret Line="1286" TopLine="1272"/>
       </Position8>
       <Position9>
         <Filename Value="scriptengine.pas"/>
-        <Caret Line="66" Column="34" TopLine="61"/>
+        <Caret Line="1287" TopLine="1273"/>
       </Position9>
       <Position10>
-        <Filename Value="commandsu.pas"/>
-        <Caret Line="741" Column="11" TopLine="740"/>
+        <Filename Value="scriptengine.pas"/>
+        <Caret Line="1288" TopLine="1274"/>
       </Position10>
       <Position11>
-        <Filename Value="commandsu.pas"/>
-        <Caret Line="30" Column="24" TopLine="16"/>
+        <Filename Value="scriptengine.pas"/>
+        <Caret Line="1287" TopLine="1273"/>
       </Position11>
       <Position12>
-        <Filename Value="commandsu.pas"/>
-        <Caret Line="131" Column="46" TopLine="107"/>
+        <Filename Value="scriptengine.pas"/>
+        <Caret Line="1288" TopLine="1274"/>
       </Position12>
       <Position13>
-        <Filename Value="commandsu.pas"/>
-        <Caret Line="532" Column="11" TopLine="521"/>
+        <Filename Value="scriptengine.pas"/>
+        <Caret Line="1287" TopLine="1273"/>
       </Position13>
       <Position14>
-        <Filename Value="commandsu.pas"/>
-        <Caret Line="34" Column="23" TopLine="20"/>
+        <Filename Value="scriptengine.pas"/>
+        <Caret Line="1288" TopLine="1274"/>
       </Position14>
       <Position15>
-        <Filename Value="commandsu.pas"/>
-        <Caret Line="136" Column="44" TopLine="112"/>
+        <Filename Value="scriptengine.pas"/>
+        <Caret Line="1289" TopLine="1275"/>
       </Position15>
       <Position16>
         <Filename Value="scriptengine.pas"/>
-        <Caret Line="265" Column="35" TopLine="261"/>
+        <Caret Line="1290" TopLine="1276"/>
       </Position16>
       <Position17>
-        <Filename Value="commandsu.pas"/>
-        <Caret Line="502" Column="11" TopLine="492"/>
+        <Filename Value="scriptengine.pas"/>
+        <Caret Line="1291" TopLine="1277"/>
       </Position17>
       <Position18>
         <Filename Value="scriptengine.pas"/>
-        <Caret Line="520" Column="20" TopLine="502"/>
+        <Caret Line="1292" TopLine="1278"/>
       </Position18>
       <Position19>
         <Filename Value="scriptengine.pas"/>
-        <Caret Line="531" Column="18" TopLine="507"/>
+        <Caret Line="1293" TopLine="1279"/>
       </Position19>
       <Position20>
         <Filename Value="scriptengine.pas"/>
-        <Caret Line="983" TopLine="963"/>
+        <Caret Line="1292" TopLine="1278"/>
       </Position20>
       <Position21>
         <Filename Value="scriptengine.pas"/>
-        <Caret Line="4" Column="85"/>
+        <Caret Line="1293" TopLine="1279"/>
       </Position21>
       <Position22>
         <Filename Value="scriptengine.pas"/>
-        <Caret Line="398" Column="27" TopLine="376"/>
+        <Caret Line="1292" TopLine="1278"/>
       </Position22>
       <Position23>
         <Filename Value="scriptengine.pas"/>
-        <Caret Line="904" TopLine="896"/>
+        <Caret Line="1293" TopLine="1279"/>
       </Position23>
       <Position24>
         <Filename Value="scriptengine.pas"/>
-        <Caret Line="1037" Column="10" TopLine="1024"/>
+        <Caret Line="1294" TopLine="1280"/>
       </Position24>
       <Position25>
         <Filename Value="scriptengine.pas"/>
-        <Caret Line="123" Column="41" TopLine="122"/>
+        <Caret Line="1295" Column="34" TopLine="1282"/>
       </Position25>
       <Position26>
         <Filename Value="scriptengine.pas"/>
-        <Caret Line="245" Column="3" TopLine="236"/>
+        <Caret Line="941" Column="24" TopLine="934"/>
       </Position26>
       <Position27>
         <Filename Value="scriptengine.pas"/>
-        <Caret Line="203" Column="23" TopLine="191"/>
+        <Caret Line="942" Column="24" TopLine="935"/>
       </Position27>
       <Position28>
         <Filename Value="scriptengine.pas"/>
-        <Caret Line="242" Column="35" TopLine="235"/>
+        <Caret Line="926" Column="46" TopLine="922"/>
       </Position28>
       <Position29>
         <Filename Value="scriptengine.pas"/>
-        <Caret Line="2" Column="91"/>
+        <Caret Line="1543" TopLine="1531"/>
       </Position29>
       <Position30>
         <Filename Value="scriptengine.pas"/>
-        <Caret Line="166" Column="31" TopLine="154"/>
+        <Caret Line="1542" TopLine="1530"/>
       </Position30>
     </JumpHistory>
     <RunParams>

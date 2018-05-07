@@ -26,6 +26,22 @@ type
   { TScriptForm }
   TScriptForm = class(TForm)
     colorbarsize1: TMenuItem;
+    ListCommands1: TMenuItem;
+    exists1: TMenuItem;
+    fontname1: TMenuItem;
+    Advanced1: TMenuItem;
+    loaddti1: TMenuItem;
+    loaddrawing1: TMenuItem;
+    loadimagevol1: TMenuItem;
+    overlaylayertransparencyonoverlay1: TMenuItem;
+    overlaylayertransparencyonbackground1: TMenuItem;
+    version1: TMenuItem;
+    sharpen1: TMenuItem;
+    quit1: TMenuItem;
+    overlayloadvol1: TMenuItem;
+    overlayhidezeros1: TMenuItem;
+    bmpzoom1: TMenuItem;
+    NewPython1: TMenuItem;
     orthoviewmm1: TMenuItem;
     radiological1: TMenuItem;
     MRU10: TMenuItem;
@@ -128,9 +144,11 @@ type
     PSScript1: TPSScript;
     extract1: TMenuItem;
     azimuthelevation1: TMenuItem;
+    linecolor1: TMenuItem;
+    linewidth1: TMenuItem;
+    overlayloadcluster1: TMenuItem;
     xbarcolor1: TMenuItem;
     xbarthick1: TMenuItem;
-    overlayloadcluster1: TMenuItem;
     //radiological1: TMenuItem;
     procedure Compile1Click(Sender: TObject);
     procedure FormActivate(Sender: TObject);
@@ -139,7 +157,9 @@ type
     procedure FormDeactivate(Sender: TObject);
     procedure FormHide(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure ListCommands1Click(Sender: TObject);
     procedure New1Click(Sender: TObject);
+    procedure NewPython1Click(Sender: TObject);
     procedure Open1Click(Sender: TObject);
     procedure Save1Click(Sender: TObject);
     procedure SaveAs1Click(Sender: TObject);
@@ -161,9 +181,10 @@ type
     procedure Memo1Click(Sender: TObject);
     procedure Cut1Click(Sender: TObject);
     procedure Paste1Click(Sender: TObject);
-    procedure DemoProgram;
+    procedure DemoProgram (isPython: boolean = false);
     {$IFDEF MYPY}
     function PyCreate: boolean;
+    function PyIsPythonScript(): boolean;
     function PyExec(): boolean;
     procedure PyEngineAfterInit(Sender: TObject);
     procedure PyIOSendData(Sender: TObject; const Data: AnsiString);
@@ -179,7 +200,11 @@ type
   end;
 const
   kScriptExt = '.gls';
- kScriptFilter = 'NIfTI ('+kScriptExt+')|'+kScriptExt;
+   {$IFDEF MYPY}
+  kScriptFilter = 'Scripting ('+kScriptExt+')|'+kScriptExt+'|Python|*.py';
+  {$ELSE}
+  kScriptFilter = 'NIfTI ('+kScriptExt+')|'+kScriptExt;
+  {$ENDIF}
 var
   ScriptForm: TScriptForm;
 
@@ -243,8 +268,9 @@ var
   S: string;
 begin
   result := false;
-  S:= findPythonLib('');
+  S:= findPythonLib(gPrefs.PyLib);
   if (S = '') then exit;
+  gPrefs.PyLib := S;
   result := true;
   PythonIO := TPythonInputOutput.Create(ScriptForm);
   PyMod := TPythonModule.Create(ScriptForm);
@@ -787,6 +813,26 @@ begin
        RADIOLOGICAL(BOOL(A));
 end;
 
+function PyTOOLFORMVISIBLE(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'i:toolformvisible', @A)) then
+       TOOLFORMVISIBLE(BOOL(A));
+end;
+
+function PyCONTRASTFORMVISIBLE(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  A: integer;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'i:contrastformvisible', @A)) then
+       CONTRASTFORMVISIBLE(BOOL(A));
+end;
+
 function PySCRIPTFORMVISIBLE(Self, Args : PPyObject): PPyObject; cdecl;
 var
   A: integer;
@@ -1063,6 +1109,8 @@ begin
     AddMethod('resetdefaults', @PyRESETDEFAULTS, '');
     AddMethod('savebmp', @PySAVEBMP, '');
     AddMethod('scriptformvisible', @PySCRIPTFORMVISIBLE, '');
+    AddMethod('contrastformvisible', @PyCONTRASTFORMVISIBLE, '');
+    AddMethod('toolformvisible', @PyTOOLFORMVISIBLE, '');
     AddMethod('setcolortable', @PySETCOLORTABLE, '');
     AddMethod('shaderadjust', @PySHADERADJUST, '');
     AddMethod('shaderlightazimuthelevation', @PySHADERLIGHTAZIMUTHELEVATION, '');
@@ -1079,13 +1127,16 @@ begin
   end;
 end;
 
+function TScriptForm.PyIsPythonScript(): boolean;
+begin
+  result := ( Pos('import gl', Memo1.Text) > 0); //any python project must import gl
+end;
+
 function TScriptForm.PyExec(): boolean;
-var
-  iPos: integer;
+
 begin
   result := false; //assume code is not Python
-  iPos := Pos('import gl', Memo1.Text); //any python project must import gl
-  if iPos < 1 then exit;
+  if not (PyIsPythonScript) then exit;
   Memo2.lines.Clear;
   if PyEngine = nil then begin
     if not PyCreate then begin //do this the first time
@@ -1099,6 +1150,7 @@ begin
   except
     caption := 'Python Engine Failed';
   end;
+  Memo2.lines.Add('Python Succesfully Executed');
   result := true;
 end;
 
@@ -1114,9 +1166,22 @@ begin
 end;
 {$ENDIF} //IFDEF MYPY
 
-procedure TScriptForm.DemoProgram;
+procedure TScriptForm.DemoProgram( isPython: boolean = false);
 begin
 Memo1.lines.clear;
+if isPython then begin
+  Memo1.Lines.Add('import gl');
+  Memo1.Lines.Add('import sys');
+  Memo1.Lines.Add('print(sys.version)');
+  Memo1.Lines.Add('print(gl.version())');
+  Memo1.Lines.Add('gl.resetdefaults()');
+
+
+  Memo1.lines.Add('');
+  Memo1.SelStart := maxint;
+  exit;
+end;
+
 //Memo1.lines.Add('PROGRAM Demo;');
 Memo1.lines.Add('BEGIN');
 Memo1.lines.Add('//Insert commands here...');
@@ -1231,13 +1296,14 @@ begin
      GLForm1.Display1.enabled := false;
 end;
 
-
-
 procedure TScriptForm.FormCreate(Sender: TObject);
 begin
   //writeln('Create scriptForm');
+  OpenDialog1.Filter := kScriptFilter;
+  SaveDialog1.Filter := kScriptFilter;
   fn := '';
   gchanged := False;
+  {$IFNDEF MYPY} NewPython1.Visible := false;{$ENDIF}
   DemoProgram;
   FillMRU (gPrefs.PrevScriptName, ScriptDir+pathdelim,kScriptExt,True);
   //FillMRU (gPrefs.PrevScriptName, ScriptDir+pathdelim,kScriptExt,True);
@@ -1454,6 +1520,31 @@ setThemeMode(Self.Handle, gPrefs.DarkMode);
 {$ENDIF}
 end;
 
+procedure TScriptForm.ListCommands1Click(Sender: TObject);
+var
+   i,j: integer;
+   M, M2: TMenuItem;
+   cmds: TStringList;
+begin
+  cmds := TStringList.Create;
+  for i := 0 to (Insert1.Count -1) do begin
+      M := Insert1.Items[i];
+      if (M.Visible) and (length(M.Hint) > 1) then
+         cmds.Add(M.Hint);
+      if (M.Count > 1) then begin
+         for j := 0 to (M.Count -1) do begin
+             M2 := M.Items[j];
+             if (M2.Visible) and (length(M2.Hint) > 1) then
+                cmds.Add(M2.Hint);
+         end;
+      end;
+  end;
+  Memo2.Lines.Clear;
+  cmds.Sort;
+  Memo2.Lines.AddStrings(cmds);
+  cmds.Free;
+end;
+
 procedure TScriptForm.Stop1Click(Sender: TObject);
 begin
   if PSScript1.Running then
@@ -1468,11 +1559,16 @@ begin
     exit;
   Memo2.Lines.Clear;
   fn := '';
-  DemoProgram;
+  DemoProgram((Sender as TMenuItem).tag = 1 );
+end;
+
+procedure TScriptForm.NewPython1Click(Sender: TObject);
+begin
+
 end;
 
 procedure CleanStr (var lStr: string);
-//remove symbols, set upcase...
+//remove symbols, set lower case...
 var
   lLen,lPos: integer;
   lS: string;
@@ -1483,18 +1579,20 @@ begin
   lS := '';
   for lPos := 1 to lLen do
     if lStr[lPos] in ['0'..'9','a'..'z','A'..'Z'] then
-      lS := lS + upcase(lStr[lPos]);
+      lS := lS + AnsiLowerCase(lStr[lPos]);
     lStr := lS;
 end;
 
 
-function TypeStr (lType: integer): string;
+function TypeStr (lType: integer; isPy: boolean = false): string;
 var
   lTStr,lStr : string;
   i,n,len,lLoop,lT: integer;//1=boolean,2=integer,3=float,4=string[filename]
 
 begin
   result := '';
+  if (lType = 0) and (isPy) then
+     result := '()';
   if lType = 0 then
     exit;
   lTStr := inttostr(lType);
@@ -1512,7 +1610,13 @@ begin
     inc(i);
     for lLoop := 1 to n do begin
       case lT of
-        1:  lStr := lStr +'true';
+        1:  begin
+              if isPy then
+                 lStr := lStr +'1'
+              else
+                  lStr := lStr +'true';
+
+           end;
         2:  lStr := lStr +'1';
         3:  begin
             if lLoop <= 3 then //for Cutout view, we need six values - make them different so this is a sensible cutout
@@ -1544,16 +1648,24 @@ end;
 procedure TScriptForm.InsertCommand(Sender: TObject);
 var
   lStr: string;
+  isPy: boolean;
 begin
+  {$IFDEF MYPY}
+  isPy := PyIsPythonScript();
+  {$ELSE}
+  isPy := false;
+  {$ENDIF}
   lStr := (Sender as TMenuItem).Hint;
   if lStr <> '' then begin
           Memo2.Lines.Clear;
-
           Memo2.Lines.Add(lStr);
   end;
   lStr := (Sender as TMenuItem).Caption;
   CleanStr(lStr);
-  lStr := lStr+TypeStr((Sender as TMenuItem).Tag)+ ';';
+  if isPy then
+     lStr := 'gl.'+lStr+TypeStr((Sender as TMenuItem).Tag, isPy)
+  else
+      lStr := lStr+TypeStr((Sender as TMenuItem).Tag)+ ';';
   Clipboard.AsText := lStr;
   {$IFDEF UNIX}
   Memo1.SelText := (lStr)+ UNIXeoln;

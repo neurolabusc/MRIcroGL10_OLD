@@ -29,7 +29,7 @@ type
          CLUTWindowColor,CLUTIntensityColor: TColor;
          GridAndBorder,BackColor,TextColor,TextBorder,CrosshairColor,HistogramColor,HistogramBack: TGLRGBQuad;
          ColorbarSize: single;
-         InitScript, FontName: string;
+         InitScript, FontName, PyLib: string;
          PrevFilename,PrevScriptName: TMRU;
 
   end;
@@ -181,6 +181,7 @@ begin
             FlipYZ := false;
             FlipLR := false;
             FontName := '';//default
+            PyLib := ''; //default
             ThresholdDetection := true;
             isTiledScreenShot := true;
             isOrientationTriangles := false;
@@ -497,6 +498,8 @@ begin
   IniMRU(lRead,lIniFile,'PrevFilename',lPrefs.PrevFilename);
   IniMRU(lRead,lIniFile,'PrevScriptName',lPrefs.PrevScriptName);
   IniStrX(lRead,lIniFile,'FontName',gPrefs.FontName);
+  IniStrX(lRead,lIniFile,'PyLib',gPrefs.PyLib);
+
   IniFloat(lRead,lIniFile,'ColorbarSize',lPrefs.ColorbarSize);
   lIniFile.Free;
 end;
