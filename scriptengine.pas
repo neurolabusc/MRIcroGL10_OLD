@@ -202,7 +202,7 @@ type
 const
   kScriptExt = '.gls';
    {$IFDEF MYPY}
-  kScriptFilter = 'Scripting ('+kScriptExt+')|'+kScriptExt+'|Python|*.py';
+  kScriptFilter = 'Scripting ('+kScriptExt+')|*'+kScriptExt+'|Python|*.py';
   {$ELSE}
   kScriptFilter = 'NIfTI ('+kScriptExt+')|'+kScriptExt;
   {$ENDIF}
@@ -247,6 +247,10 @@ var
   PythonIO : TPythonInputOutput;
   PyMod: TPythonModule;
   PyEngine: TPythonEngine = nil;
+  {$IFDEF Darwin}
+  const
+       kBasePath = '/Library/Frameworks/Python.framework/Versions/';
+  {$ENDIF}
 
 function findPythonLib(def: string): string;
 {$IFDEF WINDOWS}
@@ -257,56 +261,54 @@ begin
      if fileexists(def) then exit;
      result :=''; //assume failure
      fnm := ScriptDir + pathdelim + 'python35.dll';
-     showmessage(fnm);
      if not FileExists(fnm) then exit;
      if not FileExists(changefileext(fnm,'.zip')) then exit;
      result := fnm;
-     showmessage('Yay');
 end;
 
 {$ELSE}
-  {$IFDEF Darwin}
-  const
-       basePath = '/Library/Frameworks/Python.framework/Versions/';
-  {$ENDIF}
 {$IFDEF Linux}
   const
-       basePath = '/usr/lib64/';
-       baseName = basePath+ 'libpython';
-       badNam = baseName + '2.6';
+       knPaths = 6;
+       kBasePaths : array [1..knPaths] of string = ('/lib64/','/usr/lib64/','/usr/lib/x86_64-linux-gnu/','/usr/lib/','/usr/local/lib/','/usr/lib/python2.7/config-x86_64-linux-gnu/');
+       kBaseName = 'libpython';
 
-  {$ENDIF}
+{$ENDIF}
+{$IFDEF Darwin}
+    const
+       knPaths = 2;
+       kBasePaths : array [1..knPaths] of string = (kBasePath, '/System'+kBasePath);
+
+{$ENDIF}
   var
      searchResult : TSearchRec;
-     fnm: string;
+     pth, fnm: string;
      vers : TStringList;
+     n: integer;
   begin
        result := def;
        if fileexists(def) then exit;
        result :=''; //assume failure
-       if not DirectoryExists(basePath) then exit;
-       result := '';
        vers := TStringList.Create;
-       {$IFDEF LINUX}
-       if FindFirst(baseName+'*', faAnyFile, searchResult) = 0 then begin
-         repeat
-                if (length(searchResult.Name) < 1) or (searchResult.Name[1] = '.') then continue;
-                if (searchResult.Attr and faDirectory) <> 0 then continue;
-                vers.Add(searchResult.Name);
-
-          until findnext(searchResult) <> 0;
-       end;
-       {$ENDIF}
-       {$IFDEF Darwin}
-       if FindFirst(basePath+'*', faDirectory, searchResult) = 0 then begin
-          repeat
-                if (length(searchResult.Name) < 1) or (searchResult.Name[1] = '.') or (not (searchResult.Name[1] in ['0'..'9'])) then continue;
-            //ShowMessage('File name = '+searchResult.Name);
-            vers.Add(searchResult.Name);
-          until findnext(searchResult) <> 0;
-       end;
-       {$ENDIF}
-      FindClose(searchResult);
+       n := 1;
+       while (n <= knPaths) and (vers.Count < 1) do begin
+         pth := kBasePaths[n];
+         n := n + 1;
+         if not DirectoryExists(pth) then continue;
+         if FindFirst(pth+'*', faDirectory, searchResult) = 0 then begin
+           repeat
+                  //showmessage('?'+searchResult.Name);
+                  if (length(searchResult.Name) < 1) or (searchResult.Name[1] = '.') then continue;
+                  {$IFDEF LINUX}
+                  if (pos(kBaseName,searchResult.Name) < 1) then continue;
+                  {$ELSE}
+                  if (not (searchResult.Name[1] in ['0'..'9'])) then continue;
+                  {$ENDIF}
+              vers.Add(searchResult.Name);
+            until findnext(searchResult) <> 0;
+         end;
+        FindClose(searchResult);
+      end;
       if vers.Count < 1 then begin
          vers.Free;
          exit;
@@ -315,10 +317,10 @@ end;
       fnm := vers.Strings[vers.Count-1]; //newest version? what if 3.10 vs 3.9?
       vers.Free;
       {$IFDEF Darwin}
-      fnm := basePath+fnm+'/lib/libpython'+fnm+'.dylib';
+      fnm := kBasePath+fnm+'/lib/libpython'+fnm+'.dylib';
       {$ENDIF}
       {$IFDEF LINUX}
-      fnm := basePath+ fnm;
+      fnm := pth+ fnm;
       {$ENDIF}
       if fileexists(fnm) then
          result := fnm;
@@ -1205,7 +1207,21 @@ begin
   Memo2.lines.Clear;
   if PyEngine = nil then begin
     if not PyCreate then begin //do this the first time
-       Memo2.lines.Add('Failed to launch Python');
+       {$IFDEF Darwin}
+       Memo2.lines.Add('Failed to launch Python [install Python in '+kBasePath+']');
+       {$ENDIF}
+       {$IFDEF Windows}
+       Memo2.lines.Add('Failed to launch Python [place Python .dll and .zip in Script folder]');
+       {$ENDIF}
+       {$IFDEF Linux}
+       Memo2.lines.Add('Unable to find Python library');
+       Memo2.lines.Add('   run ''find -name "*libpython*"'' to find the library');
+       Memo2.lines.Add('   if it does not exist, install it (''apt-get install libpython2.7'')');
+       Memo2.lines.Add('   if it does exist, set use the Preferences/Advanced to set ''PyLib''');
+       Memo2.lines.Add('   PyLib should be the complete path and filename of libpython*.so');
+
+       {$ENDIF}
+
        result := true;
        exit;
     end;
