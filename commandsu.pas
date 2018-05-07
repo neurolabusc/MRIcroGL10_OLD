@@ -278,8 +278,10 @@ begin
   //This is a kludge, but PascalScript on OSX can switch off the refresh right after it has been turned on
   // and the timers can have problems with process messages. This techniques works, but an occasional frame may not
   // be drawn if there is a slow refresh in the pipeline.
-  if Recalc then
+  if Recalc then begin
      M_Refresh := true;
+     //GLForm1.UpdateTimer.Enabled := true;
+  end;
   GLForm1.UpdateGL;
 end;
 

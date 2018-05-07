@@ -9,6 +9,7 @@ uses
 {$ELSE}
     Windows,
 {$ENDIF}
+{$IFDEF Windows} uscaledpi, {$ENDIF}
 {$IFDEF LCLCocoa} nsappkitext,{$ENDIF}
 {$IFDEF MYPY}PythonEngine, {$ENDIF}
 {$IFDEF Unix} LCLIntf,  {$ENDIF}    //Messages,
@@ -217,8 +218,30 @@ implementation
 {$IFNDEF MYPY}
 uses
     mainunit,userdir, prefs;
+
+function ScriptDir: string;
+begin
+  result := AppDir+'script';
+  {$IFDEF UNIX}
+  if fileexists(result) then exit;
+  result := '/usr/share/mricrogl/script';
+  if fileexists(result) then exit;
+  result := AppDir+'script'
+  {$ENDIF}
+end;
 {$ELSE}
 uses mainunit,userdir, prefs, proc_py;
+
+function ScriptDir: string;
+begin
+  result := AppDir+'script';
+  {$IFDEF UNIX}
+  if fileexists(result) then exit;
+  result := '/usr/share/mricrogl/script';
+  if fileexists(result) then exit;
+  result := AppDir+'script'
+  {$ENDIF}
+end;
 
 var
   PythonIO : TPythonInputOutput;
@@ -226,6 +249,22 @@ var
   PyEngine: TPythonEngine = nil;
 
 function findPythonLib(def: string): string;
+{$IFDEF WINDOWS}
+var
+  fnm: string;
+begin
+     result := def;
+     if fileexists(def) then exit;
+     result :=''; //assume failure
+     fnm := ScriptDir + pathdelim + 'python35.dll';
+     showmessage(fnm);
+     if not FileExists(fnm) then exit;
+     if not FileExists(changefileext(fnm,'.zip')) then exit;
+     result := fnm;
+     showmessage('Yay');
+end;
+
+{$ELSE}
   {$IFDEF Darwin}
   const
        basePath = '/Library/Frameworks/Python.framework/Versions/';
@@ -249,17 +288,14 @@ function findPythonLib(def: string): string;
        result := '';
        vers := TStringList.Create;
        {$IFDEF LINUX}
-       if FindFirst(baseName+'*.so', faAnyFile, searchResult) = 0 then begin
-          repeat
+       if FindFirst(baseName+'*', faAnyFile, searchResult) = 0 then begin
+         repeat
                 if (length(searchResult.Name) < 1) or (searchResult.Name[1] = '.') then continue;
-                showmessage('-'+searchResult.Name);
                 if (searchResult.Attr and faDirectory) <> 0 then continue;
-                showmessage(searchResult.Name);
                 vers.Add(searchResult.Name);
 
           until findnext(searchResult) <> 0;
        end;
-
        {$ENDIF}
        {$IFDEF Darwin}
        if FindFirst(basePath+'*', faDirectory, searchResult) = 0 then begin
@@ -278,20 +314,27 @@ function findPythonLib(def: string): string;
       vers.Sort;
       fnm := vers.Strings[vers.Count-1]; //newest version? what if 3.10 vs 3.9?
       vers.Free;
+      {$IFDEF Darwin}
       fnm := basePath+fnm+'/lib/libpython'+fnm+'.dylib';
+      {$ENDIF}
+      {$IFDEF LINUX}
+      fnm := basePath+ fnm;
+      {$ENDIF}
       if fileexists(fnm) then
          result := fnm;
   end;
-
+{$ENDIF}
 function TScriptForm.PyCreate: boolean;
-//const
-// cPyLibraryMac = '/Library/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib';
 var
   S: string;
 begin
   result := false;
   S:= findPythonLib(gPrefs.PyLib);
   if (S = '') then exit;
+  if (pos('libpython2.6',S) > 0) then begin
+     showmessage('Old, unsupported version of Python '+S);
+     exit;
+  end;
   gPrefs.PyLib := S;
   result := true;
   PythonIO := TPythonInputOutput.Create(ScriptForm);
@@ -305,12 +348,10 @@ begin
   PyMod.OnInitialization:=PyModInitialization;
   PythonIO.OnSendData := PyIOSendData;
   PythonIO.OnSendUniData:= PyIOSendUniData;
-
   PyEngine.DllPath:= ExtractFileDir(S);
   PyEngine.DllName:= ExtractFileName(S);
   PyEngine.LoadDll
 end;
-
 procedure TScriptForm.PyIOSendData(Sender: TObject;
   const Data: AnsiString);
 begin
@@ -324,9 +365,12 @@ begin
 end;
 
 function PyVERSION(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  s: string;
 begin
+  s := kVers+' PyLib: '+gPrefs.PyLib;
   with GetPythonEngine do
-    Result:= PyString_FromString(kVers);
+    Result:= PyString_FromString(PChar(s));
 end;
 
 function PyRESETDEFAULTS(Self, Args : PPyObject): PPyObject; cdecl;
@@ -1057,7 +1101,7 @@ var
 begin
   Result:= GetPythonEngine.PyInt_FromLong(-1);
   with GetPythonEngine do
-    if Bool(PyArg_ParseTuple(Args, 'sff:overlayloadcluster', @PtrName, @f1,@f2,@B)) then
+    if Bool(PyArg_ParseTuple(Args, 'sffi:overlayloadcluster', @PtrName, @f1, @f2, @B)) then
     begin
       StrName:= string(PtrName);
       ret := OVERLAYLOADCLUSTER(StrName, f1, f2, BOOL(B));
@@ -1087,7 +1131,6 @@ begin
     AddMethod('clip', @PyCLIP, '');
     AddMethod('clipazimuthelevation', @PyCLIPAZIMUTHELEVATION, '');
     AddMethod('colorbarposition', @PyCOLORBARPOSITION, '');
-    AddMethod('colorbarposition', @PyLOADIMAGE, '');
     AddMethod('colorbarsize', @PyCOLORBARSIZE, '');
     AddMethod('colorbarvisible', @PyCOLORBARVISIBLE, '');
     AddMethod('colorname', @PyCOLORNAME, '');
@@ -1163,6 +1206,8 @@ begin
   if PyEngine = nil then begin
     if not PyCreate then begin //do this the first time
        Memo2.lines.Add('Failed to launch Python');
+       result := true;
+       exit;
     end;
   end;
   result := true;
@@ -1182,9 +1227,9 @@ var
 begin
   dir:= ExtractFilePath(Application.ExeName);
   {$ifdef windows}
-  Py_SetSysPath([dir+'DLLs', dir+cPyZipWindows], false);
+  Py_SetSysPath([ScriptDir, changefileext(gPrefs.PyLib,'.zip')], false);
   {$endif}
-  Py_SetSysPath([dir+'Py'], true);
+  Py_SetSysPath([ScriptDir], true);
 end;
 {$ENDIF} //IFDEF MYPY
 
@@ -1221,18 +1266,7 @@ begin
   ScriptForm.Memo2.lines.add(S);
 end;
 
-function ScriptDir: string;
-begin
-  result := AppDir+'script';
-  {$IFDEF UNIX}
-  if fileexists(result) then exit;
-  result := '/usr/share/mricrogl/script';
-  if fileexists(result) then exit;
-  result := AppDir+'script'
-  {$ENDIF}
-  //with latest versions of Darwin I store scripts in same folder
-  //result := ExeDir+'script'
-end;
+
 
 procedure TScriptForm.OpenSMRU(Sender: TObject);//open template or MRU
 //Templates have tag set to 0, Most-Recently-Used items have tag set to position in gMRUstr
@@ -1320,7 +1354,7 @@ end;
 
 procedure TScriptForm.FormCreate(Sender: TObject);
 begin
-  //writeln('Create scriptForm');
+  {$IFDEF Windows} ScaleDPI(ScriptForm, 96);  {$ENDIF}
   OpenDialog1.Filter := kScriptFilter;
   SaveDialog1.Filter := kScriptFilter;
   fn := '';
@@ -1641,7 +1675,9 @@ begin
            end;
         2:  lStr := lStr +'1';
         3:  begin
-            if lLoop <= 3 then //for Cutout view, we need six values - make them different so this is a sensible cutout
+            if lLoop <= 1 then
+             lStr := lStr +'0.4'
+            else if lLoop <= 3 then //for Cutout view, we need six values - make them different so this is a sensible cutout
               lStr := lStr +'0.5'
             else
               lStr := lStr +'1.0';
