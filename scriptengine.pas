@@ -230,6 +230,13 @@ function findPythonLib(def: string): string;
   const
        basePath = '/Library/Frameworks/Python.framework/Versions/';
   {$ENDIF}
+{$IFDEF Linux}
+  const
+       basePath = '/usr/lib64/';
+       baseName = basePath+ 'libpython';
+       badNam = baseName + '2.6';
+
+  {$ENDIF}
   var
      searchResult : TSearchRec;
      fnm: string;
@@ -241,6 +248,20 @@ function findPythonLib(def: string): string;
        if not DirectoryExists(basePath) then exit;
        result := '';
        vers := TStringList.Create;
+       {$IFDEF LINUX}
+       if FindFirst(baseName+'*.so', faAnyFile, searchResult) = 0 then begin
+          repeat
+                if (length(searchResult.Name) < 1) or (searchResult.Name[1] = '.') then continue;
+                showmessage('-'+searchResult.Name);
+                if (searchResult.Attr and faDirectory) <> 0 then continue;
+                showmessage(searchResult.Name);
+                vers.Add(searchResult.Name);
+
+          until findnext(searchResult) <> 0;
+       end;
+
+       {$ENDIF}
+       {$IFDEF Darwin}
        if FindFirst(basePath+'*', faDirectory, searchResult) = 0 then begin
           repeat
                 if (length(searchResult.Name) < 1) or (searchResult.Name[1] = '.') or (not (searchResult.Name[1] in ['0'..'9'])) then continue;
@@ -248,6 +269,7 @@ function findPythonLib(def: string): string;
             vers.Add(searchResult.Name);
           until findnext(searchResult) <> 0;
        end;
+       {$ENDIF}
       FindClose(searchResult);
       if vers.Count < 1 then begin
          vers.Free;

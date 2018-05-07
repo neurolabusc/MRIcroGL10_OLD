@@ -53,7 +53,11 @@ http://www.mccauslandcenter.sc.edu/mricrogl/
 
 The easiest way to install MRIcroGL is to get pre-compiled binaries from [NITRC (macOS, Linux and Windows)](https://www.nitrc.org/projects/mricrogl/). You can also compile a copy yourself. Instructions are available on the [MRIcroGL website](http://www.mccauslandcenter.sc.edu/mricrogl/source). In brief, you need to install FreePascal and Lazarus. You also have to [install](http://wiki.freepascal.org/Install_Packages) the "LazOpenGL" package into Lazarus. Finally you need to compile the application. On most systems this is as simple as running the following from the terminal command line: `lazbuild ./simplelaz.lpr`. This will compile to the default widgetset for your operating system (Windows: WinAPI; macOS: Carbon; Linux: GTK2). You can also compile to other widgetsets (e.g. QT, Cocoa), but that is beyond the scope of these instructions.
 
+To use the Python scripting language you will need to install [Python-for-Lazarus](https://github.com/Alexey-T/Python-for-Lazarus) in your build of Lazarus. If you do not want to do this, comment the line "{$DEFINE MYPY}" in the file "opts.inc" and remove the dependency in the Project/ProjectInspector window.
+
+
 A basic command line script for ensuring the required packages are installed and compiling this software would look like this (assuming you are using a Linux or macOS computer).
+
 
 ```
 lazbuild --verbose-pkgsearch lazopenglcontext --verbose-pkgsearch pascalscript
