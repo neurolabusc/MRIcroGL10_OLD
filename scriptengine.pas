@@ -204,7 +204,7 @@ const
    {$IFDEF MYPY}
   kScriptFilter = 'Scripting ('+kScriptExt+')|*'+kScriptExt+'|Python|*.py';
   {$ELSE}
-  kScriptFilter = 'NIfTI ('+kScriptExt+')|'+kScriptExt;
+  kScriptFilter = 'Scripting ('+kScriptExt+')|*'+kScriptExt;
   {$ENDIF}
 var
   ScriptForm: TScriptForm;
@@ -1779,9 +1779,23 @@ begin
   Memo1.CutToClipboard;
 end;
 
-procedure TScriptForm.Paste1Click(Sender: TObject);
+(*procedure TScriptForm.Paste1Click(Sender: TObject);
 begin
   Memo1.PasteFromClipboard;
+end; *)
+
+procedure TScriptForm.Paste1Click(Sender: TObject);
+var
+  s: Tstringlist;
+begin
+  {$IFDEF LCLCocoa}
+  s := TStringList.Create;
+  s.AddStrings(Clipboard.AsText);
+  Memo1.Lines.addstrings(s);
+  s.free;
+  {$ELSE}
+  Memo1.PasteFromClipboard;
+  {$ENDIF}
 end;
 
 initialization

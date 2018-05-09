@@ -1404,7 +1404,11 @@ begin //Proc Load_From_NIfTI
     lTexture.NIFTIhdr := lHdr.NIFTIhdr;
     for lI := 1 to 3 do
       lTexture.NIFTIhdr.dim[lI] := lTexture.FiltDim[lI];
-    if not lIsDummy then result :=true;
+    if not lIsDummy then begin
+       result :=true;
+       gPrefs.ImgNameShort := ChangeFileExtX(ExtractFileName(F_FileName), '');
+       GLForm1.Caption := gPrefs.ImgNameShort;
+    end;
     SetOriginXYZ(lTexture);
 
 end; //Proc Load_From_NIfTI

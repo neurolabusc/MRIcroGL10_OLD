@@ -29,7 +29,7 @@ type
          CLUTWindowColor,CLUTIntensityColor: TColor;
          GridAndBorder,BackColor,TextColor,TextBorder,CrosshairColor,HistogramColor,HistogramBack: TGLRGBQuad;
          ColorbarSize: single;
-         InitScript, FontName, PyLib: string;
+         InitScript, FontName, PyLib, ImgNameShort: string;
          PrevFilename,PrevScriptName: TMRU;
 
   end;
@@ -182,6 +182,7 @@ begin
             FlipLR := false;
             FontName := '';//default
             PyLib := ''; //default
+            ImgNameShort := '';
             ThresholdDetection := true;
             isTiledScreenShot := true;
             isOrientationTriangles := false;

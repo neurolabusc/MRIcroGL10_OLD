@@ -3,7 +3,7 @@ unit reorient;
 interface
 
 uses
-  SysUtils,define_types,nii_mat,nifti_hdr,dialogs, nifti_types, clipbrd;
+  SysUtils,define_types,nii_mat,nifti_hdr,dialogs, nifti_types, clipbrd, math;
 
 //function ReorientNIfTI(lFilename: string; lPrefs: TPrefs): string; //returns output filename if successful
 function ReorientCore(var lHdr: TNIFTIhdr; lBufferIn: bytep): boolean;
@@ -230,7 +230,616 @@ begin
      end;
 end;
 
-procedure ShrinkLarge8(var lHdr: TNIFTIhdr; var lBuffer: bytep; lMaxDim: integer);
+// Extends image shrink code by Anders Melander, anders@melander.dk
+// Here's some additional copyrights for you:
+//
+// The algorithms and methods used in this library are based on the article
+// "General Filtered Image Rescaling" by Dale Schumacher which appeared in the
+// book Graphics Gems III, published by Academic Press, Inc.
+// From filter.c:
+// The authors and the publisher hold no copyright restrictions
+// on any of these files; this source code is public domain, and
+// is freely available to the entire computer graphics community
+// for study, use, and modification.  We do request that the
+// comment at the top of each file, identifying the original
+// author and its original publication in the book Graphics
+// Gems, be retained in all programs that use these files.
+
+function HermiteFilter(Value: Single): Single;
+begin
+  // f(t) = 2|t|^3 - 3|t|^2 + 1, -1 <= t <= 1
+  if (Value < 0.0) then
+    Value := -Value;
+  if (Value < 1.0) then
+    Result := (2.0 * Value - 3.0) * Sqr(Value) + 1.0
+  else
+    Result := 0.0;
+end;
+
+// Box filter
+// a.k.a. "Nearest Neighbour" filter
+// anme: I have not been able to get acceptable
+//       results with this filter for subsampling.
+
+function BoxFilter(Value: Single): Single;
+begin
+  if (Value > -0.5) and (Value <= 0.5) then
+    Result := 1.0
+  else
+    Result := 0.0;
+end;
+
+// Triangle filter
+// a.k.a. "Linear" or "Bilinear" filter
+
+function TriangleFilter(Value: Single): Single;
+begin
+  if (Value < 0.0) then
+    Value := -Value;
+  if (Value < 1.0) then
+    Result := 1.0 - Value
+  else
+    Result := 0.0;
+end;
+
+// Bell filter
+
+function BellFilter(Value: Single): Single;
+begin
+  if (Value < 0.0) then
+    Value := -Value;
+  if (Value < 0.5) then
+    Result := 0.75 - Sqr(Value)
+  else if (Value < 1.5) then
+  begin
+    Value := Value - 1.5;
+    Result := 0.5 * Sqr(Value);
+  end
+  else
+    Result := 0.0;
+end;
+
+// B-spline filter
+
+function SplineFilter(Value: Single): Single;
+var
+  tt: single;
+begin
+  if (Value < 0.0) then
+    Value := -Value;
+  if (Value < 1.0) then
+  begin
+    tt := Sqr(Value);
+    Result := 0.5 * tt * Value - tt + 2.0 / 3.0;
+  end
+  else if (Value < 2.0) then
+  begin
+    Value := 2.0 - Value;
+    Result := 1.0 / 6.0 * Sqr(Value) * Value;
+  end
+  else
+    Result := 0.0;
+end;
+
+// Lanczos3 filter
+
+function Lanczos3Filter(Value: Single): Single;
+
+function SinC(Value: Single): Single;
+  begin
+    if (Value <> 0.0) then
+    begin
+      Value := Value * Pi;
+      Result := sin(Value) / Value
+    end
+    else
+      Result := 1.0;
+  end;
+begin
+  if (Value < 0.0) then
+    Value := -Value;
+  if (Value < 3.0) then
+    Result := SinC(Value) * SinC(Value / 3.0)
+  else
+    Result := 0.0;
+end;
+
+function MitchellFilter(Value: Single): Single;
+const
+  B = (1.0 / 3.0);
+  C = (1.0 / 3.0);
+var
+  tt: single;
+begin
+  if (Value < 0.0) then
+    Value := -Value;
+  tt := Sqr(Value);
+  if (Value < 1.0) then
+  begin
+    Value := (((12.0 - 9.0 * B - 6.0 * C) * (Value * tt))
+      + ((-18.0 + 12.0 * B + 6.0 * C) * tt)
+      + (6.0 - 2 * B));
+    Result := Value / 6.0;
+  end
+  else if (Value < 2.0) then
+  begin
+    Value := (((-1.0 * B - 6.0 * C) * (Value * tt))
+      + ((6.0 * B + 30.0 * C) * tt)
+      + ((-12.0 * B - 48.0 * C) * Value)
+      + (8.0 * B + 24 * C));
+    Result := Value / 6.0;
+  end
+  else
+    Result := 0.0;
+end;
+
+type
+  // Contributor for a pixel
+  TFilterProc = function(Value: Single): Single;
+  TContributor = record
+    pixel: integer; // Source pixel
+    weight: single; // Pixel weight
+  end;
+  TContributorList = array[0..0] of TContributor;
+  PContributorList = ^TContributorList;
+  // List of source pixels contributing to a destination pixel
+  TCList = record
+    n: integer;
+    p: PContributorList;
+  end;
+  TCListList = array[0..0] of TCList;
+  PCListList = ^TCListList;
+
+procedure SetContrib(out contrib: PCListList; SrcPix, DstPix, Delta: integer; xscale, fwidth: single; filter: TFilterProc);
+var
+  i,j,k: integer;
+  width, fscale: single;
+  sum, center, weight: single; // Filter calculation variables
+  left, right: integer; // Filter calculation variables
+begin
+  if (DstPix < 1) or (xscale > 1) or (xscale < 0) then exit;
+  width := fwidth / xscale;
+  fscale := 1.0 / xscale;
+  GetMem(contrib, DstPix * sizeof(TCList));
+  for i := 0 to DstPix - 1 do begin
+      contrib^[i].n := 0;
+      GetMem(contrib^[i].p, trunc(width * 2.0 + 1) * sizeof(TContributor));
+      center := i / xscale;
+      left := floor(center - width);
+      left := max(left,0);
+      right := ceil(center + width);
+      right := min(right, SrcPix - 1);
+      sum := 0.0;
+      for j := left to right do begin
+        weight := filter((center - j) / fscale) / fscale;
+        if (weight = 0.0) then
+          continue;
+        sum := sum + weight;
+        k := contrib^[i].n;
+        contrib^[i].n := contrib^[i].n + 1;
+        contrib^[i].p^[k].pixel := j * Delta;
+        contrib^[i].p^[k].weight := weight;
+      end;
+      for k := 0 to contrib^[i].n - 1 do
+          contrib^[i].p^[k].weight := contrib^[i].p^[k].weight/sum;
+      (*showmessage(format('n=%d l=%d r=%d c=%g sum=%g',[contrib^[i].n, left, right, center, sum]));
+      for k := 0 to contrib^[i].n - 1 do
+          showmessage(format('%d %g',[contrib^[i].p^[k].pixel, contrib^[i].p^[k].weight])); *)
+    end;
+end;
+
+procedure ShrinkLarge8(var lHdr: TNIFTIhdr; var lBuffer: bytep; lMaxDim: integer; fwidth: single; filter: TFilterProc);
+//rescales images with any dimension larger than lMaxDim to have a maximum dimension of maxdim...
+label
+  666;
+var
+  xscale, sum, mx, mn: single;
+  lineStart, x,y,z, bytesPerVox, lXo,lYo,lZo,lXi,lYi,lZi, outBytes, imx, i,j: integer;
+  contrib: PCListList;
+  //inImg: bytep;
+  finalImg, tempImgX, tempImgY, tempImgZ: Singlep;
+begin
+  bytesPerVox := 1;
+  imx := max(max(lHdr.dim[1], lHdr.dim[2]), lHdr.dim[3]);
+  if (imx <= lMaxDim) or (lMaxDim < 1) then exit;
+  xscale := lMaxDim/imx; //always less than 1!
+  lXi := lHdr.dim[1]; //input X
+  lYi := lHdr.dim[2]; //input Y
+  lZi := lHdr.dim[3]; //input Z
+  lXo := lXi; lYo := lYi; lZo := lZi; //output initially same as input
+  //inBytes := lHdr.dim[1]*lHdr.dim[2]*lHdr.dim[3]*bytesPerVox;
+  //find min/max values
+  mn := lBuffer^[1];
+  mx := mn;
+  for i := 1 to (lHdr.dim[1]*lHdr.dim[2]*lHdr.dim[3]) do begin
+      if lBuffer^[i] < mn then mn := lBuffer^[i];
+      if lBuffer^[i] > mx then mx := lBuffer^[i];
+  end;
+  Zoom(lHdr,xscale);
+  //shrink in 1st dimension : do X as these are contiguous = faster, compute slower dimensions at reduced resolution
+  lXo := lHdr.dim[1]; //input X
+  GetMem( tempImgX,lXo*lYi*lZi*sizeof(single)); //8
+  SetContrib(contrib, lXi, lXo, 1, xscale, fwidth, filter);
+  i := 1;
+  for z := 0 to (lZi - 1) do begin
+    for y := 0 to (lYi-1) do begin
+        lineStart := 1+ (lXi * y)+((lXi*lYi) * z);
+        for x := 0 to (lXo - 1) do begin
+            sum := 0.0;
+            for j := 0 to contrib^[x].n - 1 do begin
+              sum := sum + (contrib^[x].p^[j].weight * lBuffer^[lineStart +contrib^[x].p^[j].pixel]);
+            end;
+            tempImgX^[i] := sum;
+            i := i + 1;
+        end; //for X
+    end; //for Y
+  end; //for Z
+  for i := 0 to lXo - 1 do
+     FreeMem(contrib^[i].p);
+  FreeMem(contrib);
+  Freemem( lBuffer);
+  //{$DEFINE XONLY}
+  {$IFDEF XONLY}
+  finalImg := tempImgX;
+  goto 666;
+  {$ENDIF}
+  if ((lYi = lHdr.dim[2]) and (lZi = lHdr.dim[3])) then goto 666; //e.g. 1D image
+  //shrink in 2nd dimension
+  lYo := lHdr.dim[2]; //reduce Y output
+  GetMem( tempImgY,lXo*lYo*lZi*sizeof(single)); //8
+  SetContrib(contrib, lYi, lYo, lXo, xscale, fwidth, filter);
+  i := 1;
+  for z := 0 to (lZi - 1) do begin
+      for y := 0 to (lYo - 1) do begin
+          for x := 0 to (lXo-1) do begin
+            lineStart :=  1+x+((lXo*lYi) * z);
+            sum := 0.0;
+            for j := 0 to contrib^[y].n - 1 do begin
+              //sum := sum + (contrib^[y].p^[j].weight * sourceLine^[contrib^[y].p^[j].pixel]);
+              sum := sum + (contrib^[y].p^[j].weight * tempImgX^[lineStart +contrib^[y].p^[j].pixel] );
+            end;
+            tempImgY^[i] := sum;
+            i := i + 1;
+        end; //for X
+    end; //for Y
+  end; //for Z
+  for i := 0 to lYo - 1 do
+     FreeMem(contrib^[i].p);
+  FreeMem(contrib);
+  Freemem( tempImgX);
+  //{$DEFINE YONLY}
+  {$IFDEF YONLY}
+    finalImg := tempImgY;
+    goto 666;
+  {$ENDIF}
+  if (lZi = lHdr.dim[3]) then goto 666; //e.g. 2D image
+  //shrink the 3rd dimension
+  lZo := lHdr.dim[3]; //reduce Z output
+  GetMem( tempImgZ,lXo*lYo*lZo*sizeof(single)); //8
+  SetContrib(contrib, lZi, lZo, (lXo*lYo), xscale, fwidth, filter);
+  i := 1;
+  for z := 0 to (lZo - 1) do begin
+      for y := 0 to (lYo - 1) do begin
+          for x := 0 to (lXo-1) do begin
+            lineStart :=  1+x+(lXo * y);
+            sum := 0.0;
+            for j := 0 to contrib^[z].n - 1 do begin
+              sum := sum + (contrib^[z].p^[j].weight * tempImgY^[lineStart +contrib^[z].p^[j].pixel] );
+            end;
+            tempImgZ^[i] := sum;
+            i := i + 1;
+        end; //for X
+    end; //for Y
+  end; //for Z
+  for i := 0 to lZo - 1 do
+     FreeMem(contrib^[i].p);
+  FreeMem(contrib);
+  Freemem( tempImgY);
+  finalImg := tempImgZ;
+666:
+  lHdr.dim[1] := lXo;
+  lHdr.dim[2] := lYo;
+  lHdr.dim[3] := lZo;
+  outBytes := lHdr.dim[1] * lHdr.dim[2] * lHdr.dim[3]*bytesPerVox;
+  GetMem( lBuffer,outBytes); //8
+  for i := 1 to ((lXo*lYo*lZo)-1) do begin
+      //check image range - some interpolation can cause ringing
+      // e.g. if input range 0..1000 do not create negative values!
+      if finalImg^[i] > mx then finalImg^[i] := mx;
+      if finalImg^[i] < mn then finalImg^[i] := mn;
+      lBuffer^[i] := round(finalImg^[i]);
+  end;
+  Freemem( finalImg);
+end; //ShrinkLarge8()
+
+procedure ShrinkLarge16(var lHdr: TNIFTIhdr; var lBuffer: bytep; lMaxDim: integer; fwidth: single; filter: TFilterProc);
+//rescales images with any dimension larger than lMaxDim to have a maximum dimension of maxdim...
+label
+  666;
+var
+  xscale, sum, mx, mn: single;
+  lineStart, x,y,z, bytesPerVox, lXo,lYo,lZo,lXi,lYi,lZi, outBytes, imx, i,j: integer;
+  contrib: PCListList;
+  lImg16: SmallIntP;
+  finalImg, tempImgX, tempImgY, tempImgZ: Singlep;
+begin
+  bytesPerVox := 2;
+  imx := max(max(lHdr.dim[1], lHdr.dim[2]), lHdr.dim[3]);
+  if (imx <= lMaxDim) or (lMaxDim < 1) then exit;
+  xscale := lMaxDim/imx; //always less than 1!
+  lXi := lHdr.dim[1]; //input X
+  lYi := lHdr.dim[2]; //input Y
+  lZi := lHdr.dim[3]; //input Z
+  lXo := lXi; lYo := lYi; lZo := lZi; //output initially same as input
+  //inBytes := lHdr.dim[1]*lHdr.dim[2]*lHdr.dim[3]*bytesPerVox;
+  //find min/max values
+  lImg16 := SmallIntP(lBuffer);
+  mn := lImg16^[1];
+  mx := mn;
+  for i := 1 to (lHdr.dim[1]*lHdr.dim[2]*lHdr.dim[3]) do begin
+      if lImg16^[i] < mn then mn := lImg16^[i];
+      if lImg16^[i] > mx then mx := lImg16^[i];
+  end;
+  Zoom(lHdr,xscale);
+  //shrink in 1st dimension : do X as these are contiguous = faster, compute slower dimensions at reduced resolution
+  lXo := lHdr.dim[1]; //input X
+  GetMem( tempImgX,lXo*lYi*lZi*sizeof(single)); //8
+  SetContrib(contrib, lXi, lXo, 1, xscale, fwidth, filter);
+  i := 1;
+  for z := 0 to (lZi - 1) do begin
+    for y := 0 to (lYi-1) do begin
+        lineStart := 1+ (lXi * y)+((lXi*lYi) * z);
+        for x := 0 to (lXo - 1) do begin
+            sum := 0.0;
+            for j := 0 to contrib^[x].n - 1 do begin
+              sum := sum + (contrib^[x].p^[j].weight * lImg16^[lineStart +contrib^[x].p^[j].pixel]);
+            end;
+            tempImgX^[i] := sum;
+            i := i + 1;
+        end; //for X
+    end; //for Y
+  end; //for Z
+  for i := 0 to lXo - 1 do
+     FreeMem(contrib^[i].p);
+  FreeMem(contrib);
+  Freemem( lBuffer);
+  //{$DEFINE XONLY}
+  {$IFDEF XONLY}
+  finalImg := tempImgX;
+  goto 666;
+  {$ENDIF}
+  if ((lYi = lHdr.dim[2]) and (lZi = lHdr.dim[3])) then goto 666; //e.g. 1D image
+  //shrink in 2nd dimension
+  lYo := lHdr.dim[2]; //reduce Y output
+  GetMem( tempImgY,lXo*lYo*lZi*sizeof(single)); //8
+  SetContrib(contrib, lYi, lYo, lXo, xscale, fwidth, filter);
+  i := 1;
+  for z := 0 to (lZi - 1) do begin
+      for y := 0 to (lYo - 1) do begin
+          for x := 0 to (lXo-1) do begin
+            lineStart :=  1+x+((lXo*lYi) * z);
+            sum := 0.0;
+            for j := 0 to contrib^[y].n - 1 do begin
+              //sum := sum + (contrib^[y].p^[j].weight * sourceLine^[contrib^[y].p^[j].pixel]);
+              sum := sum + (contrib^[y].p^[j].weight * tempImgX^[lineStart +contrib^[y].p^[j].pixel] );
+            end;
+            tempImgY^[i] := sum;
+            i := i + 1;
+        end; //for X
+    end; //for Y
+  end; //for Z
+  for i := 0 to lYo - 1 do
+     FreeMem(contrib^[i].p);
+  FreeMem(contrib);
+  Freemem( tempImgX);
+  //{$DEFINE YONLY}
+  {$IFDEF YONLY}
+    finalImg := tempImgY;
+    goto 666;
+  {$ENDIF}
+  if (lZi = lHdr.dim[3]) then goto 666; //e.g. 2D image
+  //shrink the 3rd dimension
+  lZo := lHdr.dim[3]; //reduce Z output
+  GetMem( tempImgZ,lXo*lYo*lZo*sizeof(single)); //8
+  SetContrib(contrib, lZi, lZo, (lXo*lYo), xscale, fwidth, filter);
+  i := 1;
+  for z := 0 to (lZo - 1) do begin
+      for y := 0 to (lYo - 1) do begin
+          for x := 0 to (lXo-1) do begin
+            lineStart :=  1+x+(lXo * y);
+            sum := 0.0;
+            for j := 0 to contrib^[z].n - 1 do begin
+              sum := sum + (contrib^[z].p^[j].weight * tempImgY^[lineStart +contrib^[z].p^[j].pixel] );
+            end;
+            tempImgZ^[i] := sum;
+            i := i + 1;
+        end; //for X
+    end; //for Y
+  end; //for Z
+  for i := 0 to lZo - 1 do
+     FreeMem(contrib^[i].p);
+  FreeMem(contrib);
+  Freemem( tempImgY);
+  finalImg := tempImgZ;
+666:
+  lHdr.dim[1] := lXo;
+  lHdr.dim[2] := lYo;
+  lHdr.dim[3] := lZo;
+  outBytes := lHdr.dim[1] * lHdr.dim[2] * lHdr.dim[3]*bytesPerVox;
+  GetMem( lBuffer,outBytes);
+  lImg16 := SmallIntP(lBuffer);
+  for i := 1 to ((lXo*lYo*lZo)-1) do begin
+      //check image range - some interpolation can cause ringing
+      // e.g. if input range 0..1000 do not create negative values!
+      if finalImg^[i] > mx then finalImg^[i] := mx;
+      if finalImg^[i] < mn then finalImg^[i] := mn;
+      lImg16^[i] := round(finalImg^[i]);
+  end;
+  Freemem( finalImg);
+end; //ShrinkLarge16()
+
+procedure ShrinkLarge24(var lHdr: TNIFTIhdr; var lBuffer: bytep; lMaxDim: integer; fwidth: single; filter: TFilterProc);
+//rescales images with any dimension larger than lMaxDim to have a maximum dimension of maxdim...
+var
+   iHdr: TNIFTIhdr;
+   lXi, lYi, lZi, imx, nVxi, nVxo, i, j, k: integer;
+  imgo, img1: bytep;
+begin
+  imx := max(max(lHdr.dim[1], lHdr.dim[2]), lHdr.dim[3]);
+  if (imx <= lMaxDim) or (lMaxDim < 1) then exit;
+  lXi := lHdr.dim[1]; //input X
+  lYi := lHdr.dim[2]; //input Y
+  lZi := lHdr.dim[3]; //input Z
+  nVxi := lXi * lYi * lZi;
+  iHdr := lHdr;
+  for k := 1 to 3 do begin
+    GetMem( img1,nVxi);
+    j := k;
+    for i := 1 to nVxi do begin
+        img1[i] := lBuffer[j];
+        j := j + 3;
+    end;
+    lHdr := iHdr;
+    ShrinkLarge8(lHdr, img1, lMaxDim, fwidth, filter);
+    if (k = 1) then begin
+       nVxo := lHdr.dim[1] * lHdr.dim[2] * lHdr.dim[3];
+       getmem(imgo,nVxo * 3);
+    end;
+    j := k;
+    for i := 1 to nVxo do begin
+        imgo[j] := img1[i];
+        j := j + 3;
+    end;
+    FreeMem( img1);
+  end;
+  freemem(lBuffer);
+  lBuffer := imgo;
+end; //ShrinkLarge24()
+
+procedure ShrinkLarge32(var lHdr: TNIFTIhdr; var lBuffer: bytep; lMaxDim: integer; fwidth: single; filter: TFilterProc);
+//rescales images with any dimension larger than lMaxDim to have a maximum dimension of maxdim...
+label
+  666;
+var
+  xscale, sum, mx, mn: single;
+  lineStart, x,y,z, bytesPerVox, lXo,lYo,lZo,lXi,lYi,lZi, outBytes, imx, i,j: integer;
+  contrib: PCListList;
+  lImg32: SingleP;
+  finalImg, tempImgX, tempImgY, tempImgZ: Singlep;
+begin
+  bytesPerVox := 4;
+  imx := max(max(lHdr.dim[1], lHdr.dim[2]), lHdr.dim[3]);
+  if (imx <= lMaxDim) or (lMaxDim < 1) then exit;
+  xscale := lMaxDim/imx; //always less than 1!
+  lXi := lHdr.dim[1]; //input X
+  lYi := lHdr.dim[2]; //input Y
+  lZi := lHdr.dim[3]; //input Z
+  lXo := lXi; lYo := lYi; lZo := lZi; //output initially same as input
+  //inBytes := lHdr.dim[1]*lHdr.dim[2]*lHdr.dim[3]*bytesPerVox;
+  //find min/max values
+  lImg32 := SingleP(lBuffer);
+  mn := lImg32^[1];
+  mx := mn;
+  for i := 1 to (lHdr.dim[1]*lHdr.dim[2]*lHdr.dim[3]) do begin
+      if lImg32^[i] < mn then mn := lImg32^[i];
+      if lImg32^[i] > mx then mx := lImg32^[i];
+  end;
+  Zoom(lHdr,xscale);
+  //shrink in 1st dimension : do X as these are contiguous = faster, compute slower dimensions at reduced resolution
+  lXo := lHdr.dim[1]; //input X
+  GetMem( tempImgX,lXo*lYi*lZi*sizeof(single)); //8
+  SetContrib(contrib, lXi, lXo, 1, xscale, fwidth, filter);
+  i := 1;
+  for z := 0 to (lZi - 1) do begin
+    for y := 0 to (lYi-1) do begin
+        lineStart := 1+ (lXi * y)+((lXi*lYi) * z);
+        for x := 0 to (lXo - 1) do begin
+            sum := 0.0;
+            for j := 0 to contrib^[x].n - 1 do begin
+              sum := sum + (contrib^[x].p^[j].weight * lImg32^[lineStart +contrib^[x].p^[j].pixel]);
+            end;
+            tempImgX^[i] := sum;
+            i := i + 1;
+        end; //for X
+    end; //for Y
+  end; //for Z
+  for i := 0 to lXo - 1 do
+     FreeMem(contrib^[i].p);
+  FreeMem(contrib);
+  Freemem( lBuffer);
+  //{$DEFINE XONLY}
+  {$IFDEF XONLY}
+  finalImg := tempImgX;
+  goto 666;
+  {$ENDIF}
+  if ((lYi = lHdr.dim[2]) and (lZi = lHdr.dim[3])) then goto 666; //e.g. 1D image
+  //shrink in 2nd dimension
+  lYo := lHdr.dim[2]; //reduce Y output
+  GetMem( tempImgY,lXo*lYo*lZi*sizeof(single)); //8
+  SetContrib(contrib, lYi, lYo, lXo, xscale, fwidth, filter);
+  i := 1;
+  for z := 0 to (lZi - 1) do begin
+      for y := 0 to (lYo - 1) do begin
+          for x := 0 to (lXo-1) do begin
+            lineStart :=  1+x+((lXo*lYi) * z);
+            sum := 0.0;
+            for j := 0 to contrib^[y].n - 1 do begin
+              //sum := sum + (contrib^[y].p^[j].weight * sourceLine^[contrib^[y].p^[j].pixel]);
+              sum := sum + (contrib^[y].p^[j].weight * tempImgX^[lineStart +contrib^[y].p^[j].pixel] );
+            end;
+            tempImgY^[i] := sum;
+            i := i + 1;
+        end; //for X
+    end; //for Y
+  end; //for Z
+  for i := 0 to lYo - 1 do
+     FreeMem(contrib^[i].p);
+  FreeMem(contrib);
+  Freemem( tempImgX);
+  //{$DEFINE YONLY}
+  {$IFDEF YONLY}
+    finalImg := tempImgY;
+    goto 666;
+  {$ENDIF}
+  if (lZi = lHdr.dim[3]) then goto 666; //e.g. 2D image
+  //shrink the 3rd dimension
+  lZo := lHdr.dim[3]; //reduce Z output
+  GetMem( tempImgZ,lXo*lYo*lZo*sizeof(single)); //8
+  SetContrib(contrib, lZi, lZo, (lXo*lYo), xscale, fwidth, filter);
+  i := 1;
+  for z := 0 to (lZo - 1) do begin
+      for y := 0 to (lYo - 1) do begin
+          for x := 0 to (lXo-1) do begin
+            lineStart :=  1+x+(lXo * y);
+            sum := 0.0;
+            for j := 0 to contrib^[z].n - 1 do begin
+              sum := sum + (contrib^[z].p^[j].weight * tempImgY^[lineStart +contrib^[z].p^[j].pixel] );
+            end;
+            tempImgZ^[i] := sum;
+            i := i + 1;
+        end; //for X
+    end; //for Y
+  end; //for Z
+  for i := 0 to lZo - 1 do
+     FreeMem(contrib^[i].p);
+  FreeMem(contrib);
+  Freemem( tempImgY);
+  finalImg := tempImgZ;
+666:
+  lHdr.dim[1] := lXo;
+  lHdr.dim[2] := lYo;
+  lHdr.dim[3] := lZo;
+  for i := 1 to ((lXo*lYo*lZo)-1) do begin
+      //check image range - some interpolation can cause ringing
+      // e.g. if input range 0..1000 do not create negative values!
+      if finalImg^[i] > mx then finalImg^[i] := mx;
+      if finalImg^[i] < mn then finalImg^[i] := mn;
+  end;
+  lBuffer := bytep(finalImg);
+end; //ShrinkLarge32()
+
+
+(*procedure ShrinkLarge8(var lHdr: TNIFTIhdr; var lBuffer: bytep; lMaxDim: integer);
 //rescales images with any dimension larger than lMaxDim to have a maximum dimension of maxdim...
 var
    lBase,lO,lX,lY,lZ,lMax,lXYi,lXi,lYi,lZi,lZt,lYt,lXt,lOffset: int64;
@@ -404,9 +1013,9 @@ begin
       end; //lY
   end; //Z
   Freemem(lIn);
-end;  //ShrinkLarge16
+end;  //ShrinkLarge16 *)
 
-procedure ShrinkLarge24(var lHdr: TNIFTIhdr; var lBuffer: bytep; lMaxDim: integer);
+(*procedure ShrinkLarge24(var lHdr: TNIFTIhdr; var lBuffer: bytep; lMaxDim: integer);
 //rescales images with any dimension larger than lMaxDim to have a maximum dimension of maxdim...
 //WARNING: this code is for 24-bit RGB format, which is planar RRRRRRGGGGGBBBBB!!!!
 var
@@ -518,8 +1127,8 @@ begin
   end; //Z
   Freemem(lIn);
 end; //ShrinkLarge24
-
-procedure ShrinkLarge32(var lHdr: TNIFTIhdr; var lBuffer: bytep; lMaxDim: integer);
+  *)
+(*procedure ShrinkLarge32(var lHdr: TNIFTIhdr; var lBuffer: bytep; lMaxDim: integer);
 //rescales images with any dimension larger than lMaxDim to have a maximum dimension of maxdim...
 var
    lBase,lO,lX,lY,lZ,lMax,lXYi,lXi,lYi,lZi,lZt,lYt,lXt,lOffset: int64;
@@ -607,21 +1216,50 @@ begin
       end; //lY
   end; //Z
   Freemem(lIn);
-end;  //ShrinkLarge32
-
+end;  //ShrinkLarge32  *)
 
 procedure ShrinkLarge(var lHdr: TNIFTIhdr; var lBuffer: bytep; lMaxDim: integer);
 //rescales images with any dimension larger than lMaxDim to have a maximum dimension of maxdim...
+var
+   fwidth: single;
+   filter: TFilterProc;
 begin
+  //filter := @BoxFilter; fwidth := 0.5;
+  //filter := @TriangleFilter; fwidth := 1;
+  //filter := @Hermite; fwidth := 1;
+  //filter := @BellFilter; fwidth := 1.5;
+  //filter := @SplineFilter; fwidth := 2;
+  filter := @Lanczos3Filter; fwidth := 3;
+  //filter := @MitchellFilter; fwidth := 2;
   if lHdr.datatype = kDT_UNSIGNED_CHAR then
-     ShrinkLarge8(lHdr, lBuffer, lMaxDim)
+     ShrinkLarge8(lHdr, lBuffer, lMaxDim, fwidth, @filter)
   else if lHdr.datatype = kDT_SIGNED_SHORT then
-     ShrinkLarge16(lHdr, lBuffer, lMaxDim)
+     ShrinkLarge16(lHdr, lBuffer, lMaxDim, fwidth, @filter)
   else if lHdr.datatype = kDT_FLOAT then
-     ShrinkLarge32(lHdr, lBuffer, lMaxDim)
+     ShrinkLarge32(lHdr, lBuffer, lMaxDim, fwidth, @filter)
   else if lHdr.datatype = kDT_RGB then
-     ShrinkLarge24(lHdr, lBuffer, lMaxDim);
+     ShrinkLarge24(lHdr, lBuffer, lMaxDim, fwidth, @filter);
 end;
+
+(*procedure ShrinkLarge(var lHdr: TNIFTIhdr; var lBuffer: bytep; lMaxDim: integer);
+//rescales images with any dimension larger than lMaxDim to have a maximum dimension of maxdim...
+//fwidth: single; filter: TFilterProc);
+begin
+  //filter := @TriangleFilter; fwidth := 1;
+  //filter := @Hermite; fwidth := 1;
+  //filter := @BellFilter; fwidth := 1.5;
+  //filter := @SplineFilter; fwidth := 2;
+  //filter := @Lanczos3Filter; fwidth := 3;
+  //filter := @MitchellFilter; fwidth := 2;
+  if lHdr.datatype = kDT_UNSIGNED_CHAR then
+     ShrinkLarge8(lHdr, lBuffer, lMaxDim, 2, @MitchellFilter)
+  else if lHdr.datatype = kDT_SIGNED_SHORT then
+     ShrinkLarge16(lHdr, lBuffer, lMaxDim, 2, @MitchellFilter)
+  else if lHdr.datatype = kDT_FLOAT then
+     ShrinkLarge32(lHdr, lBuffer, lMaxDim, 2, @MitchellFilter)
+  else if lHdr.datatype = kDT_RGB then
+     ShrinkLarge24(lHdr, lBuffer, lMaxDim, 2, @MitchellFilter);
+end;*)
 
 (*procedure showmat(lMat: TMatrix);
 begin

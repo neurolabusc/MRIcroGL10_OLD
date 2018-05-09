@@ -2990,17 +2990,17 @@ begin
      if (gTexture3D.isLabels) and ( High(gTexture3D.LabelRA) > 0) then begin
          if (lVoxInten >=0) and (lVoxInten <= High(gTexture3D.LabelRA)) then
          {$IFDEF ENABLEOVERLAY}
-          Caption := realtostr(lXmm,1)+'x'+realtostr(lYmm,1)+'x'+realtostr(lZmm,1)+'='+gTexture3D.LabelRA[round(lVoxInten)]+OverlayIntensityString(lVox);
+         Caption := gPrefs.ImgNameShort +' '+  realtostr(lXmm,1)+'x'+realtostr(lYmm,1)+'x'+realtostr(lZmm,1)+'='+gTexture3D.LabelRA[round(lVoxInten)]+OverlayIntensityString(lVox);
           {$ELSE}
-          Caption := realtostr(lXmm,1)+'x'+realtostr(lYmm,1)+'x'+realtostr(lZmm,1)+'='+gTexture3D.LabelRA[round(lVoxInten)];
+          Caption := gPrefs.ImgNameShort +' '+  realtostr(lXmm,1)+'x'+realtostr(lYmm,1)+'x'+realtostr(lZmm,1)+'='+gTexture3D.LabelRA[round(lVoxInten)];
           {$ENDIF}
          exit;
      end;
      Raw2ScaledIntensity(lVoxInten);
      {$IFDEF ENABLEOVERLAY}
-     Caption := realtostr(lXmm,1)+'x'+realtostr(lYmm,1)+'x'+realtostr(lZmm,1)+'='+realtostr(lVoxInten,3) +OverlayIntensityString(lVox);
+     Caption := gPrefs.ImgNameShort +' '+realtostr(lXmm,1)+'x'+realtostr(lYmm,1)+'x'+realtostr(lZmm,1)+'='+realtostr(lVoxInten,3) +OverlayIntensityString(lVox);
      {$ELSE}
-     Caption := realtostr(lXmm,1)+'x'+realtostr(lYmm,1)+'x'+realtostr(lZmm,1)+'='+realtostr(lVoxInten,3);
+     Caption := gPrefs.ImgNameShort +' '+  realtostr(lXmm,1)+'x'+realtostr(lYmm,1)+'x'+realtostr(lZmm,1)+'='+realtostr(lVoxInten,3);
      {$ENDIF}
 end;
 
@@ -3143,7 +3143,6 @@ begin
     if gPrefs.NoveauWarning then WarningIfNoveau;
     {$ENDIF}
   end;
-
   if not AreaInitialized then begin
     gRayCast.WINDOW_WIDTH := GLBoxBackingWidth;
     gRayCast.WINDOW_HEIGHT := GLboxBackingHeight;
@@ -3155,13 +3154,15 @@ begin
       voiClose;
       if Load_From_NIfTI (gTexture3D,OpenDialog1.Filename,gPrefs.ForcePowerOfTwo, M_reload) then begin
       Add2MRU(gPrefs.PrevFileName,OpenDialog1.Filename);
-
+      IntensityBox.Caption := OpenDialog1.Filename;
       UpdateMRU;
       M_reload := 0;
       AutoDetectVOI;
     end else
       M_reload := 0;
     end;
+
+
     InitGL (gInitialSetup);
     gRayCast.slices := round(FloatMaxVal(gTexture3D.FiltDim[1], gTexture3D.FiltDim[2],gTexture3D.FiltDim[3]) );
     if gRayCast.slices < 1 then
@@ -4108,7 +4109,8 @@ begin
   gPrefs.FontName := s;
   FreeAndNil(PrefForm);
   if  isAdvancedPrefs then begin
-     GLForm1.Quit2TextEditor;
+    GLForm1.Refresh;
+    GLForm1.Quit2TextEditor;
      exit;
   end;
   if isFlipChanged then
