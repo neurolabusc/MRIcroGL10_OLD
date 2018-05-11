@@ -680,6 +680,10 @@ end; //ShrinkLarge16()
 
 procedure ShrinkLarge24(var lHdr: TNIFTIhdr; var lBuffer: bytep; lMaxDim: integer; fwidth: single; filter: TFilterProc);
 //rescales images with any dimension larger than lMaxDim to have a maximum dimension of maxdim...
+//this is done as three passes: once for red, green and blue
+// it might be a little faster to compute as one pass.
+// however, shrinklarge is designed for huge images (~2Gb) that will overwhelm graphics cards
+// since we use 32-bit floats, computing 3 passes requires less RAM
 var
    iHdr: TNIFTIhdr;
    lXi, lYi, lZi, imx, nVxi, nVxo, i, j, k: integer;

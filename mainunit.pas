@@ -508,11 +508,12 @@ GLbox : TGLPanel;
 {$ENDIF}
 
 {$IFDEF LCLCocoa}
+(* //the alert sheets are not modal (yet)
 procedure ShowMessage(Str: string);
 begin
  ShowAlertSheet(GLForm1.Handle,'Note', str);
 
-end;
+end; *)
 
 {$ENDIF}
 
@@ -3154,7 +3155,7 @@ begin
       voiClose;
       if Load_From_NIfTI (gTexture3D,OpenDialog1.Filename,gPrefs.ForcePowerOfTwo, M_reload) then begin
       Add2MRU(gPrefs.PrevFileName,OpenDialog1.Filename);
-      IntensityBox.Caption := OpenDialog1.Filename;
+      //IntensityBox.Caption := OpenDialog1.Filename;
       UpdateMRU;
       M_reload := 0;
       AutoDetectVOI;
@@ -3977,7 +3978,8 @@ var
   FontCombo : TComboBox;
   isFontChanged, isFlipChanged,isAdvancedPrefs  {$IFDEF LCLCocoa}, isDarkModeChanged, isRetinaChanged {$ENDIF}: boolean;
 begin
-  PrefForm:=TForm.Create(nil);
+  //PrefForm:=TForm.Create(nil);
+  PrefForm:=TForm.Create(GLForm1);
   PrefForm.SetBounds(100, 100, 520, 242);
   PrefForm.Caption:='Preferences';
   PrefForm.Position := poScreenCenter;
@@ -4110,6 +4112,7 @@ begin
   FreeAndNil(PrefForm);
   if  isAdvancedPrefs then begin
     GLForm1.Refresh;
+    //showmessage('Success');
     GLForm1.Quit2TextEditor;
      exit;
   end;

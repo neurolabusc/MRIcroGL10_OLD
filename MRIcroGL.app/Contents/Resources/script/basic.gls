@@ -1,14 +1,7 @@
 begin
-	LOADIMAGE('mni152_2009_256');
-	BACKCOLOR(255, 255, 255);
-	OVERLAYLOADSMOOTH(true);
-	OVERLAYLOAD('spmT_5');
-	OVERLAYMINMAX(1, 4, 12);
-	ORTHOVIEW(0.5, 0.5, 0.5);
-	OVERLAYCOLORNAME(1, 'ACTC');
-
-//SHADERNAME('overlay_shell');
-	//SHADERADJUST('colorTemp', 0.0);
-	//CLIPAZIMUTHELEVATION(0.35, 0, 140);
-
+	resetdefaults;
+	loadimage('mni152_2009bet');
+	//clipazimuthelevation(0.3, 0, 130);
+	overlayload('motor');
+	overlayminmax(1, 2.6, 4);
 end.

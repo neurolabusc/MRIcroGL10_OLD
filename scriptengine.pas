@@ -15,7 +15,7 @@ uses
 {$IFDEF Unix} LCLIntf,  {$ENDIF}    //Messages,
  //{$IFNDEF USETRANSFERTEXTURE}  scaleimageintensity,{$ENDIF}
 ClipBrd, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  ExtCtrls, StdCtrls, define_types, Menus,
+  ExtCtrls, StdCtrls, define_types, Menus, strutils,
   uPSComponent,commandsu;
 
 (*OVERLAYLOADCLUSTER (lFilename: string; lThreshold, lClusterMM3: single; lSaveToDisk: boolean): integer; Will add the overlay named filename, only display voxels with intensity greater than threshold with a cluster volume greater than clusterMM and return the number of the overlay.
@@ -1299,7 +1299,7 @@ end;
 procedure TScriptForm.UpdateSMRU;
 const
 
-     kMenuItems = 6;//with OSX users quit from application menu
+     kMenuItems = 7;//with OSX users quit from application menu
 var
   lPos,lN,lM : integer;
 begin
@@ -1344,6 +1344,11 @@ var
 begin
   {$IFDEF MYPY}
   if PyExec() then exit;
+  if (not (AnsiContainsText(Memo1.Text, 'begin'))) then begin
+      Memo2.Lines.Clear;
+      Memo2.Lines.Add('Error: script must contain "import gl" (for Python) or "begin" (for Pascal).');
+      exit;
+  end;
   {$ENDIF}
   Memo2.Lines.Clear;
   PSScript1.Script.Text := Memo1.Lines.Text;

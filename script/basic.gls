@@ -1,6 +1,7 @@
-BEGIN
-	RESETDEFAULTS;
-	LOADIMAGE('mni152_2009bet');
-	CLIPAZIMUTHELEVATION(0.3, 0, 130);
-END.
-
+begin
+	resetdefaults;
+	loadimage('mni152_2009bet');
+	//clipazimuthelevation(0.3, 0, 130);
+	overlayload('motor');
+	overlayminmax(1, 2.6, 4);
+end.

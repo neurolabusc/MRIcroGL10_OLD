@@ -1,22 +1,24 @@
-CONST
+const
 	ksteps = 120;
-	kAziSpeed= 22;
-	kElevSpeed= 22;
-	kTime = 1;
-VAR
+	kazispeed= 22;
+	kazispeedf = 1.0/kazispeed;
+	kelevspeed= 22;
+	kelevspeedf = 1.0/kelevspeed;
+	ktime = 1;
+var
 	a,e: single;
 	i: integer;
-BEGIN
-	RESETDEFAULTS;
-	BACKCOLOR(255, 255, 255);
-	LOADIMAGE('mni152_2009bet');
-	COLORNAME('surface');
-	SHADERNAME('default');
-	SHADERADJUST('specular',0.9);
-	FOR i := 1 TO ksteps DO BEGIN
-		a := abs (0.5-(i mod kAziSpeed)/kAzispeed)*2;
-		e := abs (0.5-(i mod kElevSpeed)/kElevspeed)*2;
-		SHADERLIGHTAZIMUTHELEVATION( round((a-0.5)*120),round((e-0.2)*120));
-		WAIT(ktime);
-	END;
-END.
+begin
+	resetdefaults;
+	backcolor(255, 255, 255);
+	loadimage('mni152_2009bet');
+	colorname('surface');
+	shadername('default');
+	shaderadjust('specular',0.9);
+	for i := 1 to ksteps do begin
+		a := abs (0.5-(i mod kazispeed) * kazispeedf)*2;
+		e := abs (0.5-(i mod kelevspeed) * kelevspeedf)*2;
+		shaderlightazimuthelevation( round((a-0.5)*120),round((e-0.2)*120));
+		wait(ktime);
+	end;
+end.

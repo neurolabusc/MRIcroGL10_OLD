@@ -1,26 +1,26 @@
-CONST
-	kTime= 15;
-	kSteps= 36;
-VAR
-	i: INTEGER;
-BEGIN
-	RESETDEFAULTS;
-	LOADIMAGE('abdo256');
-	CONTRASTFORMVISIBLE(true);
-	COLORNAME('CT_Bones');
-	FOR i := 1 TO kSteps DO BEGIN
-		AZIMUTH(10);
-		WAIT(ktime);
-	END;
-	ELEVATION(-30);
-	CONTRASTMINMAX(0, 300);
-	FOR i := 1 TO kSteps DO BEGIN
-         AZIMUTH(10);
-         WAIT(ktime);
-	END;
-	COLORNAME('ct_kidneys');
-	FOR i := 1 TO kSteps DO BEGIN
-		AZIMUTH(10);
-		WAIT(ktime);
-	END;
-END.
+const
+	ktime= 15;
+	ksteps= 36;
+var
+	i: integer;
+begin
+	resetdefaults;
+	loadimage('abdo256');
+	contrastformvisible(true);
+	colorname('ct_bones');
+	for i := 1 to ksteps do begin
+		azimuth(10);
+		wait(ktime);
+	end;
+	elevation(-30);
+	contrastminmax(0, 300);
+	for i := 1 to ksteps do begin
+         azimuth(10);
+         wait(ktime);
+	end;
+	colorname('ct_kidneys');
+	for i := 1 to ksteps do begin
+		azimuth(10);
+		wait(ktime);
+	end;
+end.

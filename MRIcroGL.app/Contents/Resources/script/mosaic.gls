@@ -1,0 +1,10 @@
+begin
+	resetdefaults;
+	colorbarvisible(false);
+	loadimage('mni152_2009_256');
+	overlayload('motor');
+	overlayminmax(1, -4, -4);
+	//clipazimuthelevation(0.5, 90, 0);
+	//mosaic('h -0.2 a -24 -16 40 50 60 70 s x r 20');
+	mosaic('a r 20 a r -20 s r -20; c r 0 cr -20 s r 20');
+end.
