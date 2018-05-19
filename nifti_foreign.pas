@@ -1734,7 +1734,7 @@ label
   666;
 var
   FP: TextFile;
-  str, key, vals: string;
+  str, key, vals, fstr: string;
   mArray: TStringList;
   nItems, i: integer;
 begin
@@ -1796,16 +1796,23 @@ begin
 
     end;
     if (ansipos('file', key) = 1) and (nItems > 0) then begin
+       fstr := trim(copy(str,pos(':',str)+1, maxint)); //get full string, e.g. "file: with spaces.dat"
        splitstrStrict(' ',mArray[0],mArray);
        nItems :=mArray.count;
-       if (nItems > 1) then
-          nhdr.vox_offset := strtointdef(mArray[1],0); //"file: . 328" -> 328
+       if (nItems > 1) and (mArray[0] = '.') then
+          nhdr.vox_offset := strtointdef(mArray[1],0) //"file: . 328" -> 328 *)
+       else begin
+           if not fileexistsex(fstr) then //e.g. "out.dat" -> "\mydir\out.dat"
+              fname := ExtractFilePath(fname) + fstr
+           else
+               fname := fstr;
+       end;
        continue;
     end;
     //NSLog(format('%d "%s" %d',[ansipos('file', key) , key, nItems]));
   end;
   convertForeignToNifti(nhdr);
-
+  NSLog('MIF/MIH support primitive: beware of orientation (strides ignored).');
   result := true;
 666:
     CloseFile(FP);
@@ -1822,7 +1829,7 @@ var
   FP: TextFile;
   ch: char;
   mArray: TStringList;
-  str,tagName,elementNames: string;
+  pth, str,tagName,elementNames, str2: string;
   lineskip,byteskip,i,s,nItems,headerSize,matElements,fileposBytes: integer;
   mat: mat33;
   isOK, isDetachedFile,isFirstLine: boolean;
@@ -1832,6 +1839,7 @@ var
 begin
   //gX := gX + 1; GLForm1.caption := inttostr(gX);
   isDimPermute2341 := false;
+  pth := ExtractFilePath(fname);
   isOK := true;
   {$IFDEF FPC}
   DefaultFormatSettings.DecimalSeparator := '.' ;
@@ -1880,17 +1888,17 @@ begin
       mArray.Strings[i] := cleanStr(mArray.Strings[i]); //remove '(' and ')'
     (*if AnsiContainsText(tagName, 'dimension') then
       nDims := strtoint(mArray.Strings[0])
-    else*) if AnsiContainsText(tagName, 'spacings') then begin
+    else*) if AnsiStartsText( 'spacings', tagName) then begin
       if (nItems > 6) then nItems :=6;
       for i:=0 to (nItems-1) do
         nhdr.pixdim[i+1] :=strtofloat(mArray.Strings[i]);
-    end else if AnsiContainsText(tagName, 'sizes') then begin
+    end else if AnsiStartsText('sizes', tagName) then begin
       if (nItems > 6) then nItems :=6;
       //for i:=1 to 6 do
       //    nhdr.dim[i] := 1;
       for i:=0 to (nItems-1) do
           nhdr.dim[i+1] := strtoint(mArray.Strings[i]);
-    end else if AnsiContainsText(tagName, 'space directions') then begin
+    end else if AnsiStartsText('space directions',tagName) then begin
       if (nItems > 12) then nItems :=12;
       matElements := 0;
       for i:=0 to (nItems-1) do begin
@@ -1911,7 +1919,7 @@ begin
           LOAD_MAT33(mat, transformMatrix[0],transformMatrix[1],transformMatrix[2],
                      transformMatrix[3],transformMatrix[4],transformMatrix[5],
                      transformMatrix[6],transformMatrix[7],transformMatrix[8]);
-    end else if AnsiContainsText(tagName, 'type') then begin
+    end else if AnsiStartsText('type', tagName) then begin //AnsiContainsText(tagName, 'type') then begin
       if AnsiContainsText(mArray.Strings[0], 'uchar') or
           AnsiContainsText(mArray.Strings[0], 'uint8') or
           AnsiContainsText(mArray.Strings[0], 'uint8_t')  then
@@ -1927,7 +1935,7 @@ begin
           nhdr.datatype := kDT_UINT8 //DT_UINT8
       else if AnsiContainsText(mArray.Strings[0], 'unsigned') and
                (nItems > 1) and AnsiContainsText(mArray.Strings[1], 'int') then
-          nhdr.datatype := kDT_INT32 //
+          nhdr.datatype := kDT_UINT32 //
       else if AnsiContainsText(mArray.Strings[0], 'signed') and
                (nItems > 1) and AnsiContainsText(mArray.Strings[1], 'char') then
           nhdr.datatype := kDT_INT8 //do UNSIGNED first, as "isigned" includes string "unsigned"
@@ -1936,20 +1944,22 @@ begin
           nhdr.datatype := kDT_INT16 //do UNSIGNED first, as "isigned" includes string "unsigned"
       else if AnsiContainsText(mArray.Strings[0], 'double') then
           nhdr.datatype := kDT_DOUBLE //DT_DOUBLE
-      else if AnsiContainsText(mArray.Strings[0], 'int') then //do this last and "uint" includes "int"
+      else if AnsiContainsText(mArray.Strings[0], 'uint') then
           nhdr.datatype := kDT_UINT32
+      else if AnsiContainsText(mArray.Strings[0], 'int') then //do this last and "uint" includes "int"
+          nhdr.datatype := kDT_INT32
       else begin
           NSLog('Unsupported NRRD datatype'+mArray.Strings[0]);
           isOK := false;
           break;
       end
-    end else if AnsiContainsText(tagName, 'endian') then begin
+    end else if AnsiStartsText('endian', tagName) then begin
       {$IFDEF ENDIAN_BIG} //data always stored big endian
       if AnsiContainsText(mArray.Strings[0], 'little') then swapEndian :=true;
       {$ELSE}
       if AnsiContainsText(mArray.Strings[0], 'big') then swapEndian :=true;
       {$ENDIF}
-    end else if AnsiContainsText(tagName, 'encoding') then begin
+    end else if AnsiStartsText('encoding',tagName) then begin
       if AnsiContainsText(mArray.Strings[0], 'raw') then
           gzBytes :=0
       else if AnsiContainsText(mArray.Strings[0], 'gz') or AnsiContainsText(mArray.Strings[0], 'gzip') then
@@ -1959,16 +1969,17 @@ begin
           isOK := false;
           break;
       end;
-    end else if (AnsiContainsText(tagName, 'lineskip') or AnsiContainsText(tagName, 'line skip')) then begin //http://teem.sourceforge.net/nrrd/format.html#lineskip
+    end else if (AnsiStartsText('lineskip',tagName) or AnsiContainsText(tagName, 'line skip')) then begin //http://teem.sourceforge.net/nrrd/format.html#lineskip
       lineskip := strtointdef(mArray.Strings[0],0);
-    end else if (AnsiContainsText(tagName, 'byteskip') or AnsiContainsText(tagName, 'byte skip')) then begin //http://teem.sourceforge.net/nrrd/format.html#byteskip
+    end else if (AnsiStartsText('byteskip', tagName) or AnsiContainsText(tagName, 'byte skip')) then begin //http://teem.sourceforge.net/nrrd/format.html#byteskip
       byteskip := strtointdef(mArray.Strings[0],0);
-    end else if AnsiContainsText(tagName, 'space origin') then begin
+    end else if AnsiStartsText('space origin', tagName) then begin
       if (nItems > 3) then nItems :=3;
       for i:=0 to (nItems-1) do
           offset[i] := strtofloat(mArray.Strings[i]);
 
-    end else if AnsiContainsText(tagName, 'data file') or AnsiContainsText(tagName, 'datafile') then begin
+    end else if AnsiStartsText('data file',tagName) or AnsiContainsText(tagName, 'datafile') then begin
+      str2 := str;
       str := mArray.Strings[0];
       if (pos('LIST', UpperCase(str)) = 1) and (length(str) = 4) then begin  //e.g. "data file: LIST"
          readln(fp,str);
@@ -1984,6 +1995,13 @@ begin
          if (length(str) > 0) and (str[1] = pathdelim) then  // "./r_sphere_01.raw.gz"
            str := copy(str, 2, length(str)-1 );  // "/r_sphere_01.raw.gz"
         fname := ExtractFileDirWithPathDelim(fname)+str;
+      end;
+      if not fileexistsex(fname) then begin
+          str2 := trim(copy(str2,pos(':',str2)+1, maxint));
+          fname := str2;
+          if not fileexistsex(fname) then
+            fname := pth + str2;
+          //showmessage(inttostr(nhdr.datatype));
       end;
       isDetachedFile :=true;
       //break;
@@ -2002,7 +2020,7 @@ begin
       end; //for each line
     end; //if lineskip
     headerSize :=fileposBytes;
-  end;
+      end;
   result := true;
   if (lineskip > 0) and (isDetachedFile) then begin
      NSLog('Unsupported NRRD feature: lineskip in detached file');
@@ -2298,7 +2316,7 @@ begin
     result := readMGHHeader(lFilename, lHdr, gzBytes, swapEndian)
   else if (lExt = '.MHD') or (lExt = '.MHA') then
     result := readMHAHeader(lFilename, lHdr, gzBytes, swapEndian)
-  else if (lExt = '.MIF') then
+  else if ((lExt = '.MIF') or (lExt = '.MIH')) then
        result := readMIF(lFilename, lHdr, gzBytes, swapEndian, isDimPermute2341)
   else if (lExt = '.NRRD') or (lExt = '.NHDR') then
     result := readNRRDHeader(lFilename, lHdr, gzBytes, swapEndian, isDimPermute2341)

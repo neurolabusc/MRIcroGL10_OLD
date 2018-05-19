@@ -8,8 +8,11 @@ Scripting is described in the
 [MRIcroGL wiki](https://www.nitrc.org/plugins/mwiki/index.php/mricrogl:MainPage#Scripting). A full list of the available functions is listed on [Github](https://github.com/neurolabusc/MRIcroGL/blob/master/COMMANDS.md).
 
 Specific considerations for Python in MRIcroGL
- - each Python script should include 'import gl' - this provides access to the MRIcroGL commands and also tells the software that this is a Python (rather than Pascal) program.
+ - Each Python script should include 'import gl' - this provides access to the MRIcroGL commands and also tells the software that this is a Python (rather than Pascal) program.
+ - Python uses '#' for comments, while Pascal uses '//'
  - Python is case sensitive, and all the [MRIcroGL](https://github.com/neurolabusc/MRIcroGL/blob/master/COMMANDS.md) functions are lower cased. Therefore "gl.resetdefaults" is valid but "gl.ResetDefaults" will not compile.
+ - Python uses "=" for assignments, while Pascal uses ":=". Therefore, the Python line "i = 1" is the same as the Pascal "i := 1;"
+ - Python uses "==" to test equality, while Pascal uses "=". Therefore, the Python line "if rot == 1:" is the same as the Pascal "if rot = 1 then"
  - PyArg_ParseTuple requires that boolean values are either "0" (false) or "1" (true). In contrast, Pascal uses true/false, so the Python command "gl.colorbarvisible(1)" is the same as the Pascal "colorbarvisible(true);"
 
  Below each of the Pascal scripts that are provided with MRIcroGL have been ported to Python.
@@ -18,7 +21,7 @@ Specific considerations for Python in MRIcroGL
 
 ```python
 import gl
-gl.resetdefaults
+gl.resetdefaults()
 gl.loadimage('mni152_2009bet')
 gl.overlayload('motor')
 gl.overlayminmax(1, 2.6, 4)
@@ -26,12 +29,13 @@ gl.overlayminmax(1, 2.6, 4)
 
 ##### color
 
+
 ```python
 import gl
-gl.resetdefaults
+gl.resetdefaults()
 ktime= 15
 ksteps= 36
-gl.resetdefaults
+gl.resetdefaults()
 gl.loadimage('abdo256')
 gl.contrastformvisible(1)
 gl.colorname('ct_bones')
@@ -53,7 +57,7 @@ for x in range(1, ksteps):
 
 ```python
 import gl
-gl.resetdefaults
+gl.resetdefaults()
 gl.colorbarvisible(0)
 gl.loadimage('mni152_2009_256')
 gl.overlayload('motor')
@@ -66,10 +70,10 @@ gl.mosaic('a r 20 a r -20 s r -20 c r 0 cr -20 s r 20')
 ##### mra
 ```python
 import gl
-gl.resetdefaults
+gl.resetdefaults()
 ktime= 15
 ksteps= 36
-gl.resetdefaults
+gl.resetdefaults()
 gl.loadimage('chris_mra')
 gl.contrastminmax(40,100)
 gl.backcolor(255, 255, 255)
@@ -88,7 +92,7 @@ for i in range(1, ksteps):
 
 ```python
 import gl
-gl.resetdefaults
+gl.resetdefaults()
 gl.loadimage('mni152_2009bet')
 gl.overlayloadsmooth(1)
 gl.overlayload('motor')
@@ -102,7 +106,7 @@ gl.clipazimuthelevation(0.4, 0, 120)
 
 ```python
 import gl
-gl.resetdefaults
+gl.resetdefaults()
 gl.loadimage('mni152_2009bet')
 gl.backcolor(128, 169, 255)
 gl.overlayloadsmooth(1)
@@ -118,7 +122,7 @@ gl.shadername('overlay')
 
 ```python
 import gl
-gl.resetdefaults
+gl.resetdefaults()
 gl.loadimage('mni152_2009bet')
 gl.overlayloadsmooth(1)
 gl.overlayload('motor')
@@ -134,7 +138,7 @@ gl.contrastminmax(30, 80)
 
 ```python
 import gl
-gl.resetdefaults
+gl.resetdefaults()
 gl.loadimage('mni152_2009bet')
 gl.backcolor(255, 255, 255)
 gl.overlayloadsmooth(1)
@@ -148,7 +152,7 @@ gl.clipazimuthelevation(0.35, 0, 140)
 
 ```python
 import gl
-gl.resetdefaults
+gl.resetdefaults()
 ksteps = 120
 kazispeed= 22
 kazispeedf = 1.0/kazispeed
@@ -171,7 +175,7 @@ for i in range(1, ksteps):
 
 ```python
 import gl
-gl.resetdefaults
+gl.resetdefaults()
 kloops=400
 ktime= 15
 kelevspeed= 33

@@ -15,6 +15,7 @@ function VERSION(): string;
 function EXISTS(lFilename: string): boolean; //function
 function OVERLAYLOAD(lFilename: string): integer; //function
 function OVERLAYLOADVOL(lFilename: string; lVol: integer): integer; //function
+procedure SAVENII(lFilename: string; lFilter: integer; lScale: single);
 function OVERLAYLOADCLUSTER(lFilename: string; lThreshold, lClusterMM3: single; lSaveToDisk: boolean): integer; //function
 procedure ADDNODE(INTENSITY, R,G,B,A: byte);
 procedure AZIMUTH (DEG: integer);
@@ -115,7 +116,7 @@ const
     (Ptr:@OVERLAYLOAD;Decl:'OVERLAYLOAD';Vars:'(lFilename: string): integer'),
     (Ptr:@OVERLAYLOADCLUSTER;Decl:'OVERLAYLOADCLUSTER';Vars:'(lFilename: string; lThreshold, lClusterMM3: single; lSaveToDisk: boolean): integer'),
     (Ptr:@OVERLAYLOADVOL;Decl:'OVERLAYLOADVOL';Vars:'(lFilename: string; lVol: integer): integer'));
-  knProc = 85;
+  knProc = 86;
   kProcRA : array [1..knProc] of TScriptRec =
     (
       (Ptr:@AZIMUTH;Decl:'AZIMUTH';Vars:'(DEG: integer)'),
@@ -180,9 +181,9 @@ const
       (Ptr:@RADIOLOGICAL;Decl:'RADIOLOGICAL';Vars:'(FlipLR: boolean)'),
       (Ptr:@RESETDEFAULTS;Decl:'RESETDEFAULTS';Vars:''),
       (Ptr:@SAVEBMP;Decl:'SAVEBMP';Vars:'(lFilename: string)'),
+      (Ptr:@SAVENII;Decl:'SAVENII';Vars:'(lFilename: string; lFilter: integer; lScale: Single)'),
       (Ptr:@SCRIPTFORMVISIBLE;Decl:'SCRIPTFORMVISIBLE';Vars:'(VISIBLE: boolean)'),
       (Ptr:@SETCOLORTABLE;Decl:'SETCOLORTABLE';Vars:'(TABLENUM: integer)'),
-
       (Ptr:@SHADERFORMVISIBLE;Decl:'SHADERFORMVISIBLE';Vars:'(VISIBLE: boolean)'),
       (Ptr:@SHADERNAME;Decl:'SHADERNAME';Vars:'(lFilename: string)'),
       (Ptr:@SHADERADJUST;Decl:'SHADERADJUST';Vars:'(lProperty: string; lVal: single)'),
@@ -893,7 +894,7 @@ begin
     AZIMUTHELEVATION(0,0)
   else
     AZIMUTHELEVATION(180,0);
-  ReRender(false);;
+  ReRender(false);
 end;
 
 procedure VIEWSAGITTAL (STD: boolean);
@@ -1072,9 +1073,18 @@ begin
  {$ENDIF}
 end;
 
-procedure SAVENII(lFilename: string);
+procedure SAVENII(lFilename: string; lFilter: integer; lScale: single);
+var
+  lF, lExt: string;
 begin
-  //SaveImg (lFilename, gTexture3D.NIFTIhdr, bytep(gTexture3D.FiltImg));
+    FinishRender;
+    if (gTexture3D.FiltImg = nil) then exit; //Image not loaded
+    lF := lFilename;
+    lExt := UpCaseExt(lF);
+    if (lExt <> '.NII') and (lExt <> '.NII.GZ')   then
+          lF := lF + '.nii';
+    EnsureDirExists(lF);
+    SaveImgScaled (lF, lFilter,lScale);
 end;
 
 procedure SAVEBMP(lFilename: string);

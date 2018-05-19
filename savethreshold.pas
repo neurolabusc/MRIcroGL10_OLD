@@ -11,6 +11,7 @@ uses
 
 //function SaveImg (lOutname: string; var lHdrx: TMRIcroHdr): boolean;
 function SaveImg (lOutname: string; var lHdr: TNIFTIhdr; lImg: Bytep): boolean;
+function SaveImgScaled (lOutname: string; lFilter: integer; lScale: single): boolean;
 function SaveThresholdedUI(lThresh, lClusterMM3: single; lSaveToDisk: boolean): boolean;
 function SaveThresholded(lInname: string; lThresh, lClusterMM3: single; lSaveToDisk: boolean): integer;
 
@@ -23,7 +24,7 @@ uses
   {$ELSE}
     gzio2,
   {$ENDIF}
-  mainunit;
+  reorient, mainunit;
 
   procedure ThreshImgIntensity8(var lHdr: TMRIcroHdr; lThresh: single);
 var
@@ -137,7 +138,6 @@ begin
           exit;
 end;
 
-//function SaveImg (lOutname: string; var lHdrx: TMRIcroHdr): boolean;
 function SaveImg (lOutname: string; var lHdr: TNIFTIhdr; lImg: Bytep): boolean;
 var
   i : integer;
@@ -181,6 +181,101 @@ begin
       BlockWrite(lF,i, 4 ); //NIFTI .nii requires 4 byte pad 348->352
       BlockWrite(lF,lImg^, outbytes); //lHdrx.ImgBuffer^,outbytes);
       CloseFile(lF);
+      Filemode := 2;
+      if doGz then GZipFile(lOutname, lOutnameGz, true);
+      //showmessage(lOutname +' -> '+lOutnameGz);
+     result := true;
+end;
+//function SaveImg (lOutname: string; var lHdrx: TMRIcroHdr): boolean;
+(*function SaveImg (lOutname: string; var lHdr: TNIFTIhdr; lImg: Bytep): boolean; overload;
+begin
+     SaveImg (lOutname, lHdr, lImg, 1, 1.0);
+
+end;*)
+
+function numVox(h: TNIFTIHdr): int64;
+var
+    outbytes: int64;
+    i: integer;
+begin
+     outbytes := 1;
+     for i := 1 to 7 do
+         if h.dim[i] > 0 then
+            outbytes := outbytes * h.dim[i];
+     result := outbytes;
+end;
+
+function SaveImgScaled (lOutname: string; lFilter: integer; lScale: single): boolean;
+var
+  i, bpp, nVox : int64;
+  //outbytes : int64;
+  lOutnameGz : string;
+  lImg, lImgX: byteP;
+  lF: File;
+  h: TNIFTIHdr;
+  doGz: boolean;
+begin
+ (*
+ var lHdr: TNIFTIhdr; lImg: Bytep;
+ SetLengthB(RawUnscaledImg8,0);
+    SetLength16(RawUnscaledImg16,0);
+    SetLength32(RawUnscaledImg32,0); *)
+     result := false;
+     //lOutname := ChangeFilePrefixExt (lInName,'r','.nii');
+     if fileexists(lOutname) then begin
+        showmessage('Error: file already exists '+lOutname);
+        exit;
+     end;
+     nVox := numVox(gTexture3D.NIFTIhdr);
+     h := gTexture3D.NIFTIhdr;
+     if  gTexture3D.RawUnscaledImg32 <> nil then begin
+       lImg := bytep(gTexture3D.RawUnscaledImg32);
+       h.datatype:= kDT_FLOAT;
+       h.bitpix:= 32;
+       bpp := 4
+     end else if gTexture3D.RawUnscaledImg16 <> nil then begin
+       lImg := bytep(gTexture3D.RawUnscaledImg16);
+       h.datatype:= kDT_INT16;
+       h.bitpix:= 16;
+       bpp := 2
+     end else if gTexture3D.RawUnscaledImg8 <> nil then begin
+       lImg := bytep(gTexture3D.RawUnscaledImg8);
+       h.datatype:= kDT_UINT8;
+       h.bitpix:= 8;
+       bpp := 1
+     end else  begin
+        showmessage('Unsupported format');
+        exit;
+     end;
+
+     doGz := ExtGZ(lOutname);
+     //loutnameGz := lOutname +'.gz';
+     if doGz then begin
+       lOutnameGz := lOutname;
+       lOutname := ChangeFileExtX(lOutname,'.tmp');
+       if fileexists(lOutname) then begin
+           showmessage('Error: file already exists '+lOutname);
+           exit;
+        end;
+     end;
+     h.magic := kNIFTI_MAGIC_EMBEDDED_HDR; //save as .nii not hdr/img
+
+     h.vox_offset:= 352;
+     //outbytes := nVox * bpp;// lHdrx.ImgBufferBPP;
+     Filemode := 1;
+     AssignFile(lF, lOutname);
+     Rewrite(lF,1);
+     GetMem(lImgX,nVox * bpp);
+     System.Move(lImg^,lImgX^,nVox * bpp);
+     ShrinkOrEnlarge(h, lImgX, lFilter, lScale);
+     nVox := numVox(h);
+     //outbytes := nVox * bpp;
+      BlockWrite(lF,h,sizeof(TNIFTIHdr) );
+      i := 0;
+      BlockWrite(lF,i, 4 ); //NIFTI .nii requires 4 byte pad 348->352
+      BlockWrite(lF,lImgX^, nVox * bpp);
+      FreeMem(lImgX);
+        CloseFile(lF);
       Filemode := 2;
       if doGz then GZipFile(lOutname, lOutnameGz, true);
       //showmessage(lOutname +' -> '+lOutnameGz);

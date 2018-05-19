@@ -34,6 +34,8 @@ type
     loaddti1: TMenuItem;
     loaddrawing1: TMenuItem;
     loadimagevol1: TMenuItem;
+    showcolortable1: TMenuItem;
+    savenii1: TMenuItem;
     overlaylayertransparencyonoverlay1: TMenuItem;
     overlaylayertransparencyonbackground1: TMenuItem;
     version1: TMenuItem;
@@ -169,6 +171,7 @@ type
     function OpenStartupScript: boolean;
     procedure Memo1Change(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure showcolortable1Click(Sender: TObject);
     procedure Stop1Click(Sender: TObject);
     procedure Copy1Click(Sender: TObject);
     procedure OpenSMRU(Sender: TObject);//open template or MRU
@@ -217,7 +220,7 @@ implementation
 
 {$IFNDEF MYPY}
 uses
-    mainunit,userdir, prefs;
+    clut, mainunit,userdir, prefs;
 
 function ScriptDir: string;
 begin
@@ -230,7 +233,7 @@ begin
   {$ENDIF}
 end;
 {$ELSE}
-uses mainunit,userdir, prefs, proc_py;
+uses clut, mainunit,userdir, prefs, proc_py;
 
 function ScriptDir: string;
 begin
@@ -265,12 +268,17 @@ begin
      if not FileExists(changefileext(fnm,'.zip')) then exit;
      result := fnm;
 end;
-
 {$ELSE}
 {$IFDEF Linux}
   const
-       knPaths = 6;
-       kBasePaths : array [1..knPaths] of string = ('/lib64/','/usr/lib64/','/usr/lib/x86_64-linux-gnu/','/usr/lib/','/usr/local/lib/','/usr/lib/python2.7/config-x86_64-linux-gnu/');
+       knPaths = 7;
+       // /usr/lib/i386-linux-gnu/
+       {$IFDEF CPU64}
+       kBasePaths : array [1..knPaths] of string = ('/lib/','/lib64/','/usr/lib64/','/usr/lib/x86_64-linux-gnu/','/usr/lib/','/usr/local/lib/','/usr/lib/python2.7/config-x86_64-linux-gnu/');
+       {$ELSE}
+       kBasePaths : array [1..knPaths] of string = ('/lib/','/lib32/','/usr/lib32/','/usr/lib/i386-linux-gnu/','/usr/lib/','/usr/local/lib/','/usr/lib/python2.7/config-i386-linux-gnu/');
+       {$ENDIF}
+
        kBaseName = 'libpython';
 
 {$ENDIF}
@@ -287,6 +295,17 @@ end;
      n: integer;
   begin
        result := def;
+       if DirectoryExists(def) then begin //in case the user supplies libdir not the library name
+         result := '';
+         {$IFDEF Darwin}
+         if FindFirst(IncludeTrailingPathDelimiter(def)+'libpython*.dylib', faDirectory, searchResult) = 0 then
+         {$ELSE}
+         if FindFirst(IncludeTrailingPathDelimiter(def)+'libpython*.so', faDirectory, searchResult) = 0 then
+         {$ENDIF}
+            result := IncludeTrailingPathDelimiter(def)+(searchResult.Name);
+         FindClose(searchResult);
+         if length(result) > 0 then exit;
+       end;
        if fileexists(def) then exit;
        result :=''; //assume failure
        vers := TStringList.Create;
@@ -397,6 +416,23 @@ begin
     begin
       StrName:= string(PtrName);
       SAVEBMP(StrName);
+    end;
+end;
+
+//(Ptr:@SAVENII;Decl:'SAVENII';Vars:'(lFilename: string; lFilter: integer; lScale: Single)'),
+function PySAVENII(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  PtrName: PChar;
+  StrName: string;
+  Filt: integer;
+  Scale: single;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'sif:savenii', @PtrName, @Filt, @Scale)) then
+    begin
+      StrName:= string(PtrName);
+      SAVENII(StrName, Filt, Scale);
     end;
 end;
 
@@ -1175,6 +1211,7 @@ begin
     AddMethod('radiological', @PyRADIOLOGICAL, '');
     AddMethod('resetdefaults', @PyRESETDEFAULTS, '');
     AddMethod('savebmp', @PySAVEBMP, '');
+    AddMethod('savenii', @PySAVENII, '');
     AddMethod('scriptformvisible', @PySCRIPTFORMVISIBLE, '');
     AddMethod('contrastformvisible', @PyCONTRASTFORMVISIBLE, '');
     AddMethod('toolformvisible', @PyTOOLFORMVISIBLE, '');
@@ -1207,21 +1244,27 @@ begin
   Memo2.lines.Clear;
   if PyEngine = nil then begin
     if not PyCreate then begin //do this the first time
-       {$IFDEF Darwin}
-       Memo2.lines.Add('Failed to launch Python [install Python in '+kBasePath+']');
-       {$ENDIF}
        {$IFDEF Windows}
-       Memo2.lines.Add('Failed to launch Python [place Python .dll and .zip in Script folder]');
+       Memo2.lines.Add('Unable to find Python library [place Python .dll and .zip in Script folder]');
        {$ENDIF}
-       {$IFDEF Linux}
+       {$IFDEF Unix}
        Memo2.lines.Add('Unable to find Python library');
+       {$IFDEF Darwin}
+       Memo2.lines.Add('   For MacOS this is typically in: '+kBasePath+'');
+       {$ELSE}
        Memo2.lines.Add('   run ''find -name "*libpython*"'' to find the library');
-       Memo2.lines.Add('   if it does not exist, install it (''apt-get install libpython2.7'')');
-       Memo2.lines.Add('   if it does exist, set use the Preferences/Advanced to set ''PyLib''');
-       Memo2.lines.Add('   PyLib should be the complete path and filename of libpython*.so');
-
+       Memo2.lines.Add('   if it does not exist, install it (e.g. ''apt-get install libpython2.7'')');
        {$ENDIF}
-
+       Memo2.lines.Add('   if it does exist, set use the Preferences/Advanced to set ''PyLib''');
+       {$IFDEF Darwin}
+       //otool -L $(which python)
+       Memo2.lines.Add('   PyLib should be the complete path and filename of libpython*.dylib');
+       {$ELSE}
+       Memo2.lines.Add('   PyLib should be the complete path and filename of libpython*.so');
+       {$ENDIF}
+       Memo2.lines.Add('   This file should be in your LIBDIR, which you can detect by running Python from the terminal:');
+       Memo2.lines.Add('     ''import sysconfig; print(sysconfig.get_config_var("LIBDIR"))''');
+       {$ENDIF}
        result := true;
        exit;
     end;
@@ -1298,7 +1341,6 @@ end;
 
 procedure TScriptForm.UpdateSMRU;
 const
-
      kMenuItems = 7;//with OSX users quit from application menu
 var
   lPos,lN,lM : integer;
@@ -1566,6 +1608,26 @@ end;
 procedure TScriptForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
   CanClose := SaveTest;
+end;
+
+procedure TScriptForm.showcolortable1Click(Sender: TObject);
+var
+  i: integer;
+begin
+  Memo2.Lines.clear;
+  Memo2.Lines.add('[FLT]');
+  Memo2.Lines.add(format('min=%g',[gCLUTrec.min]));
+  Memo2.Lines.add(format('max=%g',[gCLUTrec.max]));
+  Memo2.Lines.add('[INT]');
+  Memo2.Lines.add(format('numnodes=%d',[gCLUTrec.numnodes]));
+  if gCLUTrec.numnodes < 1 then exit;
+  Memo2.Lines.add('[BYT]');
+  for i := 0 to (gCLUTrec.numnodes-1) do
+      Memo2.Lines.add(format('nodeintensity%d=%d',[i, gCLUTrec.nodes[i].intensity]));
+  Memo2.Lines.add('[RGBA255]');
+  for i := 0 to (gCLUTrec.numnodes-1) do
+      Memo2.Lines.add(format('nodergba%d=%d|%d|%d|%d',[i,gCLUTrec.nodes[i].rgba.rgbRed,gCLUTrec.nodes[i].rgba.rgbGreen
+        ,gCLUTrec.nodes[i].rgba.rgbBlue,gCLUTrec.nodes[i].rgba.rgbReserved]));
 end;
 
 procedure TScriptForm.Exit1Click(Sender: TObject);

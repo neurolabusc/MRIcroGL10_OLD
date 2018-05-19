@@ -2254,6 +2254,7 @@ begin
   {$ENDIF}
   GLBox.Align := alClient;
   //GLBox.ParentBackground:= false;
+
   GLBox.OnMouseDown := GLboxMouseDown;
   GLBox.OnMouseMove := GLboxMouseMove;
   GLBox.OnMouseUp := GLboxMouseUp;
@@ -2523,9 +2524,12 @@ begin
    exit;
  end;
   if (gPrefs.ColorEditor) and (InColorBox(X,Y)) then begin
-    ClutMouseDown(Button, Shift, X, Y);
+   //mango
+   ClutMouseDown(Button, Shift, X, Y);
     M_refresh := true;
-    GLbox.invalidate;
+    //5/2018: the next few lines are too sluggish for high resolution images
+    //UpdateTimer.Enabled:=true;
+    //GLbox.invalidate;
     exit;
   end;
   If gPrefs.SliceView <> 0 then begin
@@ -2677,17 +2681,16 @@ procedure TGLForm1.GLboxDblClick(Sender: TObject);
 var
   AbsNode: integer;
 begin
-
   AbsNode := Abs(gSelectedNode);
   if (not (gPrefs.ColorEditor)) or (not InColorBox(abs(MousePt.X),abs(MousePt.Y))) then begin
-    if not gPrefs.Colorbar then
+     if not gPrefs.Colorbar then
       exit;
     gPrefs.ColorBarPosition := gPrefs.ColorBarPosition + 1;
     SetColorbarPosition;
     GLbox.invalidate;
     exit;
   end;
-   ColorDialog1.Color := RGBA2TColor(gCLUTrec.nodes[AbsNode].rgba);
+  ColorDialog1.Color := RGBA2TColor(gCLUTrec.nodes[AbsNode].rgba);
    if not ColorDialog1.Execute then
     exit;
    TColor2RGBA(ColorDialog1.Color, gCLUTrec.nodes[AbsNode].rgba);
@@ -3162,8 +3165,6 @@ begin
     end else
       M_reload := 0;
     end;
-
-
     InitGL (gInitialSetup);
     gRayCast.slices := round(FloatMaxVal(gTexture3D.FiltDim[1], gTexture3D.FiltDim[2],gTexture3D.FiltDim[3]) );
     if gRayCast.slices < 1 then
@@ -3464,9 +3465,6 @@ end;*)
 procedure TGLForm1.MinMaxEditKeyPress(Sender: TObject; var Key: Char);
 const
   AllowDec = true; FAllowNeg = true;
-//var
-  //p : integer;
-  //s: string;
 begin
 
  case Key of
@@ -3493,9 +3491,16 @@ end;
 
 procedure TGLForm1.MinMaxEditKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
+var
+  mn,mx: single;
 begin
+  mn := gCLUTrec.min;
+  mx := gCLUTrec.max;
+
   if Str2FloatSafe(MinEdit.Text,gCLUTrec.min) and Str2FloatSafe(MaxEdit.Text,gCLUTrec.max) then begin
+    if (mn = gCLUTrec.min) and (mx = gCLUTrec.max) then exit; //no change
     M_refresh := true;
+    UpdateTimer.Enabled := false;
     UpdateTimer.Enabled := true;
  end;
 end;

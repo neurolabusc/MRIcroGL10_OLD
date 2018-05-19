@@ -140,6 +140,10 @@ object ScriptForm: TScriptForm
         Caption = 'List all commands'
         OnClick = ListCommands1Click
       end
+      object showcolortable1: TMenuItem
+        Caption = 'List color table'
+        OnClick = showcolortable1Click
+      end
     end
     object Insert1: TMenuItem
       Caption = 'Insert'
@@ -598,6 +602,12 @@ object ScriptForm: TScriptForm
         object quit1: TMenuItem
           Caption = 'quit'
           Hint = 'quit () Terminates the program. Use with caution. This allows external programs to launch this software and quit once they are done.'
+          OnClick = InsertCommand
+        end
+        object savenii1: TMenuItem
+          Tag = 141213
+          Caption = 'savenii'
+          Hint = 'savenii (filename: string; filter: integer; scale: float) Save currently open background image as NIfTI format image. Filename: name of output (e.g. ''myfile.nii''). Filter: -1=auto, 0=Nearest, 1=Linear, 2=Hermite, 3=Bell, 4=Spline, 5=Lanczos, 6=Mitchell. Example: savenii(''my.nii'',1,0.5) will create image half-scale image using linear filter. If filter is -1, then Lanczos is used for downsampling and Mitchell is used for up sampling. '
           OnClick = InsertCommand
         end
         object sharpen1: TMenuItem

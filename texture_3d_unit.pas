@@ -761,7 +761,8 @@ begin
       {$IFDEF GZIP}
       //if (lImgBytes >= (1 shl 31)) then begin
       if (lHdr.gzBytes = K_gzBytes_onlyImageCompressed) then
-         LoadGZ64(lImgName, lVolOffset, lImgBytes, lBuf)
+         //LoadGZ64(lImgName, lVolOffset, lImgBytes, lBuf)
+         UnGZip2 (lImgName,lBuf, lVolOffset ,lImgBytes, round(lHdr.NIFtiHdr.vox_offset))
       else
           LoadGZ64(lImgName, lVolOffset+round(lHdr.NIFtiHdr.vox_offset), lImgBytes, lBuf);
       (*

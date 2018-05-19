@@ -16,7 +16,8 @@ uses
   function AddColorNode (lIntensity: byte) : integer;
 
 implementation
-{$IFDEF COREGL}uses gl_2d, textfx, gl_core_matrix, mainunit; {$ENDIF}
+uses mainunit
+{$IFDEF COREGL} ,gl_2d, textfx, gl_core_matrix, mainunit{$ENDIF};
 
 type
   TChart2d = record
@@ -127,6 +128,7 @@ begin
     if  (SSCtrl in Shift) then begin //remove node
       AddScrnNode(lPt);
       gSelectedNode := -1;
+      GLForm1.UpdateTimer.Enabled:=true;
       exit;
    end;
    lB := lPt.X;
@@ -141,6 +143,7 @@ begin
    if  (SSShift in Shift) then begin //remove node
       DeleteScrnNode(gSelectedNode);
       gSelectedNode := -1;
+      GLForm1.UpdateTimer.Enabled:=true;
    end;
 end;
 
