@@ -79,6 +79,7 @@ procedure PERSPECTIVE (USEPERSPECTIVE: boolean);
 procedure RADIOLOGICAL (FlipLR: boolean);
 procedure RESETDEFAULTS;
 procedure SAVEBMP(lFilename: string);
+procedure SAVEBMPXY(lFilename: string; X,Y: integer);
 procedure SCRIPTFORMVISIBLE (VISIBLE: boolean);
 procedure SETCOLORTABLE(TABLENUM: integer);
 procedure SHADERFORMVISIBLE (VISIBLE: boolean);
@@ -116,7 +117,7 @@ const
     (Ptr:@OVERLAYLOAD;Decl:'OVERLAYLOAD';Vars:'(lFilename: string): integer'),
     (Ptr:@OVERLAYLOADCLUSTER;Decl:'OVERLAYLOADCLUSTER';Vars:'(lFilename: string; lThreshold, lClusterMM3: single; lSaveToDisk: boolean): integer'),
     (Ptr:@OVERLAYLOADVOL;Decl:'OVERLAYLOADVOL';Vars:'(lFilename: string; lVol: integer): integer'));
-  knProc = 86;
+  knProc = 87;
   kProcRA : array [1..knProc] of TScriptRec =
     (
       (Ptr:@AZIMUTH;Decl:'AZIMUTH';Vars:'(DEG: integer)'),
@@ -181,6 +182,7 @@ const
       (Ptr:@RADIOLOGICAL;Decl:'RADIOLOGICAL';Vars:'(FlipLR: boolean)'),
       (Ptr:@RESETDEFAULTS;Decl:'RESETDEFAULTS';Vars:''),
       (Ptr:@SAVEBMP;Decl:'SAVEBMP';Vars:'(lFilename: string)'),
+      (Ptr:@SAVEBMPXY;Decl:'SAVEBMPXY';Vars:'(lFilename: string; X,Y: integer)'),
       (Ptr:@SAVENII;Decl:'SAVENII';Vars:'(lFilename: string; lFilter: integer; lScale: Single)'),
       (Ptr:@SCRIPTFORMVISIBLE;Decl:'SCRIPTFORMVISIBLE';Vars:'(VISIBLE: boolean)'),
       (Ptr:@SETCOLORTABLE;Decl:'SETCOLORTABLE';Vars:'(TABLENUM: integer)'),
@@ -1073,7 +1075,7 @@ begin
  {$ENDIF}
 end;
 
-procedure SAVENII(lFilename: string; lFilter: integer; lScale: single);
+(*procedure SAVENIIISO(lFilename: string; lFilter: integer);
 var
   lF, lExt: string;
 begin
@@ -1084,7 +1086,29 @@ begin
     if (lExt <> '.NII') and (lExt <> '.NII.GZ')   then
           lF := lF + '.nii';
     EnsureDirExists(lF);
-    SaveImgScaled (lF, lFilter,lScale);
+    if not SaveImgIso (lF, lFilter) then
+          ScriptForm.Memo2.Lines.Add('saveniiiso failed: maybe your image is already isotropic.');
+end; *)
+
+procedure SAVENII(lFilename: string; lFilter: integer; lScale: single);
+var
+  lF, lExt: string;
+  ret: boolean;
+begin
+    FinishRender;
+    if (gTexture3D.FiltImg = nil) then exit; //Image not loaded
+    lF := lFilename;
+    lExt := UpCaseExt(lF);
+    if (lExt <> '.NII') and (lExt <> '.NII.GZ')   then
+          lF := lF + '.nii';
+    EnsureDirExists(lF);
+    ret := SaveImgScaled (lF, lFilter,lScale);
+    if not ret then begin
+       if lScale <= 0 then
+          ScriptForm.Memo2.Lines.Add('savenii failed: maybe your image is already isotropic.')
+       else
+           ScriptForm.Memo2.Lines.Add('savenii failed.')
+    end;
 end;
 
 procedure SAVEBMP(lFilename: string);
@@ -1100,6 +1124,22 @@ begin
   GLForm1.SavePicture(lF);
 end;
 
+procedure SAVEBMPXY(lFilename: string; X,Y: integer);
+var
+  lF,lExt: string;
+begin
+  FinishRender;
+  lF := lFilename;
+  lExt := UpCaseExt(lF);
+  if (lExt <> '.JPG') and (lExt <> '.PNG')  then
+        lF := lF + '.png';
+  EnsureDirExists(lF);
+  if (gPrefs.SliceView = 5) then begin
+     ScriptForm.Memo2.Lines.Add('savebmpxy() ignores image dimensions for mosaics: dimensions explicitly set by image resolution.');
+     GLForm1.SavePicture(lF);
+  end else
+      GLForm1.SavePicture(lF, X, Y);
+end;
 
 procedure XBARTHICK (PIXELS: integer);
 begin

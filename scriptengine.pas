@@ -34,6 +34,7 @@ type
     loaddti1: TMenuItem;
     loaddrawing1: TMenuItem;
     loadimagevol1: TMenuItem;
+    savebmpxy1: TMenuItem;
     showcolortable1: TMenuItem;
     savenii1: TMenuItem;
     overlaylayertransparencyonoverlay1: TMenuItem;
@@ -418,7 +419,21 @@ begin
       SAVEBMP(StrName);
     end;
 end;
-
+ 
+function PySAVEBMPXY(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  PtrName: PChar;
+  x,y: integer;
+  StrName: string;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'sii:savebmpxy', @PtrName, @x, @y)) then
+    begin
+      StrName:= string(PtrName);
+      SAVEBMPXY(StrName,X,Y);
+    end;
+end;
 //(Ptr:@SAVENII;Decl:'SAVENII';Vars:'(lFilename: string; lFilter: integer; lScale: Single)'),
 function PySAVENII(Self, Args : PPyObject): PPyObject; cdecl;
 var
@@ -1211,6 +1226,7 @@ begin
     AddMethod('radiological', @PyRADIOLOGICAL, '');
     AddMethod('resetdefaults', @PyRESETDEFAULTS, '');
     AddMethod('savebmp', @PySAVEBMP, '');
+    AddMethod('savebmp', @PySAVEBMPXY, '');
     AddMethod('savenii', @PySAVENII, '');
     AddMethod('scriptformvisible', @PySCRIPTFORMVISIBLE, '');
     AddMethod('contrastformvisible', @PyCONTRASTFORMVISIBLE, '');

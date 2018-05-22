@@ -1,13 +1,13 @@
 object GLForm1: TGLForm1
-  Left = 561
-  Height = 755
-  Top = 23
-  Width = 1032
+  Left = 266
+  Height = 654
+  Top = 55
+  Width = 968
   ActiveControl = ToolPanel
   AllowDropFiles = True
   Caption = 'MRIcroGL'
-  ClientHeight = 755
-  ClientWidth = 1032
+  ClientHeight = 654
+  ClientWidth = 968
   KeyPreview = True
   Menu = MainMenu1
   OnChangeBounds = FormChangeBounds
@@ -21,12 +21,12 @@ object GLForm1: TGLForm1
   LCLVersion = '1.9.0.0'
   object ToolPanel: TPanel
     Left = 0
-    Height = 755
+    Height = 654
     Top = 0
     Width = 216
     Align = alLeft
     BevelOuter = bvNone
-    ClientHeight = 755
+    ClientHeight = 654
     ClientWidth = 216
     ParentFont = False
     TabOrder = 0
@@ -106,21 +106,21 @@ object GLForm1: TGLForm1
     end
     object ShaderBox: TGroupBox
       Left = 0
-      Height = 6
-      Top = 749
+      Height = 0
+      Top = 654
       Width = 216
       Align = alClient
       Caption = 'Shader'
-      ClientHeight = 12
-      ClientWidth = 208
+      ClientHeight = 0
+      ClientWidth = 0
       ParentFont = False
       TabOrder = 9
       OnResize = ShaderBoxResize
       object ShaderMemo: TMemo
         Left = 0
         Height = 0
-        Top = 12
-        Width = 208
+        Top = 0
+        Width = 0
         Align = alClient
         Lines.Strings = (
           'Memo1'
@@ -306,11 +306,11 @@ object GLForm1: TGLForm1
         Left = 0
         Height = 120
         Top = 0
-        Width = 208
+        Width = 0
         Align = alTop
         BevelOuter = bvNone
         ClientHeight = 120
-        ClientWidth = 208
+        ClientWidth = 0
         TabOrder = 0
         object ShaderDrop: TComboBox
           Left = 2
@@ -749,7 +749,7 @@ object GLForm1: TGLForm1
       Top = 0
       Width = 216
       Align = alTop
-      Caption = 'Intensity Minimum..Maximum'
+      Caption = 'Intensity Range'
       ClientHeight = 28
       ClientWidth = 208
       ParentFont = False
@@ -757,11 +757,14 @@ object GLForm1: TGLForm1
       object MinEdit: TEdit
         Left = 3
         Height = 22
+        Hint = 'Adjust image brightness and contrast'
         Top = 1
         Width = 90
         AutoSize = False
         OnKeyPress = MinMaxEditKeyPress
         OnKeyUp = MinMaxEditKeyUp
+        ParentShowHint = False
+        ShowHint = True
         TabOrder = 0
         Text = 'MinEdit'
       end
@@ -1146,7 +1149,7 @@ object GLForm1: TGLForm1
     object LineBox: TGroupBox
       Left = 0
       Height = 50
-      Top = 699
+      Top = 654
       Width = 216
       Align = alTop
       Caption = 'Lines'
@@ -1300,7 +1303,7 @@ object GLForm1: TGLForm1
   end
   object CollapsedToolPanel: TPanel
     Left = 216
-    Height = 755
+    Height = 654
     Top = 0
     Width = 5
     Align = alLeft

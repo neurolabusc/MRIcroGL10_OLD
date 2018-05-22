@@ -1,3 +1,4 @@
 begin
 	//savenii('disco.nii',-1,0.5);
+	savebmpxy('abd540',512, 256);
 end.

@@ -604,10 +604,22 @@ object ScriptForm: TScriptForm
           Hint = 'quit () Terminates the program. Use with caution. This allows external programs to launch this software and quit once they are done.'
           OnClick = InsertCommand
         end
+		  object savebmp1: TMenuItem
+			Tag = 4
+			Caption = 'savebmp'
+			Hint = 'savebmp (filename: string) Saves the currently viewed image as a PNG format compressed bitmap image.'
+			OnClick = InsertCommand
+		  end
+        object savebmpxy1: TMenuItem
+          Tag = 1422
+          Caption = 'savebmpxy'
+          Hint = 'savebmpxy (filename: string; x, y: integer) Saves the currently viewed image as a PNG bitmap image. Specify the image width (x) and height (y). Does not work for mosaic images (where resolution defined by volume dimensions).'
+          OnClick = InsertCommand
+        end
         object savenii1: TMenuItem
           Tag = 141213
           Caption = 'savenii'
-          Hint = 'savenii (filename: string; filter: integer; scale: float) Save currently open background image as NIfTI format image. Filename: name of output (e.g. ''myfile.nii''). Filter: -1=auto, 0=Nearest, 1=Linear, 2=Hermite, 3=Bell, 4=Spline, 5=Lanczos, 6=Mitchell. Example: savenii(''my.nii'',1,0.5) will create image half-scale image using linear filter. If filter is -1, then Lanczos is used for downsampling and Mitchell is used for up sampling. '
+          Hint = 'savenii (filename: string; filter: integer; scale: float) Save currently open background image as NIfTI format image. Filename: name of output (e.g. ''myfile.nii''). Filter: -1=auto, 0=Nearest, 1=Linear, 2=Hermite, 3=Bell, 4=Spline, 5=Lanczos, 6=Mitchell. Example: savenii(''my.nii'',1,0.5) will create image half-scale image using linear filter. If filter is -1, then Lanczos is used for downsampling and Mitchell is used for up sampling. If scale is negative, an isotropic image is generated.'
           OnClick = InsertCommand
         end
         object sharpen1: TMenuItem
@@ -625,12 +637,6 @@ object ScriptForm: TScriptForm
         Tag = 4
         Caption = 'loadimage'
         Hint = 'loadimage (filename: string) Opens a NIfTI format image to view.'
-        OnClick = InsertCommand
-      end
-      object savebmp1: TMenuItem
-        Tag = 4
-        Caption = 'savebmp'
-        Hint = 'savebmp (filename: string) Saves the currently viewed image as a PNG format compressed bitmap image.'
         OnClick = InsertCommand
       end
       object wait1: TMenuItem

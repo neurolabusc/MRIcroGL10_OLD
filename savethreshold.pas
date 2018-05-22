@@ -12,6 +12,7 @@ uses
 //function SaveImg (lOutname: string; var lHdrx: TMRIcroHdr): boolean;
 function SaveImg (lOutname: string; var lHdr: TNIFTIhdr; lImg: Bytep): boolean;
 function SaveImgScaled (lOutname: string; lFilter: integer; lScale: single): boolean;
+//function SaveImgIso (lOutname: string; lFilter: integer): boolean;
 function SaveThresholdedUI(lThresh, lClusterMM3: single; lSaveToDisk: boolean): boolean;
 function SaveThresholded(lInname: string; lThresh, lClusterMM3: single; lSaveToDisk: boolean): integer;
 
@@ -208,18 +209,12 @@ end;
 function SaveImgScaled (lOutname: string; lFilter: integer; lScale: single): boolean;
 var
   i, bpp, nVox : int64;
-  //outbytes : int64;
   lOutnameGz : string;
   lImg, lImgX: byteP;
   lF: File;
   h: TNIFTIHdr;
   doGz: boolean;
 begin
- (*
- var lHdr: TNIFTIhdr; lImg: Bytep;
- SetLengthB(RawUnscaledImg8,0);
-    SetLength16(RawUnscaledImg16,0);
-    SetLength32(RawUnscaledImg32,0); *)
      result := false;
      //lOutname := ChangeFilePrefixExt (lInName,'r','.nii');
      if fileexists(lOutname) then begin
@@ -228,6 +223,8 @@ begin
      end;
      nVox := numVox(gTexture3D.NIFTIhdr);
      h := gTexture3D.NIFTIhdr;
+     if (lScale <= 0) and (h.pixdim[1] = h.pixdim[2]) and  (h.pixdim[1] = h.pixdim[3]) then
+        exit; //already isotropic
      if  gTexture3D.RawUnscaledImg32 <> nil then begin
        lImg := bytep(gTexture3D.RawUnscaledImg32);
        h.datatype:= kDT_FLOAT;
@@ -267,7 +264,10 @@ begin
      Rewrite(lF,1);
      GetMem(lImgX,nVox * bpp);
      System.Move(lImg^,lImgX^,nVox * bpp);
-     ShrinkOrEnlarge(h, lImgX, lFilter, lScale);
+     if lScale <= 0 then
+         EnlargeIsotropic(h, lImgX, lFilter)
+     else
+         ShrinkOrEnlarge(h, lImgX, lFilter, lScale);
      nVox := numVox(h);
      //outbytes := nVox * bpp;
       BlockWrite(lF,h,sizeof(TNIFTIHdr) );
@@ -281,6 +281,11 @@ begin
       //showmessage(lOutname +' -> '+lOutnameGz);
      result := true;
 end;
+
+(*function SaveImgIso (lOutname: string; lFilter: integer): boolean;
+begin
+     result := SaveImgScaled (lOutname, lFilter, 0);
+end;*)
 
 function SaveThresholded(lInname: string; lThresh, lClusterMM3: single; lSaveToDisk: boolean): integer;
 var

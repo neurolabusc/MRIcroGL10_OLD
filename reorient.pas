@@ -9,6 +9,7 @@ uses
 function ReorientCore(var lHdr: TNIFTIhdr; lBufferIn: bytep): boolean;
 procedure ShrinkLarge(var lHdr: TNIFTIhdr; var lBuffer: bytep; lMaxDim: integer);
 procedure ShrinkOrEnlarge(var lHdr: TNIFTIhdr; var lBuffer: bytep; lFilter: integer; lScale: single);
+function EnlargeIsotropic(var lHdr: TNIFTIhdr; var lBuffer: bytep; lFilter: integer): boolean;
 implementation
   uses mainunit;
 
@@ -212,7 +213,7 @@ begin
   end;
 end;
 
-procedure Zoom(var lHdr: TNIFTIhdr; iScale: single);
+procedure Zoom(var lHdr: TNIFTIhdr; xScale, yScale, zScale: single);
 //if we have a 256x256x256 pixel image with scale of 0.5, output is 128x128x128
 //if we have a 1x1x1mm pixel image with a scale of 2.0, output is 2x2x2mm
 var
@@ -221,10 +222,15 @@ var
 begin
      //showmessage(format('%g -> %g %g %g; %g %g %g; %g %g %g',[iScale, lHdr.srow_x[0],lHdr.srow_y[0],lHdr.srow_z[0], lHdr.srow_x[1],lHdr.srow_y[1],lHdr.srow_z[1], lHdr.srow_x[2],lHdr.srow_y[2],lHdr.srow_z[2]]));
      for i := 1 to 3 do begin
-         scale[i] := iScale;
-         (*  if (round(lHdr.dim[i] * scale[i]) < 1) then begin
+         if i = 1 then
+                 scale[i] := xScale
+         else if i = 2 then
+                 scale[i] := yScale
+         else
+             scale[i] := zScale;
+         if (round(lHdr.dim[i] * scale[i]) < 1) then begin
               scale[i] := 1/ lHdr.dim[i]  //e.g. for reducing 2D images, Z dimension does not change
-           end;*)
+         end;
          lHdr.dim[i] := round(lHdr.dim[i] * scale[i]);
 
          lHdr.pixdim[i] := lHdr.pixdim[i] / scale[i];
@@ -445,7 +451,7 @@ begin
     end;
 end;
 
-procedure Resize8(var lHdr: TNIFTIhdr; var lBuffer: bytep; xscale, fwidth: single; filter: TFilterProc);
+procedure Resize8(var lHdr: TNIFTIhdr; var lBuffer: bytep; xScale, yScale, zScale, fwidth: single; filter: TFilterProc);
 //rescales images with any dimension larger than lMaxDim to have a maximum dimension of maxdim...
 label
   666;
@@ -468,11 +474,11 @@ begin
       if lBuffer^[i] > mx then mx := lBuffer^[i];
   end;
 
-  Zoom(lHdr,xscale);
+  Zoom(lHdr,xScale, yScale, zScale);
   //shrink in 1st dimension : do X as these are contiguous = faster, compute slower dimensions at reduced resolution
   lXo := lHdr.dim[1]; //input X
   GetMem( tempImgX,lXo*lYi*lZi*sizeof(single)); //8
-  SetContrib(contrib, lXi, lXo, 1, xscale, fwidth, filter);
+  SetContrib(contrib, lXi, lXo, 1, xScale, fwidth, filter);
   i := 1;
   for z := 0 to (lZi - 1) do begin
     for y := 0 to (lYi-1) do begin
@@ -500,7 +506,7 @@ begin
   //shrink in 2nd dimension
   lYo := lHdr.dim[2]; //reduce Y output
   GetMem( tempImgY,lXo*lYo*lZi*sizeof(single)); //8
-  SetContrib(contrib, lYi, lYo, lXo, xscale, fwidth, filter);
+  SetContrib(contrib, lYi, lYo, lXo, yScale, fwidth, filter);
   i := 1;
   for z := 0 to (lZi - 1) do begin
       for y := 0 to (lYo - 1) do begin
@@ -529,7 +535,7 @@ begin
   //shrink the 3rd dimension
   lZo := lHdr.dim[3]; //reduce Z output
   GetMem( tempImgZ,lXo*lYo*lZo*sizeof(single)); //8
-  SetContrib(contrib, lZi, lZo, (lXo*lYo), xscale, fwidth, filter);
+  SetContrib(contrib, lZi, lZo, (lXo*lYo), zScale, fwidth, filter);
   i := 1;
   for z := 0 to (lZo - 1) do begin
       for y := 0 to (lYo - 1) do begin
@@ -565,7 +571,7 @@ begin
   Freemem( finalImg);
 end; //ShrinkLarge8()
 
-procedure Resize16(var lHdr: TNIFTIhdr; var lBuffer: bytep; xscale, fwidth: single; filter: TFilterProc);
+procedure Resize16(var lHdr: TNIFTIhdr; var lBuffer: bytep; xScale, yScale, zScale, fwidth: single; filter: TFilterProc);
 //rescales images with any dimension larger than lMaxDim to have a maximum dimension of maxdim...
 label
   666;
@@ -589,11 +595,11 @@ begin
       if lImg16^[i] < mn then mn := lImg16^[i];
       if lImg16^[i] > mx then mx := lImg16^[i];
   end;
-  Zoom(lHdr,xscale);
+  Zoom(lHdr,xScale, yScale, zScale);
   //shrink in 1st dimension : do X as these are contiguous = faster, compute slower dimensions at reduced resolution
   lXo := lHdr.dim[1]; //input X
   GetMem( tempImgX,lXo*lYi*lZi*sizeof(single)); //8
-  SetContrib(contrib, lXi, lXo, 1, xscale, fwidth, filter);
+  SetContrib(contrib, lXi, lXo, 1, xScale, fwidth, filter);
   i := 1;
   for z := 0 to (lZi - 1) do begin
     for y := 0 to (lYi-1) do begin
@@ -621,7 +627,7 @@ begin
   //shrink in 2nd dimension
   lYo := lHdr.dim[2]; //reduce Y output
   GetMem( tempImgY,lXo*lYo*lZi*sizeof(single)); //8
-  SetContrib(contrib, lYi, lYo, lXo, xscale, fwidth, filter);
+  SetContrib(contrib, lYi, lYo, lXo, yScale, fwidth, filter);
   i := 1;
   for z := 0 to (lZi - 1) do begin
       for y := 0 to (lYo - 1) do begin
@@ -650,7 +656,7 @@ begin
   //shrink the 3rd dimension
   lZo := lHdr.dim[3]; //reduce Z output
   GetMem( tempImgZ,lXo*lYo*lZo*sizeof(single)); //8
-  SetContrib(contrib, lZi, lZo, (lXo*lYo), xscale, fwidth, filter);
+  SetContrib(contrib, lZi, lZo, (lXo*lYo), zScale, fwidth, filter);
   i := 1;
   for z := 0 to (lZo - 1) do begin
       for y := 0 to (lYo - 1) do begin
@@ -687,7 +693,7 @@ begin
   Freemem( finalImg);
 end; //ShrinkLarge16()
 
-procedure Resize24(var lHdr: TNIFTIhdr; var lBuffer: bytep; xscale, fwidth: single; filter: TFilterProc);
+procedure Resize24(var lHdr: TNIFTIhdr; var lBuffer: bytep; xScale,yScale, zScale, fwidth: single; filter: TFilterProc);
 //rescales images with any dimension larger than lMaxDim to have a maximum dimension of maxdim...
 //this is done as three passes: once for red, green and blue
 // it might be a little faster to compute as one pass.
@@ -711,7 +717,7 @@ begin
         j := j + 3;
     end;
     lHdr := iHdr;
-    Resize8(lHdr, img1, xscale, fwidth, filter);
+    Resize8(lHdr, img1, xScale, yScale, zScale, fwidth, filter);
     if (k = 1) then begin
        nVxo := lHdr.dim[1] * lHdr.dim[2] * lHdr.dim[3];
        getmem(imgo,nVxo * 3);
@@ -727,7 +733,7 @@ begin
   lBuffer := imgo;
 end; //ShrinkLarge24()
 
-procedure Resize32(var lHdr: TNIFTIhdr; var lBuffer: bytep; xscale, fwidth: single; filter: TFilterProc);
+procedure Resize32(var lHdr: TNIFTIhdr; var lBuffer: bytep; xScale, yScale, zScale, fwidth: single; filter: TFilterProc);
 //rescales images with any dimension larger than lMaxDim to have a maximum dimension of maxdim...
 label
   666;
@@ -752,11 +758,11 @@ begin
       if lImg32^[i] < mn then mn := lImg32^[i];
       if lImg32^[i] > mx then mx := lImg32^[i];
   end;
-  Zoom(lHdr,xscale);
+  Zoom(lHdr,xScale, yScale, zScale);
   //shrink in 1st dimension : do X as these are contiguous = faster, compute slower dimensions at reduced resolution
   lXo := lHdr.dim[1]; //input X
   GetMem( tempImgX,lXo*lYi*lZi*sizeof(single));
-  SetContrib(contrib, lXi, lXo, 1, xscale, fwidth, filter);
+  SetContrib(contrib, lXi, lXo, 1, xScale, fwidth, filter);
   i := 1;
   for z := 0 to (lZi - 1) do begin
     for y := 0 to (lYi-1) do begin
@@ -784,7 +790,7 @@ begin
   //shrink in 2nd dimension
   lYo := lHdr.dim[2]; //reduce Y output
   GetMem( tempImgY,lXo*lYo*lZi*sizeof(single)); //8
-  SetContrib(contrib, lYi, lYo, lXo, xscale, fwidth, filter);
+  SetContrib(contrib, lYi, lYo, lXo, yScale, fwidth, filter);
   i := 1;
   for z := 0 to (lZi - 1) do begin
       for y := 0 to (lYo - 1) do begin
@@ -813,7 +819,7 @@ begin
   //shrink the 3rd dimension
   lZo := lHdr.dim[3]; //reduce Z output
   GetMem( tempImgZ,lXo*lYo*lZo*sizeof(single)); //8
-  SetContrib(contrib, lZi, lZo, (lXo*lYo), xscale, fwidth, filter);
+  SetContrib(contrib, lZi, lZo, (lXo*lYo), zScale, fwidth, filter);
   i := 1;
   for z := 0 to (lZo - 1) do begin
       for y := 0 to (lYo - 1) do begin
@@ -846,6 +852,45 @@ begin
   lBuffer := bytep(finalImg);
 end; //ShrinkLarge32()
 
+function EnlargeIsotropic(var lHdr: TNIFTIhdr; var lBuffer: bytep; lFilter: integer): boolean;
+var
+  mmMx, mmMn, xScale, yScale, zScale, fwidth: single;
+  filter: TFilterProc;
+begin
+ result := false;
+ mmMx := max(max(lHdr.pixdim[1],lHdr.pixdim[2]),lHdr.pixdim[3]);
+ mmMn := min(min(lHdr.pixdim[1],lHdr.pixdim[2]),lHdr.pixdim[3]);
+ if (mmMn = 0) or (specialsingle(mmMn)) or (specialsingle(mmMx)) or (mmMn = mmMx) then exit;
+ xScale :=  lHdr.pixdim[1]/ mmMn;
+ yScale :=  lHdr.pixdim[2]/ mmMn;
+ zScale :=  lHdr.pixdim[3]/ mmMn;
+ //upsample, so use Mitchell by default
+ if lFilter = 0 then begin
+    filter := @BoxFilter; fwidth := 0.5;
+ end else if lFilter = 1 then begin
+      filter := @TriangleFilter; fwidth := 1;
+ end else if lFilter = 2 then begin
+      filter := @HermiteFilter; fwidth := 1;
+ end else if lFilter = 3 then begin
+     filter := @BellFilter; fwidth := 1.5;
+ end else if lFilter = 4 then begin
+     filter := @SplineFilter; fwidth := 2;
+ end else if lFilter = 5 then begin
+     filter := @Lanczos3Filter; fwidth := 3;
+ end else begin
+     filter := @MitchellFilter; fwidth := 2;
+ end;
+ if lHdr.datatype = kDT_UNSIGNED_CHAR then
+    Resize8(lHdr, lBuffer, xScale, yScale, zScale, fwidth, @filter)
+ else if lHdr.datatype = kDT_SIGNED_SHORT then
+    Resize16(lHdr, lBuffer, xScale, yScale, zScale, fwidth, @filter)
+ else if lHdr.datatype = kDT_FLOAT then
+    Resize32(lHdr, lBuffer, xScale, yScale, zScale, fwidth, @filter)
+ else if lHdr.datatype = kDT_RGB then
+    Resize24(lHdr, lBuffer, xScale, yScale, zScale, fwidth, @filter);
+ result := true;
+end;
+
 procedure ShrinkOrEnlarge(var lHdr: TNIFTIhdr; var lBuffer: bytep; lFilter: integer; lScale: single);
 var
    fwidth: single;
@@ -873,26 +918,25 @@ begin
       filter := @MitchellFilter; fwidth := 2;
   end;
   if lHdr.datatype = kDT_UNSIGNED_CHAR then
-     Resize8(lHdr, lBuffer, lScale, fwidth, @filter)
+     Resize8(lHdr, lBuffer, lScale, lScale, lScale, fwidth, @filter)
   else if lHdr.datatype = kDT_SIGNED_SHORT then
-     Resize16(lHdr, lBuffer, lScale, fwidth, @filter)
+     Resize16(lHdr, lBuffer, lScale, lScale, lScale, fwidth, @filter)
   else if lHdr.datatype = kDT_FLOAT then
-     Resize32(lHdr, lBuffer, lScale, fwidth, @filter)
+     Resize32(lHdr, lBuffer, lScale, lScale, lScale, fwidth, @filter)
   else if lHdr.datatype = kDT_RGB then
-     Resize24(lHdr, lBuffer, lScale, fwidth, @filter);
-
+     Resize24(lHdr, lBuffer, lScale, lScale, lScale, fwidth, @filter);
 end;
 
 procedure ShrinkLarge(var lHdr: TNIFTIhdr; var lBuffer: bytep; lMaxDim: integer);
 //rescales images with any dimension larger than lMaxDim to have a maximum dimension of maxdim...
 var
    imx: integer;
-   xscale, fwidth: single;
+   scale, fwidth: single;
    filter: TFilterProc;
 begin
   imx := max(max(lHdr.dim[1], lHdr.dim[2]), lHdr.dim[3]);
   if (imx <= lMaxDim) or (lMaxDim < 1) then exit;
-  xscale := lMaxDim/imx;
+  scale := lMaxDim/imx;
   //n.b. can also be used to upsize or downsize data:
   // xscale := 0.5; // 50%
   // xscale := 1.5; //150%
@@ -904,13 +948,13 @@ begin
   filter := @Lanczos3Filter; fwidth := 3;
   //filter := @MitchellFilter; fwidth := 2;
   if lHdr.datatype = kDT_UNSIGNED_CHAR then
-     Resize8(lHdr, lBuffer, xscale, fwidth, @filter)
+     Resize8(lHdr, lBuffer, scale, scale, scale, fwidth, @filter)
   else if lHdr.datatype = kDT_SIGNED_SHORT then
-     Resize16(lHdr, lBuffer, xscale, fwidth, @filter)
+     Resize16(lHdr, lBuffer, scale, scale, scale, fwidth, @filter)
   else if lHdr.datatype = kDT_FLOAT then
-     Resize32(lHdr, lBuffer, xscale, fwidth, @filter)
+     Resize32(lHdr, lBuffer, scale, scale, scale, fwidth, @filter)
   else if lHdr.datatype = kDT_RGB then
-     Resize24(lHdr, lBuffer, xscale, fwidth, @filter);
+     Resize24(lHdr, lBuffer, scale, scale, scale, fwidth, @filter);
 end;
 
 (*procedure ShrinkLarge(var lHdr: TNIFTIhdr; var lBuffer: bytep; lMaxDim: integer);

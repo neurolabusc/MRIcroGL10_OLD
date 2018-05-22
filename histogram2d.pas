@@ -9,14 +9,14 @@ uses
 {$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL}glcorearb, {$ELSE} gl, {$ENDIF}  {$ENDIF DGL}
 
  clut, define_types, Forms, Classes, Controls, prefs;
-
+ function ColorBoxPixels(WINDOW_HEIGHT,WINDOW_WIDTH: integer): integer;
   procedure DrawNodes(WINDOW_HEIGHT,WINDOW_WIDTH: integer; Tex: TTexture; var lPrefs: TPrefs);
-  procedure ClutMouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-  procedure CLUTMouseMove(Shift: TShiftState; X, Y: Integer);
+  procedure ClutMouseDown(Button: TMouseButton; Shift: TShiftState; aX, aY: Integer);
+  procedure CLUTMouseMove(Shift: TShiftState; aX, aY: Integer);
   function AddColorNode (lIntensity: byte) : integer;
 
 implementation
-uses mainunit
+uses mainunit, raycast_common
 {$IFDEF COREGL} ,gl_2d, textfx, gl_core_matrix, mainunit{$ENDIF};
 
 type
@@ -91,12 +91,15 @@ begin
     InterpolateRGBA(gCLUTrec.nodes[lP-1].rgba,gCLUTrec.nodes[lP+1].rgba,gCLUTrec.nodes[lP].rgba);
 end;
 
-procedure CLUTMouseMove(Shift: TShiftState; X, Y: Integer);
+procedure CLUTMouseMove(Shift: TShiftState; aX, aY: Integer);
 var
-  lX,lY: integer;
+  x,y, lX,lY: integer;
 begin
    if not (SSLeft in Shift) then
     exit;
+   y := ColorBoxPixels(gRayCast.WINDOW_HEIGHT,gRayCast.WINDOW_WIDTH);
+   x := round(aX * (256/y));
+   y := round(aY * (256/y));
    if (gCLUTrec.numNodes < 1) or (gSelectedNode < 0) or (gCLUTrec.numnodes <= gSelectedNode  ) then
     exit;
    lY := 255-Y;
@@ -115,13 +118,16 @@ begin
     gCLUTrec.nodes[gSelectedNode].intensity := lX;
    end;//node not first or last (min node must be zero, max node must be 255)
 end;
-procedure ClutMouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure ClutMouseDown(Button: TMouseButton; Shift: TShiftState; aX, aY: Integer);
 var
-  lI,lB: integer;
+  lI,lB,x,y: integer;
   lDx,lDx2: single;
   lPt: TPoint;
 begin
-   gSelectedNode := 0;
+  y := ColorBoxPixels(gRayCast.WINDOW_HEIGHT,gRayCast.WINDOW_WIDTH);
+  x := round(aX * (256/y));
+  y := round(aY * (256/y));
+  gSelectedNode := 0;
    if gCLUTrec.numNodes < 2 then
     exit;
    lPt := Point(X,255-Y);
@@ -458,13 +464,11 @@ end;
 
 procedure ShowNodes (lCLUTrec: TCLUTrec; var C: TChart2d; Tex: TTexture);
 const
- kGridThick = 1;
- kThick = 4;
  ngrid = 4;
 var
-  nsz,nsz2,x,y: single;
+  nsz,nsz2,x,y, colorbarHeight: single;
   Cx: TChart2d;
-  i: integer;
+  thick, gridThick,i: integer;
 begin
 
   if lCLUTrec.numnodes < 2 then
@@ -486,24 +490,33 @@ begin
      nsz2 := y;
   end;
   SetColor(C.rgba);
-  glLineWidth(1);
+  if C.Height > 320 then begin
+    gridThick := 2;
+    thick := 5;
+  end else begin
+      gridThick := 1;
+      thick := 4;
+  end;
+  glLineWidth(gridThick);
+  colorbarHeight :=C.Height*0.05;
+
   glBegin(GL_LINES);
-    glVertex3f (0, 0, 0);
-    glVertex3f (nsz, -30, 0);
-    glVertex3f (256, 0, 0);
-    glVertex3f (nsz2, -30, 0);
+    glVertex3f (0, -colorbarHeight, 0);
+    glVertex3f (nsz, - 2 * colorbarHeight, 0);
+    glVertex3f (C.Width, -colorbarHeight, 0);
+    glVertex3f (nsz2, -2 * colorbarHeight, 0);
 
   glEnd;
   {$ENDIF}
-    nsz := kThick+(2*kGridThick);//0.02*C.Width;
-  nsz2 := kThick;//0.01 * C.Width;
+    nsz := thick+(2*gridThick);//0.02*C.Width;
+  nsz2 := thick;//0.01 * C.Width;
   //dark background
   SetColor(C.backcolor);//glColor4f(0,0,0,0.2);
   glBegin (GL_QUADS);
-        glVertex3f (0, 0, 0);
-        glVertex3f (C.Width, 0, 0);
-        glVertex3f (C.Width, C.Height, 0);
-        glVertex3f (0, C.Height, 0);
+        glVertex3f (0, thick, 0);
+        glVertex3f (C.Width, thick, 0);
+        glVertex3f (C.Width, C.Height+thick, 0);
+        glVertex3f (0, C.Height+thick, 0);
   glEnd;
 
   //draw histogram
@@ -513,7 +526,7 @@ begin
 
   //frame
   //glBlendFunc (GL_SRC_ALPHA, GL_ONE);//additive with colors beneath, does not look good with bright background
-  glLineWidth(kGridThick);
+  glLineWidth(1);
   SetColor(C.rgba);
   glBegin (GL_LINE_STRIP);
         //glColor4f (1, 1, 1,1);
@@ -544,23 +557,23 @@ begin
   glBegin (GL_QUADS);
         SetColorA(C.rgba,0);
         glVertex3f (C.Width, 0, 0);
-        glVertex3f (C.Width*1.05, 0, 0);
+        glVertex3f (C.Width+colorbarHeight, 0, 0);
         SetColorA(C.rgba,255);
-        glVertex3f (C.Width*1.05, C.Height, 0);
+        glVertex3f (C.Width+colorbarHeight, C.Height, 0);
         glVertex3f (C.Width, C.Height, 0);
   glEnd;
   //horizontal bar
   glBegin (GL_QUADS);
         glColor4f(0,0,0,1);
         glVertex3f (0, 0, 0);
-        glVertex3f (0, C.Height*-0.05, 0);
+        glVertex3f (0, -colorbarHeight, 0);
         glColor4f(1,1,1,1);
-        glVertex3f (C.Width, C.Height*-0.05, 0);
+        glVertex3f (C.Width, -colorbarHeight, 0);
         glVertex3f (C.Width, 0, 0);
   glEnd;
   //lines between nodes
   SetColor(C.rgba);
-  glLineWidth(kThick*2);
+  glLineWidth(thick*2);
   glBegin (GL_LINE_STRIP);
   for i := 0 to (lCLUTrec.numnodes-1) do begin
       x := C.Width*lCLUTrec.nodes[i].intensity/255;
@@ -570,7 +583,7 @@ begin
     end;
   glEnd;
   //now with node colors... inset
-  glLineWidth(kThick);
+  glLineWidth(thick);
   glBegin (GL_LINE_STRIP);
   for i := 0 to (lCLUTrec.numnodes-1) do begin
       SetColorOpaque(lCLUTrec.nodes[i].rgba);
@@ -603,9 +616,15 @@ begin
     end;
     glLineWidth(1);
  {$IFNDEF USETRANSFERTEXTURE}
-glTranslatef(0,-100,0.0);
-  Cx := C;
-  Cx.Height := 70;
+ //glTranslatef(0,-100,0.0);
+ Cx := C;
+ //Cx.Height := 70;
+ Cx.Height :=  C.Height / 4;
+ //glTranslatef(0, -2*colorbarHeight,0.0);
+ glTranslatef(0, -Cx.Height-2*colorbarHeight,0.0);
+
+
+
   x := abs(Tex.WindowScaledMax-Tex.WindowScaledMin);//range
   if x = 0 then x := 1; //aoid divide by zero
   nsz := (lCLUTrec.min-Tex.WindowScaledMin)/x*Cx.Width;
@@ -625,6 +644,20 @@ glTranslatef(0,-100,0.0);
    {$ENDIF}
 end;
 
+function ColorBoxPixels(WINDOW_HEIGHT,WINDOW_WIDTH: integer): integer;
+begin
+  //ColorBoxSize(gRayCast.WINDOW_HEIGHT,gRayCast.WINDOW_WIDTH);
+  if (WINDOW_WIDTH >= 1536) and (WINDOW_HEIGHT >= 1024) then
+    result := 512
+  else
+      result := 256;
+  (*  if (WINDOW_WIDTH >= 1920) and (WINDOW_HEIGHT >= 1280) then
+    result := 512
+  else if (WINDOW_WIDTH >= 1440) and (WINDOW_HEIGHT >= 960) then
+    result := 384
+  else
+      result := 256;  *)
+end;
 
 procedure DrawNodes(WINDOW_HEIGHT,WINDOW_WIDTH: integer; Tex: TTexture; var lPrefs: TPrefs);
 var
@@ -638,10 +671,10 @@ begin
   C.rgba := lPrefs.GridAndBorder; //RGBA(96,96,128,196);
   C.historgba := lPrefs.HistogramColor;// RGBA(96,48,96,196);
   C.backcolor := lPrefs.HistogramBack;
+  C.Height := ColorBoxPixels(WINDOW_HEIGHT,WINDOW_WIDTH);
+  C.Width := C.Height;
   C.Left := 1;
-  C.Bottom := WINDOW_HEIGHT-257;
-  C.Height := 256;
-  C.Width := 256;
+  C.Bottom := WINDOW_HEIGHT-C.Height-1;
   ShowNodes(gCLUTrec,C, Tex);
 end;
 {$ENDIF}

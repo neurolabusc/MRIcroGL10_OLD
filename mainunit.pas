@@ -439,7 +439,8 @@ function MouseUpVOI (Shift: TShiftState; X, Y: Integer): boolean;
     procedure Scripting1Click(Sender: TObject);
     procedure SetFormSize(FormWidth,FormHeight: integer);
     procedure Copy1Click(Sender: TObject);
-    procedure SavePicture (lFilename: string);
+    procedure SavePicture (lFilename: string; lX, lY: integer); overload;
+    procedure SavePicture (lFilename: string); overload;
     procedure Save1Click(Sender: TObject);
     procedure DisplayRadiological;
     procedure DisplayPrefs;
@@ -1653,6 +1654,7 @@ end;
 procedure TGLForm1.DrawMosaic(Str: string);
 begin
   gRayCast.MosaicString := Str;
+  MosaicText.Font.Color := clBlack;
   GLBox.invalidate;
 end;
 
@@ -2337,8 +2339,11 @@ end;
 
 
 function InColorBox(X, Y: Integer): boolean;
+var
+ px: integer;
 begin
-    result := (X>=0) and (Y>=0) and (X < 260) and (Y < 260);
+  px := ColorBoxPixels(gRayCast.WINDOW_HEIGHT,gRayCast.WINDOW_WIDTH)+4;
+    result := (X>=0) and (Y>=0) and (X < px) and (Y < px);
 end;
 
 procedure Bound (var Val: integer; Min,Max: integer);
@@ -2506,7 +2511,7 @@ begin
   {$IFNDEF FPC}
   GLBox.SetFocus;//without this the scroll wheel can adjust previously selected combobox
   {$ENDIF}
-  if gPrefs.SliceView = 5 then exit; //mosaic
+  //if gPrefs.SliceView = 5 then exit; //mosaic
   X := lX; Y := lY; Mouse2Retina(X,Y);
   MouseStartPt.X := -1;
   if MouseDownVOI(Shift,X, Y) then exit; //intercepted by draw tool
@@ -2532,7 +2537,7 @@ begin
     //GLbox.invalidate;
     exit;
   end;
-  If gPrefs.SliceView <> 0 then begin
+  If (gPrefs.SliceView <> 0) and (gPrefs.SliceView <> 5) then begin
     OrthoClick(X,Y);
     exit;
   end;
@@ -2546,7 +2551,6 @@ var
   zoom: single;
   X,Y: integer;
 begin
- if gPrefs.SliceView = 5 then exit; //mosaic
  X := lX; Y := lY; Mouse2Retina(X,Y);
  if MouseMoveVOI (X, Y) then exit;
   if (SSLeft in Shift)  and (InColorBox(abs(X),abs(Y))) and (gPrefs.ColorEditor) and (gSelectedNode >= 0) then begin
@@ -2555,6 +2559,8 @@ begin
      GLbox.invalidate;
     exit;
   end;
+  if gPrefs.SliceView = 5 then exit; //mosaic
+
   If (SSLeft in Shift)  and (gPrefs.SliceView <> 0) then begin
     OrthoClick(X,Y);
     exit;
@@ -4277,7 +4283,50 @@ begin
 end;
 {$ENDIF}
 
-procedure TGLForm1.SavePicture(lFilename: string);
+procedure TGLForm1.SavePicture(lFilename: string; lX,lY: integer); overload;
+var
+   bmp: TBitmap;
+   png: TPortableNetworkGraphic;
+   {$IFDEF LCLCocoa}retina: boolean; {$ENDIF}
+begin
+ GLBox.Align := alNone;
+ GLBox.Width:=lX;
+ GLBox.Height:=lY;
+ {$IFDEF LCLCocoa}
+ if (gPrefs.RetinaDisplay) then begin
+    retina := gPrefs.RetinaDisplay;
+    gPrefs.RetinaDisplay := false;
+    setRetina;
+ end;
+ {$ENDIF}
+ GLBox.ClientWidth:=lX;
+ GLBox.ClientHeight:=lY;
+ gRayCast.WINDOW_WIDTH := lX;
+ gRayCast.WINDOW_HEIGHT := lY;
+ gPrefs.BitmapZoom:=1;
+ GLBox.Invalidate;
+ //bmp := ScreenShot(1);
+ bmp := ScreenShotX1;
+ GLBox.Align := alClient;
+ {$IFDEF LCLCocoa}
+ if (retina) then begin
+    gPrefs.RetinaDisplay := true;
+    setRetina;
+ end;
+ {$ENDIF}
+ gRayCast.WINDOW_WIDTH := GLBox.ClientWidth;
+ gRayCast.WINDOW_HEIGHT := GLBox.ClientHeight;
+
+ GLBox.Invalidate;
+ //JPEG
+ if (UpCaseExt(lFilename) = '.JPG') or (UpCaseExt(lFilename) = '.JPEG') then
+    SaveImgAsJPGCore (bmp, lFilename)
+  else
+    SaveImgAsPNGCore (bmp, lFilename);
+  bmp.Free;
+end;
+
+procedure TGLForm1.SavePicture(lFilename: string); overload;
 var bmp: TBitmap;
 begin
   bmp := ScreenShot(gPrefs.BitmapZoom);
@@ -4287,7 +4336,6 @@ begin
     SaveImgAsPNGCore (bmp, lFilename);
   bmp.Free;
 end; //proc SavePicture
-
 
 procedure TGLForm1.Save1Click(Sender: TObject);
 begin
@@ -4594,7 +4642,7 @@ begin
      result := false;
      if (AutoROIForm.visible) then exit;
      if (ssCtrl in Shift) then exit;
-     if (gPrefs.SliceView < 1) or (gPrefs.DrawColor < 0)  then exit;
+     if (gPrefs.SliceView < 1)  or (gPrefs.SliceView = 5) or (gPrefs.DrawColor < 0)  then exit;
      if  (not voiIsOpen) then begin //clicked after VOI/Close - lets create a new one
         voiCreate(gTexture3D.FiltDim[1], gTexture3D.FiltDim[2],gTexture3D.FiltDim[3], nil);
      end;
@@ -4630,7 +4678,7 @@ var
   lOrient, lActiveOrient: integer;
 begin
      result := false;
-     if (gPrefs.SliceView < 1) or (gPrefs.DrawColor < 0)  then exit;
+     if (gPrefs.SliceView < 1) or (gPrefs.SliceView = 5) or (gPrefs.DrawColor < 0)  then exit;
      lActiveOrient := voiActiveOrient;
      if (lActiveOrient < 1) then exit;
      OrthoPix2Frac (X, Y, lOrient, lXfrac,lYfrac,lZfrac);
@@ -4650,7 +4698,7 @@ var
   lOrient: integer;
 begin
      result := false;
-     if (gPrefs.SliceView < 1) or (gPrefs.DrawColor < 0)  then exit;
+     if (gPrefs.SliceView < 1)  or (gPrefs.SliceView = 5) or (gPrefs.DrawColor < 0)  then exit;
      if (voiActiveOrient < 1) then exit;
      OrthoPix2Frac (X, Y, lOrient, lXfrac,lYfrac,lZfrac);
      //voiMouseUp(lXfrac, lYfrac, lZfrac,not (ssCtrl in Shift) );// not (ssCtrl in Shift));  (ssCtrl in Shift)
@@ -4721,7 +4769,8 @@ end;
 
 procedure TGLForm1.HideRenderToolsBtnClick(Sender: TObject);
 begin
-    ClipBox.visible := not ClipBox.visible;
+
+     ClipBox.visible := not ClipBox.visible;
     CutoutBox.visible := not CutoutBox.visible;
     ShaderBoxResize(Sender);
     Self.ActiveControl := nil;
@@ -5913,16 +5962,22 @@ procedure TGLForm1.FormDropFiles(Sender: TObject;
   const FileNames: array of String);
 var
  lFilename: string;
+ ss: TShiftState;
 begin
 if (dcm2niiForm.visible) and ((dcm2niiForm.Active) or (dcm2niiForm.Focused)) then begin
   dcm2niiForm.FormDropFiles(Sender, FileNames);
   exit;
 end;
+ss := getKeyshiftstate;
 if AutoRunTimer1.enabled then exit;
 //AutoRunTimer1.Enabled := false;  //if user opens with application, disable startup script in OSX
 if length(FileNames) < 1 then
    exit;
 lFilename := Filenames[0];
+if (ssMeta in ss) or (ssCtrl in ss) then begin
+  AddOverlay(lFilename,1);
+  exit;
+end;
 if NIFTIvolumes(lFilename) > 0 then begin
    LoadDatasetNIFTIvolx(lFileName,true);
    exit;
