@@ -44,6 +44,7 @@ TGLForm1 = class(TForm)
     CoordLabel: TLabel;
     LeftBtn: TButton;
     AnteriorBtn: TButton;
+    OnlineHelpMenu: TMenuItem;
     XCoordEdit: TEdit;
     ResetDefaults1: TMenuItem;
     PosteriorBtn: TButton;
@@ -275,6 +276,7 @@ TGLForm1 = class(TForm)
     procedure LineColorBtnClick(Sender: TObject);
     procedure LineWidthEditChange(Sender: TObject);
     procedure CoordEditChange(Sender: TObject);
+    procedure OnlineHelpMenuClick(Sender: TObject);
     procedure MosaicTextChange(Sender: TObject);
     function OpenVOI(lFilename: string): boolean;
     procedure BackgroundMaskMenuClick(Sender: TObject);
@@ -2276,10 +2278,13 @@ begin
   {$IFDEF Darwin} //only for Carbon compile
       //    OnDropFiles := DropFiles;
       //GLBox.DoubleBuffered:= false; // DoubleBuffered
-          Help1.visible := false;
+        //  Help1.visible := false;
+        About1.visible := false;
+        Preferences1.visible := false;
         //Edit1.visible := false;
         NewWindow1.Visible:= true;
         Exit1.visible := false;//with OSX users quit from application menu
+        Copy1.ShortCut:= ShortCut(Word('C'), [ssMeta]); ;
         Open1.ShortCut := ShortCut(Word('O'), [ssMeta]);
         Overlays1.ShortCut := ShortCut(Word('O'), [ssShift, ssMeta]);
         Tool1.ShortCut := ShortCut(Word('T'), [ssMeta]);
@@ -2290,22 +2295,24 @@ begin
         //SaveVOI1.ShortCut :=  ShortCut(Word('S'), [ssMeta]);
         HideVOI1.ShortCut := ShortCut(Word('H'), [ssMeta]);
         PasteSlice1.ShortCut :=  ShortCut(Word('V'), [ssMeta]);
-        UndoVOI1.ShortCut :=  ShortCut(Word('Z'), [ssMeta]);
+        //UndoVOI1.ShortCut :=  ShortCut(Word('Z'), [ssMeta]);
+        UndoVOI1.ShortCut :=  ShortCut(Word('U'), [ssMeta]);
         Eraser1.ShortCut :=  ShortCut(Word('E'), [ssMeta]);
         NoDraw1.ShortCut :=  ShortCut(Word('D'), [ssMeta]);
-        Render1.ShortCut :=  ShortCut(Word('R'), [ssMeta]);
+        YokeMenu.ShortCut :=  ShortCut(Word('Y'), [ssMeta]);
+        //in Cocoa: non-active menu intercepts keystrokes, so user typing in script form can not type "A" if that is used by main forms Axial menu
+
+        (*Render1.ShortCut :=  ShortCut(Word('R'), [ssMeta]);
         Axial1.ShortCut :=  ShortCut(Word('A'), [ssMeta]);
         Coronal1.ShortCut :=  ShortCut(Word('C'), [ssMeta]);
         Sagittal1.ShortCut :=  ShortCut(Word('S'), [ssMeta]);
         MPR1.ShortCut :=  ShortCut(Word('M'), [ssMeta]);
-        YokeMenu.ShortCut :=  ShortCut(Word('Y'), [ssMeta]);
-        //in Cocoa: non-active menu intercepts keystrokes, so user typing in script form can not type "A" if that is used by main forms Axial menu
         LeftMenu.ShortCut :=  ShortCut(Word('L'), [ssCtrl]);
         RightMenu.ShortCut :=  ShortCut(Word('R'), [ssCtrl]);
         AnteriorMenu.ShortCut :=  ShortCut(Word('A'), [ssCtrl]);
         PosteriorMenu.ShortCut :=  ShortCut(Word('P'), [ssCtrl]);
         SuperiorMenu.ShortCut :=  ShortCut(Word('S'), [ssCtrl]);
-        InferiorMenu.ShortCut :=  ShortCut(Word('I'), [ssCtrl]);
+        InferiorMenu.ShortCut :=  ShortCut(Word('I'), [ssCtrl]);*)
         {$ELSE}
         LeftMenu.ShortCut :=  ShortCut(Word('L'), [ssAlt]);
         RightMenu.ShortCut :=  ShortCut(Word('R'), [ssAlt]);
@@ -3613,7 +3620,7 @@ begin
   	 result := lmin;
   if result > lmax then
 end;*)
-function GetFloat(prompt: string; min,def,max: extended): extended;
+function GetFloat(prompt: string; min,def,max: double): double;
 var
     PrefForm: TForm;
     OkBtn: TButton;
@@ -3621,7 +3628,7 @@ var
     valEdit: TEdit;
 begin
   PrefForm:=TForm.Create(nil);
-  PrefForm.SetBounds(100, 100, 640, 112);
+  PrefForm.SetBounds(100, 100, 512, 112);
   PrefForm.Caption:='Value required';
   PrefForm.Position := poScreenCenter;
   PrefForm.BorderStyle := bsDialog;
@@ -3653,7 +3660,7 @@ begin
   if gPrefs.DarkMode then GLForm1.SetFormDarkMode(PrefForm);
   {$ENDIF}
   PrefForm.ShowModal;
-  result := def;
+  result := NaN;
   if (PrefForm.ModalResult = mrOK) then begin
     result := StrToFloatDef(valEdit.Caption, def);
     if (min < max) and (result < min) then
@@ -3666,10 +3673,11 @@ end; //GetFloat()
 
 procedure TGLForm1.BET1Click(Sender: TObject);
 var
-  lFrac: single;
+  lFrac: double;
   lB: string;
 begin
   lFrac := GetFloat('Brain extraction fraction (smaller values lead to larger brain volume)',0.1,0.45,0.9);
+  if specialdouble(lFrac) then exit;
   if not OpenDialog1.Execute then
     exit;
   lB := FSLbet(OpenDialog1.FileName,lFrac);
@@ -3753,6 +3761,7 @@ begin
  setThemeMode(ExtractForm.Handle, gPrefs.DarkMode);
  {$ENDIF}
  ExtractForm.ShowModal;
+ if ExtractForm.ModalResult <> mrOK then exit;
  ExtractTexture (gTexture3D, ExtractForm.OtsuLevelsEdit.value, ExtractForm.DilateEdit.value, ExtractForm.OneContiguousObjectCheck.checked);
  M_refresh := true;
  UpdateTimer.Enabled := true;
@@ -3869,6 +3878,7 @@ var
   gitVer, exeNam: string;
   git, local: integer;
 begin
+ exeNam := ExtractFileName(exe);
   if length(localVer) < 8 then begin  //last 8 digits are date: v.1.0.20170101
     MessageDlg(exeNam,'Unable to detect version:  '+exe, mtConfirmation,[mbOK],0) ;
     //showmessage('Unable to detect latest version:  '+exe);
@@ -3880,7 +3890,7 @@ begin
       showmessage('Unable to detect latest version: are you connected to the web and do you have libssl installed? '+api);
       exit;
   end;
-  exeNam := ExtractFileName(exe);
+
   if CompareText(gitVer, localVer) = 0 then begin
       //showmessage('You are running the latest release '+localVer);
       MessageDlg(exeNam,'You are running the latest release '+localVer, mtConfirmation,[mbOK],0) ;
@@ -4068,13 +4078,13 @@ begin
   {$ENDIF}
   //UpdateBtn
   {$IFDEF UNIX}
-  UpdateBtn:=TButton.create(PrefForm);
+  (*UpdateBtn:=TButton.create(PrefForm);
   UpdateBtn.Caption:='Check for updates';
   UpdateBtn.Left := 28;
   UpdateBtn.Width:= 168;
   UpdateBtn.Top := 198;
   UpdateBtn.Parent:=PrefForm;
-  UpdateBtn.OnClick:= GLForm1.CheckForUpdates;
+  UpdateBtn.OnClick:= GLForm1.CheckForUpdates;*)
   {$ENDIF}
   //UpdateBtn.ModalResult:= mrOK;
 
@@ -4561,6 +4571,11 @@ begin
   //CoordLabel.caption := inttostr(random(888));
  SetXHairPosition(StrToFloatDef(XCoordEdit.Text,0),StrToFloatDef(YCoordEdit.Text,0),StrToFloatDef(ZCoordEdit.Text,0) );
 
+end;
+
+procedure TGLForm1.OnlineHelpMenuClick(Sender: TObject);
+begin
+  OpenURL('https://www.nitrc.org/plugins/mwiki/index.php/mricrogl:MainPage');
 end;
 
 procedure TGLForm1.MosaicTextChange(Sender: TObject);

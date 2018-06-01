@@ -11,7 +11,7 @@ uses
 
 //function SaveImg (lOutname: string; var lHdrx: TMRIcroHdr): boolean;
 function SaveImg (lOutname: string; var lHdr: TNIFTIhdr; lImg: Bytep): boolean;
-function SaveImgScaled (lOutname: string; lFilter: integer; lScale: single): boolean;
+function SaveImgScaled (lOutname: string; lFilter: integer; lScaleX, lScaleY, lScaleZ: single): boolean;
 //function SaveImgIso (lOutname: string; lFilter: integer): boolean;
 function SaveThresholdedUI(lThresh, lClusterMM3: single; lSaveToDisk: boolean): boolean;
 function SaveThresholded(lInname: string; lThresh, lClusterMM3: single; lSaveToDisk: boolean): integer;
@@ -206,7 +206,7 @@ begin
      result := outbytes;
 end;
 
-function SaveImgScaled (lOutname: string; lFilter: integer; lScale: single): boolean;
+function SaveImgScaled (lOutname: string; lFilter: integer; lScaleX, lScaleY, lScaleZ: single): boolean;
 var
   i, bpp, nVox : int64;
   lOutnameGz : string;
@@ -223,7 +223,7 @@ begin
      end;
      nVox := numVox(gTexture3D.NIFTIhdr);
      h := gTexture3D.NIFTIhdr;
-     if (lScale <= 0) and (h.pixdim[1] = h.pixdim[2]) and  (h.pixdim[1] = h.pixdim[3]) then
+     if (lScaleX <= 0) and (lScaleY <= 0) and (lScaleZ <= 0) and (h.pixdim[1] = h.pixdim[2]) and  (h.pixdim[1] = h.pixdim[3]) then
         exit; //already isotropic
      if  gTexture3D.RawUnscaledImg32 <> nil then begin
        lImg := bytep(gTexture3D.RawUnscaledImg32);
@@ -264,10 +264,10 @@ begin
      Rewrite(lF,1);
      GetMem(lImgX,nVox * bpp);
      System.Move(lImg^,lImgX^,nVox * bpp);
-     if lScale <= 0 then
+     if (lScaleX <= 0) and (lScaleY <= 0) and (lScaleZ <= 0) then
          EnlargeIsotropic(h, lImgX, lFilter)
      else
-         ShrinkOrEnlarge(h, lImgX, lFilter, lScale);
+         ShrinkOrEnlarge(h, lImgX, lFilter, lScaleX, lScaleY, lScaleZ);
      nVox := numVox(h);
      //outbytes := nVox * bpp;
       BlockWrite(lF,h,sizeof(TNIFTIHdr) );

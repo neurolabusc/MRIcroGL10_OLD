@@ -1383,7 +1383,7 @@ object GLForm1: TGLForm1
       Caption = 'Edit'
       object Copy1: TMenuItem
         Caption = 'Copy'
-        ShortCut = 16384
+        ShortCut = 16451
         OnClick = Copy1Click
       end
     end
@@ -1651,6 +1651,7 @@ object GLForm1: TGLForm1
           Caption = 'Erase'
           GroupIndex = 189
           RadioItem = True
+          ShortCut = 16453
           OnClick = DrawTool1Click
         end
       end
@@ -1679,7 +1680,8 @@ object GLForm1: TGLForm1
           OnClick = AutoRoi1Click
         end
         object voiBinarize1: TMenuItem
-          Caption = 'Binarize'
+          Caption = 'Binarize (make entire drawing red)'
+          Hint = 'Make entire drawing red'
           OnClick = voiBinarize1Click
         end
         object InterpolateDrawMenu: TMenuItem
@@ -1737,7 +1739,6 @@ object GLForm1: TGLForm1
         Caption = 'Coronal'
         GroupIndex = 212
         RadioItem = True
-        ShortCut = 16451
         OnClick = SetViewClick
       end
       object Sagittal1: TMenuItem
@@ -1752,7 +1753,7 @@ object GLForm1: TGLForm1
       object MPR1: TMenuItem
         Tag = 4
         AutoCheck = True
-        Caption = 'Multi Planar (A+C+S)'
+        Caption = 'Multi planar (A+C+S)'
         GroupIndex = 212
         RadioItem = True
         ShortCut = 16461
@@ -1817,7 +1818,7 @@ object GLForm1: TGLForm1
       end
       object RadiologicalMenu: TMenuItem
         AutoCheck = True
-        Caption = 'Radiological (Flip LR)'
+        Caption = 'Radiological (flip LR)'
         OnClick = RadiologicalMenuClick
       end
     end
@@ -1924,6 +1925,10 @@ object GLForm1: TGLForm1
       object Preferences1: TMenuItem
         Caption = 'Preferences'
         OnClick = Preferences1Click
+      end
+      object OnlineHelpMenu: TMenuItem
+        Caption = 'Online help'
+        OnClick = OnlineHelpMenuClick
       end
     end
   end

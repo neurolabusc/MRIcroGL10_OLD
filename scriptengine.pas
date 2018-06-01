@@ -451,6 +451,22 @@ begin
     end;
 end;
 
+function PySAVENIIXYZ(Self, Args : PPyObject): PPyObject; cdecl;
+var
+  PtrName: PChar;
+  StrName: string;
+  Filt: integer;
+  ScaleX, ScaleY, ScaleZ: single;
+begin
+  Result:= GetPythonEngine.PyBool_FromLong(Ord(True));
+  with GetPythonEngine do
+    if Bool(PyArg_ParseTuple(Args, 'sifff:saveniixyz', @PtrName, @Filt, @ScaleX, @ScaleY, @ScaleZ)) then
+    begin
+      StrName:= string(PtrName);
+      SAVENIIXYZ(StrName, Filt, ScaleX, ScaleY, ScaleZ);
+    end;
+end;
+
 function PyBACKCOLOR(Self, Args : PPyObject): PPyObject; cdecl;
 var
   R,G,B: integer;
@@ -1228,6 +1244,7 @@ begin
     AddMethod('savebmp', @PySAVEBMP, '');
     AddMethod('savebmp', @PySAVEBMPXY, '');
     AddMethod('savenii', @PySAVENII, '');
+    AddMethod('saveniixyz', @PySAVENIIXYZ, '');
     AddMethod('scriptformvisible', @PySCRIPTFORMVISIBLE, '');
     AddMethod('contrastformvisible', @PyCONTRASTFORMVISIBLE, '');
     AddMethod('toolformvisible', @PyTOOLFORMVISIBLE, '');

@@ -15,6 +15,7 @@ function VERSION(): string;
 function EXISTS(lFilename: string): boolean; //function
 function OVERLAYLOAD(lFilename: string): integer; //function
 function OVERLAYLOADVOL(lFilename: string; lVol: integer): integer; //function
+procedure SAVENIIXYZ(lFilename: string; lFilter: integer; lScaleX, lScaleY, lScaleZ: single);
 procedure SAVENII(lFilename: string; lFilter: integer; lScale: single);
 function OVERLAYLOADCLUSTER(lFilename: string; lThreshold, lClusterMM3: single; lSaveToDisk: boolean): integer; //function
 procedure ADDNODE(INTENSITY, R,G,B,A: byte);
@@ -117,7 +118,7 @@ const
     (Ptr:@OVERLAYLOAD;Decl:'OVERLAYLOAD';Vars:'(lFilename: string): integer'),
     (Ptr:@OVERLAYLOADCLUSTER;Decl:'OVERLAYLOADCLUSTER';Vars:'(lFilename: string; lThreshold, lClusterMM3: single; lSaveToDisk: boolean): integer'),
     (Ptr:@OVERLAYLOADVOL;Decl:'OVERLAYLOADVOL';Vars:'(lFilename: string; lVol: integer): integer'));
-  knProc = 87;
+  knProc = 88;
   kProcRA : array [1..knProc] of TScriptRec =
     (
       (Ptr:@AZIMUTH;Decl:'AZIMUTH';Vars:'(DEG: integer)'),
@@ -184,6 +185,7 @@ const
       (Ptr:@SAVEBMP;Decl:'SAVEBMP';Vars:'(lFilename: string)'),
       (Ptr:@SAVEBMPXY;Decl:'SAVEBMPXY';Vars:'(lFilename: string; X,Y: integer)'),
       (Ptr:@SAVENII;Decl:'SAVENII';Vars:'(lFilename: string; lFilter: integer; lScale: Single)'),
+      (Ptr:@SAVENIIXYZ;Decl:'SAVENIIXYZ';Vars:'(lFilename: string; lFilter: integer; lScaleX, lScaleY, lScaleZ: Single)'),
       (Ptr:@SCRIPTFORMVISIBLE;Decl:'SCRIPTFORMVISIBLE';Vars:'(VISIBLE: boolean)'),
       (Ptr:@SETCOLORTABLE;Decl:'SETCOLORTABLE';Vars:'(TABLENUM: integer)'),
       (Ptr:@SHADERFORMVISIBLE;Decl:'SHADERFORMVISIBLE';Vars:'(VISIBLE: boolean)'),
@@ -1090,7 +1092,7 @@ begin
           ScriptForm.Memo2.Lines.Add('saveniiiso failed: maybe your image is already isotropic.');
 end; *)
 
-procedure SAVENII(lFilename: string; lFilter: integer; lScale: single);
+procedure SAVENIIXYZ(lFilename: string; lFilter: integer; lScaleX, lScaleY, lScaleZ: single);
 var
   lF, lExt: string;
   ret: boolean;
@@ -1102,13 +1104,18 @@ begin
     if (lExt <> '.NII') and (lExt <> '.NII.GZ')   then
           lF := lF + '.nii';
     EnsureDirExists(lF);
-    ret := SaveImgScaled (lF, lFilter,lScale);
+    ret := SaveImgScaled (lF, lFilter,lScaleX, lScaleY, lScaleZ);
     if not ret then begin
-       if lScale <= 0 then
+       if lScaleX <= 0 then
           ScriptForm.Memo2.Lines.Add('savenii failed: maybe your image is already isotropic.')
        else
            ScriptForm.Memo2.Lines.Add('savenii failed.')
     end;
+end;
+
+procedure SAVENII(lFilename: string; lFilter: integer; lScale: single);
+begin
+     SAVENIIXYZ(lFilename, lFilter, lScale, lScale, lScale);
 end;
 
 procedure SAVEBMP(lFilename: string);

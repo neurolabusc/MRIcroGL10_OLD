@@ -604,12 +604,12 @@ object ScriptForm: TScriptForm
           Hint = 'quit () Terminates the program. Use with caution. This allows external programs to launch this software and quit once they are done.'
           OnClick = InsertCommand
         end
-		  object savebmp1: TMenuItem
-			Tag = 4
-			Caption = 'savebmp'
-			Hint = 'savebmp (filename: string) Saves the currently viewed image as a PNG format compressed bitmap image.'
-			OnClick = InsertCommand
-		  end
+        object savebmp1: TMenuItem
+          Tag = 4
+          Caption = 'savebmp'
+          Hint = 'savebmp (filename: string) Saves the currently viewed image as a PNG format compressed bitmap image.'
+          OnClick = InsertCommand
+        end
         object savebmpxy1: TMenuItem
           Tag = 1422
           Caption = 'savebmpxy'

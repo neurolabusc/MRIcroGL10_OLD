@@ -8,7 +8,8 @@ uses
 //function ReorientNIfTI(lFilename: string; lPrefs: TPrefs): string; //returns output filename if successful
 function ReorientCore(var lHdr: TNIFTIhdr; lBufferIn: bytep): boolean;
 procedure ShrinkLarge(var lHdr: TNIFTIhdr; var lBuffer: bytep; lMaxDim: integer);
-procedure ShrinkOrEnlarge(var lHdr: TNIFTIhdr; var lBuffer: bytep; lFilter: integer; lScale: single);
+procedure ShrinkOrEnlarge(var lHdr: TNIFTIhdr; var lBuffer: bytep; lFilter: integer; lScale: single); overload;
+procedure ShrinkOrEnlarge(var lHdr: TNIFTIhdr; var lBuffer: bytep; lFilter: integer; lScaleX, lScaleY, lScaleZ : single); overload;
 function EnlargeIsotropic(var lHdr: TNIFTIhdr; var lBuffer: bytep; lFilter: integer): boolean;
 implementation
   uses mainunit;
@@ -891,16 +892,17 @@ begin
  result := true;
 end;
 
-procedure ShrinkOrEnlarge(var lHdr: TNIFTIhdr; var lBuffer: bytep; lFilter: integer; lScale: single);
+procedure ShrinkOrEnlarge(var lHdr: TNIFTIhdr; var lBuffer: bytep; lFilter: integer; lScaleX, lScaleY, lScaleZ: single); overload;
 var
-   fwidth: single;
+   fwidth, z: single;
    filter: TFilterProc;
 begin
-  if lScale <= 0.0 then exit;
-  if lScale = 1.0 then exit; //no resize
-  if ((lFilter < 0) or (lFilter > 6)) and (lScale < 1) then
+  if (lScaleX <= 0.0) or (lScaleY <= 0.0) or (lScaleZ <= 0.0) then exit;
+  if (lScaleX = 1.0) and (lScaleY = 1.0) and (lScaleZ = 1.0) then exit; //no resize
+  z := lScaleX * lScaleY * lScaleZ;
+  if ((lFilter < 0) or (lFilter > 6)) and (z < 1) then
      lFilter := 5; //Lanczos nice for downsampling
-  if ((lFilter < 0) or (lFilter > 6))  and (lScale > 1) then
+  if ((lFilter < 0) or (lFilter > 6))  and (z > 1) then
      lFilter := 6; //Mitchell nice for upsampling
   if lFilter = 0 then begin
      filter := @BoxFilter; fwidth := 0.5;
@@ -918,13 +920,18 @@ begin
       filter := @MitchellFilter; fwidth := 2;
   end;
   if lHdr.datatype = kDT_UNSIGNED_CHAR then
-     Resize8(lHdr, lBuffer, lScale, lScale, lScale, fwidth, @filter)
+     Resize8(lHdr, lBuffer, lScaleX, lScaleY, lScaleZ, fwidth, @filter)
   else if lHdr.datatype = kDT_SIGNED_SHORT then
-     Resize16(lHdr, lBuffer, lScale, lScale, lScale, fwidth, @filter)
+     Resize16(lHdr, lBuffer, lScaleX, lScaleY, lScaleZ, fwidth, @filter)
   else if lHdr.datatype = kDT_FLOAT then
-     Resize32(lHdr, lBuffer, lScale, lScale, lScale, fwidth, @filter)
+     Resize32(lHdr, lBuffer, lScaleX, lScaleY, lScaleZ, fwidth, @filter)
   else if lHdr.datatype = kDT_RGB then
-     Resize24(lHdr, lBuffer, lScale, lScale, lScale, fwidth, @filter);
+     Resize24(lHdr, lBuffer, lScaleX, lScaleY, lScaleZ, fwidth, @filter);
+end;
+
+procedure ShrinkOrEnlarge(var lHdr: TNIFTIhdr; var lBuffer: bytep; lFilter: integer; lScale: single); overload;
+begin
+  ShrinkOrEnlarge(lHdr, lBuffer, lFilter, lScale, lScale, lScale);
 end;
 
 procedure ShrinkLarge(var lHdr: TNIFTIhdr; var lBuffer: bytep; lMaxDim: integer);
