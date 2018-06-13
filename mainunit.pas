@@ -2240,9 +2240,13 @@ begin
    writeln('OpenGL 2.1 with 8/8/8/24 bits of R/G/B/Dpth required. Use glxinfo to test capabilities.');
    {$ENDIF}
   {$ENDIF}
-  if gPrefs.BitDepth = 16 then
+  if gPrefs.BitDepth = 16 then begin//gPrefs.BitDepth = 16 then
+     //GLBox.AlphaBits:=0;
+     //GLBox.RedBits:=5;
+     //GLBox.GreenBits:=6;
+     //GLBox.BlueBits:=5;
      GLbox.DepthBits:= 16 //Some mesa implementations do not support 16 bit depths
-  else
+  end else
       gPrefs.BitDepth := 24;
   GLbox.AutoResizeViewport:= true;   // http://www.delphigl.com/forum/viewtopic.php?f=10&t=11311
   GLBox.Parent := GLForm1;
@@ -2284,6 +2288,7 @@ begin
         //Edit1.visible := false;
         NewWindow1.Visible:= true;
         Exit1.visible := false;//with OSX users quit from application menu
+        Copy1.enabled := false;
         Copy1.ShortCut:= ShortCut(Word('C'), [ssMeta]); ;
         Open1.ShortCut := ShortCut(Word('O'), [ssMeta]);
         Overlays1.ShortCut := ShortCut(Word('O'), [ssShift, ssMeta]);
@@ -2844,7 +2849,8 @@ end;
     +kCR + gShader.Vendor
     + fpsstr;
   {$IFDEF LCLCocoa}
-  ShowAlertSheet(GLForm1.Handle,titleStr, str);
+  //ShowAlertSheet(GLForm1.Handle,titleStr, str);  //limited line length
+  MessageDlg(titleStr, str,mtInformation,[mbOK],0);
   {$ELSE}
   MessageDlg(str,mtInformation,[mbOK],0);
   {$ENDIF}
@@ -5997,7 +6003,7 @@ if NIFTIvolumes(lFilename) > 0 then begin
    LoadDatasetNIFTIvolx(lFileName,true);
    exit;
 end;
-//check for NIfTI
+//check for DICOM
  lFilename := dcm2Nifti(dcm2niiForm.getExeName, lFilename);
  if lFilename = '' then exit;
  LoadDatasetNIFTIvolx(lFileName,true);

@@ -474,7 +474,6 @@ begin
       if lBuffer^[i] < mn then mn := lBuffer^[i];
       if lBuffer^[i] > mx then mx := lBuffer^[i];
   end;
-
   Zoom(lHdr,xScale, yScale, zScale);
   //shrink in 1st dimension : do X as these are contiguous = faster, compute slower dimensions at reduced resolution
   lXo := lHdr.dim[1]; //input X
@@ -503,7 +502,10 @@ begin
   finalImg := tempImgX;
   goto 666;
   {$ENDIF}
-  if ((lYi = lHdr.dim[2]) and (lZi = lHdr.dim[3])) then goto 666; //e.g. 1D image
+  if ((lYi = lHdr.dim[2]) and (lZi = lHdr.dim[3])) then begin
+     finalImg := tempImgX;
+     goto 666; //e.g. 1D image
+  end;
   //shrink in 2nd dimension
   lYo := lHdr.dim[2]; //reduce Y output
   GetMem( tempImgY,lXo*lYo*lZi*sizeof(single)); //8
@@ -532,7 +534,10 @@ begin
     finalImg := tempImgY;
     goto 666;
   {$ENDIF}
-  if (lZi = lHdr.dim[3]) then goto 666; //e.g. 2D image
+  if (lZi = lHdr.dim[3]) then begin
+     finalImg := tempImgY;
+     goto 666; //e.g. 2D image
+  end;
   //shrink the 3rd dimension
   lZo := lHdr.dim[3]; //reduce Z output
   GetMem( tempImgZ,lXo*lYo*lZo*sizeof(single)); //8
@@ -710,6 +715,7 @@ begin
   lZi := lHdr.dim[3]; //input Z
   nVxi := lXi * lYi * lZi;
   iHdr := lHdr;
+  //GLForm1.IntensityBox.Caption := floattostr(yScale);
   for k := 1 to 3 do begin
     GetMem( img1,nVxi);
     j := k;

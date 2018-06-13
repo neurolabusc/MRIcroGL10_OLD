@@ -1152,7 +1152,6 @@ begin //Proc Load_From_NIfTI
       exit;
     {$ELSE}
     if not NIFTIhdr_LoadImg (lFilename, lHdr, lImgBuffer,lVol) then begin
-      //exit;
       if not NIFTIhdr_LoadDummyImg (lHdr, lImgBuffer) then
         exit;
       lIsDummy := true;

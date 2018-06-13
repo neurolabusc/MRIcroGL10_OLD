@@ -74,6 +74,8 @@ Begin
   if dcm2niixExe = '' then exit;
    hProcess := TProcess.Create(nil);
    hProcess.Executable := dcm2niixExe;
+   //hprocess.Parameters.Add('-d');
+   //hprocess.Parameters.Add('1');
    hprocess.Parameters.Add('-n');
    hprocess.Parameters.Add('-1');
    hprocess.Parameters.Add('-f');
