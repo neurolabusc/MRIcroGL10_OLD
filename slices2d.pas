@@ -18,6 +18,7 @@ const
   kOrientMask = 63;
   kRenderSliceOrient = 64;
   kCrossSliceOrient = 128;
+procedure Enter2D;
 function MosaicGL ( lMosaicString: string; var lTex: TTexture): single;
 procedure DrawOrtho(var lTex: TTexture);
 //procedure SetZooms (var lX,lY,lZ: single);
@@ -475,7 +476,7 @@ begin
   PrepTexDraw;
   glUniform1ix(gDraw.glslprogramId, 'orientAxCorSag', 2);
   glUniform1fx(gDraw.glslprogramId, 'coordZ', lSlice);
-  DrawXYTex(lX,lY,lW,lH);
+  DrawXYTex(lX,lY,lW,lH, false);
 end;
 
 procedure DrawXYAx ( lX,lY,lW,lH, lSlice: single);
@@ -483,23 +484,23 @@ begin
   PrepTexDraw;
   glUniform1ix(gDraw.glslprogramId, 'orientAxCorSag', 1);
   glUniform1fx(gDraw.glslprogramId, 'coordZ', lSlice);
-  DrawXYTex(lX,lY,lW,lH);
+  DrawXYTex(lX,lY,lW,lH, false);
 end;
 
-procedure DrawXYSag ( lX,lY,lW,lH, lSlice: single);
+procedure DrawXYSag ( lX,lY,lW,lH, lSlice: single; lFlipLR: boolean);
 begin
   PrepTexDraw;
   glUniform1ix(gDraw.glslprogramId, 'orientAxCorSag', 3);
   glUniform1fx(gDraw.glslprogramId, 'coordZ', lSlice);
-  DrawXYTex(lX,lY,lW,lH);
+  DrawXYTex(lX,lY,lW,lH, lFlipLR);
 end;
 
-procedure DrawXYSagMirror ( lX,lY,lW,lH, lSlice: single);
+procedure DrawXYSagMirror ( lX,lY,lW,lH, lSlice: single; lFlipLR: boolean);
 begin
   PrepTexDraw;
   glUniform1ix(gDraw.glslprogramId, 'orientAxCorSag', 4);
   glUniform1fx(gDraw.glslprogramId, 'coordZ', lSlice);
-  DrawXYTex(lX,lY,lW,lH);
+  DrawXYTex(lX,lY,lW,lH, lFlipLR);
 
 end;
 
@@ -768,14 +769,14 @@ end;
 procedure StartDraw2D;
 begin
  {$IFDEF COREGL}
-   from textfx
+   //from textfx
  {$ENDIF}
 end;
 
 procedure EndDraw2D;
 begin
  {$IFDEF COREGL}
-   from textfx
+   //from textfx
  {$ENDIF}
 end;
 
@@ -799,11 +800,12 @@ end;
 
 procedure GLLine(l,t,w,h: single);
 begin
+ {$IFNDEF COREGL}
     glBegin(GL_LINES);
       glVertex3f(l, t, 0);
       glVertex3f(l+w,t+h, 0);
     glEnd;
-    //glDisable (GL_BLEND);
+  {$ENDIF}
 end;
 
 
@@ -828,6 +830,7 @@ procedure SetLineColor;
 var
   c, b: TGLRGBQuad;
 begin
+ {$IFNDEF COREGL}
      c := gPrefs.CrosshairColor;
      b := gPrefs.BackColor;
      if(c.rgbRed = b.rgbRed) and (c.rgbGreen = b.rgbGreen) and (c.rgbBlue = b.rgbBlue) then begin
@@ -836,6 +839,7 @@ begin
        c.rgbBlue := 255 - b.rgbBlue;
      end;
      glColor4ub(c.rgbRed,c.rgbGreen,c.rgbBlue,c.rgbReserved);
+ {$ENDIF}
 end;
 
 procedure GLCrossLine(lMosaic: TMosaic; scale:single);
@@ -956,12 +960,14 @@ begin
       lOrient := (lMosaic.Orient[lCol,lRow] and kOrientMask);
       lRender := (lMosaic.Orient[lCol,lRow] and kRenderSliceOrient) = kRenderSliceOrient;
       if lRender then begin
+         {$IFNDEF COREGL}
         case lOrient of
           kAxialOrient: DrawXYAxRender (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow] < 0.5);
           kCoronalOrient: DrawXYCoroRender (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow] >= 0.5);
           kSagRightOrient: DrawXYSagRender (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow] > 0.495);
           kSagLeftOrient: DrawXYSagRender (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow] <= 0.495);
         end;//
+         {$ENDIF}
         //GLForm1.Caption := floattostr(lMosaic.Slices[lCol,lRow]);
 
       end else begin
@@ -1400,6 +1406,7 @@ begin
      TriPix := min(TriPix,Z);
      TriPix := round(0.15 * TriPix);
      if TriPix < 5 then TriPix := 5;
+     {$IFNDEF COREGL}
      if gPrefs.FlipLR then
          glColor4ub(0,255,0,255)
      else
@@ -1442,6 +1449,7 @@ begin
       glVertex3f(X+0.5*Y, Y+YShift, 0);
       glVertex3f(X+0.5*Y+TriPix,Y+TriPix+YShift, 0);
      glEnd;
+     {$ENDIF}
   end;
 
   EndDraw2D;

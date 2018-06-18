@@ -861,11 +861,11 @@ begin
  zoom2 := Zoom;
  origSz.X := gRayCast.WINDOW_WIDTH;
  origSz.Y := gRayCast.WINDOW_HEIGHT;
- w := GLBox.BackingWidth * zoom2;
- h := GLbox.BackingHeight * zoom2;
+ w := GLBoxBackingWidth * zoom2;
+ h := GLboxBackingHeight * zoom2;
  if (w > maxXY[0]) or (h > maxXY[1]) then begin
-  w := GLBox.BackingWidth;
-  h := GLbox.BackingHeight;
+  w := GLBoxBackingWidth;
+  h := GLboxBackingHeight;
   zoom2 := 1
  end;
   Result:=TBitmap.Create;
@@ -2288,7 +2288,7 @@ begin
         //Edit1.visible := false;
         NewWindow1.Visible:= true;
         Exit1.visible := false;//with OSX users quit from application menu
-        Copy1.enabled := false;
+        //Copy1.enabled := false;
         Copy1.ShortCut:= ShortCut(Word('C'), [ssMeta]); ;
         Open1.ShortCut := ShortCut(Word('O'), [ssMeta]);
         Overlays1.ShortCut := ShortCut(Word('O'), [ssShift, ssMeta]);
@@ -4321,8 +4321,11 @@ begin
  gRayCast.WINDOW_HEIGHT := lY;
  gPrefs.BitmapZoom:=1;
  GLBox.Invalidate;
- //bmp := ScreenShot(1);
+ {$IFDEF COREGL}
+ bmp := ScreenShot(1);
+ {$ELSE}
  bmp := ScreenShotX1;
+ {$ENDIF}
  GLBox.Align := alClient;
  {$IFDEF LCLCocoa}
  if (retina) then begin

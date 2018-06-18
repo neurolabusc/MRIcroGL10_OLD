@@ -30,7 +30,7 @@ object ReadIntForm: TReadIntForm
     TabOrder = 1
   end
   object OKBtn: TButton
-    Left = 128
+    Left = 136
     Height = 25
     Top = 48
     Width = 75

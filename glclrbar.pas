@@ -335,7 +335,7 @@ begin
      vao_point2d := 0;
      vbo_face2d := 0;
      Ctx.MakeCurrent();
-     shaderProgram :=  initVertFrag(kVert2D,'', kFrag2D);
+     shaderProgram :=  initVertFrag(kVert2D, kFrag2D);
      uniform_mtx := glGetUniformLocation(shaderProgram, pAnsiChar('ModelViewProjectionMatrix'));
      glFinish;
      Ctx.ReleaseContext;

@@ -32,7 +32,6 @@ procedure DisplayGL(var lTex: TTexture);
 implementation
 uses
   shaderu, mainunit,slices2d;
-
 //this GLSL shader will blur data
 const kSmoothShaderFrag = 'uniform float coordZ, dX, dY, dZ;'
 +#10'uniform sampler3D intensityVol;'
@@ -366,8 +365,8 @@ end;
 
 procedure  enableRenderbuffers;
 begin
-     glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, gRayCast.frameBuffer);
-     glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, gRayCast.renderBuffer);
+   glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, gRayCast.frameBuffer);
+   glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, gRayCast.renderBuffer);
 end;
 
 procedure disableRenderBuffers (framebuff: GLUint);
@@ -377,7 +376,7 @@ end;
 
 procedure drawVertex(x,y,z: single);
 begin
-	glColor3f(x,y,z);
+    	glColor3f(x,y,z);
 	glMultiTexCoord3f(GL_TEXTURE1, x, y, z);
 	glVertex3f(x,y,z);
 end;

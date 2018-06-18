@@ -8,7 +8,7 @@ interface
 
 uses
   {$IFDEF FPC}
-    {$IFDEF COREGL}glcorearb,  gl_core_matrix, {$ELSE}gl, glext, {$ENDIF}
+    {$IFDEF COREGL}raycast_common, glcorearb,  gl_core_matrix, {$ELSE}gl, glext, {$ENDIF}
      OpenGLContext,
   {$ELSE}
     dglOpenGL, glpanel, windows,
@@ -271,7 +271,7 @@ begin
      vao_point2d := 0;
      vbo_face2d := 0;
      Ctx.MakeCurrent();
-     shaderProgram :=  initVertFrag(kVert2D, '', kFrag2D);
+     shaderProgram :=  initVertFrag(kVert2D, kFrag2D);
      uniform_mtx := glGetUniformLocation(shaderProgram, pAnsiChar('ModelViewProjectionMatrix'));
      glFinish;
      Ctx.ReleaseContext;

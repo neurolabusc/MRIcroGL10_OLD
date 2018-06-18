@@ -37,10 +37,10 @@ const
 {$ENDIF}
 
 type
-  (*TRGBA = packed record //Next: analyze Format Header structure
-   R,G,B,A : byte;
- end;*)
   {$IFDEF COREGL}
+  TRGBA = packed record //Next: analyze Format Header structure
+   R,G,B,A : byte;
+ end;
   TPoint3f = packed record
     X: single;
     Y: single;

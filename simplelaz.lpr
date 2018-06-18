@@ -9,15 +9,17 @@ uses
   {$IFDEF UNIX}{$IFDEF UseCThreads}
   cthreads,
   {$ENDIF}{$ENDIF}
+{$IFDEF COREGL} {$ELSE} raycast_legacy, {$ENDIF}
   Interfaces, Forms, lazopenglcontext, mainunit, autoroi, readint,
   nifti_dicom, clustering, savethreshold, reslice, drawu, dcm2nii, shaderui,
-  clut, raycast_legacy, raycast_common, pascalscript, extractui, nifti_tiff,
+  clut,  raycast_common, pascalscript, extractui, nifti_tiff,
   dcm_load, commandsu, prefs, define_types, scriptengine;
 
 {$IFNDEF UNIX}{$R simplelaz.res}{$ENDIF}
 
 begin
   Application.Title:='MRIcroGL';
+
   Application.Initialize;
   Application.CreateForm(TGLForm1, GLForm1);
   Application.CreateForm(TReadIntForm, ReadIntForm);

@@ -1464,7 +1464,7 @@ begin
   OpenDialog1.InitialDir := ScriptDir;
   SaveDialog1.InitialDir := ScriptDir;
  {$IFDEF Darwin}
-  Copy1.enabled := false;
+  //Copy1.enabled := false;
   Cut1.ShortCut := ShortCut(Word('X'), [ssMeta]);
   Copy1.ShortCut := ShortCut(Word('C'), [ssMeta]);
   Paste1.ShortCut := ShortCut(Word('V'), [ssMeta]);

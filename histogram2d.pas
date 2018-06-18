@@ -16,13 +16,22 @@ uses
   function AddColorNode (lIntensity: byte) : integer;
 
 implementation
-uses mainunit, raycast_common
-{$IFDEF COREGL} ,gl_2d, textfx, gl_core_matrix, mainunit{$ENDIF};
+uses raycast_common, mainunit
+{$IFDEF COREGL} ,gl_2d,  gl_core_matrix, slices2d{$ENDIF};
 
 type
   TChart2d = record
     Left,Bottom,Height,Width: single;
     rgba,historgba, backcolor: TGLRGBQuad;
+  end;
+
+  function ColorBoxPixels(WINDOW_HEIGHT,WINDOW_WIDTH: integer): integer;
+  begin
+    //ColorBoxSize(gRayCast.WINDOW_HEIGHT,gRayCast.WINDOW_WIDTH);
+    if (WINDOW_WIDTH >= 1536) and (WINDOW_HEIGHT >= 1024) then
+      result := 512
+    else
+        result := 256;
   end;
 
 procedure InterpolateRGBA(var lC1,lC2,lMix: TGLRGBQuad);
@@ -396,7 +405,7 @@ procedure DrawNodes(WINDOW_HEIGHT,WINDOW_WIDTH: integer; Tex: TTexture; var lPre
 var
   C: TChart2d;
 begin
-  Enter2D ;//x22;
+  Enter2D ;
   StartDraw2D;
   glEnable (GL_BLEND); //blend transparency bar with background
   glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -642,21 +651,6 @@ begin
     ShowHistogram(Tex.UnscaledHisto,Cx);
     glPopMatrix;
    {$ENDIF}
-end;
-
-function ColorBoxPixels(WINDOW_HEIGHT,WINDOW_WIDTH: integer): integer;
-begin
-  //ColorBoxSize(gRayCast.WINDOW_HEIGHT,gRayCast.WINDOW_WIDTH);
-  if (WINDOW_WIDTH >= 1536) and (WINDOW_HEIGHT >= 1024) then
-    result := 512
-  else
-      result := 256;
-  (*  if (WINDOW_WIDTH >= 1920) and (WINDOW_HEIGHT >= 1280) then
-    result := 512
-  else if (WINDOW_WIDTH >= 1440) and (WINDOW_HEIGHT >= 960) then
-    result := 384
-  else
-      result := 256;  *)
 end;
 
 procedure DrawNodes(WINDOW_HEIGHT,WINDOW_WIDTH: integer; Tex: TTexture; var lPrefs: TPrefs);

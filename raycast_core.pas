@@ -15,7 +15,7 @@ interface
 uses
 {$IFDEF DGL} dglOpenGL, {$ELSE DGL} {$IFDEF COREGL}glcorearb, gl_core_matrix,{$ELSE} gl, {$ENDIF}  {$ENDIF DGL}
 	define_types, raycast_common,  dialogs,
-        texture_3d_unit, SysUtils,DateUtils,gl_2D, histogram2d, colorbar2d;
+        texture_3d_unit, SysUtils,DateUtils,gl_2D, histogram2d;
 procedure DrawSliceGL();
 procedure  InitGL (InitialSetup: boolean);
 procedure DisplayGL(var lTex: TTexture);
@@ -452,16 +452,17 @@ begin
   glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT );
   glDisable(GL_CULL_FACE); //<-this is important, otherwise nodes and quads not filled
   if length(gRayCast.MosaicString)> 0 then begin //draw mosaics
-     MosaicGL(gRayCast.MosaicString);
+     MosaicGL(gRayCast.MosaicString, lTex);
   end else if gPrefs.SliceView > 0  then begin //draw 2D orthogonal slices
     DrawOrtho(lTex);
   end else //else draw 3D rendering
       drawRender(lTex, framebuffer);//zoom, zoomOffsetX, zoomOffsetY);
   if gPrefs.ColorEditor then
      DrawNodes(gRayCast.WINDOW_HEIGHT,gRayCast.WINDOW_WIDTH, lTex, gPrefs);
+  {$IFNDEF COREGL}
   if gPrefs.Colorbar then
      DrawCLUT( gPrefs.ColorBarPos,0.01, gPrefs);//, gRayCast.WINDOW_WIDTH*zoom, gRayCast.WINDOW_HEIGHT*zoom, zoomOffsetX, zoomOffsetY);
-
+  {$ENDIF}
   glFlush;//<-this would pause until all jobs are SUBMITTED
   //
   //GLForm1.GLbox.SwapBuffers;
