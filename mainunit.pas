@@ -2302,6 +2302,7 @@ begin
         PasteSlice1.ShortCut :=  ShortCut(Word('V'), [ssMeta]);
         //UndoVOI1.ShortCut :=  ShortCut(Word('Z'), [ssMeta]);
         UndoVOI1.ShortCut :=  ShortCut(Word('U'), [ssMeta]);
+        UndoVOI1.Caption := 'Undo drawing';
         Eraser1.ShortCut :=  ShortCut(Word('E'), [ssMeta]);
         NoDraw1.ShortCut :=  ShortCut(Word('D'), [ssMeta]);
         YokeMenu.ShortCut :=  ShortCut(Word('Y'), [ssMeta]);
@@ -5628,6 +5629,292 @@ begin
   result := ' '+realtostr(v,3);
 end;
 
+{$DEFINE XXLX}
+{$IFDEF XXLX}
+
+procedure GenerateSlice (l32bitOutput: RGBQuadp; l8BitInput: bytep; lLUT: TLUT; lSlicePixels: integer; lAlphaPct: integer);
+var
+  lI, lAlpha: integer;
+  lLUTX: TLUT;
+begin
+  if lSlicePixels < 1 then
+    exit;
+  lAlpha := 255-round(lAlphaPct * 2.55);
+  if lAlpha < 0 then lAlpha := 0;
+  if lAlpha > 255 then lAlpha := 255;
+  lLUTX := lLUT;
+  for lI := 0 to 255 do
+    //if (lLUTX[lI].rgbReserved <> 0) then
+       lLUTX[li].rgbReserved := lAlpha;
+
+  lLUTX[0].rgbReserved := 0;
+  for lI := 1 to lSlicePixels do begin
+    l32bitOutput^[lI] := lLUTX[l8BitInput^[lI]];
+  end;//each voxel
+end;
+
+procedure MinMax (var lMin,lMax: integer; lVal: integer);
+begin
+    if lVal < lMin then
+      lMin := lVal;
+    if lVal > lMax then
+      lMax := lVal;
+end;
+
+procedure AlphaBlend32Final(lBGQuad,lOverlayQuad : RGBQuadp; lBG0Clr,lOverlay0Clr: DWord; lSlicePixels, lOverlayTransPct: integer; lMaskWithBackground: boolean);  // 630
+var
+   lBGp,lOverlayP: ByteP;
+   I,J: integer;
+   lWtBg, lWtOver: single;
+begin
+ lBGp := ByteP(lBGQuad);
+ lOverlayP := ByteP(lOverlayQuad);
+ J := 1;
+ for I := 1 to lSlicePixels do begin
+   if (lOverlayP^[J+3] = 0) or ((lBGp^[J+3] = 0 )  and (lMaskWithBackground)) then  begin
+      inc(J,4);
+      continue;
+   end;
+   lWtOver := (lOverlayP^[J+3]* (1/255));
+         lWtBG := 1 - lWtOver;
+         lBGp^[J] := round(lWtBG*lBGp^[J]   +lWtOver*lOverlayP^[J]);
+         inc(J);
+         lBGp^[J] := round(lWtBG*lBGp^[J]   +lWtOver*lOverlayP^[J]);
+         inc(J);
+         lBGp^[J] := round(lWtBG*lBGp^[J]   +lWtOver*lOverlayP^[J]);
+         inc(J);
+         //lBGp^[J] := max(lBGp^[J], lOverlayP^[J]); //alpha on background
+         inc(J);
+ end;
+end;
+
+procedure AlphaAdditive32Final(lBGQuad,lOverlayQuad : RGBQuadp; lBG0Clr,lOverlay0Clr: DWord; lSlicePixels, lOverlayTransPct: integer; lMaskWithBackground: boolean);  // 630
+var
+   lBGp,lOverlayP: ByteP;
+   I,J: integer;
+begin
+ lBGp := ByteP(lBGQuad);
+ lOverlayP := ByteP(lOverlayQuad);
+ J := 1;
+ for I := 1 to lSlicePixels do begin
+   if (lOverlayP^[J+3] = 0) or ((lBGp^[J+3] = 0 )  and (lMaskWithBackground)) then  begin
+      inc(J,4);
+      continue;
+   end;
+   lBGp^[J] := max(lBGp^[J], lOverlayP^[J]);
+   inc(J);
+   lBGp^[J] := max(lBGp^[J], lOverlayP^[J]);
+   inc(J);
+   lBGp^[J] := max(lBGp^[J], lOverlayP^[J]);
+   inc(J);
+   //lBGp^[J] := max(lBGp^[J], lOverlayP^[J]); //alpha on background
+   inc(J);
+ end;
+end;
+
+procedure AlphaModulate32Final(lBGQuad,lOverlayQuad : RGBQuadp; lBG0Clr,lOverlay0Clr: DWord; lSlicePixels, lOverlayTransPct: integer; lMaskWithBackground: boolean);  // 630
+var
+   lBGp,lOverlayP: ByteP;
+   lMin,lMax,I,J: integer;
+   lWt,lSlope: single;
+begin
+ lBGp := ByteP(lBGQuad);
+ lOverlayP := ByteP(lOverlayQuad);
+ J := 4;
+ lMin := lBGp^[J];
+ lMax := lBGp^[J];
+ for I := 1 to lSlicePixels do begin
+     MinMax(lMin,lMax,lBGp^[J]);
+     inc(J,4);
+ end;
+ if lMin >= lMax then
+      exit;//no range
+ lSlope := 1/(lMax-lMin);
+ J := 1;
+ for I := 1 to lSlicePixels do begin
+   if (lOverlayP^[J+3] = 0) or ((lBGp^[J+3] = 0 )  and (lMaskWithBackground)) then  begin
+      inc(J,4);
+      continue;
+   end;
+   lWt := (lBGp^[J+3]-lMin)*lSlope;
+   lBGp^[J] := round(lWt*lOverlayP^[J]);
+   inc(J);
+   lBGp^[J] := round(lWt*lOverlayP^[J]);
+   inc(J);
+   lBGp^[J] := round(lWt*lOverlayP^[J]);
+   inc(J);
+   //lBGp^[J] := max(lBGp^[J], lOverlayP^[J]); //alpha on background
+   inc(J);
+ end;
+end;
+
+procedure AlphaBlend32(lBGQuad,lOverlayQuad : RGBQuadp; lBG0Clr,lOverlay0Clr: DWord; lSlicePixels, lOverlayTransPct: integer; lMaskWithBackground: boolean);  // 630
+var
+	lBGwt,lOverlaywt,lPixel,lPos:integer;
+	lBGp,lOverlayP: ByteP;
+	lBGQuadp,lOverlayDWordp : DWordp;
+procedure ModulateBlendX;
+var
+  lMin,lMax,I,J: integer;
+  lSlope,lWt: single;
+begin
+    J := 4;
+    lMin := lBGp^[J];
+    lMax := lBGp^[J];
+    for I := 1 to lSlicePixels do begin
+        MinMax(lMin,lMax,lBGp^[J]);
+        inc(J,4);
+    end;
+    if lMin >= lMax then
+      exit;//no range
+    lSlope := 1/(lMax-lMin);
+    J := 1;
+    for I := 1 to lSlicePixels do begin
+         lWt := (lBGp^[J+3]-lMin)*lSlope;
+         lBGp^[J] := round(lWt*lOverlayP^[J]);
+         inc(J);
+         lBGp^[J] := round(lWt*lOverlayP^[J]);
+         inc(J);
+         lBGp^[J] := round(lWt*lOverlayP^[J]);
+         inc(J);
+         //lBGp^[J] := max(lBGp^[J], lOverlayP^[J]); //alpha on background
+         inc(J);
+    end;
+end; //nested ModulateBlendX
+begin
+     lBGp := ByteP(lBGQuad);
+     lOverlayP := ByteP(lOverlayQuad);
+     lOverlayDWordp := DWordp(lOverlayQuad);
+     lBGQuadp := DWordp(lBGQuad);
+     //next: transparency weighting
+     lBGwt := round((lOverlayTransPct)/100 * 1024);
+     lOverlaywt := round((100-lOverlayTransPct)/100 * 1024);
+     //lOverlayByte := 12;//round((255-lOverlayTransPct)/100 * 255);
+     //next redraw each pixel
+     lPos := 1;
+     if lOverlayTransPct > -1 then begin //weighted
+        for lPixel := 1 to lSlicePixels do begin
+            if lOverlayDWordp^[lPixel] = lOverlay0Clr then begin
+	            inc(lPos,4);
+            end else if (lOverlayP^[lPos+3] = 0) or ((lBGp^[lPos+3] = 0 )  and (lMaskWithBackground)) then  begin
+		            inc(lPos,4)
+            end else if lBGQuadp^[lPixel] = lOverlay0Clr then begin
+		          lBGp^[lPos] := lOverlayP^[lPos];
+		          inc(lPos);
+		          lBGp^[lPos] := lOverlayP^[lPos];
+		          inc(lPos);
+		          lBGp^[lPos] := lOverlayP^[lPos];
+		          inc(lPos);
+                          lBGp^[lPos] := lOverlayP^[lPos];//lOverlayByte;
+          	          inc(lPos);
+              end else begin
+		    lBGp^[lPos] := (lBGp^[lPos]*lBGwt+lOverlayP^[lPos]*lOverlaywt) shr 10;
+		    inc(lPos);
+		    lBGp^[lPos] := (lBGp^[lPos]*lBGwt+lOverlayP^[lPos]*lOverlaywt) shr 10;
+		    inc(lPos);
+		    lBGp^[lPos] := (lBGp^[lPos]*lBGwt+lOverlayP^[lPos]*lOverlaywt) shr 10;
+		    inc(lPos);
+                    if (not lMaskWithBackground) and (lBGp^[lPos]< lOverlayP^[lPos] {lOverlayByte}) then
+                       lBGp^[lPos] := lOverlayP^[lPos];//lOverlayByte;
+		    inc(lPos);
+      end;
+	  end;//for each pixel
+  end else if lOverlayTransPct = -2 then begin
+    ModulateBlendX;// (lSlicePixels,lPos);//,lBGp,lOverlayP);
+  end else begin //less than one : additive
+	  for lPixel := 1 to lSlicePixels do begin
+      if lOverlayDWordp^[lPixel] = lOverlay0Clr then
+		    inc(lPos,4)
+	    else if (lBGp^[lPos+3] = 0 ) and (lMaskWithBackground) then
+		    inc(lPos,4)
+	    else begin
+		    if lOverlayP^[lPos] > lBGp^[lPos] then lBGp^[lPos] := lOverlayP^[lPos];
+		    inc(lPos);
+		    if lOverlayP^[lPos] > lBGp^[lPos] then lBGp^[lPos] := lOverlayP^[lPos];
+		    inc(lPos);
+		    if lOverlayP^[lPos] > lBGp^[lPos] then lBGp^[lPos] := lOverlayP^[lPos];
+		    inc(lPos);
+                    if (not lMaskWithBackground) and (lOverlayP^[lPos] > lBGp^[lPos])  then
+                            lBGp^[lPos] := lOverlayP^[lPos];
+                       //lBGp^[lPos] := max(lOverlayP^[lPos],lBGp^[lPos]);
+		    inc(lPos);
+	    end;
+	  end; //for each pixel
+  end; //additive
+end;
+
+
+procedure TGLForm1.BlendOverlaysRGBA (var lTexture: TTexture);
+var
+  lOverlaySlice2P: RGBQuadp;
+  lOffset,lRGBOffset: integer;
+  l1st: boolean;
+  lSlicePixels,lSliceBytes,lSlice,lO,lVox,lA,lAlpha: integer;
+  lTextureOverlayImgRGBA: Bytep0;
+begin
+  lVox := lTexture.FiltDim[1]*lTexture.FiltDim[2]*lTexture.FiltDim[3];
+  if (lVox < 1) or ((gPrefs.BackgroundAlpha = 100) and (gShader.OverlayVolume = 0)) or (gOpenOverlays < 1) or (lTexture.DataType <> GL_RGBA) then
+    exit;
+  for lO := 1 to gOpenOverlays do
+      if lVox <> gOverlayImg[lO].ScrnBufferItems then
+        exit;//error - sizes do not match
+  lSlicePixels :=lTexture.FiltDim[1]*lTexture.FiltDim[2];
+  lSliceBytes:= lSlicePixels*sizeof(TGLRGBQuad);
+  lTextureOverlayImgRGBA := nil;
+  SetLengthB(lTextureOverlayImgRGBA,lVox*sizeof(TGLRGBQuad));
+  //lTextureOverlayImg := nil;
+  //SetLengthB(lTextureOverlayImg,lVox);
+  getmem(lOverlaySlice2P,lSliceBytes);
+  lOffset := 1;
+  lRGBOffset := 0;
+  for lSlice := 1 to lTexture.FiltDim[3] do begin
+    l1st := true;
+    for lO := 1 to gOpenOverlays do begin
+      if gOverlayImg[lO].LUTvisible then begin
+        if l1st then begin
+          l1st := false;
+          GenerateSlice(@lTextureOverlayImgRGBA^[lRGBOffset],@gOverlayImg[lO].ScrnBuffer^[lOffset],gOverlayImg[lO].LUT,lSlicePixels, gBackgroundAlpha[lO]);
+        end else begin
+          GenerateSlice(lOverlaySlice2P,@gOverlayImg[lO].ScrnBuffer^[lOffset],gOverlayImg[lO].LUT,lSlicePixels,gBackgroundAlpha[lO]);
+          AlphaBlend32(@lTextureOverlayImgRGBA^[lRGBOffset],lOverlaySlice2P, DWord(gOverlayImg[1].LUT[0]),DWord(gOverlayImg[lO].LUT[0]), lSlicePixels, gOverlayAlpha[lO], false{gPrefs.MaskOverlayWithBackground} );  // 630
+        end;
+      end;
+    end;
+    //if (gPrefs.BackgroundAlpha
+    if gPrefs.BackgroundAlpha = -2 then //modulate
+        AlphaModulate32Final(RGBquadp(@lTexture.FiltImg^[lRGBOffset]),@lTextureOverlayImgRGBA^[lRGBOffset], 0,DWord(gOverlayImg[1].LUT[0]), lSlicePixels, gPrefs.BackgroundAlpha,gPrefs.MaskOverlayWithBackground)
+    else if gPrefs.BackgroundAlpha = -1 then //additive
+       AlphaAdditive32Final(RGBquadp(@lTexture.FiltImg^[lRGBOffset]),@lTextureOverlayImgRGBA^[lRGBOffset], 0,DWord(gOverlayImg[1].LUT[0]), lSlicePixels, gPrefs.BackgroundAlpha,gPrefs.MaskOverlayWithBackground)
+       //AlphaBlend32(RGBquadp(@lTexture.FiltImg^[lRGBOffset]),@lTextureOverlayImgRGBA^[lRGBOffset], 0,DWord(gOverlayImg[1].LUT[0]), lSlicePixels, gPrefs.BackgroundAlpha,gPrefs.MaskOverlayWithBackground)
+    else
+        AlphaBlend32Final(RGBquadp(@lTexture.FiltImg^[lRGBOffset]),@lTextureOverlayImgRGBA^[lRGBOffset], 0,DWord(gOverlayImg[1].LUT[0]), lSlicePixels, gPrefs.BackgroundAlpha,gPrefs.MaskOverlayWithBackground);  // 630
+
+
+    //AlphaBlend32(RGBquadp(@lTexture.FiltImg^[lRGBOffset]),@lTextureOverlayImgRGBA^[lRGBOffset], 0,DWord(gOverlayImg[1].LUT[0]), lSlicePixels, gPrefs.BackgroundAlpha,gPrefs.MaskOverlayWithBackground);  // 630
+    lOffset := lOffset + lSlicePixels;
+    lRGBOffset := lRGBOffset + lSliceBytes;
+  end;
+  freemem(lOverlaySlice2P);
+  lAlpha :=  255- ((gPrefs.BackgroundAlpha*255) div 100);
+  if (gShader.OverlayVolume < 1) then begin
+     if (lAlpha < 32) then lAlpha := 32
+  end else begin
+      if (lAlpha < 64) then lAlpha := 64;  //the GLSL shader does not scale output, so provide sharp gradients
+  end;
+  //lAlpha := lAlpha div 4;
+  //GLForm1.Caption :='>>>'+ inttostr(lAlpha) ;
+  lA := 0;
+  for lO := 0 to (lVox-1) do begin
+      if (lTextureOverlayImgRGBA^[lA]+lTextureOverlayImgRGBA^[lA+1]+lTextureOverlayImgRGBA^[lA+2]) > 0 then
+         lTextureOverlayImgRGBA^[lA+3]:=lAlpha;
+      lA := lA+4;
+  end;
+  CreateVolumeGL (lTexture, gRayCast.intensityOverlay3D,PChar(lTextureOverlayImgRGBA));
+  CreateGradientVolume (lTexture, gRayCast.gradientOverlay3D,lTextureOverlayImgRGBA, true);
+  SetLengthB(lTextureOverlayImgRGBA,0);
+end; //BlendOverlaysRGBA
+
+{$ELSE}
 procedure GenerateSlice (l32bitOutput: RGBQuadp; l8BitInput: bytep; lLUT: TLUT; lSlicePixels: integer);
 var
   lI: integer;
@@ -5806,6 +6093,8 @@ begin
   SetLengthB(lTextureOverlayImgRGBA,0);
 end; //BlendOverlaysRGBA
 
+{$ENDIF}
+
 function  TGLForm1.OverlayIntensityString(Voxel: integer): string;
 var
   lO: integer;
@@ -5867,6 +6156,7 @@ begin
   if (Layer < kMinOverlayIndex) or (Layer > kMaxOverlays) then
     exit;
   gOverlayAlpha[Layer] := NewValue;
+  gPrefs.OverlayAlpha := NewValue;
 end;
 
 procedure TGLForm1.SetBackgroundAlphaLayerValue(Layer, NewValue: integer);
@@ -5874,6 +6164,7 @@ begin
   if (Layer < kMinOverlayIndex) or (Layer > kMaxOverlays) then
     exit;
   gBackgroundAlpha[Layer] := NewValue;
+  gPrefs.BackgroundAlpha := NewValue;
 end;
 
 procedure TGLForm1.SetSubmenuWithTag (var lRootMenu: TMenuItem; lTag: Integer);

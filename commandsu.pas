@@ -445,6 +445,7 @@ end;
 
 procedure OVERLAYLAYERTRANSPARENCYONBACKGROUND(lOverlay,lPct: integer);
 begin
+  //ScriptForm.Memo2.Lines.Add('OVERLAYLAYERTRANSPARENCYONBACKGROUND not supported in this version');
   GLForm1.SetBackgroundAlphaLayerValue(lOverlay, lPct);
   GLForm1.ChangeOverlayUpdate;
 end;

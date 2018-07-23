@@ -1,4 +1,14 @@
 begin
 	//savenii('disco.nii',-1,0.5);
-	savebmpxy('abd540',512, 256);
+	//resetdefaults;
+	//loadimage('mni152_2009bet');
+	loadimage('a');
+	//loadimage('motor');
+	overlayload('motor');
+	overlayminmax(1, 2, 2);
+	overlaylayertransparencyonbackground(1,-2);
+	overlayload('motor');
+	overlayminmax(2, -3, -4);
+	overlaylayertransparencyonbackground(2, 80);
+	orthoviewmm(0, 0, 57);
 end.

@@ -1,7 +1,7 @@
 object GLForm1: TGLForm1
-  Left = 266
+  Left = 451
   Height = 654
-  Top = 55
+  Top = 39
   Width = 968
   ActiveControl = ToolPanel
   AllowDropFiles = True
@@ -76,7 +76,7 @@ object GLForm1: TGLForm1
         Width = 116
         Max = 1000
         OnChange = ClipTrackChange
-        Position = 0
+        Position = 279
         TickStyle = tsNone
         TabOrder = 0
       end

@@ -911,7 +911,7 @@ end;
 
 procedure DrawMosaic(lMosaic: TMosaic);
 var
-  lRender: boolean;
+  lRender, lHasRender: boolean;
   lOrient,lRowInc,lColInc,lRow,lCol,lDec:integer;
   scale:single;
 begin
@@ -938,6 +938,7 @@ begin
   glEnable(GL_ALPHA_TEST);
   glAlphaFunc(GL_GEQUAL,1/255);
   {$ENDIF}
+  lHasRender := false;
   if lMosaic.HOverlap < 0 then
     lColInc := -1
   else
@@ -949,24 +950,23 @@ begin
     lRow := 1;
     lRowInc := 1;
   end;
-
   while (lRow >= 1) and (lRow <= lMosaic.Rows) do begin
     if lMosaic.HOverlap < 0 then
       lCol := lMosaic.Cols
     else
       lCol := 1;
     while (lCol >= 1) and (lCol <= lMosaic.Cols) do begin
-
       lOrient := (lMosaic.Orient[lCol,lRow] and kOrientMask);
       lRender := (lMosaic.Orient[lCol,lRow] and kRenderSliceOrient) = kRenderSliceOrient;
       if lRender then begin
          {$IFNDEF COREGL}
-        case lOrient of
+         lHasRender := true;
+        (*case lOrient of
           kAxialOrient: DrawXYAxRender (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow] < 0.5);
           kCoronalOrient: DrawXYCoroRender (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow] >= 0.5);
           kSagRightOrient: DrawXYSagRender (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow] > 0.495);
           kSagLeftOrient: DrawXYSagRender (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow] <= 0.495);
-        end;//
+        end;*)
          {$ENDIF}
         //GLForm1.Caption := floattostr(lMosaic.Slices[lCol,lRow]);
 
@@ -983,7 +983,52 @@ begin
     end;//col
     lRow := lRow+lRowInc;
   end;//row
+  //render pass
+  // We need to do the render pass separately otherwise the order of overlapping 2D slices can get jumbled
+  if lHasRender then begin
+     if lMosaic.VOverlap < 0 then begin
+       lRow := lMosaic.Rows;
+       lRowInc := -1;
+     end else begin
+       lRow := 1;
+       lRowInc := 1;
+     end;
+     while (lRow >= 1) and (lRow <= lMosaic.Rows) do begin
+       if lMosaic.HOverlap < 0 then
+         lCol := lMosaic.Cols
+       else
+         lCol := 1;
+       while (lCol >= 1) and (lCol <= lMosaic.Cols) do begin
+         lOrient := (lMosaic.Orient[lCol,lRow] and kOrientMask);
+         lRender := (lMosaic.Orient[lCol,lRow] and kRenderSliceOrient) = kRenderSliceOrient;
+         if lRender then begin
+            {$IFNDEF COREGL}
+            case lOrient of
+             kAxialOrient: DrawXYAxRender (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow] < 0.5);
+             kCoronalOrient: DrawXYCoroRender (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow] >= 0.5);
+             kSagRightOrient: DrawXYSagRender (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow] > 0.495);
+             kSagLeftOrient: DrawXYSagRender (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow] <= 0.495);
+           end;
+            {$ENDIF}
+           //GLForm1.Caption := floattostr(lMosaic.Slices[lCol,lRow]);
+
+         end else begin
+
+           (*case lOrient of
+             kAxialOrient: DrawXYAx (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow]{, gTexture3D});
+             kCoronalOrient: DrawXYCoro (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow]{, gTexture3D});
+             kSagRightOrient: DrawXYSag (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow]{, gTexture3D}, false);
+             kSagLeftOrient: DrawXYSagMirror (scale*lMosaic.Pos[lCol,lRow].X,scale*lMosaic.Pos[lCol,lRow].Y,scale*lMosaic.dim[lCol,lRow].X,scale*lMosaic.dim[lCol,lRow].Y,lMosaic.Slices[lCol,lRow]{, gTexture3D},false);
+           end;//*)
+         end;
+         lCol := lCol + lColInc;
+       end;//col
+       lRow := lRow+lRowInc;
+     end;//row
+
+  end;
   {$IFNDEF COREGL}glPopAttrib; {$ENDIF}
+  //text pass
   lDec := ComputeDecimals(lMosaic);
     if lMosaic.VOverlap < 0 then
       lRow := lMosaic.Rows
