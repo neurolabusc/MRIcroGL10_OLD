@@ -3663,6 +3663,7 @@ begin
   OkBtn.Parent:=PrefForm;
   OkBtn.ModalResult:= mrOK;
   {$IFDEF Windows} ScaleDPI(PrefForm, 96);  {$ENDIF}
+  {$IFDEF Linux} ScaleDPIX(PrefForm, 96); {$ENDIF}
   {$IFDEF LCLCocoa}
   if gPrefs.DarkMode then GLForm1.SetFormDarkMode(PrefForm);
   {$ENDIF}
@@ -4112,6 +4113,7 @@ begin
   AdvancedBtn.Parent:=PrefForm;
   AdvancedBtn.ModalResult:= mrYesToAll;
   {$IFDEF Windows} ScaleDPI(PrefForm, 96);  {$ENDIF}
+  {$IFDEF Linux} ScaleDPIX(PrefForm, 96); {$ENDIF}
   PrefForm.ShowModal;
   if (PrefForm.ModalResult <> mrOK) and (PrefForm.ModalResult <> mrYesToAll) then begin
   	FreeAndNil(PrefForm);
