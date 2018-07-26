@@ -1,7 +1,7 @@
 object dcm2niiForm: Tdcm2niiForm
-  Left = 401
+  Left = 392
   Height = 480
-  Top = 195
+  Top = 180
   Width = 800
   AllowDropFiles = True
   Caption = 'dcm2niix'
@@ -27,7 +27,7 @@ object dcm2niiForm: Tdcm2niiForm
     ClientWidth = 800
     TabOrder = 0
     object compressCheck: TCheckBox
-      Left = 74
+      Left = 76
       Height = 18
       Top = 9
       Width = 22
@@ -38,7 +38,7 @@ object dcm2niiForm: Tdcm2niiForm
       TabOrder = 0
     end
     object outnameLabel: TLabel
-      Left = 252
+      Left = 256
       Height = 16
       Top = 10
       Width = 81
@@ -48,11 +48,11 @@ object dcm2niiForm: Tdcm2niiForm
       ShowHint = True
     end
     object outnameEdit: TEdit
-      Left = 332
+      Left = 356
       Height = 21
       Hint = 'Name for NIfTI images. Special characters are %f (Folder name) %i (ID) %n (patient Name) %p (Protocol name) %s (Series number) %t (Time)'
-      Top = 6
-      Width = 176
+      Top = 8
+      Width = 164
       OnKeyUp = outnameEditKeyUp
       ParentShowHint = False
       ShowHint = True
@@ -60,7 +60,7 @@ object dcm2niiForm: Tdcm2niiForm
       Text = 'outnameEdit'
     end
     object Label2: TLabel
-      Left = 4
+      Left = 2
       Height = 16
       Hint = 'Set whether NIfTI images are compressed (.nii.gz) or not (.nii)'
       Top = 10
@@ -71,7 +71,7 @@ object dcm2niiForm: Tdcm2niiForm
       ShowHint = True
     end
     object outputFolderLabel: TLabel
-      Left = 524
+      Left = 528
       Height = 16
       Top = 10
       Width = 81
@@ -79,11 +79,11 @@ object dcm2niiForm: Tdcm2niiForm
       ParentColor = False
     end
     object outputFolderName: TButton
-      Left = 612
+      Left = 624
       Height = 25
       Hint = 'NIfTI files will be saved to this folder. Press this button and click Cancel if you want files NIfTI images saved to same folder as DICOM input'
       Top = 5
-      Width = 180
+      Width = 172
       Caption = 'input folder'
       OnClick = outputFolderNameClick
       ParentShowHint = False
@@ -102,7 +102,7 @@ object dcm2niiForm: Tdcm2niiForm
       ShowHint = True
     end
     object verboseCheck: TCheckBox
-      Left = 160
+      Left = 164
       Height = 18
       Top = 9
       Width = 22
@@ -111,7 +111,7 @@ object dcm2niiForm: Tdcm2niiForm
       TabOrder = 3
     end
     object bidsCheck: TCheckBox
-      Left = 224
+      Left = 228
       Height = 18
       Top = 8
       Width = 22
