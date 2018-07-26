@@ -18,8 +18,8 @@
         <ComponentName Value="GLForm1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <TopLine Value="1646"/>
-        <CursorPos X="28" Y="1646"/>
+        <TopLine Value="2983"/>
+        <CursorPos X="40" Y="3003"/>
         <UsageCount Value="211"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -28,10 +28,9 @@
       <Unit2>
         <Filename Value="define_types.pas"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="4"/>
         <TopLine Value="3"/>
-        <CursorPos X="11" Y="76"/>
+        <CursorPos X="46" Y="14"/>
         <UsageCount Value="215"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -162,9 +161,9 @@
       </Unit15>
       <Unit16>
         <Filename Value="slices2d.pas"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="988"/>
-        <CursorPos X="19" Y="993"/>
+        <CursorPos Y="17"/>
         <UsageCount Value="95"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -565,123 +564,123 @@
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="490" Column="19" TopLine="476"/>
+        <Caret Line="5878" Column="128" TopLine="5855"/>
       </Position1>
       <Position2>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="5876" Column="150" TopLine="5853"/>
+        <Caret Line="6160" Column="29" TopLine="6141"/>
       </Position2>
       <Position3>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="5878" Column="128" TopLine="5855"/>
+        <Caret Line="489" Column="16" TopLine="475"/>
       </Position3>
       <Position4>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="6160" Column="29" TopLine="6141"/>
+        <Caret Line="5879" Column="165" TopLine="5856"/>
       </Position4>
       <Position5>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="489" Column="16" TopLine="475"/>
+        <Caret Line="6064" Column="165" TopLine="6041"/>
       </Position5>
       <Position6>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="5879" Column="165" TopLine="5856"/>
+        <Caret Line="6113" Column="31" TopLine="6093"/>
       </Position6>
       <Position7>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="6064" Column="165" TopLine="6041"/>
+        <Caret Line="6117" Column="18" TopLine="6093"/>
       </Position7>
       <Position8>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="6113" Column="31" TopLine="6093"/>
+        <Caret Line="6159" Column="35" TopLine="6134"/>
       </Position8>
       <Position9>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="6117" Column="18" TopLine="6093"/>
+        <Caret Line="6052" Column="15" TopLine="6051"/>
       </Position9>
       <Position10>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="6159" Column="35" TopLine="6134"/>
+        <Caret Line="3253" Column="5" TopLine="3243"/>
       </Position10>
       <Position11>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="6052" Column="15" TopLine="6051"/>
+        <Caret Line="1658" Column="21" TopLine="1645"/>
       </Position11>
       <Position12>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="3253" Column="5" TopLine="3243"/>
+        <Caret Line="6239" Column="56" TopLine="6218"/>
       </Position12>
       <Position13>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="1658" Column="21" TopLine="1645"/>
+        <Filename Value="slices2d.pas"/>
+        <Caret Line="918" Column="10" TopLine="907"/>
       </Position13>
       <Position14>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="6239" Column="56" TopLine="6218"/>
+        <Filename Value="slices2d.pas"/>
+        <Caret Line="312" Column="59" TopLine="300"/>
       </Position14>
       <Position15>
         <Filename Value="slices2d.pas"/>
-        <Caret Line="918" Column="10" TopLine="907"/>
+        <Caret Line="319" Column="10" TopLine="300"/>
       </Position15>
       <Position16>
         <Filename Value="slices2d.pas"/>
-        <Caret Line="312" Column="59" TopLine="300"/>
+        <Caret Line="353" Column="77" TopLine="333"/>
       </Position16>
       <Position17>
         <Filename Value="slices2d.pas"/>
-        <Caret Line="319" Column="10" TopLine="300"/>
+        <Caret Line="354" Column="58" TopLine="334"/>
       </Position17>
       <Position18>
         <Filename Value="slices2d.pas"/>
-        <Caret Line="353" Column="77" TopLine="333"/>
+        <Caret Line="359" Column="16" TopLine="339"/>
       </Position18>
       <Position19>
         <Filename Value="slices2d.pas"/>
-        <Caret Line="354" Column="58" TopLine="334"/>
+        <Caret Line="372" Column="17" TopLine="352"/>
       </Position19>
       <Position20>
         <Filename Value="slices2d.pas"/>
-        <Caret Line="359" Column="16" TopLine="339"/>
+        <Caret Line="923" Column="10" TopLine="898"/>
       </Position20>
       <Position21>
         <Filename Value="slices2d.pas"/>
-        <Caret Line="372" Column="17" TopLine="352"/>
+        <Caret Line="1471" Column="5" TopLine="1446"/>
       </Position21>
       <Position22>
         <Filename Value="slices2d.pas"/>
-        <Caret Line="923" Column="10" TopLine="898"/>
+        <Caret Line="312" Column="59" TopLine="300"/>
       </Position22>
       <Position23>
         <Filename Value="slices2d.pas"/>
-        <Caret Line="1471" Column="5" TopLine="1446"/>
+        <Caret Line="319" Column="10" TopLine="300"/>
       </Position23>
       <Position24>
         <Filename Value="slices2d.pas"/>
-        <Caret Line="312" Column="59" TopLine="300"/>
+        <Caret Line="353" Column="77" TopLine="333"/>
       </Position24>
       <Position25>
         <Filename Value="slices2d.pas"/>
-        <Caret Line="319" Column="10" TopLine="300"/>
+        <Caret Line="354" Column="58" TopLine="334"/>
       </Position25>
       <Position26>
         <Filename Value="slices2d.pas"/>
-        <Caret Line="353" Column="77" TopLine="333"/>
+        <Caret Line="359" Column="16" TopLine="339"/>
       </Position26>
       <Position27>
         <Filename Value="slices2d.pas"/>
-        <Caret Line="354" Column="58" TopLine="334"/>
+        <Caret Line="372" Column="17" TopLine="352"/>
       </Position27>
       <Position28>
         <Filename Value="slices2d.pas"/>
-        <Caret Line="359" Column="16" TopLine="339"/>
+        <Caret Line="914" Column="10" TopLine="893"/>
       </Position28>
       <Position29>
-        <Filename Value="slices2d.pas"/>
-        <Caret Line="372" Column="17" TopLine="352"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="1647" Column="27" TopLine="1645"/>
       </Position29>
       <Position30>
-        <Filename Value="slices2d.pas"/>
-        <Caret Line="914" Column="10" TopLine="893"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="3003" Column="40" TopLine="2983"/>
       </Position30>
     </JumpHistory>
     <RunParams>
