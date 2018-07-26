@@ -16,7 +16,7 @@ interface
   Please choose Project/ProjectOptions, go to the CompilerOptions/Additions&Overrides and set the BuildMode pull-down to "MacOS"
 {$ENDIF}
 uses
-
+{$IFDEF Linux} uscaledpi, {$ENDIF}
 {$IFDEF COMPILEYOKE}
 yokesharemem, coordinates, nii_mat, math, nifti_tiff,
 {$ENDIF}
