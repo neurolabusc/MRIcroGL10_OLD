@@ -3,6 +3,7 @@ unit dcm2nii;
  {$IFDEF FPC} {$mode delphi}{$H+} {$ENDIF}
 interface
 uses
+    {$IFDEF LINUX} uscaledpi,{$ENDIF}
     {$IFDEF FPC}
     FileUtil, Process,LResources,
     {$IFDEF UNIX} LCLIntf, {$ENDIF}
@@ -558,6 +559,7 @@ begin
      DragAcceptFiles(dcm2niiForm.Handle, True);
      {$ENDIF}
      isAppDoneInitializing := true;
+     {$IFDEF Linux} ScaleDPIX(Tdcm2niiForm, 96); {$ENDIF}
      //ProcessFile('');
 end; //FormCreate()
 

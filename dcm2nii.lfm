@@ -1,12 +1,12 @@
 object dcm2niiForm: Tdcm2niiForm
-  Left = 503
+  Left = 401
   Height = 480
-  Top = 192
-  Width = 780
+  Top = 195
+  Width = 800
   AllowDropFiles = True
   Caption = 'dcm2niix'
   ClientHeight = 480
-  ClientWidth = 780
+  ClientWidth = 800
   Constraints.MinHeight = 120
   Constraints.MinWidth = 640
   Menu = MainMenu1
@@ -21,16 +21,16 @@ object dcm2niiForm: Tdcm2niiForm
     Left = 0
     Height = 34
     Top = 0
-    Width = 780
+    Width = 800
     Align = alTop
     ClientHeight = 34
-    ClientWidth = 780
+    ClientWidth = 800
     TabOrder = 0
     object compressCheck: TCheckBox
       Left = 74
       Height = 18
       Top = 9
-      Width = 20
+      Width = 22
       Checked = True
       OnClick = compressCheckClick
       ParentBidiMode = False
@@ -38,18 +38,18 @@ object dcm2niiForm: Tdcm2niiForm
       TabOrder = 0
     end
     object outnameLabel: TLabel
-      Left = 232
+      Left = 252
       Height = 16
       Top = 10
-      Width = 84
+      Width = 81
       Caption = 'Output Name'
       ParentColor = False
       ParentShowHint = False
       ShowHint = True
     end
     object outnameEdit: TEdit
-      Left = 320
-      Height = 22
+      Left = 332
+      Height = 21
       Hint = 'Name for NIfTI images. Special characters are %f (Folder name) %i (ID) %n (patient Name) %p (Protocol name) %s (Series number) %t (Time)'
       Top = 6
       Width = 176
@@ -64,22 +64,22 @@ object dcm2niiForm: Tdcm2niiForm
       Height = 16
       Hint = 'Set whether NIfTI images are compressed (.nii.gz) or not (.nii)'
       Top = 10
-      Width = 63
+      Width = 61
       Caption = 'Compress'
       ParentColor = False
       ParentShowHint = False
       ShowHint = True
     end
     object outputFolderLabel: TLabel
-      Left = 504
+      Left = 524
       Height = 16
       Top = 10
-      Width = 86
+      Width = 81
       Caption = 'Output folder'
       ParentColor = False
     end
     object outputFolderName: TButton
-      Left = 600
+      Left = 612
       Height = 25
       Hint = 'NIfTI files will be saved to this folder. Press this button and click Cancel if you want files NIfTI images saved to same folder as DICOM input'
       Top = 5
@@ -91,40 +91,40 @@ object dcm2niiForm: Tdcm2niiForm
       TabOrder = 2
     end
     object VerboseLabel: TLabel
-      Left = 96
+      Left = 100
       Height = 16
       Hint = 'Set whether NIfTI images are compressed (.nii.gz) or not (.nii)'
       Top = 10
-      Width = 51
+      Width = 50
       Caption = 'Verbose'
       ParentColor = False
       ParentShowHint = False
       ShowHint = True
     end
     object verboseCheck: TCheckBox
-      Left = 152
+      Left = 160
       Height = 18
       Top = 9
-      Width = 20
+      Width = 22
       OnClick = compressCheckClick
       ParentBidiMode = False
       TabOrder = 3
     end
     object bidsCheck: TCheckBox
-      Left = 210
+      Left = 224
       Height = 18
       Top = 8
-      Width = 20
+      Width = 22
       OnClick = compressCheckClick
       ParentBidiMode = False
       TabOrder = 4
     end
     object VerboseLabel1: TLabel
-      Left = 176
+      Left = 188
       Height = 16
       Hint = 'Create Brain Imaging Data Structure file'
       Top = 10
-      Width = 28
+      Width = 29
       Caption = 'BIDS'
       ParentColor = False
       ParentShowHint = False
@@ -135,8 +135,9 @@ object dcm2niiForm: Tdcm2niiForm
     Left = 0
     Height = 446
     Top = 34
-    Width = 780
+    Width = 800
     Align = alClient
+    Lines.Strings = (    )
     ScrollBars = ssAutoVertical
     TabOrder = 1
   end
