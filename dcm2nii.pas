@@ -559,7 +559,7 @@ begin
      DragAcceptFiles(dcm2niiForm.Handle, True);
      {$ENDIF}
      isAppDoneInitializing := true;
-     {$IFDEF Linux} ScaleDPIX(Tdcm2niiForm, 96); {$ENDIF}
+     //{$IFDEF Linux} ScaleDPIX(dcm2niiForm, 96); {$ENDIF}
      //ProcessFile('');
 end; //FormCreate()
 
