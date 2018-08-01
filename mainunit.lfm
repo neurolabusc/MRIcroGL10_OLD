@@ -1,7 +1,7 @@
 object GLForm1: TGLForm1
-  Left = 451
+  Left = 489
   Height = 654
-  Top = 39
+  Top = 124
   Width = 968
   ActiveControl = ToolPanel
   AllowDropFiles = True
@@ -416,7 +416,7 @@ object GLForm1: TGLForm1
           Left = 4
           Height = 16
           Top = 152
-          Width = 17
+          Width = 16
           Caption = 'S4'
           ParentColor = False
           ParentShowHint = False
@@ -436,7 +436,7 @@ object GLForm1: TGLForm1
           Left = 4
           Height = 16
           Top = 212
-          Width = 17
+          Width = 16
           Caption = 'S6'
           ParentColor = False
           ParentShowHint = False
@@ -456,7 +456,7 @@ object GLForm1: TGLForm1
           Left = 4
           Height = 16
           Top = 272
-          Width = 17
+          Width = 16
           Caption = 'S8'
           ParentColor = False
           ParentShowHint = False
@@ -466,7 +466,7 @@ object GLForm1: TGLForm1
           Left = 4
           Height = 16
           Top = 302
-          Width = 17
+          Width = 16
           Caption = 'S9'
           ParentColor = False
           ParentShowHint = False
@@ -476,7 +476,7 @@ object GLForm1: TGLForm1
           Left = 4
           Height = 16
           Top = 332
-          Width = 23
+          Width = 22
           Caption = 'S10'
           ParentColor = False
           ParentShowHint = False
@@ -805,7 +805,7 @@ object GLForm1: TGLForm1
         Left = 3
         Height = 16
         Top = 25
-        Width = 9
+        Width = 8
         Caption = 'Y'
         ParentColor = False
       end
@@ -974,7 +974,7 @@ object GLForm1: TGLForm1
           Left = 3
           Height = 16
           Top = 2
-          Width = 54
+          Width = 53
           Caption = 'Columns'
           ParentColor = False
         end
@@ -1031,7 +1031,7 @@ object GLForm1: TGLForm1
           Left = 3
           Height = 16
           Top = 50
-          Width = 68
+          Width = 67
           Caption = 'Orientation'
           ParentColor = False
         end
@@ -1261,7 +1261,7 @@ object GLForm1: TGLForm1
         Left = 3
         Height = 16
         Top = 58
-        Width = 119
+        Width = 118
         Caption = 'Coordinates (X,Y,Z)'
         ParentColor = False
       end

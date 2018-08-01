@@ -38,7 +38,7 @@ procedure COLORBARVISIBLE (VISIBLE: boolean);
 procedure COLORNAME(Filename: string);
 procedure CONTRASTFORMVISIBLE (VISIBLE: boolean);
 procedure CONTRASTMINMAX(MIN,MAX: single);
-procedure CUTOUT (L,A,S,R,P,I: single);
+procedure CUTOUT (L,A,S,R,P,I: double);
 procedure CUTOUTFORMVISIBLE (VISIBLE: boolean);
 procedure EDGEDETECT (lThresh: single; lDilateCycles: integer);//new
 procedure EDGEENHANCE (BIAS,GAIN: byte);//new
@@ -141,7 +141,7 @@ const
       (Ptr:@COLORNAME;Decl:'COLORNAME';Vars:'(Filename: string)'),
       (Ptr:@CONTRASTFORMVISIBLE;Decl:'CONTRASTFORMVISIBLE';Vars:'(VISIBLE: boolean)'),
       (Ptr:@CONTRASTMINMAX;Decl:'CONTRASTMINMAX';Vars:'(MIN, MAX: single)'),
-      (Ptr:@CUTOUT;Decl:'CUTOUT';Vars:'(L,A,S,R,P,I: single)'),
+      (Ptr:@CUTOUT;Decl:'CUTOUT';Vars:'(L,A,S,R,P,I: double)'),
       (Ptr:@CUTOUTFORMVISIBLE;Decl:'CUTOUTFORMVISIBLE';Vars:'(VISIBLE: boolean)'),
       (Ptr:@EDGEDETECT;Decl:'EDGEDETECT';Vars:'(lThresh: single; lDilateCycles: integer)'),//new
       (Ptr:@EDGEENHANCE;Decl:'EDGEENHANCE';Vars:'(BIAS,GAIN: byte)'),//new
@@ -852,7 +852,7 @@ begin
   ReRender(false);
 end;
 
-procedure CUTOUT (L,A,S,R,P,I: single);
+procedure CUTOUT (L,A,S,R,P,I: double);
 var
   lMax: integer;
 begin

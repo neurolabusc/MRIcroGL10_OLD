@@ -5,6 +5,7 @@ interface
 {$IFDEF FPC}{$mode delphi}{$ENDIF}
 {$include opts.inc}
 uses
+  //clipbrd,
   {$IFDEF USETRANSFERTEXTURE}texture_3d_unit_transfertexture, {$ELSE} texture_3d_unit,extract,{$ENDIF}
   Dialogs, nii_mat,define_types,sysutils,prefs,nifti_hdr, nifti_types;
 
@@ -536,6 +537,14 @@ begin
      //GLForm1.caption := ( format('neg %g boost %d',[lMaxNeg, Nx]) );
 end; //NIFTIhdr_ThreshNeg()
 
+(*function mStr(prefix: string; m: TMatrix): string;
+begin
+    result := format('%s = [%g %g %g %g; %g %g %g %g; %g %g %g %g; %g %g %g %g]; ', [prefix,
+      m.matrix[1][1], m.matrix[1][2],m.matrix[1][3],m.matrix[1][4],
+      m.matrix[2][1], m.matrix[2][2],m.matrix[2][3],m.matrix[2][4],
+      m.matrix[3][1], m.matrix[3][2],m.matrix[3][3],m.matrix[3][4],
+      m.matrix[4][1], m.matrix[4][2],m.matrix[4][3],m.matrix[4][4]]);
+end;*)
 
 function Reslice2TargCore (var lSrcHdr: TMRIcroHdr; var lSrcBuffer: bytep;  var lTargHdr: TNIFTIHdr; var lDestHdr: TMRIcroHdr; lTrilinearInterpolation: boolean; lVolume: integer): string;
 //output lDestHdr
@@ -579,6 +588,7 @@ begin
          end;
      end; //case
      lMat := Voxel2Voxel (lTargHdr,lSrcHdr.NIFTIhdr);
+     //clipboard.AsText := mStr('t',Hdr2Mat(lTargHdr))+mStr('s',Hdr2Mat(lSrcHdr.NIFTIhdr))+mStr('vx',lMat);
      lDestHdr {.NIFTIhdr} := lSrcHdr {.NIFTIhdr}; //destination has the comments and voxel BPP of source
      CopyHdrMat(lTargHdr,lDestHdr.NIFTIhdr);//destination has dimensions and rotations of destination
      lXs := lSrcHdr.NIFTIhdr.Dim[1];

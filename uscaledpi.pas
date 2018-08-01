@@ -10,8 +10,8 @@ uses
 
 procedure HighDPI(FromDPI: integer);
 procedure ScaleDPI(Control: TControl; FromDPI: integer);
-procedure HighDPILinux(FontSz: integer);
-procedure ScaleDPIX(Control: TControl; FromDPI: integer);
+{$IFDEF Linux}procedure HighDPILinux(FontSz: integer);
+procedure ScaleDPIX(Control: TControl; FromDPI: integer); {$ENDIF}
 //function getFontScale(FontSz: integer): single;
 
 implementation

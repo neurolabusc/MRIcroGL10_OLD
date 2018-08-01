@@ -19,7 +19,14 @@ uses
 type
   { Tdcm2niiForm }
   Tdcm2niiForm = class(TForm)
-    compressCheck: TCheckBox;
+    CompressCheck: TCheckBox;
+    verboseCheck: TCheckBox;
+    bidsCheck: TCheckBox;
+    outnameEdit: TEdit;
+    outnameLabel: TLabel;
+    outputFolderLabel: TLabel;
+    outputFolderName: TButton;
+    Panel2: TPanel;
     MainMenu1: TMainMenu;
     FileMenu: TMenuItem;
     EditMenu: TMenuItem;
@@ -27,22 +34,10 @@ type
     DicomMenu: TMenuItem;
     ResetMenu: TMenuItem;
     ParRecMenu: TMenuItem;
-    outputFolderName: TButton;
-    //compressCheck: TCheckBox;
-    Label2: TLabel;
-    outputFolderLabel: TLabel;
-    outnameLabel: TLabel;
     Memo1: TMemo;
-    Panel1: TPanel;
     OpenDialog1: TOpenDialog;
-    outnameEdit: TEdit;
-    VerboseCheck: TCheckBox;
-    //bidsCheck: TCheckBox;
-    VerboseLabel: TLabel;
-    VerboseLabel1: TLabel;
-    bidsCheck: TCheckBox;
     //VerboseLabel1: TLabel;
-    //verboseCheck: TCheckBox;
+    //verboseCheck1: TCheckBox;
     //VerboseLabel: TLabel;
     procedure compressCheckClick(Sender: TObject);
     procedure DicomMenuClick(Sender: TObject);
@@ -94,7 +89,7 @@ implementation
   var
     isAppDoneInitializing : boolean = false;
 
-{$IFDEF FPC}
+{$IFDEF UNIX}
 function FindDefaultExecutablePathX(const Executable: string): string;
 begin
      {$IFDEF Darwin}
@@ -120,7 +115,8 @@ begin
      if not fileexists(result) then begin
         lF :=  ExtractFilePath (paramstr(0));
         result := lF+kExeName;
-        if not fileexists(result) then begin
+      {$IFNDEF UNIX}result := result + '.exe'; {$ENDIF}
+      if not fileexists(result) then begin
            Memo1.Lines.Clear;
            memo1.Lines.Add('Error: unable to find executable '+kExeName+' in path');
            memo1.Lines.Add(' Solution: copy '+kExeName+' to '+lF);
@@ -145,7 +141,7 @@ var
    FileMode := fmOpenWrite;
    AssignFile(iniFile, iniName);
    ReWrite(iniFile);
-   if (compressCheck.checked) then
+   if (CompressCheck.checked) then
       WriteLn(iniFile, 'isGZ=1')
    else
        WriteLn(iniFile, 'isGZ=0');
@@ -194,7 +190,7 @@ begin
         fileData.Free;
      end else
          memo1.Lines.Add('Using default settings');
-     compressCheck.Checked := opts_isGz;
+     CompressCheck.Checked := opts_isGz;
      bidsCheck.Checked := opts_isBids;
      outnameEdit.Caption := opts_filename;
      //getExeName;
@@ -208,7 +204,7 @@ begin
      ARegistry := TRegistry.Create;
      ARegistry.RootKey := HKEY_CURRENT_USER;//HKEY_LOCAL_MACHINE;
      if ARegistry.OpenKey ('\Software\dcm2nii',true) then begin
-       	  ARegistry.WriteBool('isGZ', compressCheck.Checked );
+       	  ARegistry.WriteBool('isGZ', CompressCheck.Checked );
           ARegistry.WriteBool('isBIDS', bidsCheck.Checked );
        	  ARegistry.WriteString('filename', outnameEdit.text );
      end;
@@ -238,7 +234,7 @@ begin
        ARegistry.Free;
      end;
      bidsCheck.Checked := opts_isBids;
-     compressCheck.Checked := opts_isGz;
+     CompressCheck.Checked := opts_isGz;
      outnameEdit.text := opts_filename;
      //getExeName;
 end; //readIni()
@@ -400,7 +396,7 @@ begin
     cmd := cmd + '-b y '
  else
      cmd := cmd + '-b n ';
- if compressCheck.checked then
+ if CompressCheck.checked then
     cmd := cmd + '-z y '
  else
      cmd := cmd + '-z n ';
