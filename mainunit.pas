@@ -5685,7 +5685,7 @@ begin
          inc(J);
          lBGp^[J] := round(lWtBG*lBGp^[J]   +lWtOver*lOverlayP^[J]);
          inc(J);
-         //lBGp^[J] := max(lBGp^[J], lOverlayP^[J]); //alpha on background
+         lBGp^[J] := max(lBGp^[J], lOverlayP^[J]); //alpha on background
          inc(J);
  end;
 end;
@@ -5709,7 +5709,7 @@ begin
    inc(J);
    lBGp^[J] := max(lBGp^[J], lOverlayP^[J]);
    inc(J);
-   //lBGp^[J] := max(lBGp^[J], lOverlayP^[J]); //alpha on background
+   lBGp^[J] := max(lBGp^[J], lOverlayP^[J]); //alpha on background
    inc(J);
  end;
 end;
@@ -5745,7 +5745,7 @@ begin
    inc(J);
    lBGp^[J] := round(lWt*lOverlayP^[J]);
    inc(J);
-   //lBGp^[J] := max(lBGp^[J], lOverlayP^[J]); //alpha on background
+   lBGp^[J] := max(lBGp^[J], lOverlayP^[J]); //alpha on background
    inc(J);
  end;
 end;
@@ -5779,7 +5779,7 @@ begin
          inc(J);
          lBGp^[J] := round(lWt*lOverlayP^[J]);
          inc(J);
-         //lBGp^[J] := max(lBGp^[J], lOverlayP^[J]); //alpha on background
+         lBGp^[J] := max(lBGp^[J], lOverlayP^[J]); //alpha on background
          inc(J);
     end;
 end; //nested ModulateBlendX

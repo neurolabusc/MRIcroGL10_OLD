@@ -1841,10 +1841,14 @@ begin
   else
       lStr := lStr+TypeStr((Sender as TMenuItem).Tag)+ ';';
   Clipboard.AsText := lStr;
-  {$IFDEF UNIX}
-  Memo1.SelText := (lStr)+ UNIXeoln;
+  {$IFDEF OLD}
+    {$IFDEF UNIX}
+    Memo1.SelText := (lStr)+ UNIXeoln;
+    {$ELSE}
+    Memo1.SelText := (lStr)+ #13#10;
+    {$ENDIF}
   {$ELSE}
-  Memo1.SelText := (lStr)+ #13#10;
+  Memo1.Lines.Insert(Memo1.CaretPos.Y, lStr);
   {$ENDIF}
 end;
 

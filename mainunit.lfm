@@ -1,5 +1,5 @@
 object GLForm1: TGLForm1
-  Left = 489
+  Left = 472
   Height = 654
   Top = 124
   Width = 968

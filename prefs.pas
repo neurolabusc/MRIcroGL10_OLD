@@ -234,7 +234,7 @@ begin
     InterpolateOverlays := true;
     //InterpolateView := true;
     EnableYoke := true;
-    MaskOverlayWithBackground := true;
+    MaskOverlayWithBackground := false;//change default behaviorAugust3,2018 true;
     OverlayColorFromZero := false;
     //SurfaceThreshold := 25;
     BackgroundAlpha := 50;

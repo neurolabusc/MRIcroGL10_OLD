@@ -1,14 +1,14 @@
 begin
-	//savenii('disco.nii',-1,0.5);
-	//resetdefaults;
-	//loadimage('mni152_2009bet');
-	loadimage('a');
-	//loadimage('motor');
+
+	resetdefaults;
+
+
+	backcolor(255, 255, 255);
+loadimage('mni152_2009bet');
 	overlayload('motor');
-	overlayminmax(1, 2, 2);
-	overlaylayertransparencyonbackground(1,-2);
-	overlayload('motor');
-	overlayminmax(2, -3, -4);
-	overlaylayertransparencyonbackground(2, 80);
-	orthoviewmm(0, 0, 57);
+overlaymaskedbybackground(false);
+    	overlayminmax(1, 2.6, 4);
+
+	orthoviewmm(0, 0, 50);
+
 end.
