@@ -61,7 +61,7 @@ uses mainunit, nsappkitext; //darkmode
       ReadIntForm.Width:= w+12;
       {$IFDEF LCLCocoa}
       //ReadIntForm.PopupMode:= pmAuto; //see issue 33616
-      setThemeMode(ReadIntForm.Handle, gPrefs.DarkMode);
+      setThemeMode(ReadIntForm, gPrefs.DarkMode);
       {$ENDIF}
       ReadIntForm.ShowModal;
       result :=  ReadIntEdit.Value;

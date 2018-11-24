@@ -659,12 +659,14 @@ begin
   if not gPrefs.DarkMode then exit;
   f.PopupMode:= pmAuto;
   f.HandleNeeded;
-  setThemeMode(f.Handle, true);
+  setThemeMode(f, true);
+  //setThemeMode(f.Handle, true);
 end;
 
 procedure TGLForm1.SetDarkMode;
 begin
-  setThemeMode(Self.Handle, gPrefs.DarkMode);
+  setThemeMode(Self, gPrefs.DarkMode);
+  //setThemeMode(Self.Handle, gPrefs.DarkMode);
   if gPrefs.DarkMode then begin
      MosaicText.Color := clGray;
      ShaderMemo.Color := clGray;
@@ -684,18 +686,6 @@ begin
       StringGrid1.AlternateColor:= clDefault;
       StringGrid1.FixedColor:= clBtnFace;
   end;
-  (*  if CheckBox1.Checked then begin
-    theWindow.setAppearance (NSAppearance.appearanceNamed(NSAppearanceNameVibrantDark))  ;
-    StringGrid1.Color := clGray;
-    StringGrid1.AlternateColor:= clGray;
-
-    StringGrid1.FixedColor:= clBlack;
-  end else begin
-    theWindow.setAppearance (NSAppearance.appearanceNamed(NSAppearanceNameAqua));
-    StringGrid1.Color := clDefault;
-    StringGrid1.AlternateColor:= clDefault;
-    StringGrid1.FixedColor:= clBtnFace;
-  end;                    *)
 end;
 
 procedure TGLForm1.SetRetina;
@@ -2800,7 +2790,7 @@ var
   s: dword;
   debug : boolean;
   i: integer;
-  titleStr, str, fpsstr: string;
+  titleStr, str: string;
 begin
     If (ssShift in KeyDataToShiftState(vk_Shift)) then begin
       M_Refresh := TRUE;
@@ -2813,14 +2803,14 @@ begin
         M_Refresh := TRUE;
       //deleteGradients(gTexture3D);
  s := gettickcount;
- fpsstr := '';
+(* fpsstr := '';
  if (gPrefs.SliceView = 0) then begin //rendering
  for i := 1 to kSamp do begin
      gRayCast.Azimuth := (gRayCast.Azimuth + 10) mod 360;
      GLbox.Repaint;
   end;
   fpsstr := kCR+' FPS '+realtostr((kSamp*1000)/(gettickcount-s),1) ;
-end;
+end;*)
    gPrefs.Debug := debug;
    {$IFDEF CPU64}
    str := '64-bit';
@@ -2847,8 +2837,7 @@ end;
    +kCR+' Bytes per voxel '+inttostr(gTexture3D.NIFTIhdr.bitpix div 8)
    +kCR+' Spacing '+realtostr(gTexture3D.NIFTIhdr.pixdim[1],2)+'x'+realtostr(gTexture3D.NIFTIhdr.pixdim[2],2)+'x'+realtostr(gTexture3D.NIFTIhdr.pixdim[3],2)
     +kCR+' Description  '+  trim(gTexture3D.NIFTIhdr.descrip)
-    +kCR + gShader.Vendor
-    + fpsstr;
+    +kCR + gShader.Vendor;
   {$IFDEF LCLCocoa}
   //ShowAlertSheet(GLForm1.Handle,titleStr, str);  //limited line length
   MessageDlg(titleStr, str,mtInformation,[mbOK],0);
@@ -3065,7 +3054,8 @@ end;
 procedure TGLForm1.AutoRoi1Click(Sender: TObject);
 begin
 {$IFDEF LCLCocoa}
-setThemeMode(AutoROIForm.Handle, gPrefs.DarkMode);
+//setThemeMode(AutoROIForm.Handle, gPrefs.DarkMode);
+setThemeMode(AutoROIForm, gPrefs.DarkMode);
  {$ENDIF}
      AutoROIForm.Show;
 end;
@@ -3766,7 +3756,9 @@ begin
  end;
  {$IFDEF LCLCocoa}
  ExtractForm.PopupMode:= pmAuto; //see issue 33616
- setThemeMode(ExtractForm.Handle, gPrefs.DarkMode);
+ //setThemeMode(ExtractForm.Handle, gPrefs.DarkMode);
+ setThemeMode(ExtractForm, gPrefs.DarkMode);
+
  {$ENDIF}
  ExtractForm.ShowModal;
  if ExtractForm.ModalResult <> mrOK then exit;
@@ -4283,6 +4275,8 @@ end;
 {$ENDIF}
 
 {$IFDEF FPC}
+//{$DEFINE JPEG}
+{$IFDEF JPEG}
 procedure SaveImgAsJPGCore (lImage: TBitmap; lFilename: string);
 var
   JpegImg : TJpegImage;
@@ -4295,6 +4289,7 @@ begin
     JpegImg.Free
    end;
 end;
+{$ENDIF}
 {$ELSE}
 procedure SaveImgAsJPGCore (lImage: TBitmap; lFilename: string);
 begin
@@ -4341,9 +4336,10 @@ begin
 
  GLBox.Invalidate;
  //JPEG
+ {$IFDEF JPEG}
  if (UpCaseExt(lFilename) = '.JPG') or (UpCaseExt(lFilename) = '.JPEG') then
     SaveImgAsJPGCore (bmp, lFilename)
-  else
+  else {$ENDIF}
     SaveImgAsPNGCore (bmp, lFilename);
   bmp.Free;
 end;
@@ -4352,9 +4348,9 @@ procedure TGLForm1.SavePicture(lFilename: string); overload;
 var bmp: TBitmap;
 begin
   bmp := ScreenShot(gPrefs.BitmapZoom);
-  if (UpCaseExt(lFilename) = '.JPG') or (UpCaseExt(lFilename) = '.JPEG') then
+  {$IFDEF JPEG}if (UpCaseExt(lFilename) = '.JPG') or (UpCaseExt(lFilename) = '.JPEG') then
     SaveImgAsJPGCore (bmp, lFilename)
-  else
+  else {$ENDIF}
     SaveImgAsPNGCore (bmp, lFilename);
   bmp.Free;
 end; //proc SavePicture

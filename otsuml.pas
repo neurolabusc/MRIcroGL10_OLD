@@ -224,7 +224,7 @@ begin
   //create histogram
   for n := 0 to 255 do
     lHisto[n] := 0;
-  for n := 0 to nVox do
+  for n := 1 to nVox do
     inc(lHisto[Img^[n]]);
   //now find minimum intraclass variance....
   //result := OtsuCostFunc(lHisto);
@@ -242,7 +242,7 @@ begin
   //create histogram
   for n := 0 to 255 do
     lHisto[n] := 0;
-  for n := 0 to nVox do
+  for n := 1 to nVox do
     inc(lHisto[Img^[n]]);
   //now find minimum intraclass variance....
   OtsuCostFunc3(lHisto,lo,hi);
@@ -260,7 +260,7 @@ begin
   //create histogram
   for n := 0 to 255 do
     lHisto[n] := 0;
-  for n := 0 to nVox do
+  for n := 1 to nVox do
     inc(lHisto[Img^[n]]);
   //now find minimum intraclass variance....
   OtsuCostFunc4(lHisto,lo,med,hi);
@@ -357,4 +357,4 @@ end;
 
 
 end.
- 
+ 

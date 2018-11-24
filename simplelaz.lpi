@@ -39,6 +39,7 @@
           <Linking>
             <Debugging>
               <GenerateDebugInfo Value="False"/>
+              <UseHeaptrc Value="True"/>
             </Debugging>
             <LinkSmart Value="True"/>
             <Options>

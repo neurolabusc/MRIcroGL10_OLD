@@ -1681,7 +1681,8 @@ end;
 procedure TScriptForm.FormShow(Sender: TObject);
 begin
 {$IFDEF LCLCocoa}
-setThemeMode(Self.Handle, gPrefs.DarkMode);
+setThemeMode(Self, gPrefs.DarkMode);
+//setThemeMode(Self.Handle, gPrefs.DarkMode);
   if gPrefs.DarkMode then begin
      Memo1.Color := clGray;
      Memo2.Color := clGray;

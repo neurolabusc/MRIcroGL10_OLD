@@ -14,7 +14,6 @@ const
   kCoronalOrient = 2;
   kSagRightOrient = 4;
   kSagLeftOrient = 8;
-
   kOrientMask = 63;
   kRenderSliceOrient = 64;
   kCrossSliceOrient = 128;
@@ -140,6 +139,8 @@ begin
   if not lOK then exit;
   for lRow := 1 to lMosaic.Rows do begin
     for lCol := 1 to lMosaic.Cols do begin
+        if ((lMosaic.Orient[lCol,lRow] and kRenderSliceOrient) = kRenderSliceOrient) then
+             continue;
       if lMosaic.Orient[lCol,lRow] <> kEmptyOrient then
         lMosaic.Slices[lCol,lRow] := SliceFracF (lMosaic.Slices[lCol,lRow], lMosaic.Orient[lCol,lRow],lInvMat)
     end;//col
@@ -346,7 +347,13 @@ begin
       //first, read previous nuber
       if lNumStr <> '' then begin
         lCol := lCol + 1;
-        result.Slices[lCol,Result.Rows] := S2F(lNumStr);
+        if (lRenderFlag  <> 0) then begin
+           if (lNumStr[1] = '-') then
+             result.Slices[lCol,Result.Rows] := -1 //e.g. inferior axial view
+           else
+             result.Slices[lCol,Result.Rows] := 1; //e.g. superior axial view
+        end else
+        	result.Slices[lCol,Result.Rows] := S2F(lNumStr);
         //if lMosaic.Slices[lCol,lRows] < 1 then
         //  fx(lMosaic.Slices[lCol,lRows]);
         //showmessage(floattostr(lMosaic.Slices[lCol,lRows])+'  '+lNumStr);

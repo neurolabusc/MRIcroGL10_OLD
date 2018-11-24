@@ -3,13 +3,15 @@
   <ProjectSession>
     <Version Value="11"/>
     <BuildModes Active="Default"/>
-    <Units Count="66">
+    <Units Count="70">
       <Unit0>
         <Filename Value="simplelaz.lpr"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="-1"/>
-        <CursorPos X="27" Y="12"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="7"/>
+        <CursorPos X="81" Y="9"/>
         <UsageCount Value="211"/>
+        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit0>
       <Unit1>
@@ -18,8 +20,8 @@
         <ComponentName Value="GLForm1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <TopLine Value="5330"/>
-        <CursorPos X="11" Y="5340"/>
+        <TopLine Value="31"/>
+        <CursorPos X="48" Y="39"/>
         <UsageCount Value="211"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -28,17 +30,16 @@
       <Unit2>
         <Filename Value="define_types.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="9"/>
-        <TopLine Value="3"/>
-        <CursorPos X="46" Y="14"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="92"/>
+        <CursorPos X="9" Y="107"/>
         <UsageCount Value="215"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit2>
       <Unit3>
         <Filename Value="prefs.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="10"/>
         <TopLine Value="219"/>
         <CursorPos X="39" Y="221"/>
         <UsageCount Value="201"/>
@@ -48,7 +49,7 @@
       <Unit4>
         <Filename Value="commandsu.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="10"/>
+        <EditorIndex Value="11"/>
         <TopLine Value="472"/>
         <CursorPos X="11" Y="474"/>
         <UsageCount Value="205"/>
@@ -61,7 +62,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="64"/>
         <CursorPos X="21" Y="71"/>
-        <UsageCount Value="176"/>
+        <UsageCount Value="180"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit5>
       <Unit6>
@@ -70,11 +71,10 @@
         <ComponentName Value="ScriptForm"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="6"/>
-        <TopLine Value="1839"/>
-        <CursorPos X="15" Y="1844"/>
-        <UsageCount Value="189"/>
+        <EditorIndex Value="7"/>
+        <TopLine Value="1669"/>
+        <CursorPos X="18" Y="1684"/>
+        <UsageCount Value="193"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -85,9 +85,11 @@
         <ComponentName Value="ReadIntForm"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="-1"/>
-        <CursorPos X="58" Y="10"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="50"/>
+        <CursorPos X="7" Y="65"/>
         <UsageCount Value="200"/>
+        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit7>
       <Unit8>
@@ -99,7 +101,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="77"/>
         <CursorPos X="2" Y="96"/>
-        <UsageCount Value="149"/>
+        <UsageCount Value="153"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit8>
       <Unit9>
@@ -108,12 +110,10 @@
         <ComponentName Value="dcm2niiForm"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="132"/>
         <CursorPos X="47" Y="150"/>
-        <UsageCount Value="30"/>
-        <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
+        <UsageCount Value="34"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit9>
       <Unit10>
@@ -126,20 +126,18 @@
       </Unit10>
       <Unit11>
         <Filename Value="nii_label.pas"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="142"/>
         <CursorPos X="46" Y="150"/>
         <UsageCount Value="24"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit11>
       <Unit12>
         <Filename Value="nii_reslice.pas"/>
-        <EditorIndex Value="5"/>
-        <TopLine Value="23"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="22"/>
         <CursorPos X="37" Y="585"/>
         <UsageCount Value="82"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit12>
       <Unit13>
@@ -170,9 +168,9 @@
       </Unit15>
       <Unit16>
         <Filename Value="slices2d.pas"/>
-        <EditorIndex Value="3"/>
-        <CursorPos X="18" Y="9"/>
-        <UsageCount Value="99"/>
+        <EditorIndex Value="5"/>
+        <CursorPos X="84" Y="12"/>
+        <UsageCount Value="100"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit16>
@@ -236,11 +234,10 @@
       </Unit23>
       <Unit24>
         <Filename Value="nifti_hdr.pas"/>
-        <EditorIndex Value="8"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="11"/>
         <CursorPos X="33" Y="18"/>
         <UsageCount Value="20"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit24>
       <Unit25>
@@ -286,9 +283,12 @@
       </Unit29>
       <Unit30>
         <Filename Value="nsappkitext.pas"/>
-        <EditorIndex Value="-1"/>
-        <CursorPos X="91" Y="5"/>
-        <UsageCount Value="3"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="45"/>
+        <CursorPos X="50" Y="71"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit30>
       <Unit31>
@@ -329,10 +329,11 @@
         <ComponentName Value="ExtractForm"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="13"/>
-        <CursorPos X="61" Y="30"/>
-        <UsageCount Value="7"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="8"/>
+        <CursorPos X="29" Y="16"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit35>
       <Unit36>
@@ -505,10 +506,10 @@
       </Unit56>
       <Unit57>
         <Filename Value="histogram2d.pas"/>
-        <EditorIndex Value="11"/>
+        <EditorIndex Value="13"/>
         <TopLine Value="23"/>
         <CursorPos X="12" Y="35"/>
-        <UsageCount Value="45"/>
+        <UsageCount Value="46"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit57>
@@ -571,133 +572,167 @@
       </Unit64>
       <Unit65>
         <Filename Value="uscaledpi.pas"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="-1"/>
         <CursorPos X="78" Y="2"/>
         <UsageCount Value="17"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit65>
+      <Unit66>
+        <Filename Value="shaderui.pas"/>
+        <EditorIndex Value="9"/>
+        <CursorPos X="30" Y="20"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit66>
+      <Unit67>
+        <Filename Value="../../../lazarus/lcl/lclintf.pas"/>
+        <UnitName Value="LCLIntf"/>
+        <EditorIndex Value="8"/>
+        <TopLine Value="28"/>
+        <CursorPos X="13" Y="38"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit67>
+      <Unit68>
+        <Filename Value="otsuml.pas"/>
+        <EditorIndex Value="12"/>
+        <TopLine Value="141"/>
+        <CursorPos X="12" Y="156"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit68>
+      <Unit69>
+        <Filename Value="yokesharemem.pas"/>
+        <EditorIndex Value="6"/>
+        <TopLine Value="72"/>
+        <CursorPos Y="72"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit69>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="commandsu.pas"/>
-        <Caret Line="443" Column="76" TopLine="441"/>
+        <Filename Value="nsappkitext.pas"/>
+        <Caret Line="122" Column="103" TopLine="110"/>
       </Position1>
       <Position2>
-        <Filename Value="commandsu.pas"/>
-        <Caret Line="72" Column="36" TopLine="61"/>
+        <Filename Value="nsappkitext.pas"/>
+        <Caret Line="85" Column="15" TopLine="54"/>
       </Position2>
       <Position3>
-        <Filename Value="commandsu.pas"/>
-        <Caret Line="175" Column="70" TopLine="156"/>
+        <Filename Value="nsappkitext.pas"/>
+        <Caret Line="108" Column="23" TopLine="98"/>
       </Position3>
       <Position4>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="5668" Column="23" TopLine="5657"/>
+        <Filename Value="nsappkitext.pas"/>
+        <Caret Line="56" Column="20" TopLine="44"/>
       </Position4>
       <Position5>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="5666" Column="28" TopLine="5657"/>
+        <Filename Value="nsappkitext.pas"/>
+        <Caret Line="137" Column="40" TopLine="115"/>
       </Position5>
       <Position6>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="5890" Column="16" TopLine="5880"/>
+        <Filename Value="nsappkitext.pas"/>
+        <Caret Line="57" Column="35" TopLine="49"/>
       </Position6>
       <Position7>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="5691" Column="7" TopLine="5683"/>
+        <Filename Value="nsappkitext.pas"/>
+        <Caret Line="137" Column="48" TopLine="115"/>
       </Position7>
       <Position8>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="5666" Column="105" TopLine="5655"/>
+        <Filename Value="nsappkitext.pas"/>
+        <Caret Line="135" Column="27" TopLine="120"/>
       </Position8>
       <Position9>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="5676" Column="76" TopLine="5657"/>
+        <Caret Line="1631" Column="11" TopLine="1626"/>
       </Position9>
       <Position10>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="5693" Column="151" TopLine="5674"/>
+        <Filename Value="nsappkitext.pas"/>
+        <Caret Line="54" Column="11" TopLine="38"/>
       </Position10>
       <Position11>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="5713" Column="17" TopLine="5691"/>
+        <Filename Value="nsappkitext.pas"/>
+        <Caret Line="11"/>
       </Position11>
       <Position12>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="5720" Column="154" TopLine="5701"/>
+        <Filename Value="nsappkitext.pas"/>
+        <Caret Line="134" Column="23" TopLine="122"/>
       </Position12>
       <Position13>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="5729" Column="76" TopLine="5710"/>
+        <Filename Value="nsappkitext.pas"/>
+        <Caret Line="144" Column="23" TopLine="122"/>
       </Position13>
       <Position14>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="5744" Column="154" TopLine="5725"/>
+        <Filename Value="nsappkitext.pas"/>
+        <Caret Line="56" Column="26" TopLine="38"/>
       </Position14>
       <Position15>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="5665" TopLine="5650"/>
+        <Filename Value="nsappkitext.pas"/>
+        <Caret Line="139" Column="28" TopLine="122"/>
       </Position15>
       <Position16>
-        <Filename Value="mainunit.pas"/>
-        <Caret Line="5887" Column="22" TopLine="5881"/>
+        <Filename Value="scriptengine.pas"/>
+        <Caret Line="1684" Column="18" TopLine="1669"/>
       </Position16>
       <Position17>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="49" Column="14" TopLine="38"/>
+        <Caret Line="663" Column="5" TopLine="647"/>
       </Position17>
       <Position18>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="292" Column="24" TopLine="274"/>
+        <Caret Line="669" Column="5" TopLine="653"/>
       </Position18>
       <Position19>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="2070" Column="81" TopLine="2051"/>
+        <Caret Line="3058" Column="3" TopLine="3043"/>
       </Position19>
       <Position20>
         <Filename Value="mainunit.pas"/>
-        <Caret Line="5340" Column="11" TopLine="5330"/>
+        <Caret Line="3761" Column="26" TopLine="3745"/>
       </Position20>
       <Position21>
-        <Filename Value="prefs.pas"/>
-        <Caret Line="43" Column="28" TopLine="30"/>
+        <Filename Value="nsappkitext.pas"/>
+        <Caret Line="146" Column="28" TopLine="127"/>
       </Position21>
       <Position22>
-        <Filename Value="prefs.pas"/>
-        <Caret Line="42" Column="26" TopLine="30"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="3761" Column="26" TopLine="3745"/>
       </Position22>
       <Position23>
-        <Filename Value="prefs.pas"/>
-        <Caret Line="163" Column="26" TopLine="161"/>
+        <Filename Value="extractui.pas"/>
+        <Caret Line="30" Column="3" TopLine="8"/>
       </Position23>
       <Position24>
-        <Filename Value="prefs.pas"/>
-        <Caret Line="45" Column="18" TopLine="34"/>
+        <Filename Value="nsappkitext.pas"/>
+        <Caret Line="151" Column="34" TopLine="136"/>
       </Position24>
       <Position25>
-        <Filename Value="prefs.pas"/>
-        <Caret Line="42" Column="26" TopLine="34"/>
+        <Filename Value="mainunit.pas"/>
+        <Caret Line="3759" Column="9" TopLine="3745"/>
       </Position25>
       <Position26>
-        <Filename Value="prefs.pas"/>
-        <Caret Line="165" Column="26" TopLine="146"/>
+        <Filename Value="extractui.pas"/>
+        <Caret Line="16" Column="29" TopLine="8"/>
       </Position26>
       <Position27>
-        <Filename Value="scriptengine.pas"/>
-        <Caret Line="1086" Column="51" TopLine="1080"/>
+        <Filename Value="nsappkitext.pas"/>
+        <Caret Line="10" Column="60"/>
       </Position27>
       <Position28>
-        <Filename Value="scriptengine.pas"/>
-        <Caret Line="7" Column="92"/>
+        <Filename Value="nsappkitext.pas"/>
+        <Caret Line="19" Column="5"/>
       </Position28>
       <Position29>
-        <Filename Value="scriptengine.pas"/>
-        <Caret Line="1857" Column="11" TopLine="1838"/>
+        <Filename Value="nsappkitext.pas"/>
+        <Caret Line="34" Column="22" TopLine="27"/>
       </Position29>
       <Position30>
-        <Filename Value="scriptengine.pas"/>
-        <Caret Line="1846" TopLine="1832"/>
+        <Filename Value="nsappkitext.pas"/>
+        <Caret Line="71" Column="50" TopLine="43"/>
       </Position30>
     </JumpHistory>
     <RunParams>

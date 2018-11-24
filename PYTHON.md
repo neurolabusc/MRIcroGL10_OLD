@@ -80,9 +80,8 @@ gl.backcolor(255, 255, 255)
 for i in range(1, ksteps):
   gl.azimuthelevation(i*10, 30)
   gl.wait(ktime)
-end
-modelessmessage('extracting arteries from background')
-extract(4,1,true)
+gl.modelessmessage('extracting arteries from background')
+gl.extract(4,1,1)
 for i in range(1, ksteps):
   gl.azimuthelevation(i*10, 30)
   gl.wait(ktime)

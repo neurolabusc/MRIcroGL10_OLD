@@ -452,10 +452,13 @@ begin
        if (ticAlt.remainder < tic.remainder) and (ticAlt.decimals <= tic.decimals) then
           tic := ticAlt;
        ticAlt := setStepSizeForce(lRange, 1);
-       if (ticAlt.remainder < tic.remainder) and (ticAlt.decimals <= tic.decimals) then
+       //8/2018: changed for values like -2.7..-4.7
+       if (ticAlt.remainder < tic.remainder) and (ticAlt.decimals < tic.decimals) then
           tic := ticAlt;
-       if (ticAlt.remainder <= tic.remainder) and (ticAlt.decimals < tic.decimals) then
-          tic := ticAlt;
+       //if (ticAlt.remainder < tic.remainder) and (ticAlt.decimals <= tic.decimals) then
+       //   tic := ticAlt;
+       //if (ticAlt.remainder <= tic.remainder) and (ticAlt.decimals < tic.decimals) then
+       //   tic := ticAlt;
   end;
   if (mn > 0) and (decimals(mn) <= tic.decimals) then
      lStep := mn

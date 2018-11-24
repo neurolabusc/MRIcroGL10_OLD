@@ -251,7 +251,6 @@ Begin
    hProcess.Free;
    if fileexists(result) then exit;
    result := findNiiFile(result); //error handling for multiple echo or coil images
-
 end;
 
 function dcm2Nifti(dcm2niixExe, dicomDir: string): string;

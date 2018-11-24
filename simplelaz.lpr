@@ -13,6 +13,7 @@ uses
   Interfaces, Forms, lazopenglcontext, mainunit, autoroi, readint,
   nifti_dicom, clustering, savethreshold, reslice, drawu, dcm2nii, shaderui,
   clut,  raycast_common, pascalscript, extractui, nifti_tiff,
+  //uscale,
   dcm_load, commandsu, prefs, define_types, scriptengine;
 
 {$IFNDEF UNIX}{$R simplelaz.res}{$ENDIF}
