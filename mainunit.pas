@@ -4068,7 +4068,7 @@ begin
   RetinaCheck.Parent:=PrefForm;
   //
   DarkModeCheck:=TCheckBox.create(PrefForm);
-  //
+  DarkModeCheck.visible := isDarkModeSupported;
   DarkModeCheck.Checked := gPrefs.DarkMode;
   DarkModeCheck.Caption:='Dark Mode';
   DarkModeCheck.Left := 8;
