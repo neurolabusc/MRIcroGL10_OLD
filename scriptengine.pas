@@ -226,6 +226,8 @@ uses
 function ScriptDir: string;
 begin
   result := AppDir+'script';
+  if fileexists(result) then exit;
+  result := AppDir +'Resources'+pathdelim+'script';
   {$IFDEF UNIX}
   if fileexists(result) then exit;
   result := '/usr/share/mricrogl/script';
@@ -240,6 +242,8 @@ function ScriptDir: string;
 begin
   result := AppDir+'script';
   {$IFDEF UNIX}
+  if fileexists(result) then exit;
+  result := AppDir+'Resources'+pathdelim+'script';
   if fileexists(result) then exit;
   result := '/usr/share/mricrogl/script';
   if fileexists(result) then exit;
@@ -419,7 +423,7 @@ begin
       SAVEBMP(StrName);
     end;
 end;
- 
+
 function PySAVEBMPXY(Self, Args : PPyObject): PPyObject; cdecl;
 var
   PtrName: PChar;

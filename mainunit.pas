@@ -6291,7 +6291,7 @@ if (ssMeta in ss) or (ssCtrl in ss) then begin
   AddOverlay(lFilename,1);
   exit;
 end;
-if NIFTIvolumes(lFilename) > 0 then begin
+if (not DirectoryExists(lFilename)) and (NIFTIvolumes(lFilename) > 0) then begin
    LoadDatasetNIFTIvolx(lFileName,true);
    exit;
 end;

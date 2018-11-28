@@ -143,6 +143,8 @@ begin
     {$ENDIF}
   {$ENDIF}
   result := AppDir + s;
+  if fileexists(result) then exit;
+  result := AppDir +'Resources'+pathdelim+ s;
   {$IFDEF UNIX}
   if fileexists(result) then exit;
   result := '/usr/share/mricrogl/'+s;
