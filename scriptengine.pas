@@ -241,6 +241,8 @@ begin
   result := AppDir+'script';
   {$IFDEF UNIX}
   if fileexists(result) then exit;
+  result := AppDir+'Resources'+pathdelim+'script';
+  if fileexists(result) then exit;
   result := '/usr/share/mricrogl/script';
   if fileexists(result) then exit;
   result := AppDir+'script'

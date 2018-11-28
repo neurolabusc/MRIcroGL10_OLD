@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Compiler Value="/usr/bin/fpc" Date="1535575190"/>
+  <Params Value=" -MDelphi -Scghi -CX -Cg -O3 -Xs -XX -l -vewnhibq -Fi/home/chris/pas/MRIcroGL/lib/x86_64-linux -Fu/home/chris/.lazarus/onlinepackagemanager/packages/PythonForLazarus/python4lazarus/out -Fu/home/chris/lazarus/components/PascalScript/Source/lib/x86_64-linux -Fu/home/chris/lazarus/components/opengl/lib/x86_64-linux/gtk2 -Fu/home/chris/lazarus/lcl/units/x86_64-linux/gtk2 -Fu/home/chris/lazarus/lcl/units/x86_64-linux -Fu/home/chris/lazarus/components/lazutils/lib/x86_64-linux -Fu/home/chris/lazarus/packager/units/x86_64-linux -Fu/home/chris/pas/MRIcroGL/ -FU/home/chris/pas/MRIcroGL/lib/x86_64-linux/ -FE/home/chris/pas/MRIcroGL/ -o/home/chris/pas/MRIcroGL/MRIcroGL -dLCL -dLCLgtk2 simplelaz.lpr"/>
+</CONFIG>

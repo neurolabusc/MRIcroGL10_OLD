@@ -145,6 +145,8 @@ begin
   result := AppDir + s;
   {$IFDEF UNIX}
   if fileexists(result) then exit;
+  result := AppDir +'Resources'+pathdelim+ s;
+  if fileexists(result) then exit;
   result := '/usr/share/mricrogl/'+s;
   if fileexists(result) then exit;
   result := AppDir + s;

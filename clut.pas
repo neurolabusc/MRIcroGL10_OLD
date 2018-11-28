@@ -98,8 +98,11 @@ begin
   if fileexists(result) then exit;
   result := '/usr/share/mricrogl/lut';
   if fileexists(result) then exit;
-  result := AppDir+'lut'
+  result := AppDir+'lut';
   {$ENDIF}
+  if fileexists(result) then exit;
+  result := AppDir+'Resources'+pathdelim+'lut'
+
 end;
 
 function CLUT2disk(lRead: boolean; lFilename: string; var lCLUTrec: TCLUTrec): boolean;
