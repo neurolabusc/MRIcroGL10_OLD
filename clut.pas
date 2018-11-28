@@ -94,6 +94,8 @@ function CLUTDir: string;
 begin
   //result := extractfilepath(paramstr(0))+'lut';
   result := AppDir+'lut';
+  if fileexists(result) then exit;
+  result := AppDir +'Resources'+pathdelim+'lut';
   {$IFDEF UNIX}
   if fileexists(result) then exit;
   result := '/usr/share/mricrogl/lut';
