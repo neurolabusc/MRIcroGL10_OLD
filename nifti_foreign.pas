@@ -2,37 +2,181 @@ unit nifti_foreign;
 
 interface
 {$H+}
+{$DEFINE GZIP}
+{$DEFINE GUI}
+{$DEFINE GL10} //define for MRIcroGL1.0, comment fro MRIcroGL1.2 and later
+{$H+}
+{$IFDEF GL10}
 {$Include isgui.inc}
-
-uses
-{$IFNDEF FPC}
-  gziod,
-{$ELSE}
-  gzio2,
 {$ENDIF}
+uses
+
+{$IFDEF GL10} define_types,
+        {$IFNDEF FPC}gziod,{$ELSE}gzio2,{$ENDIF}
+{$ENDIF}
+{$IFDEF GZIP}zstream, {$ENDIF}
 {$IFDEF GUI}
  dialogs,
 {$ELSE}
  dialogsx,
 {$ENDIF}
- nifti_types, define_types, sysutils, classes, StrUtils,nifti_dicom;//2015! dialogsx
+//ClipBrd,
+ nifti_types,  sysutils, classes, StrUtils;//2015! dialogsx
 
-function readForeignHeader (var lFilename: string; var lHdr: TNIFTIhdr; var gzBytes: int64; var swapEndian, isDimPermute2341: boolean): boolean;
+{$IFDEF GL10}
 procedure NII_Clear (out lHdr: TNIFTIHdr);
 procedure NII_SetIdentityMatrix (var lHdr: TNIFTIHdr); //create neutral rotation matrix
+{$ELSE}
+Type
+    	ByteRA = array [1..1] of byte;
+	Bytep = ^ByteRA;
+procedure UnGZip(const FileName: string; buffer: bytep; offset, sz: integer);
+{$ENDIF}
+function readForeignHeader (var lFilename: string; var lHdr: TNIFTIhdr; var gzBytes: int64; var swapEndian, isDimPermute2341: boolean): boolean;
 procedure convertForeignToNifti(var nhdr: TNIFTIhdr);
+function FSize (lFName: String): Int64;
 function isTIFF(fnm: string): boolean;
 implementation
 
-//uses mainunit;
-
+const
+    kNaNSingle : single = 1/0;
 Type
+
   mat44 = array [0..3, 0..3] of Single;
   vect4 = array [0..3] of Single;
   mat33 = array [0..2, 0..2] of Single;
   vect3 = array [0..2] of Single;
   ivect3 = array [0..2] of integer;
 
+{$IFDEF GL10}
+procedure NII_SetIdentityMatrix (var lHdr: TNIFTIHdr); //create neutral rotation matrix
+var lInc: integer;
+begin
+	with lHdr do begin
+		 for lInc := 0 to 3 do
+			 srow_x[lInc] := 0;
+		 for lInc := 0 to 3 do
+             srow_y[lInc] := 0;
+         for lInc := 0 to 3 do
+             srow_z[lInc] := 0;
+         for lInc := 1 to 16 do
+             intent_name[lInc] := chr(0);
+         //next: create identity matrix: if code is switched on there will not be a problem
+		 srow_x[0] := 1;
+         srow_y[1] := 1;
+         srow_z[2] := 1;
+    end;
+end; //proc NIFTIhdr_IdentityMatrix
+
+procedure NII_Clear (out lHdr: TNIFTIHdr);
+var
+ lInc: integer;
+begin
+  with lHdr do begin
+    HdrSz := sizeof(TNIFTIhdr);
+    for lInc := 1 to 10 do
+       Data_Type[lInc] := chr(0);
+    for lInc := 1 to 18 do
+       db_name[lInc] := chr(0);
+    extents:=0;
+    session_error:= 0;
+    regular:='r'{chr(0)};
+    dim_info:=(0);
+    dim[0] := 4;
+    for lInc := 1 to 7 do
+       dim[lInc] := 0;
+    intent_p1 := 0;
+    intent_p2 := 0;
+    intent_p3 := 0;
+    intent_code:=0;
+    datatype:=0 ;
+    bitpix:=0;
+    slice_start:=0;
+    for lInc := 1 to 7 do
+       pixdim[linc]:= 1.0;
+    vox_offset:= 0.0;
+    scl_slope := 1.0;
+    scl_inter:= 0.0;
+    slice_end:= 0;
+    slice_code := 0;
+    xyzt_units := 10;
+    cal_max:= 0.0;
+    cal_min:= 0.0;
+    slice_duration:=0;
+    toffset:= 0;
+    glmax:= 0;
+    glmin:= 0;
+    for lInc := 1 to 80 do
+      descrip[lInc] := chr(0);{80 spaces}
+    for lInc := 1 to 24 do
+      aux_file[lInc] := chr(0);{80 spaces}
+    {below are standard settings which are not 0}
+    bitpix := 16;//vc16; {8bits per pixel, e.g. unsigned char 136}
+    DataType := 4;//vc4;{2=unsigned char, 4=16bit int 136}
+    Dim[0] := 3;
+    Dim[1] := 256;
+    Dim[2] := 256;
+    Dim[3] := 1;
+    Dim[4] := 1; {n vols}
+    Dim[5] := 1;
+    Dim[6] := 1;
+    Dim[7] := 1;
+    glMin := 0;
+    glMax := 255;
+    qform_code := kNIFTI_XFORM_UNKNOWN;
+    sform_code:= kNIFTI_XFORM_UNKNOWN;
+    quatern_b := 0;
+    quatern_c := 0;
+    quatern_d := 0;
+    qoffset_x := 0;
+    qoffset_y := 0;
+    qoffset_z := 0;
+    NII_SetIdentityMatrix(lHdr);
+    magic := kNIFTI_MAGIC_SEPARATE_HDR;
+  end; //with the NIfTI header...
+end;
+{$ENDIF}
+
+function UpCaseExt(lFileName: string): string;
+var lI: integer;
+l2ndExt,lExt : string;
+begin
+         lExt := ExtractFileExt(lFileName);
+         if length(lExt) > 0 then
+        	for lI := 1 to length(lExt) do
+        		lExt[lI] := upcase(lExt[lI]);
+         result := lExt;
+         if lExt <> '.GZ' then exit;
+         lI := length(lFileName) - 6;
+         if li < 1 then exit;
+         l2ndExt := upcase(lFileName[lI])+upcase(lFileName[lI+1])+upcase(lFileName[li+2])+upcase(lFileName[li+3]);
+         if (l2ndExt = '.NII')then
+        	result :=  l2ndExt+lExt
+         else if  (l2ndExt = 'BRIK') and (lI > 1) and (lFileName[lI-1] = '.') then
+              result := '.BRIK'+lExt;
+end;
+
+{$IFNDEF GL10}
+procedure UnGZip(const FileName: string; buffer: bytep; offset, sz: integer);
+{$IFDEF GZIP}
+var
+   decomp: TGZFileStream;
+   skip: array of byte;
+begin
+     decomp := TGZFileStream.create(FileName, gzopenread);
+     if offset > 0 then begin
+        setlength(skip, offset);
+        decomp.Read(skip[0], offset);
+     end;
+     decomp.Read(buffer[0], sz);
+     decomp.free;
+end;
+{$ELSE}
+begin
+  {$IFDEF UNIX} writeln('Recompile with GZ support!'); {$ENDIF}
+end;
+{$ENDIF}
+{$ENDIF}
 (*  function isECAT(fnm: string): boolean;
   type
   THdrMain = packed record //Next: ECAT signature
@@ -59,6 +203,184 @@ Type
        exit;
     result := true;
   end; *)
+  function FSize (lFName: String): Int64;
+var SearchRec: TSearchRec;
+begin
+  result := 0;
+  if not fileexists(lFName) then exit;
+  FindFirst(lFName, faAnyFile, SearchRec);
+  result := SearchRec.size;
+  FindClose(SearchRec);
+end;
+
+  function Swap2(s : SmallInt): smallint;
+  type
+    swaptype = packed record
+      case byte of
+        0:(Word1 : word); //word is 16 bit
+        1:(Small1: SmallInt);
+    end;
+    swaptypep = ^swaptype;
+  var
+    inguy:swaptypep;
+    outguy:swaptype;
+  begin
+    inguy := @s; //assign address of s to inguy
+    outguy.Word1 := swap(inguy^.Word1);
+    result :=outguy.Small1;
+  end;
+
+procedure Xswap4r ( var s:single);
+type
+  swaptype = packed record
+	case byte of
+	  0:(Word1,Word2 : word); //word is 16 bit
+  end;
+  swaptypep = ^swaptype;
+var
+  inguy:swaptypep;
+  outguy:swaptype;
+begin
+  inguy := @s; //assign address of s to inguy
+  outguy.Word1 := swap(inguy^.Word2);
+  outguy.Word2 := swap(inguy^.Word1);
+  inguy^.Word1 := outguy.Word1;
+  inguy^.Word2 := outguy.Word2;
+end;
+
+procedure swap4(var s : LongInt);
+type
+  swaptype = packed record
+    case byte of
+      0:(Word1,Word2 : word); //word is 16 bit
+      1:(Long:LongInt);
+  end;
+  swaptypep = ^swaptype;
+var
+  inguy:swaptypep;
+  outguy:swaptype;
+begin
+  inguy := @s; //assign address of s to inguy
+  outguy.Word1 := swap(inguy^.Word2);
+  outguy.Word2 := swap(inguy^.Word1);
+  s:=outguy.Long;
+end;
+
+
+procedure pswap4r ( var s:single);
+type
+  swaptype = packed record
+    case byte of
+      0:(Word1,Word2 : word); //word is 16 bit
+  end;
+  swaptypep = ^swaptype;
+var
+  inguy:swaptypep;
+  outguy:swaptype;
+begin
+  inguy := @s; //assign address of s to inguy
+  outguy.Word1 := swap(inguy^.Word2);
+  outguy.Word2 := swap(inguy^.Word1);
+  inguy^.Word1 := outguy.Word1;
+  inguy^.Word2 := outguy.Word2;
+end; //proc Xswap4r
+
+procedure pswap4i(var s : LongInt);
+type
+  swaptype = packed record
+    case byte of
+      0:(Word1,Word2 : word); //word is 16 bit
+      1:(Long:LongInt);
+  end;
+  swaptypep = ^swaptype;
+var
+  inguy:swaptypep;
+  outguy:swaptype;
+begin
+  inguy := @s; //assign address of s to inguy
+  outguy.Word1 := swap(inguy^.Word2);
+  outguy.Word2 := swap(inguy^.Word1);
+  s:=outguy.Long;
+end; //proc swap4
+
+function swap64r(s : double):double;
+type
+  swaptype = packed record
+    case byte of
+      0:(Word1,Word2,Word3,Word4 : word); //word is 16 bit
+      1:(float:double);
+  end;
+  swaptypep = ^swaptype;
+var
+  inguy:swaptypep;
+  outguy:swaptype;
+begin
+  inguy := @s; //assign address of s to inguy
+  outguy.Word1 := swap(inguy^.Word4);
+  outguy.Word2 := swap(inguy^.Word3);
+  outguy.Word3 := swap(inguy^.Word2);
+  outguy.Word4 := swap(inguy^.Word1);
+  try
+    swap64r:=outguy.float;
+  except
+        swap64r := 0;
+        exit;
+  end;{}
+end;
+
+FUNCTION specialsingle (var s:single): boolean;
+//returns true if s is Infinity, NAN or Indeterminate
+//4byte IEEE: msb[31] = signbit, bits[23-30] exponent, bits[0..22] mantissa
+//exponent of all 1s =   Infinity, NAN or Indeterminate
+CONST kSpecialExponent = 255 shl 23;
+VAR Overlay: LongInt ABSOLUTE s;
+BEGIN
+  IF ((Overlay AND kSpecialExponent) = kSpecialExponent) THEN
+     RESULT := true
+  ELSE
+      RESULT := false;
+END;
+
+function isBioFormats(fnm: string): string;
+//detect LIF and LIFF format or other Imagej/Fiji Bioformat
+const
+     LIF_MAGIC_BYTE = $70;
+     LIF_MEMORY_BYTE = $2a;
+var
+  f: file;
+  bs: array[0..255] of byte;
+begin
+  result := '';
+  if not fileexists(fnm) then exit;
+  if DirectoryExists(fnm) then exit;
+  if FSize(fnm) < 256 then exit;
+  {$I-}
+  AssignFile(f, fnm);
+  FileMode := fmOpenRead;  //Set file access to read only
+  Reset(f, 1);
+  {$I+}
+  if ioresult <> 0 then
+     exit;
+  BlockRead(f, bs, sizeof(bs)); //Byte-order Identifier
+  if (bs[8] = LIF_MEMORY_BYTE) and ((bs[0] = LIF_MAGIC_BYTE) or (bs[3] = LIF_MAGIC_BYTE)) then
+     result := 'LIF'; //file can be read using LIFReader.java
+  if (bs[4] = ord('i')) and (bs[5] = ord('m')) and (bs[6] = ord('p')) and (bs[7] = ord('r')) then
+     result := 'LIFF'; //Openlab LIFF format OpenLabReader.java
+  if (bs[0] = $D0) and (bs[1] = $CF) and (bs[2] = $11) and (bs[3] = $E0) then //IPW_MAGIC_BYTES = 0xd0cf11e0
+     result := 'IPW'; //IPWReader.java
+  if (bs[0] = ord('i')) and (bs[1] = ord('i')) and (bs[2] = ord('i')) and (bs[3] = ord('i')) then
+     result := 'IPL';//IPLabReader.java
+  if (bs[0] = $89) and (bs[1] = $48) and (bs[2] = $44) and (bs[3] = $46) then //IPW_MAGIC_BYTES = 0xd0cf11e0
+     result := 'HDF';//Various readers: ImarisHDFReader, CellH5Reader, etc
+  if (bs[0] = $DA) and (bs[1] = $CE) and (bs[2] = $BE) and (bs[3] = $0A) then//DA CE BE 0A
+     result := 'ND2';//MAGIC_BYTES_1 ND2Reader
+  if (bs[0] = $6a) and (bs[1] = $50) and (bs[2] = $20) and (bs[3] = $20) then
+     result := 'ND2';//MAGIC_BYTES_2 ND2Reader
+  if (bs[208] = $4D) and (bs[209] = $41) and (bs[210] = $50) then
+     result := 'MAP';//MRCReader http://www.ccpem.ac.uk/mrc_format/mrc2014.php
+  //GatanReader.java
+  closefile(f);
+end;
 
   function isTIFF(fnm: string): boolean;
   var
@@ -150,6 +472,7 @@ begin
   r32 := m[2,1];
   r33 := m[2,2];
 end;
+
 
 function nifti_mat33_inverse( R: mat33 ): mat33;   //* inverse of 3x3 matrix */
 var
@@ -324,95 +647,6 @@ begin
    qd := d ;
 end;
 
-
-procedure NII_SetIdentityMatrix (var lHdr: TNIFTIHdr); //create neutral rotation matrix
-var lInc: integer;
-begin
-	with lHdr do begin
-		 for lInc := 0 to 3 do
-			 srow_x[lInc] := 0;
-		 for lInc := 0 to 3 do
-             srow_y[lInc] := 0;
-         for lInc := 0 to 3 do
-             srow_z[lInc] := 0;
-         for lInc := 1 to 16 do
-             intent_name[lInc] := chr(0);
-         //next: create identity matrix: if code is switched on there will not be a problem
-		 srow_x[0] := 1;
-         srow_y[1] := 1;
-         srow_z[2] := 1;
-    end;
-end; //proc NIFTIhdr_IdentityMatrix
-
-procedure NII_Clear (out lHdr: TNIFTIHdr);
-var
- lInc: integer;
-begin
-  with lHdr do begin
-    HdrSz := sizeof(TNIFTIhdr);
-    for lInc := 1 to 10 do
-       Data_Type[lInc] := chr(0);
-    for lInc := 1 to 18 do
-       db_name[lInc] := chr(0);
-    extents:=0;
-    session_error:= 0;
-    regular:='r'{chr(0)};
-    dim_info:=(0);
-    dim[0] := 4;
-    for lInc := 1 to 7 do
-       dim[lInc] := 0;
-    intent_p1 := 0;
-    intent_p2 := 0;
-    intent_p3 := 0;
-    intent_code:=0;
-    datatype:=0 ;
-    bitpix:=0;
-    slice_start:=0;
-    for lInc := 1 to 7 do
-       pixdim[linc]:= 1.0;
-    vox_offset:= 0.0;
-    scl_slope := 1.0;
-    scl_inter:= 0.0;
-    slice_end:= 0;
-    slice_code := 0;
-    xyzt_units := 10;
-    cal_max:= 0.0;
-    cal_min:= 0.0;
-    slice_duration:=0;
-    toffset:= 0;
-    glmax:= 0;
-    glmin:= 0;
-    for lInc := 1 to 80 do
-      descrip[lInc] := chr(0);{80 spaces}
-    for lInc := 1 to 24 do
-      aux_file[lInc] := chr(0);{80 spaces}
-    {below are standard settings which are not 0}
-    bitpix := 16;//vc16; {8bits per pixel, e.g. unsigned char 136}
-    DataType := 4;//vc4;{2=unsigned char, 4=16bit int 136}
-    Dim[0] := 3;
-    Dim[1] := 256;
-    Dim[2] := 256;
-    Dim[3] := 1;
-    Dim[4] := 1; {n vols}
-    Dim[5] := 1;
-    Dim[6] := 1;
-    Dim[7] := 1;
-    glMin := 0;
-    glMax := 255;
-    qform_code := kNIFTI_XFORM_UNKNOWN;
-    sform_code:= kNIFTI_XFORM_UNKNOWN;
-    quatern_b := 0;
-    quatern_c := 0;
-    quatern_d := 0;
-    qoffset_x := 0;
-    qoffset_y := 0;
-    qoffset_z := 0;
-    NII_SetIdentityMatrix(lHdr);
-    magic := kNIFTI_MAGIC_SEPARATE_HDR;
-  end; //with the NIfTI header...
-end;
-
-
 procedure ZERO_MAT44(var m: mat44); //note sets m[3,3] to one
 var
   i,j: integer;
@@ -423,7 +657,7 @@ begin
   m[3,3] := 1;
 end;
 
-procedure LOAD_MAT33(var m: mat33; m00,m01,m02, m10,m11,m12, m20,m21,m22: single);
+procedure LOAD_MAT33(out m: mat33; m00,m01,m02, m10,m11,m12, m20,m21,m22: single);
 begin
   m[0,0] := m00;
   m[0,1] := m01;
@@ -436,17 +670,24 @@ begin
   m[2,2] := m22;
 end;
 
+function nifti_mat33vec_mul(m: mat33; v: vect3): vect3;
+var
+  i: integer;
+begin
+     for i := 0 to 2 do
+         result[i] := (v[0]*m[i,0])+(v[1]*m[i,1])+(v[2]*m[i,2]);
+end;
+
 function nifti_mat33_mul( A,B: mat33): mat33;
 var
   i,j: integer;
 begin
-	for i:=0 to 3 do
-    	for j:=0 to 3 do
-        result[i,j] :=  A[i,0] * B[0,j]
+     for i:=0 to 2 do
+    	for j:=0 to 2 do
+            result[i,j] :=  A[i,0] * B[0,j]
             + A[i,1] * B[1,j]
             + A[i,2] * B[2,j] ;
 end;
-
 
 procedure LOAD_MAT44(var m: mat44; m00,m01,m02,m03, m10,m11,m12,m13, m20,m21,m22,m23: single);
 begin
@@ -528,7 +769,10 @@ end;
 
 procedure NSLog( str: string);
 begin
+  {$IFDEF GUI}
   showmsg(str);
+  {$ENDIF}
+  {$IFDEF UNIX}writeln(str);{$ENDIF}
 end;
 
 function parsePicString(s: string): single;
@@ -922,7 +1166,6 @@ begin
   end;
   result := true;
 end; //nii_readGipl
-
 
 function nii_readpic (var fname: string; var nhdr: TNIFTIhdr; var gzBytes: int64; var swapEndian: boolean): boolean;
 //https://github.com/jefferis/pic2nifti/blob/master/libpic2nifti.c
@@ -1343,25 +1586,8 @@ begin
   result := StringReplace(result, ')', '', [rfReplaceAll]);
 end;
 
-(*function FSize (lFName: String): Int64;
-var SearchRec: TSearchRec;
-begin
-  result := 0;
-  if not fileexistsex(lFName) then exit;
-  FindFirst(lFName, faAnyFile, SearchRec);
-  result := SearchRec.size;
-  FindClose(SearchRec);
-end; *)
-
-(*procedure report_mat(m: mat33);
-begin
-     showmsg('mat = ['+floattostr(m[0,0])+' ' +floattostr(m[0,1])  +' ' +floattostr(m[0,2]) +'; '
-                  +floattostr(m[1,0])+' ' +floattostr(m[1,1])  +' ' +floattostr(m[1,2]) +'; '
-                  +floattostr(m[2,0])+' ' +floattostr(m[2,1])  +' ' +floattostr(m[2,2]) +'] ');
-end;*)
-
 type TFByte =  File of Byte;
-procedure ReadLnBin(var f: TFByte; var s: string);
+(*procedure ReadLnBin(var f: TFByte; var s: string);
 const
   kEOLN = $0A;
 var
@@ -1373,7 +1599,22 @@ begin
            if bt = kEOLN then exit;
            s := s + Chr(bt);
      end;
-end;
+end; *)
+  function ReadLnBin(var f: TFByte; var s: string): boolean;
+  const
+    kEOLN = $0A;
+  var
+     bt : Byte;
+  begin
+       s := '';
+       if EOF(f) then exit(false);
+       while (not  EOF(f)) do begin
+             Read(f,bt);
+             if bt = kEOLN then exit;
+             s := s + Chr(bt);
+       end;
+       exit(true);
+  end;
 
 function readVTKHeader (var fname: string; var nhdr: TNIFTIhdr; var gzBytes: int64; var swapEndian: boolean): boolean;
 //VTK Simple Legacy Formats : STRUCTURED_POINTS : BINARY
@@ -1499,12 +1740,13 @@ var
   matOrient, mat, d, t: mat33;
   //compressedDataSize,
   nPosition, nOffset, matElements, matElementsOrient,  headerSize, nItems, nBytes, i, channels, fileposBytes: longint;
-  offset,position, elementSize: array [0..3] of single;
+  //elementSize,
+  offset,position: array [0..3] of single;
   transformMatrix: array [0..11] of single;
   mArray: TStringList;
 begin
   result := false;
-  if not FileExistsEX(fname) then exit;
+  if not FileExists(fname) then exit;
     {$IFDEF FPC}
   DefaultFormatSettings.DecimalSeparator := '.' ;
    // DecimalSeparator := '.';
@@ -1514,7 +1756,7 @@ begin
   for i := 0 to 3 do begin
       position[i] := 0;
       offset[i] := 0;
-      elementSize[i] := 1;
+      //elementSize[i] := 1;
   end;
   nPosition := 0;
   nOffset := 0;
@@ -1623,9 +1865,9 @@ begin
         end else if AnsiContainsText(tagName, 'HeaderSize') then begin
             headerSize := strtoint(mArray[0]);
         end else if AnsiContainsText(tagName, 'ElementSize') then begin
-            if (nItems > 4) then nItems := 4;
-            for i := 0 to (nItems-1) do
-                elementSize[i] := strtofloat(mArray[i]);
+            //if (nItems > 4) then nItems := 4;
+            //for i := 0 to (nItems-1) do
+            //    elementSize[i] := strtofloat(mArray[i]);
         end else if AnsiContainsText(tagName, 'ElementNumberOfChannels') then begin
             channels := strtoint(mArray[0]);
             if (channels > 1) then NSLog('Unable to read MHA/MHD files with multiple channels ');
@@ -1662,10 +1904,10 @@ begin
         end else if AnsiContainsText(tagName, 'ElementDataFile') then begin
             if not AnsiContainsText(mArray[0], 'local') then begin
                 str := mArray.Strings[0];
-                if fileexistsex(str) then
+                if fileexists(str) then
                   fname := str
                 else begin
-                  fname := ExtractFileDirWithPathDelim(fname)+str;
+                  fname := ExtractFilePath(fname)+str;
                 end;
                 isLocal := false;
             end;
@@ -1727,19 +1969,75 @@ begin
   end;
   result := true;
 end;//MHA
-
+//{$DEFINE DECOMPRESSGZ}
+{$IFDEF DECOMPRESSGZ}
 function readMIF(var fname: string; var nhdr: TNIFTIhdr; var gzBytes: int64; var swapEndian, isDimPermute2341: boolean): boolean;
 //https://github.com/MRtrix3/mrtrix3/blob/master/matlab/read_mrtrix.m
+//https://mrtrix.readthedocs.io/en/latest/getting_started/image_data.html
+//https://mrtrix.readthedocs.io/en/latest/getting_started/image_data.html#the-image-transfom
+//https://github.com/MRtrix3/mrtrix3/blob/52a2540d7d3158ec74d762ad5dd387777569f325/core/file/nifti1_utils.cpp
 label
   666;
+{$IFDEF GZIP}
+const
+  kGzSz=65536;
+{$ENDIF}
 var
   FP: TextFile;
   str, key, vals, fstr: string;
   mArray: TStringList;
-  nItems, i: integer;
+  nTransforms, nItems, i, j, k, nDim : integer;
+  repetitionTime: single;
+  layout: array [1..7] of double;
+  pixdim: array [1..7] of single;
+  dim: array [1..7] of integer;
+  m: Mat44;
+  m33: mat33;
+  originVox, originMM: vect3;
+  {$IFDEF GZIP}
+  //the GZ MIF header is trouble: unlike NIfTI it is variable size, unlike NRRD it is part of the compressed stream
+  // here the kludge is to extract the ENTIRE image to disk in order to read the header.
+  // optimal would be to read a memory stream and detect '\nEND\n' when decompressing...
+  // however, this format is discouraged so for the moment this seems sufficient
+  fnameGZ: string = '';
+  zStream: TGZFileStream;
+  dStream: TFileStream;
+  bytes : array of byte;
+  bytescopied: integer;
+  {$ENDIF}
 begin
+  str := UpCaseExt(fname);
+  if str = '.GZ' then begin
+     fstr := fname;
+     {$IFDEF GZIP}
+     fname := changefileext(fstr,'');
+     if not fileexists(fname) then begin
+        fnameGZ := fstr;
+        zStream := TGZFileStream.Create(fstr,gzOpenRead);
+        dStream := TFileStream.Create(fname,fmOpenWrite or fmCreate );
+        setlength(bytes, kGzSz);
+        repeat
+              bytescopied := zStream.read(bytes[0],kGzSz);
+              dStream.Write(bytes[0],bytescopied) ;
+        until bytescopied < kGzSz;
+        dStream.Free;
+        zStream.Free;
+     end;
+     {$ELSE}
+     showmessage('Unable to decompress .MIF.GZ');
+     exit;
+     {$ENDIF}
+  end;
   swapEndian :=false;
   result := false;
+  for i := 1 to 7 do begin
+      layout[i] := i;
+      dim[i] := 1;
+      pixdim[i] := 1.0;
+  end;
+  repetitionTime := 0.0;
+  LOAD_MAT44(m,1,0,0,0, 0,1,0,0, 0,0,1,0);
+  nTransforms := 0;
   FileMode := fmOpenRead;
   AssignFile(fp,fname);
   reset(fp);
@@ -1755,23 +2053,45 @@ begin
     key := mArray[0]; //e.g. "dim: 1,2,3" -> "dim"
     vals := mArray[1]; //e.g. "dim: 1,2,3" -> "1,2,3"
     splitstrStrict(',',vals,mArray);
-    nItems :=mArray.count;
+    nItems := mArray.count;
     mArray[0] := Trim(mArray[0]);  //" Float32LE" -> "Float32LE"
     //str := mArray[0];
     //mArray.Delete(i);
+    if (ansipos('RepetitionTime', key) = 1) and (nItems > 0)  then begin
+      repetitionTime := strtofloatdef(mArray[0], 0);
+      continue;
+    end;
+    if (ansipos('layout', key) = 1) and (nItems > 1) and (nItems < 7) then begin
+      for i := 1 to nItems do begin
+          layout[i] := strtofloatdef(mArray[i-1],i);
+          if (mArray[i-1][1] = '-') and (layout[i] >= 0) then
+             layout[i] := -0.00001;
+      end;
+      continue;
+    end;
+    if (ansipos('transform', key) = 1) and (nItems > 1) and (nItems < 5) and (nTransforms < 3) then begin
+      for i := 0 to (nItems-1) do
+          m[nTransforms,i] := strtofloatdef(mArray[i],i);
+      nTransforms := nTransforms + 1;
+      continue;
+    end;
     if (ansipos('dim', key) = 1) and (nItems > 1) and (nItems < 7) then begin
-       for i := 1 to nItems do
-           nhdr.dim[i] := strtointdef(mArray[i-1],0);
+      nDim := nItems;
+      for i := 1 to nItems do
+           dim[i] := strtointdef(mArray[i-1],0);
        continue;
     end;
-    //NSLog('BINGO'+Key+inttostr(nItems));
+    if (ansipos('scaling', key) = 1) and (nItems > 1) and (nItems < 7) then begin
+        nhdr.scl_inter := strtofloatdef(mArray[0],0);
+        nhdr.scl_slope := strtofloatdef(mArray[1],1);
+    end;
     if (ansipos('vox', key) = 1) and (nItems > 1) and (nItems < 7) then begin
        //NSLog('BINGO'+mArray[0]);
        for i := 1 to nItems do
-           nhdr.pixdim[i] := strtofloatdef(mArray[i-1],0);
+           pixdim[i] := strtofloatdef(mArray[i-1],0);
+           //nhdr.pixdim[i] := strtofloatdef(mArray[i-1],0);
        continue;
     end;
-
     if (ansipos('datatype', key) = 1) and (nItems > 0) then begin
       if (ansipos('Int8', mArray[0]) = 1) then
          nhdr.datatype := kDT_INT8
@@ -1802,7 +2122,7 @@ begin
        if (nItems > 1) and (mArray[0] = '.') then
           nhdr.vox_offset := strtointdef(mArray[1],0) //"file: . 328" -> 328 *)
        else begin
-           if not fileexistsex(fstr) then //e.g. "out.dat" -> "\mydir\out.dat"
+           if not fileexists(fstr) then //e.g. "out.dat" -> "\mydir\out.dat"
               fname := ExtractFilePath(fname) + fstr
            else
                fname := fstr;
@@ -1811,14 +2131,468 @@ begin
     end;
     //NSLog(format('%d "%s" %d',[ansipos('file', key) , key, nItems]));
   end;
+  //https://github.com/MRtrix3/mrtrix3/blob/52a2540d7d3158ec74d762ad5dd387777569f325/core/file/nifti_utils.cpp
+  // transform_type adjust_transform (const Header& H, vector<size_t>& axes)
+  for i := 0 to 2 do
+      originVox[0] := 0;
+  if nDim < 2 then goto 666;
+  nhdr.dim[0] := nDim;
+  LOAD_MAT33(m33,1,0,0, 0,1,0, 0,0,1);
+  for i := 1 to nDim do begin
+      j := abs(round(layout[i]))+1;
+      nhdr.dim[j] := dim[i];
+      if specialsingle(pixdim[i]) then
+         pixdim[i] := 0.0;
+      nhdr.pixdim[j] := pixdim[i];
+      if j = 4 then
+         nhdr.pixdim[j] := repetitionTime;
+      if i > 3 then continue;
+      //for k := 0 to 2 do
+      //    m33[k, j-1] :=  m[i-1,k];
+      //for k := 0 to 2 do
+      //    m33[i-1, k] :=  m[i-1,k];
+      for k := 0 to 2 do
+          m33[k,j-1] :=  m[k,i-1];
+
+      //rot33[j-1,i-1] := nhdr.pixdim[j];
+      if layout[i] < 0 then begin
+         nhdr.pixdim[j] := -pixdim[i];
+         originVox[j-1] := dim[i]-1;
+      end;
+  end;
+  //scale matrix
+  for i := 0 to 2 do
+      for j := 0 to 2 do
+          m33[j,i] := m33[j,i] * nhdr.pixdim[i+1];
+  originMM := nifti_mat33vec_mul(m33, originVox);
+  for i := 1 to 3 do
+      nhdr.pixdim[i] := abs(nhdr.pixdim[i]);
+  for i := 0 to 2 do
+    m[i,3] := m[i,3] - originMM[i];
+  (*
+  str := format('%g %g %g', [pixdim[1], pixdim[2], pixdim[3]]);
+  str := format('m = [%g %g %g; %g %g %g; %g %g %g]',[
+        m33[0,0], m33[0,1], m33[0,2],
+        m33[1,0], m33[1,1], m33[1,2],
+        m33[2,0], m33[2,1], m33[2,2]]);
+  str := format('%g %g %g', [originVox[0], originVox[1], originVox[2]]);
+  str := format('v = [%g %g %g]', [originMM[0], originMM[1], originMM[2]]);
+  Clipboard.AsText := str; *)
+
+    nhdr.srow_x[0] := m33[0,0];
+    nhdr.srow_x[1] := m33[0,1];
+    nhdr.srow_x[2] := m33[0,2];
+    nhdr.srow_x[3] :=   m[0,3];
+    nhdr.srow_y[0] := m33[1,0];
+    nhdr.srow_y[1] := m33[1,1];
+    nhdr.srow_y[2] := m33[1,2];
+    nhdr.srow_y[3] :=   m[1,3];
+    nhdr.srow_z[0] := m33[2,0];
+    nhdr.srow_z[1] := m33[2,1];
+    nhdr.srow_z[2] := m33[2,2];
+    nhdr.srow_z[3] :=   m[2,3];
+  (*str := (format('m = [%g %g %g %g; %g %g %g %g; %g %g %g %g; 0 0 0 1]',[
+    nhdr.srow_x[0], nhdr.srow_x[1], nhdr.srow_x[2], nhdr.srow_x[3],
+    nhdr.srow_y[0], nhdr.srow_y[1], nhdr.srow_y[2], nhdr.srow_y[3],
+    nhdr.srow_z[0], nhdr.srow_z[1], nhdr.srow_z[2], nhdr.srow_z[3]]));
+  Clipboard.AsText := str; *)
   convertForeignToNifti(nhdr);
-  NSLog('MIF/MIH support primitive: beware of orientation (strides ignored).');
   result := true;
 666:
     CloseFile(FP);
     Filemode := 2;
+    {$IFDEF GZIP}
+    if (fnameGZ <> '') and (fileexists(fnameGZ)) then begin
+       deletefile(fname);
+       fname := fnameGZ;
+       gzBytes := K_gzBytes_headerAndImageCompressed;
+    end;
+
+    {$ENDIF}
     mArray.Free;
+end; //readMIF()
+{$ELSE}
+function StreamNullStrRaw(Stream: TFileStream): string;
+var
+  b: byte;
+begin
+  result := '';
+  while (Stream.Position < Stream.Size) do begin
+        b := Stream.ReadByte;
+        if b = $0A then exit;
+        if b = $0D then continue;
+        result := result + chr(b);
+  end;
 end;
+
+(*function StreamNullStrGz(Stream: TGZFileStream): string;
+var
+  b: byte;
+begin
+  result := '';
+  while (true) do begin
+        b := Stream.ReadByte;
+        if b = $0A then exit;
+        if b = $00 then exit;
+        if b = $0D then continue;
+        result := result + chr(b);
+  end;
+end;*)
+
+function StreamNullStrGz(Stream: TGZFileStream): string;
+var
+  n: integer;
+  b: array [0..0] of byte;
+begin
+  result := '';
+  b[0] := $0A;
+  while (true) do begin
+        n := Stream.read(b,1);
+        if n < 1 then break;
+        if b[0] = $0A then exit;
+        if b[0] = $00 then exit;
+        if b[0] = $0D then continue;
+        result := result + chr(b[0]);
+  end;
+  if n < 1 then result := 'END';
+end;
+
+
+function readMIF(var fname: string; var nhdr: TNIFTIhdr; var gzBytes: int64; var swapEndian: boolean): boolean;
+//https://github.com/MRtrix3/mrtrix3/blob/master/matlab/read_mrtrix.m
+//https://mrtrix.readthedocs.io/en/latest/getting_started/image_data.html
+//https://mrtrix.readthedocs.io/en/latest/getting_started/image_data.html#the-image-transfom
+//https://github.com/MRtrix3/mrtrix3/blob/52a2540d7d3158ec74d762ad5dd387777569f325/core/file/nifti1_utils.cpp
+label
+  666;
+var
+  str, key, vals, fstr: string;
+  mArray: TStringList;
+  nTransforms, nItems, i, j, k, nDim : integer;
+  repetitionTime: single;
+  layout: array [1..7] of double;
+  pixdim: array [1..7] of single;
+  dim: array [1..7] of integer;
+  m: Mat44;
+  m33: mat33;
+  originVox, originMM: vect3;
+  fs: TFileStream;
+  {$IFDEF GZIP}
+  zfs: TGZFileStream;
+  isGz: boolean = false;
+  {$ENDIF}
+begin
+  str := UpCaseExt(fname);
+  if str = '.GZ' then begin
+     {$IFDEF GZIP}
+     isGz := true;
+     zfs := TGZFileStream.Create(fname,gzOpenRead);
+     {$ELSE}
+     showmessage('Unable to decompress .MIF.GZ');
+     exit;
+     {$ENDIF}
+  end;
+  swapEndian :=false;
+  result := false;
+  for i := 1 to 7 do begin
+      layout[i] := i;
+      dim[i] := 1;
+      pixdim[i] := 1.0;
+  end;
+  repetitionTime := 0.0;
+  LOAD_MAT44(m,1,0,0,0, 0,1,0,0, 0,0,1,0);
+  nTransforms := 0;
+  mArray := TStringList.Create;
+  if isGz then
+     str := StreamNullStrGz(zfs)
+  else begin
+       fs := TFileStream.Create(fname, fmOpenRead);
+       str := StreamNullStrRaw(fs);
+  end;
+  if str <> 'mrtrix image' then goto 666;
+  while (isGz ) or ((not isGz) and (fs.position < fs.Size))  do begin
+    if isGz then
+       str := StreamNullStrGz(zfs)
+    else
+        str := StreamNullStrRaw(fs);
+    if str = 'END' then break;
+    splitstrStrict(':',str,mArray);
+    if mArray.count < 2 then continue;
+    key := mArray[0]; //e.g. "dim: 1,2,3" -> "dim"
+    vals := mArray[1]; //e.g. "dim: 1,2,3" -> "1,2,3"
+    splitstrStrict(',',vals,mArray);
+    nItems := mArray.count;
+    mArray[0] := Trim(mArray[0]);  //" Float32LE" -> "Float32LE"
+    if (ansipos('RepetitionTime', key) = 1) and (nItems > 0)  then begin
+      repetitionTime := strtofloatdef(mArray[0], 0);
+      continue;
+    end;
+    if (ansipos('layout', key) = 1) and (nItems > 1) and (nItems < 7) then begin
+      for i := 1 to nItems do begin
+          layout[i] := strtofloatdef(mArray[i-1],i);
+          if (mArray[i-1][1] = '-') and (layout[i] >= 0) then
+             layout[i] := -0.00001;
+          if (i <= 3) and (abs(layout[i]) >= 3) then begin
+              showmessage('The first three strides are expected to be spatial (check for update).');
+              goto 666;
+          end;
+      end;
+      continue;
+    end;
+    if (ansipos('transform', key) = 1) and (nItems > 1) and (nItems < 5) and (nTransforms < 3) then begin
+      for i := 0 to (nItems-1) do
+          m[nTransforms,i] := strtofloatdef(mArray[i],i);
+      nTransforms := nTransforms + 1;
+      continue;
+    end;
+    if (ansipos('dim', key) = 1) and (nItems > 1) and (nItems < 7) then begin
+      nDim := nItems;
+      for i := 1 to nItems do
+           dim[i] := strtointdef(mArray[i-1],0);
+       continue;
+    end;
+    if (ansipos('scaling', key) = 1) and (nItems > 1) and (nItems < 7) then begin
+        nhdr.scl_inter := strtofloatdef(mArray[0],0);
+        nhdr.scl_slope := strtofloatdef(mArray[1],1);
+    end;
+    if (ansipos('vox', key) = 1) and (nItems > 1) and (nItems < 7) then begin
+       //NSLog('BINGO'+mArray[0]);
+       for i := 1 to nItems do
+           pixdim[i] := strtofloatdef(mArray[i-1],0);
+           //nhdr.pixdim[i] := strtofloatdef(mArray[i-1],0);
+       continue;
+    end;
+    if (ansipos('datatype', key) = 1) and (nItems > 0) then begin
+      if (ansipos('Int8', mArray[0]) = 1) then
+         nhdr.datatype := kDT_INT8
+      else if (ansipos('UInt8', mArray[0]) = 1) then
+         nhdr.datatype := kDT_UINT8
+      else if (ansipos('UInt16', mArray[0]) = 1) then
+            nhdr.datatype := kDT_UINT16
+      else if (ansipos('Int16', mArray[0]) = 1) then
+        nhdr.datatype := kDT_INT16
+      else if (ansipos('Float32', mArray[0]) = 1) then
+         nhdr.datatype := kDT_FLOAT32
+      else
+         NSLog('unknown datatype '+mArray[0]);
+      {$IFDEF ENDIAN_BIG}
+      if (ansipos('LE', mArray[0]) > 0) then
+         swapEndian :=true;
+      {$ELSE}
+      if (ansipos('BE', mArray[0]) > 0) then
+         swapEndian :=true;
+      {$ENDIF}
+      continue;
+    end;
+    if (ansipos('file', key) = 1) and (nItems > 0) then begin
+       fstr := trim(copy(str,pos(':',str)+1, maxint)); //get full string, e.g. "file: with spaces.dat"
+       splitstrStrict(' ',mArray[0],mArray);
+       nItems :=mArray.count;
+       if (nItems > 1) and (mArray[0] = '.') then
+          nhdr.vox_offset := strtointdef(mArray[1],0) //"file: . 328" -> 328
+       else begin
+           if not fileexists(fstr) then //e.g. "out.dat" -> "\mydir\out.dat"
+              fname := ExtractFilePath(fname) + fstr
+           else
+               fname := fstr;
+       end;
+       continue;
+    end;
+  end;
+  //https://github.com/MRtrix3/mrtrix3/blob/52a2540d7d3158ec74d762ad5dd387777569f325/core/file/nifti_utils.cpp
+  // transform_type adjust_transform (const Header& H, vector<size_t>& axes)
+  for i := 0 to 2 do
+      originVox[0] := 0;
+  if nDim < 2 then goto 666;
+  nhdr.dim[0] := nDim;
+  LOAD_MAT33(m33,1,0,0, 0,1,0, 0,0,1);
+  for i := 1 to nDim do begin
+      j := abs(round(layout[i]))+1;
+      nhdr.dim[j] := dim[i];
+      if specialsingle(pixdim[i]) then
+         pixdim[i] := 0.0;
+      nhdr.pixdim[j] := pixdim[i];
+      if j = 4 then
+         nhdr.pixdim[j] := repetitionTime;
+      if i > 3 then continue;
+      for k := 0 to 2 do
+          m33[k,j-1] :=  m[k,i-1];
+      if layout[i] < 0 then begin
+         nhdr.pixdim[j] := -pixdim[i];
+         originVox[j-1] := dim[i]-1;
+      end;
+  end;
+  //scale matrix
+  for i := 0 to 2 do
+      for j := 0 to 2 do
+          m33[j,i] := m33[j,i] * nhdr.pixdim[i+1];
+  originMM := nifti_mat33vec_mul(m33, originVox);
+  for i := 1 to 3 do
+      nhdr.pixdim[i] := abs(nhdr.pixdim[i]);
+  for i := 0 to 2 do
+    m[i,3] := m[i,3] - originMM[i];
+    nhdr.srow_x[0] := m33[0,0];
+    nhdr.srow_x[1] := m33[0,1];
+    nhdr.srow_x[2] := m33[0,2];
+    nhdr.srow_x[3] :=   m[0,3];
+    nhdr.srow_y[0] := m33[1,0];
+    nhdr.srow_y[1] := m33[1,1];
+    nhdr.srow_y[2] := m33[1,2];
+    nhdr.srow_y[3] :=   m[1,3];
+    nhdr.srow_z[0] := m33[2,0];
+    nhdr.srow_z[1] := m33[2,1];
+    nhdr.srow_z[2] := m33[2,2];
+    nhdr.srow_z[3] :=   m[2,3];
+  convertForeignToNifti(nhdr);
+  result := true;
+666:
+    if isGz then begin
+       gzBytes := K_gzBytes_headerAndImageCompressed;
+       zfs.Free;
+    end else
+        fs.Free;
+    mArray.Free;
+end; //readMIF()
+{$ENDIF}
+
+function readICSHeader(var fname: string; var nhdr: TNIFTIhdr; var gzBytes: int64; var swapEndian: boolean): boolean;
+label
+	666;
+var
+  isInt: boolean = true;
+  isSigned: boolean = true;
+  f: TFByte;
+  str: string;
+  i,nItems, lsb, bpp: integer;
+  mArray: TStringList;
+   //https://onlinelibrary.wiley.com/doi/epdf/10.1002/cyto.990110502
+begin
+  lsb := 0;
+  bpp := 0;
+  gzBytes := 0;
+  result := false;
+  mArray := TStringList.Create;
+  AssignFile(f, fname);
+  FileMode := fmOpenRead;
+  Reset(f,1);
+  ReadLnBin(f, str); //first line 011 012
+  if (length(str) < 1) or (str[1] <> chr($09)) then
+  	goto 666; //not a valid ICS file
+  ReadLnBin(f, str); //version
+  if not AnsiStartsText('ics_version', str) then
+  	goto 666;
+  ReadLnBin(f, str); //filename
+  if not AnsiStartsText('filename', str) then begin
+ 	{$IFDEF UNIX} writeln('Error: expected ICS tag "filename": ICS 2.0?');{$ENDIF}
+  	goto 666;
+  end;
+  splitstr(' ',str,mArray);
+  nItems :=mArray.count;
+  if (nItems < 2) then goto 666;
+  str := fname;
+  fname := extractfilename(mArray[1]);
+  if upcase(extractfileext(fname)) <> '.IDS' then
+  	fname := fname+'.ids';
+  (*if (not fileexists(fname)) and fileexists(fname+ '.Z') then begin
+     gzBytes := K_gzBytes_onlyImageCompressed;//K_gzBytes_headerAndImageCompressed;
+     fname := fname+'.Z';
+     //example testim_c.ids.Z has no Zlib header or footer
+  end; *)
+  if not fileexists(fname) then begin
+  	fname := ExtractFilePath(str)+fname;
+      (*if (not fileexists(fname)) and fileexists(fname+ '.Z') then begin
+         gzBytes := K_gzBytes_onlyImageCompressed;//K_gzBytes_headerAndImageCompressed;
+         fname := fname+'.Z';
+      end;*)
+        if not fileexists(fname) then begin
+  	   NSLog('Unable to find IDS image '+fname);
+  	   goto 666;
+  	end;
+  end;
+  while ReadLnBin(f, str) do begin
+  	splitstr(' ',str,mArray);
+  	nItems :=mArray.count;
+        //showmessage(str);
+  	if (nItems > 4) and AnsiStartsText('layout', mArray[0]) and AnsiStartsText('sizes', mArray[1]) then begin
+  		//writeln('!bpp', mArray[2]);
+                bpp := StrToIntDef(mArray[2],0);
+                //showmessage(str);
+                for i := 3 to (nItems-1) do
+                    nhdr.dim[i-2] := StrToIntDef(mArray[i],0);
+  		//layout	sizes	8	256	256
+  	end;
+  	if (nItems > 3) and AnsiStartsText('parameter', mArray[0]) and AnsiStartsText('scale', mArray[1]) then begin
+           for i := 2 to (nItems-1) do
+               nhdr.pixdim[i-1] := StrToIntDef(mArray[i],0);
+  	end;
+  	if (nItems > 2) and AnsiStartsText('representation', mArray[0]) and AnsiStartsText('compression', mArray[1]) then begin
+  		if not AnsiStartsText('uncompressed', mArray[2]) then begin
+  			{$IFDEF UNIX} writeln('Unknown compression '+str);{$ENDIF}
+  			goto 666;
+  		end;
+  		writeln('!no compression', mArray[2]);
+  		//layout	sizes	8	256	256
+  	end;
+  	if (nItems > 2) and AnsiStartsText('representation', mArray[0]) and AnsiStartsText('format', mArray[1]) then begin
+  		if not AnsiStartsText('integer', mArray[2]) then
+                   isInt := false;
+  	end;
+  	if (nItems > 2) and AnsiStartsText('representation', mArray[0]) and AnsiStartsText('sign', mArray[1]) then begin
+  		if AnsiStartsText('unsigned', mArray[2]) then
+                   isSigned := false;
+  	end;
+  	if (nItems > 2) and AnsiStartsText('representation', mArray[0]) and AnsiStartsText('byte_order', mArray[1]) then begin
+  	   lsb := StrToIntDef(mArray[2],0);
+  	end;
+        //representation	byte_order	1
+  	//writeln('-->'+str+'<<');
+  end;
+  if (bpp = 32) and (not isInt) then
+     nhdr.datatype := kDT_FLOAT32
+  else if (bpp = 32) and (isSigned) and (isInt) then
+       nhdr.datatype := kDT_INT32
+  else if (bpp = 32) and (not isSigned) and (isInt) then
+       nhdr.datatype := kDT_UINT32
+  else if (bpp = 16) and (isSigned) and (isInt) then
+       nhdr.datatype := kDT_INT16
+  else if (bpp = 16) and (not isSigned) and (isInt) then
+       nhdr.datatype := kDT_UINT16
+  else if (bpp = 8) and (isSigned) and (isInt) then
+       nhdr.datatype := kDT_INT8
+  else if (bpp = 8) and (not isSigned) and (isInt) then
+       nhdr.datatype := kDT_UINT8
+  else begin
+       NSLog(format('Unsupported data type: bits %d signed %s int %s', [bpp, BoolToStr(isSigned,'T','F'), BoolToStr(isInt,'T','F')]));
+       goto 666;
+  end;
+  nhdr.srow_x[0] := -nhdr.pixdim[1];
+  nhdr.srow_x[1] := 0;
+  nhdr.srow_x[2] := 0;
+  nhdr.srow_x[3] := 0;
+
+  nhdr.srow_y[0] := 0;
+  nhdr.srow_y[1] := -nhdr.pixdim[2];
+  nhdr.srow_y[2] := 0;
+  nhdr.srow_y[3] := 0;
+
+  nhdr.srow_z[0] := 0;
+  nhdr.srow_z[1] := 0;
+  nhdr.srow_z[2] := nhdr.pixdim[3];
+  nhdr.srow_z[3] := 0;
+
+  nhdr.vox_offset := 0;
+  {$IFDEF ENDIAN_BIG}
+  if (bpp > 8) and (lsb < 2) then
+  {$ELSE}
+  if (bpp > 8) and (lsb > 1) then
+  {$ENDIF}
+     swapEndian := true;
+  convertForeignToNifti(nhdr);
+  result := true;
+  666:
+  mArray.free;
+  closefile(f);
+end; //readICSHeader
 
 function readNRRDHeader (var fname: string; var nhdr: TNIFTIhdr; var gzBytes: int64; var swapEndian, isDimPermute2341: boolean): boolean;
 //http://www.sci.utah.edu/~gk/DTI-data/
@@ -1832,12 +2606,15 @@ var
   pth, str,tagName,elementNames, str2: string;
   lineskip,byteskip,i,s,nItems,headerSize,matElements,fileposBytes: integer;
   mat: mat33;
+  rot33: mat33;
   isOK, isDetachedFile,isFirstLine: boolean;
   offset: array[0..3] of single;
   vSqr, flt: single;
   transformMatrix: array [0..11] of single;
 begin
   //gX := gX + 1; GLForm1.caption := inttostr(gX);
+  //LOAD_MAT33(rot33, 1,0,0, 0,1,0, 0,0,1);
+  LOAD_MAT33(rot33, -1,0,0, 0,-1,0, 0,0,1);
   isDimPermute2341 := false;
   pth := ExtractFilePath(fname);
   isOK := true;
@@ -1866,10 +2643,15 @@ begin
     str := '';
     while not EOF(fp) do begin
       read(fp,ch);
+      if (ch = chr($00)) then break; //NRRD format specifies blank line before raw data, but some writers ignore this requirement, e.g. https://www.mathworks.com/matlabcentral/fileexchange/51174-dicom-medical-image-to-nrrd-medical-image
       fileposBytes := fileposBytes + 1;
-      if (ch = chr($0D)) or (ch = chr($0A)) then break;
+      //if (ch = chr($0D)) or (ch = chr($0A)) then break;
+      if (ch = chr($0D)) then continue;
+      if (ch = chr($0A)) then break;
+
       str := str+ch;
     end;
+    //showmessage('"'+str+'"');
     if str = '' then break; //if str = '' then continue;
     if (isFirstLine) then begin
       if (length(str) <4) or (str[1]<>'N') or (str[2]<>'R') or (str[3]<>'R') or (str[4]<>'D') then
@@ -1880,6 +2662,7 @@ begin
     splitstrStrict(':',str,mArray);
     if (mArray.count < 2) then continue;
     tagName := mArray[0];
+    //showmessage(inttostr(length(tagName))+':'+tagName);
     elementNames := mArray[1];
     splitstr(',',elementNames,mArray);
     nItems :=mArray.count;
@@ -1902,15 +2685,15 @@ begin
       if (nItems > 12) then nItems :=12;
       matElements := 0;
       for i:=0 to (nItems-1) do begin
-          flt := strToFloatDef(mArray.Strings[i], NAN);
+        if (matElements = 0) and AnsiContainsText(mArray.Strings[i], 'none') then begin
+           isDimPermute2341 := true;
+        end;
+          flt := strToFloatDef(mArray.Strings[i], kNANsingle);
           if not specialsingle(flt) then begin
              transformMatrix[matElements] :=strtofloat(mArray.Strings[i]);
              matElements := matElements + 1;
-          end else begin
-              isDimPermute2341 := true;
-              //showmessage('--->'+inttostr(matElements));
           end;
-      end;
+        end;
       if (matElements >= 12) then
           LOAD_MAT33(mat, transformMatrix[0],transformMatrix[1],transformMatrix[2],
                      transformMatrix[4],transformMatrix[5],transformMatrix[6],
@@ -1977,7 +2760,14 @@ begin
       if (nItems > 3) then nItems :=3;
       for i:=0 to (nItems-1) do
           offset[i] := strtofloat(mArray.Strings[i]);
-
+    end else if (nItems > 0) and AnsiStartsText('space', tagName) then begin //must do this after "space origin" check
+      if AnsiStartsText('right-anterior-superior', mArray.Strings[0]) or AnsiStartsText('RAS', mArray.Strings[0]) then
+        LOAD_MAT33(rot33, 1,0,0, 0,1,0, 0,0,1); //native NIfTI, default identity transform
+      if AnsiStartsText('left-anterior-superior', mArray.Strings[0]) or AnsiStartsText('LAS', mArray.Strings[0]) then
+        LOAD_MAT33(rot33, -1,0,0, 0,1,0, 0,0,1); //left-right swap relative to NIfTI
+      if AnsiStartsText('left-posterior-superior', mArray.Strings[0]) or AnsiStartsText('LPS', mArray.Strings[0]) then begin//native NIfTI, default identity transform
+         LOAD_MAT33(rot33, -1,0,0, 0,-1,0, 0,0,1); //left-right and anterior-posterior swap relative to NIfTI
+      end;
     end else if AnsiStartsText('data file',tagName) or AnsiContainsText(tagName, 'datafile') then begin
       str2 := str;
       str := mArray.Strings[0];
@@ -1987,24 +2777,25 @@ begin
       if (pos('%', UpperCase(str)) > 0) and (nItems  > 1) then begin  //e.g. "data file: ./r_sphere_%02d.raw.gz 1 4 1"
          str := format(str,[strtoint(mArray.Strings[1])]);
       end;
-      if fileexistsex(str) then
+      if fileexists(str) then
         fname := str
       else begin
          if (length(str) > 0) and (str[1] = '.') then  // "./r_sphere_01.raw.gz"
            str := copy(str, 2, length(str)-1 );
          if (length(str) > 0) and (str[1] = pathdelim) then  // "./r_sphere_01.raw.gz"
            str := copy(str, 2, length(str)-1 );  // "/r_sphere_01.raw.gz"
-        fname := ExtractFileDirWithPathDelim(fname)+str;
+        fname := ExtractFilePath(fname)+str;
       end;
-      if not fileexistsex(fname) then begin
+      if not fileexists(fname) then begin
           str2 := trim(copy(str2,pos(':',str2)+1, maxint));
           fname := str2;
-          if not fileexistsex(fname) then
+          if not fileexists(fname) then
             fname := pth + str2;
           //showmessage(inttostr(nhdr.datatype));
       end;
       isDetachedFile :=true;
       //break;
+
     end; //for ...else tag names
   end;
   if ((headerSize = 0) and ( not isDetachedFile)) then begin
@@ -2040,18 +2831,24 @@ begin
   if not result then exit;
   nhdr.vox_offset :=headerSize;
   if (matElements >= 9) then begin
-        nhdr.srow_x[0] :=-mat[0,0];
-        nhdr.srow_x[1] :=-mat[1,0];
-        nhdr.srow_x[2] :=-mat[2,0];
-        nhdr.srow_x[3] :=-offset[0];
-        nhdr.srow_y[0] :=-mat[0,1];
-        nhdr.srow_y[1] :=-mat[1,1];
-        nhdr.srow_y[2] :=-mat[2,1];
-        nhdr.srow_y[3] :=-offset[1];
-        nhdr.srow_z[0] :=mat[0,2];
-        nhdr.srow_z[1] :=mat[1,2];
-        nhdr.srow_z[2] :=mat[2,2];
-        nhdr.srow_z[3] :=offset[2];
+      //mat := nifti_mat33_mul( mat , rot33);
+      if rot33[0,0] < 0 then offset[0] := -offset[0]; //origin L<->R
+      if rot33[1,1] < 0 then offset[1] := -offset[1]; //origin A<->P
+      if rot33[2,2] < 0 then offset[2] := -offset[2]; //origin S<->I
+       mat := nifti_mat33_mul( mat , rot33);
+        nhdr.srow_x[0] := mat[0,0];
+        nhdr.srow_x[1] := mat[1,0];
+        nhdr.srow_x[2] := mat[2,0];
+        nhdr.srow_x[3] := offset[0];
+        nhdr.srow_y[0] := mat[0,1];
+        nhdr.srow_y[1] := mat[1,1];
+        nhdr.srow_y[2] := mat[2,1];
+        nhdr.srow_y[3] := offset[1];
+        nhdr.srow_z[0] := mat[0,2];
+        nhdr.srow_z[1] := mat[1,2];
+        nhdr.srow_z[2] := mat[2,2];
+        nhdr.srow_z[3] := offset[2];
+      //end;
         //next: ITK does not generate a "spacings" tag - get this from the matrix...
         for s :=0 to 2 do begin
             vSqr :=0.0;
@@ -2059,19 +2856,25 @@ begin
                 vSqr := vSqr+ ( mat[s,i]*mat[s,i]);
             nhdr.pixdim[s+1] :=sqrt(vSqr);
         end //for each dimension
-  end;// else
+  end;
+  (*showmessage(format('m = [%g %g %g %g; %g %g %g %g; %g %g %g %g; 0 0 0 1]',[
+    nhdr.srow_x[0], nhdr.srow_x[1], nhdr.srow_x[2], nhdr.srow_x[3],
+    nhdr.srow_y[0], nhdr.srow_y[1], nhdr.srow_y[2], nhdr.srow_y[3],
+    nhdr.srow_z[0], nhdr.srow_z[1], nhdr.srow_z[2], nhdr.srow_z[3]]));*)
   convertForeignToNifti(nhdr);
+  //showmessage(floattostr(nhdr.vox_offset));
+  //nhdr.vox_offset := 209;
 end; //readNRRDHeader()
-
 
 procedure THD_daxes_to_NIFTI (var nhdr: TNIFTIhdr; xyzDelta, xyzOrigin: vect3; orientSpecific: ivect3);
 //see http://afni.nimh.nih.gov/pub/dist/src/thd_matdaxes.c
 const
   ORIENT_xyz1 = 'xxyyzzg'; //note Pascal strings indexed from 1, not 0!
-  ORIENT_sign1 = '+--++-';  //note Pascal strings indexed from 1, not 0!
+  //ORIENT_sign1 = '+--++-';  //note Pascal strings indexed from 1, not 0!
 var
-  axnum: array[0..2] of integer;
-  axcode,axsign: array[0..2] of char;
+  //axnum: array[0..2] of integer;
+  axcode: array[0..2] of char;
+  //axsign: array[0..2] of char;
   axstart,axstep: array[0..2] of single;
   ii, nif_x_axnum, nif_y_axnum, nif_z_axnum: integer;
   qto_xyz: mat44;
@@ -2080,15 +2883,15 @@ begin
     nif_x_axnum := -1;
     nif_y_axnum := -1;
     nif_z_axnum := -1;
-    axnum[0] := nhdr.dim[1];
-    axnum[1] := nhdr.dim[2];
-    axnum[2] := nhdr.dim[3];
+    //axnum[0] := nhdr.dim[1];
+    //axnum[1] := nhdr.dim[2];
+    //axnum[2] := nhdr.dim[3];
     axcode[0] := ORIENT_xyz1[1+ orientSpecific[0] ] ;
     axcode[1] := ORIENT_xyz1[1+ orientSpecific[1] ] ;
     axcode[2] := ORIENT_xyz1[1+ orientSpecific[2] ] ;
-    axsign[0] := ORIENT_sign1[1+ orientSpecific[0] ] ;
-    axsign[1] := ORIENT_sign1[1+ orientSpecific[1] ] ;
-    axsign[2] := ORIENT_sign1[1+ orientSpecific[2] ] ;
+    //axsign[0] := ORIENT_sign1[1+ orientSpecific[0] ] ;
+    //axsign[1] := ORIENT_sign1[1+ orientSpecific[1] ] ;
+    //axsign[2] := ORIENT_sign1[1+ orientSpecific[2] ] ;
     axstep[0] := xyzDelta[0] ;
     axstep[1] := xyzDelta[1]  ;
     axstep[2] := xyzDelta[2]  ;
@@ -2277,8 +3080,8 @@ begin
   THD_daxes_to_NIFTI(nhdr, xyzDelta, xyzOrigin, orientSpecific );
   nhdr.vox_offset := 0;
   convertForeignToNifti(nhdr);
-  fname := ChangeFileExtX(fname, '.BRIK');
-  if (not FileExistsEX(fname)) then begin
+  fname := ChangeFileExt(fname, '.BRIK');
+  if (not FileExists(fname)) then begin
     fname := fname+'.gz';
     gzBytes := K_gzBytes_headerAndImageCompressed;
   end;
@@ -2286,7 +3089,7 @@ end;
 
 function readForeignHeader (var lFilename: string; var lHdr: TNIFTIhdr; var gzBytes: int64; var swapEndian, isDimPermute2341: boolean): boolean;
 var
-  lExt: string;
+  lExt, lExt2GZ: string;
 begin
   NII_Clear (lHdr);
   swapEndian := false;
@@ -2296,6 +3099,11 @@ begin
   if FSize(lFilename) < 140 then
       exit;
   lExt := UpCaseExt(lFilename);
+  lExt2GZ := '';
+  if (lExt = '.GZ') then begin
+     lExt2GZ := changefileext(lFilename,'');
+     lExt2GZ := UpCaseExt(lExt2GZ);
+  end;
   if (lExt = '.DV') then
      result := nii_readDeltaVision(lFilename, lHdr, gzBytes, swapEndian)
   else if (lExt = '.V') then
@@ -2316,16 +3124,21 @@ begin
     result := readMGHHeader(lFilename, lHdr, gzBytes, swapEndian)
   else if (lExt = '.MHD') or (lExt = '.MHA') then
     result := readMHAHeader(lFilename, lHdr, gzBytes, swapEndian)
-  else if ((lExt = '.MIF') or (lExt = '.MIH')) then
-       result := readMIF(lFilename, lHdr, gzBytes, swapEndian, isDimPermute2341)
+  else if (lExt = '.ICS') then
+    result := readICSHeader(lFilename, lHdr, gzBytes, swapEndian)
+  else if ((lExt2GZ = '.MIF') or (lExt = '.MIF') or (lExt = '.MIH')) then
+       result := readMIF(lFilename, lHdr, gzBytes, swapEndian)
   else if (lExt = '.NRRD') or (lExt = '.NHDR') then
-    result := readNRRDHeader(lFilename, lHdr, gzBytes, swapEndian, isDimPermute2341)
+       result := readNRRDHeader(lFilename, lHdr, gzBytes, swapEndian, isDimPermute2341)
   else if (lExt = '.HEAD') then
-    result := readAFNIHeader(lFilename, lHdr, gzBytes, swapEndian)
-  else
-    result := readDICOMHeader (lFilename, lHdr, gzBytes, swapEndian);
+    result := readAFNIHeader(lFilename, lHdr, gzBytes, swapEndian);
   if (not result) and (isTIFF(lFilename)) then
-    NSLog('Use the Import/Foreign menu to convert TIFF and LSM files for viewing');
+    NSLog('Use the Import menu (or ImageJ/Fiji) to convert TIFF and LSM files to NIfTI (or NRRD) for viewing')
+  else if (not result) then begin
+       lExt2GZ := isBioFormats(lFilename);
+       if lExt2GZ <> '' then
+          NSLog('Use ImageJ/Fiji to convert this '+lExt2GZ+' BioFormat image to NRRD for viewing');
+  end;
 end;
 
 end.

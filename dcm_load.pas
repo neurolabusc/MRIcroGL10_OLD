@@ -60,11 +60,15 @@ begin
   sl.Free;
 end;
 
-
 function dcmList(dcm2niixExe, dicomDir: string): TStringList;
 //make sure to free result!
 //strList := dcmList(); strList.free;
+const
+  BUF_SIZE = 2048; // Buffer size for reading the output in chunks
 var
+    OutputStream : TStream;
+    BytesRead    : longint;
+    Buffer       : array[1..BUF_SIZE] of byte;
     hprocess: TProcess;
     sData: TStringList;
     s: string;
@@ -81,10 +85,22 @@ Begin
    hprocess.Parameters.Add('-f');
    hprocess.Parameters.Add('%p_%t');
    hprocess.Parameters.Add(dicomDir);
-   hProcess.Options := hProcess.Options + [poWaitOnExit, poUsePipes];
+   hProcess.Options := hProcess.Options + [ poUsePipes, poNoConsole];
+   //code below fails on Windows: http://wiki.freepascal.org/Executing_External_Programs#Reading_large_output
+   // hProcess.Options := hProcess.Options + [poWaitOnExit, poUsePipes];
    hProcess.Execute;
+   OutputStream := TMemoryStream.Create;
+   repeat
+     repeat
+       BytesRead := hProcess.Output.Read(Buffer, BUF_SIZE);
+       OutputStream.Write(Buffer, BytesRead)
+     until BytesRead = 0;  // Stop if no more data is available
+   until not hProcess.Running;
+   hProcess.Free;
    sData := Tstringlist.Create;
-   sData.LoadFromStream(hProcess.Output);
+   OutputStream.Position := 0; // Required to make sure all data is copied from the start
+   sData.LoadFromStream(OutputStream);
+   OutputStream.Free;
    for x := 0 to sData.Count -1 do begin
        s := dcmStr(sData[x]);
        if (s <> '') then
@@ -96,10 +112,6 @@ Begin
    sData.CustomSort(@compareSeries);
    result.Clear;
    result.AddStrings(sData);
-   //ClipBoard.AsText:=(sData.Text);
-   //release data
-   sData.Free;
-   hProcess.Free;
 end;
 
 
@@ -235,9 +247,6 @@ Begin
    hprocess.Parameters.Add('-n');
    hprocess.Parameters.Add(format('%g', [series]));
    hprocess.Parameters.Add('-f');
-   //if isTemp then
-   //   hprocess.Parameters.Add(kdcmLoadTempStr+'%p_%t')
-   //else
    hprocess.Parameters.Add('%p_%t');
    hprocess.Parameters.Add('-b');
    hprocess.Parameters.Add('n');
@@ -246,7 +255,9 @@ Begin
    hprocess.Parameters.Add('-o');
    hprocess.Parameters.Add(HomeDir);
    hprocess.Parameters.Add(dicomDir);
-   hProcess.Options := hProcess.Options + [poWaitOnExit, poUsePipes];
+   //Do NOT use pipes for Windows
+   hProcess.Options := hProcess.Options + [poWaitOnExit, poNoConsole];
+   //hProcess.Options := hProcess.Options + [poWaitOnExit, poUsePipes];
    hProcess.Execute;
    hProcess.Free;
    if fileexists(result) then exit;

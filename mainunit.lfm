@@ -1,14 +1,13 @@
 object GLForm1: TGLForm1
-  Left = 1568
-  Height = 1512
-  Top = 215
-  Width = 1936
+  Left = 438
+  Height = 584
+  Top = 103
+  Width = 624
   ActiveControl = ToolPanel
   AllowDropFiles = True
   Caption = 'MRIcroGL'
-  ClientHeight = 1465
-  ClientWidth = 1936
-  DesignTimePPI = 192
+  ClientHeight = 584
+  ClientWidth = 624
   KeyPreview = True
   Menu = MainMenu1
   OnChangeBounds = FormChangeBounds
@@ -22,62 +21,62 @@ object GLForm1: TGLForm1
   LCLVersion = '2.1.0.0'
   object ToolPanel: TPanel
     Left = 0
-    Height = 1465
+    Height = 584
     Top = 0
-    Width = 432
+    Width = 216
     Align = alLeft
     BevelOuter = bvNone
-    ClientHeight = 1465
-    ClientWidth = 432
+    ClientHeight = 584
+    ClientWidth = 216
     ParentFont = False
     TabOrder = 0
     OnClick = ToolPanelClick
     object ClipBox: TGroupBox
       Left = 0
-      Height = 184
-      Top = 248
-      Width = 432
+      Height = 92
+      Top = 124
+      Width = 216
       Align = alTop
       Caption = 'Clipping'
-      ClientHeight = 144
-      ClientWidth = 430
+      ClientHeight = 74
+      ClientWidth = 208
       ParentFont = False
       TabOrder = 4
       object Label4: TLabel
-        Left = 6
-        Height = 39
-        Top = 4
-        Width = 87
+        Left = 3
+        Height = 16
+        Top = 2
+        Width = 37
         Caption = 'Depth'
         ParentColor = False
         ParentFont = False
         OnClick = Label4Click
       end
       object Label5: TLabel
-        Left = 6
-        Height = 39
-        Top = 48
-        Width = 117
+        Left = 3
+        Height = 16
+        Top = 24
+        Width = 50
         Caption = 'Azimuth'
         ParentColor = False
         ParentFont = False
         OnClick = Label5Click
       end
       object Label6: TLabel
-        Left = 6
-        Height = 39
-        Top = 92
-        Width = 134
+        Left = 3
+        Height = 16
+        Top = 46
+        Width = 55
         Caption = 'Elevation'
         ParentColor = False
         ParentFont = False
         OnClick = Label6Click
       end
       object ClipTrack: TTrackBar
-        Left = 172
-        Height = 60
+        Left = 86
+        Height = 30
         Top = 0
-        Width = 232
+        Width = 116
         Max = 1000
         OnChange = ClipTrackChange
         Position = 0
@@ -86,10 +85,10 @@ object GLForm1: TGLForm1
         TabOrder = 0
       end
       object AziTrack1: TTrackBar
-        Left = 172
-        Height = 60
-        Top = 44
-        Width = 232
+        Left = 86
+        Height = 30
+        Top = 22
+        Width = 116
         Max = 360
         OnChange = ClipTrackChange
         Position = 180
@@ -98,10 +97,10 @@ object GLForm1: TGLForm1
         TabOrder = 1
       end
       object ElevTrack1: TTrackBar
-        Left = 172
-        Height = 60
-        Top = 90
-        Width = 232
+        Left = 86
+        Height = 30
+        Top = 45
+        Width = 116
         Max = 180
         Min = -180
         OnChange = ClipTrackChange
@@ -113,21 +112,21 @@ object GLForm1: TGLForm1
     end
     object ShaderBox: TGroupBox
       Left = 0
-      Height = 1
-      Top = 1465
-      Width = 432
+      Height = 0
+      Top = 584
+      Width = 216
       Align = alClient
       Caption = 'Shader'
-      ClientHeight = 1
-      ClientWidth = 430
+      ClientHeight = 0
+      ClientWidth = 208
       ParentFont = False
       TabOrder = 9
       OnResize = ShaderBoxResize
       object ShaderMemo: TMemo
         Left = 0
-        Height = 33
-        Top = 1
-        Width = 430
+        Height = 0
+        Top = 0
+        Width = 208
         Align = alClient
         Lines.Strings = (
           'Memo1'
@@ -312,33 +311,34 @@ object GLForm1: TGLForm1
       end
       object ShaderPanel: TPanel
         Left = 0
-        Height = 240
+        Height = 120
         Top = 0
-        Width = 430
+        Width = 208
         Align = alTop
         BevelOuter = bvNone
-        ClientHeight = 240
-        ClientWidth = 430
+        ClientHeight = 120
+        ClientWidth = 208
         ParentFont = False
         TabOrder = 0
         object ShaderDrop: TComboBox
-          Left = 4
-          Height = 55
+          Left = 2
+          Height = 20
           Top = 0
-          Width = 220
+          Width = 110
           DropDownCount = 24
-          ItemHeight = 0
+          ItemHeight = 26
           OnChange = ShaderDropChange
           ParentFont = False
           Style = csDropDownList
           TabOrder = 0
+          Text = '0'
         end
         object Label1: TLabel
-          Left = 234
-          Height = 39
+          Left = 117
+          Height = 16
           Hint = 'Lower quality renders faster, higher quality looks better'
-          Top = 18
-          Width = 22
+          Top = 9
+          Width = 10
           Caption = 'Q'
           ParentColor = False
           ParentFont = False
@@ -346,10 +346,10 @@ object GLForm1: TGLForm1
           ShowHint = True
         end
         object QualityTrack: TTrackBar
-          Left = 264
-          Height = 60
+          Left = 132
+          Height = 30
           Top = 0
-          Width = 132
+          Width = 66
           Min = 1
           OnChange = QualityTrackChange
           Position = 3
@@ -358,11 +358,11 @@ object GLForm1: TGLForm1
           TabOrder = 1
         end
         object Label2: TLabel
-          Left = 6
-          Height = 39
+          Left = 3
+          Height = 16
           Hint = 'Set the elevation and azimuth of the illumination'
-          Top = 70
-          Width = 72
+          Top = 35
+          Width = 31
           Caption = 'Light'
           ParentColor = False
           ParentFont = False
@@ -370,10 +370,10 @@ object GLForm1: TGLForm1
           ShowHint = True
         end
         object LightElevTrack: TTrackBar
-          Left = 92
-          Height = 60
-          Top = 60
-          Width = 132
+          Left = 46
+          Height = 30
+          Top = 30
+          Width = 66
           Max = 90
           Min = -90
           OnChange = AziElevChange
@@ -383,10 +383,10 @@ object GLForm1: TGLForm1
           TabOrder = 2
         end
         object LightAziTrack: TTrackBar
-          Left = 264
-          Height = 60
-          Top = 60
-          Width = 132
+          Left = 132
+          Height = 30
+          Top = 30
+          Width = 66
           Max = 180
           Min = -180
           OnChange = AziElevChange
@@ -397,10 +397,10 @@ object GLForm1: TGLForm1
         end
         object S1Label: TLabel
           Tag = 1
-          Left = 8
-          Height = 39
-          Top = 124
-          Width = 30
+          Left = 4
+          Height = 16
+          Top = 62
+          Width = 14
           Caption = 'S1'
           ParentColor = False
           ParentFont = False
@@ -408,10 +408,10 @@ object GLForm1: TGLForm1
         end
         object S2Label: TLabel
           Tag = 2
-          Left = 8
-          Height = 39
-          Top = 184
-          Width = 33
+          Left = 4
+          Height = 16
+          Top = 92
+          Width = 16
           Caption = 'S2'
           ParentColor = False
           ParentFont = False
@@ -419,10 +419,10 @@ object GLForm1: TGLForm1
         end
         object S3Label: TLabel
           Tag = 3
-          Left = 8
-          Height = 39
-          Top = 244
-          Width = 33
+          Left = 4
+          Height = 16
+          Top = 122
+          Width = 16
           Caption = 'S3'
           ParentColor = False
           ParentFont = False
@@ -430,10 +430,10 @@ object GLForm1: TGLForm1
         end
         object S4Label: TLabel
           Tag = 4
-          Left = 8
-          Height = 39
-          Top = 304
-          Width = 34
+          Left = 4
+          Height = 16
+          Top = 152
+          Width = 16
           Caption = 'S4'
           ParentColor = False
           ParentFont = False
@@ -441,10 +441,10 @@ object GLForm1: TGLForm1
         end
         object S5Label: TLabel
           Tag = 5
-          Left = 8
-          Height = 39
-          Top = 364
-          Width = 33
+          Left = 4
+          Height = 16
+          Top = 182
+          Width = 16
           Caption = 'S5'
           ParentColor = False
           ParentFont = False
@@ -452,10 +452,10 @@ object GLForm1: TGLForm1
         end
         object S6Label: TLabel
           Tag = 6
-          Left = 8
-          Height = 39
-          Top = 424
-          Width = 34
+          Left = 4
+          Height = 16
+          Top = 212
+          Width = 16
           Caption = 'S6'
           ParentColor = False
           ParentFont = False
@@ -463,10 +463,10 @@ object GLForm1: TGLForm1
         end
         object S7Label: TLabel
           Tag = 7
-          Left = 8
-          Height = 39
-          Top = 484
-          Width = 30
+          Left = 4
+          Height = 16
+          Top = 242
+          Width = 16
           Caption = 'S7'
           ParentColor = False
           ParentFont = False
@@ -474,10 +474,10 @@ object GLForm1: TGLForm1
         end
         object S8Label: TLabel
           Tag = 8
-          Left = 8
-          Height = 39
-          Top = 544
-          Width = 35
+          Left = 4
+          Height = 16
+          Top = 272
+          Width = 16
           Caption = 'S8'
           ParentColor = False
           ParentFont = False
@@ -485,10 +485,10 @@ object GLForm1: TGLForm1
         end
         object S9Label: TLabel
           Tag = 9
-          Left = 8
-          Height = 39
-          Top = 604
-          Width = 33
+          Left = 4
+          Height = 16
+          Top = 302
+          Width = 16
           Caption = 'S9'
           ParentColor = False
           ParentFont = False
@@ -496,10 +496,10 @@ object GLForm1: TGLForm1
         end
         object S10Label: TLabel
           Tag = 10
-          Left = 8
-          Height = 39
-          Top = 664
-          Width = 48
+          Left = 4
+          Height = 16
+          Top = 332
+          Width = 22
           Caption = 'S10'
           ParentColor = False
           ParentFont = False
@@ -507,10 +507,10 @@ object GLForm1: TGLForm1
         end
         object S1Track: TTrackBar
           Tag = 1
-          Left = 264
-          Height = 60
-          Top = 120
-          Width = 132
+          Left = 132
+          Height = 30
+          Top = 60
+          Width = 66
           Max = 100
           OnChange = UniformChange
           Position = 50
@@ -520,10 +520,10 @@ object GLForm1: TGLForm1
         end
         object S2Track: TTrackBar
           Tag = 2
-          Left = 264
-          Height = 60
-          Top = 180
-          Width = 132
+          Left = 132
+          Height = 30
+          Top = 90
+          Width = 66
           Max = 100
           OnChange = UniformChange
           Position = 50
@@ -533,10 +533,10 @@ object GLForm1: TGLForm1
         end
         object S3Track: TTrackBar
           Tag = 3
-          Left = 264
-          Height = 60
-          Top = 240
-          Width = 132
+          Left = 132
+          Height = 30
+          Top = 120
+          Width = 66
           Max = 100
           OnChange = UniformChange
           Position = 50
@@ -546,10 +546,10 @@ object GLForm1: TGLForm1
         end
         object S4Track: TTrackBar
           Tag = 4
-          Left = 264
-          Height = 60
-          Top = 300
-          Width = 132
+          Left = 132
+          Height = 30
+          Top = 150
+          Width = 66
           Max = 100
           OnChange = UniformChange
           Position = 50
@@ -559,10 +559,10 @@ object GLForm1: TGLForm1
         end
         object S5Track: TTrackBar
           Tag = 5
-          Left = 264
-          Height = 60
-          Top = 360
-          Width = 132
+          Left = 132
+          Height = 30
+          Top = 180
+          Width = 66
           Max = 100
           OnChange = UniformChange
           Position = 50
@@ -572,10 +572,10 @@ object GLForm1: TGLForm1
         end
         object S6Track: TTrackBar
           Tag = 6
-          Left = 264
-          Height = 60
-          Top = 420
-          Width = 132
+          Left = 132
+          Height = 30
+          Top = 210
+          Width = 66
           Max = 100
           OnChange = UniformChange
           Position = 50
@@ -585,10 +585,10 @@ object GLForm1: TGLForm1
         end
         object S7Track: TTrackBar
           Tag = 7
-          Left = 264
-          Height = 60
-          Top = 480
-          Width = 132
+          Left = 132
+          Height = 30
+          Top = 240
+          Width = 66
           Max = 100
           OnChange = UniformChange
           Position = 50
@@ -598,10 +598,10 @@ object GLForm1: TGLForm1
         end
         object S8Track: TTrackBar
           Tag = 8
-          Left = 264
-          Height = 60
-          Top = 540
-          Width = 132
+          Left = 132
+          Height = 30
+          Top = 270
+          Width = 66
           Max = 100
           OnChange = UniformChange
           Position = 50
@@ -611,10 +611,10 @@ object GLForm1: TGLForm1
         end
         object S9Track: TTrackBar
           Tag = 9
-          Left = 264
-          Height = 60
-          Top = 600
-          Width = 132
+          Left = 132
+          Height = 30
+          Top = 300
+          Width = 66
           Max = 100
           OnChange = UniformChange
           Position = 50
@@ -624,10 +624,10 @@ object GLForm1: TGLForm1
         end
         object S10Track: TTrackBar
           Tag = 10
-          Left = 264
-          Height = 60
-          Top = 660
-          Width = 132
+          Left = 132
+          Height = 30
+          Top = 330
+          Width = 66
           Max = 100
           OnChange = UniformChange
           Position = 50
@@ -637,11 +637,11 @@ object GLForm1: TGLForm1
         end
         object S1Check: TCheckBox
           Tag = 1
-          Left = 282
-          Height = 23
+          Left = 141
+          Height = 18
           Hint = 'If checked, edge color varies'
-          Top = 124
-          Width = 23
+          Top = 62
+          Width = 22
           Checked = True
           OnChange = UniformChange
           ParentFont = False
@@ -652,11 +652,11 @@ object GLForm1: TGLForm1
         end
         object S2Check: TCheckBox
           Tag = 2
-          Left = 282
-          Height = 23
+          Left = 141
+          Height = 18
           Hint = 'If checked, edge color varies'
-          Top = 184
-          Width = 23
+          Top = 92
+          Width = 22
           Checked = True
           OnChange = UniformChange
           ParentFont = False
@@ -667,11 +667,11 @@ object GLForm1: TGLForm1
         end
         object S3Check: TCheckBox
           Tag = 3
-          Left = 282
-          Height = 23
+          Left = 141
+          Height = 18
           Hint = 'If checked, edge color varies'
-          Top = 244
-          Width = 23
+          Top = 122
+          Width = 22
           Checked = True
           OnChange = UniformChange
           ParentFont = False
@@ -682,11 +682,11 @@ object GLForm1: TGLForm1
         end
         object S4Check: TCheckBox
           Tag = 4
-          Left = 282
-          Height = 23
+          Left = 141
+          Height = 18
           Hint = 'If checked, edge color varies'
-          Top = 304
-          Width = 23
+          Top = 152
+          Width = 22
           Checked = True
           OnChange = UniformChange
           ParentFont = False
@@ -697,11 +697,11 @@ object GLForm1: TGLForm1
         end
         object S5Check: TCheckBox
           Tag = 5
-          Left = 282
-          Height = 23
+          Left = 141
+          Height = 18
           Hint = 'If checked, edge color varies'
-          Top = 364
-          Width = 23
+          Top = 182
+          Width = 22
           Checked = True
           OnChange = UniformChange
           ParentFont = False
@@ -712,11 +712,11 @@ object GLForm1: TGLForm1
         end
         object S6Check: TCheckBox
           Tag = 6
-          Left = 282
-          Height = 23
+          Left = 141
+          Height = 18
           Hint = 'If checked, edge color varies'
-          Top = 424
-          Width = 23
+          Top = 212
+          Width = 22
           Checked = True
           OnChange = UniformChange
           ParentFont = False
@@ -727,11 +727,11 @@ object GLForm1: TGLForm1
         end
         object S7Check: TCheckBox
           Tag = 7
-          Left = 282
-          Height = 23
+          Left = 141
+          Height = 18
           Hint = 'If checked, edge color varies'
-          Top = 484
-          Width = 23
+          Top = 242
+          Width = 22
           Checked = True
           OnChange = UniformChange
           ParentFont = False
@@ -742,11 +742,11 @@ object GLForm1: TGLForm1
         end
         object S8Check: TCheckBox
           Tag = 8
-          Left = 282
-          Height = 23
+          Left = 141
+          Height = 18
           Hint = 'If checked, edge color varies'
-          Top = 544
-          Width = 23
+          Top = 272
+          Width = 22
           Checked = True
           OnChange = UniformChange
           ParentFont = False
@@ -757,11 +757,11 @@ object GLForm1: TGLForm1
         end
         object S9Check: TCheckBox
           Tag = 9
-          Left = 282
-          Height = 23
+          Left = 141
+          Height = 18
           Hint = 'If checked, edge color varies'
-          Top = 604
-          Width = 23
+          Top = 302
+          Width = 22
           Checked = True
           OnChange = UniformChange
           ParentFont = False
@@ -772,11 +772,11 @@ object GLForm1: TGLForm1
         end
         object S10Check: TCheckBox
           Tag = 10
-          Left = 282
-          Height = 23
+          Left = 141
+          Height = 18
           Hint = 'If checked, edge color varies'
-          Top = 664
-          Width = 23
+          Top = 332
+          Width = 22
           Checked = True
           OnChange = UniformChange
           ParentFont = False
@@ -790,21 +790,21 @@ object GLForm1: TGLForm1
     object IntensityBox: TGroupBox
       Tag = 270
       Left = 0
-      Height = 100
+      Height = 50
       Top = 0
-      Width = 432
+      Width = 216
       Align = alTop
       Caption = 'Intensity Range'
-      ClientHeight = 60
-      ClientWidth = 430
+      ClientHeight = 32
+      ClientWidth = 208
       ParentFont = False
       TabOrder = 2
       object MinEdit: TEdit
-        Left = 6
-        Height = 44
+        Left = 3
+        Height = 22
         Hint = 'Adjust image brightness and contrast'
-        Top = 2
-        Width = 180
+        Top = 1
+        Width = 90
         AutoSize = False
         OnKeyPress = MinMaxEditKeyPress
         OnKeyUp = MinMaxEditKeyUp
@@ -815,10 +815,10 @@ object GLForm1: TGLForm1
         Text = 'MinEdit'
       end
       object MaxEdit: TEdit
-        Left = 208
-        Height = 44
-        Top = 2
-        Width = 180
+        Left = 104
+        Height = 22
+        Top = 1
+        Width = 90
         AutoSize = False
         OnExit = MinMaxEditExit
         OnKeyPress = MinMaxEditKeyPress
@@ -830,47 +830,47 @@ object GLForm1: TGLForm1
     end
     object CutoutBox: TGroupBox
       Left = 0
-      Height = 184
-      Top = 950
-      Width = 432
+      Height = 92
+      Top = 584
+      Width = 216
       Align = alTop
       Caption = 'Cutout'
-      ClientHeight = 144
-      ClientWidth = 430
+      ClientHeight = 74
+      ClientWidth = 208
       ParentFont = False
       TabOrder = 5
       object Xx: TLabel
-        Left = 6
-        Height = 39
-        Top = 6
-        Width = 17
+        Left = 3
+        Height = 16
+        Top = 3
+        Width = 9
         Caption = 'X'
         ParentColor = False
         ParentFont = False
       end
       object Yy: TLabel
-        Left = 6
-        Height = 39
-        Top = 50
-        Width = 17
+        Left = 3
+        Height = 16
+        Top = 25
+        Width = 8
         Caption = 'Y'
         ParentColor = False
         ParentFont = False
       end
       object Zz: TLabel
-        Left = 6
-        Height = 39
-        Top = 94
-        Width = 17
+        Left = 3
+        Height = 16
+        Top = 47
+        Width = 9
         Caption = 'Z'
         ParentColor = False
         ParentFont = False
       end
       object XTrackBar: TTrackBar
-        Left = 28
-        Height = 60
+        Left = 14
+        Height = 30
         Top = 0
-        Width = 132
+        Width = 66
         Max = 1000
         OnChange = CutoutChange
         Position = 1000
@@ -879,10 +879,10 @@ object GLForm1: TGLForm1
         TabOrder = 0
       end
       object X2TrackBar: TTrackBar
-        Left = 168
-        Height = 60
+        Left = 84
+        Height = 30
         Top = 0
-        Width = 132
+        Width = 66
         Max = 1000
         OnChange = CutoutChange
         Position = 1000
@@ -891,10 +891,10 @@ object GLForm1: TGLForm1
         TabOrder = 1
       end
       object YTrackBar: TTrackBar
-        Left = 28
-        Height = 60
-        Top = 44
-        Width = 132
+        Left = 14
+        Height = 30
+        Top = 22
+        Width = 66
         Max = 1000
         OnChange = CutoutChange
         Position = 1000
@@ -903,10 +903,10 @@ object GLForm1: TGLForm1
         TabOrder = 2
       end
       object Y2TrackBar: TTrackBar
-        Left = 168
-        Height = 60
-        Top = 44
-        Width = 132
+        Left = 84
+        Height = 30
+        Top = 22
+        Width = 66
         Max = 1000
         OnChange = CutoutChange
         Position = 1000
@@ -915,10 +915,10 @@ object GLForm1: TGLForm1
         TabOrder = 3
       end
       object ZTrackBar: TTrackBar
-        Left = 28
-        Height = 60
-        Top = 90
-        Width = 132
+        Left = 14
+        Height = 30
+        Top = 45
+        Width = 66
         Max = 1000
         OnChange = CutoutChange
         Position = 1000
@@ -927,10 +927,10 @@ object GLForm1: TGLForm1
         TabOrder = 4
       end
       object Z2TrackBar: TTrackBar
-        Left = 168
-        Height = 60
-        Top = 90
-        Width = 132
+        Left = 84
+        Height = 30
+        Top = 45
+        Width = 66
         Max = 1000
         OnChange = CutoutChange
         Position = 1000
@@ -939,20 +939,20 @@ object GLForm1: TGLForm1
         TabOrder = 5
       end
       object NearBtn: TButton
-        Left = 300
-        Height = 44
-        Top = 18
-        Width = 104
+        Left = 150
+        Height = 22
+        Top = 9
+        Width = 52
         Caption = 'Near'
         OnClick = CutoutNearestSector
         ParentFont = False
         TabOrder = 6
       end
       object NoneBtn: TButton
-        Left = 300
-        Height = 44
-        Top = 72
-        Width = 104
+        Left = 150
+        Height = 22
+        Top = 36
+        Width = 52
         Caption = 'None'
         OnClick = HideBtnClick
         ParentFont = False
@@ -960,11 +960,11 @@ object GLForm1: TGLForm1
       end
     end
     object CollapseToolPanelBtn: TButton
-      Left = 398
-      Height = 24
+      Left = 199
+      Height = 12
       Hint = 'Click here to hide the tool panel'
-      Top = 2
-      Width = 24
+      Top = 1
+      Width = 12
       OnClick = CollapsedToolPanelClick
       ParentFont = False
       ParentShowHint = False
@@ -973,21 +973,21 @@ object GLForm1: TGLForm1
     end
     object MosaicBox: TGroupBox
       Left = 0
-      Height = 518
-      Top = 432
-      Width = 432
+      Height = 259
+      Top = 216
+      Width = 216
       Align = alTop
       Caption = 'Mosaic'
-      ClientHeight = 478
-      ClientWidth = 430
+      ClientHeight = 241
+      ClientWidth = 208
       ParentFont = False
       TabOrder = 6
       Visible = False
       object MosaicText: TMemo
         Left = 0
-        Height = 246
-        Top = 232
-        Width = 430
+        Height = 125
+        Top = 116
+        Width = 208
         Align = alClient
         Lines.Strings = (
           'MosaicText'
@@ -998,20 +998,20 @@ object GLForm1: TGLForm1
       end
       object MosaicPanel: TPanel
         Left = 0
-        Height = 232
+        Height = 116
         Top = 0
-        Width = 430
+        Width = 208
         Align = alTop
         BevelOuter = bvNone
-        ClientHeight = 232
-        ClientWidth = 430
+        ClientHeight = 116
+        ClientWidth = 208
         ParentFont = False
         TabOrder = 0
         object ColOverlap: TTrackBar
-          Left = 252
-          Height = 60
+          Left = 126
+          Height = 30
           Top = 0
-          Width = 132
+          Width = 66
           Max = 9
           Min = -9
           OnChange = UpdateMosaic
@@ -1021,10 +1021,10 @@ object GLForm1: TGLForm1
           TabOrder = 1
         end
         object ColEdit: TSpinEdit
-          Left = 128
-          Height = 56
-          Top = 4
-          Width = 108
+          Left = 64
+          Height = 21
+          Top = 2
+          Width = 54
           MaxValue = 20
           MinValue = 1
           OnChange = UpdateMosaic
@@ -1033,28 +1033,28 @@ object GLForm1: TGLForm1
           Value = 3
         end
         object Label7: TLabel
-          Left = 6
-          Height = 39
-          Top = 4
-          Width = 125
+          Left = 3
+          Height = 16
+          Top = 2
+          Width = 53
           Caption = 'Columns'
           ParentColor = False
           ParentFont = False
         end
         object Label3: TLabel
-          Left = 6
-          Height = 39
-          Top = 52
-          Width = 76
+          Left = 3
+          Height = 16
+          Top = 26
+          Width = 32
           Caption = 'Rows'
           ParentColor = False
           ParentFont = False
         end
         object RowEdit: TSpinEdit
-          Left = 128
-          Height = 56
-          Top = 52
-          Width = 108
+          Left = 64
+          Height = 21
+          Top = 26
+          Width = 54
           MaxValue = 20
           MinValue = 1
           OnChange = UpdateMosaic
@@ -1063,10 +1063,10 @@ object GLForm1: TGLForm1
           Value = 2
         end
         object RowOverlap: TTrackBar
-          Left = 252
-          Height = 60
-          Top = 52
-          Width = 132
+          Left = 126
+          Height = 30
+          Top = 26
+          Width = 66
           Max = 9
           Min = -9
           OnChange = UpdateMosaic
@@ -1076,11 +1076,11 @@ object GLForm1: TGLForm1
           TabOrder = 3
         end
         object OrientDrop: TComboBox
-          Left = 208
-          Height = 51
-          Top = 96
-          Width = 186
-          ItemHeight = 0
+          Left = 104
+          Height = 20
+          Top = 48
+          Width = 93
+          ItemHeight = 26
           ItemIndex = 0
           Items.Strings = (
             'Axial'
@@ -1095,19 +1095,19 @@ object GLForm1: TGLForm1
           Text = 'Axial'
         end
         object Label8: TLabel
-          Left = 6
-          Height = 39
-          Top = 100
-          Width = 165
+          Left = 3
+          Height = 16
+          Top = 50
+          Width = 67
           Caption = 'Orientation'
           ParentColor = False
           ParentFont = False
         end
         object CrossCheck: TCheckBox
-          Left = 6
-          Height = 43
-          Top = 140
-          Width = 176
+          Left = 3
+          Height = 18
+          Top = 70
+          Width = 84
           Caption = 'Cross slice'
           Checked = True
           OnChange = UpdateMosaic
@@ -1116,20 +1116,20 @@ object GLForm1: TGLForm1
           TabOrder = 5
         end
         object CopyScriptBtn: TButton
-          Left = 12
-          Height = 44
-          Top = 180
-          Width = 184
+          Left = 6
+          Height = 22
+          Top = 90
+          Width = 92
           Caption = 'Copy Script'
           OnClick = CopyScriptClick
           ParentFont = False
           TabOrder = 7
         end
         object RunScriptBtn: TButton
-          Left = 220
-          Height = 44
-          Top = 180
-          Width = 184
+          Left = 110
+          Height = 22
+          Top = 90
+          Width = 92
           Caption = 'Run Script'
           OnClick = RunScriptClick
           ParentFont = False
@@ -1137,10 +1137,10 @@ object GLForm1: TGLForm1
           Visible = False
         end
         object LabelCheck: TCheckBox
-          Left = 208
-          Height = 43
-          Top = 140
-          Width = 192
+          Left = 104
+          Height = 18
+          Top = 70
+          Width = 89
           Caption = 'Label slices'
           Checked = True
           OnChange = UpdateMosaic
@@ -1152,27 +1152,27 @@ object GLForm1: TGLForm1
     end
     object OverlayBox: TGroupBox
       Left = 0
-      Height = 148
-      Top = 100
-      Width = 432
+      Height = 74
+      Top = 50
+      Width = 216
       Align = alTop
       Caption = 'Overlays'
-      ClientHeight = 108
-      ClientWidth = 430
+      ClientHeight = 56
+      ClientWidth = 208
       ParentFont = False
       TabOrder = 3
       Visible = False
       object StringGrid1: TStringGrid
         Left = 0
-        Height = 108
+        Height = 56
         Top = 0
-        Width = 430
+        Width = 208
         Align = alClient
         AutoEdit = False
         BorderStyle = bsNone
         ColCount = 4
-        DefaultColWidth = 100
-        DefaultRowHeight = 46
+        DefaultColWidth = 50
+        DefaultRowHeight = 23
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goDrawFocusSelected, goEditing, goTabs, goAlwaysShowEditor, goSmoothScroll]
         ParentFont = False
         ParentShowHint = False
@@ -1188,12 +1188,12 @@ object GLForm1: TGLForm1
         OnSelectCell = StringGrid1SelectCell
       end
       object LUTdrop: TComboBox
-        Left = 132
-        Height = 51
-        Top = 60
-        Width = 110
+        Left = 66
+        Height = 20
+        Top = 30
+        Width = 55
         DropDownCount = 22
-        ItemHeight = 0
+        ItemHeight = 26
         Items.Strings = (
           'a'
           'b'
@@ -1207,14 +1207,15 @@ object GLForm1: TGLForm1
         ParentFont = False
         Style = csDropDownList
         TabOrder = 1
+        Text = '0'
       end
     end
     object HideRenderToolsBtn: TButton
-      Left = 368
-      Height = 24
+      Left = 184
+      Height = 12
       Hint = 'Click to hide/show render tools (useful for small screens)'
-      Top = 2
-      Width = 24
+      Top = 1
+      Width = 12
       OnClick = HideRenderToolsBtnClick
       ParentFont = False
       ParentShowHint = False
@@ -1223,39 +1224,39 @@ object GLForm1: TGLForm1
     end
     object LineBox: TGroupBox
       Left = 0
-      Height = 100
-      Top = 1398
-      Width = 432
+      Height = 50
+      Top = 584
+      Width = 216
       Align = alTop
       Caption = 'Lines'
-      ClientHeight = 60
-      ClientWidth = 430
+      ClientHeight = 32
+      ClientWidth = 208
       ParentFont = False
       TabOrder = 8
       object LineWidthLabel: TLabel
-        Left = 6
-        Height = 39
-        Top = 4
-        Width = 84
+        Left = 3
+        Height = 16
+        Top = 2
+        Width = 36
         Caption = 'Width'
         ParentColor = False
         ParentFont = False
       end
       object LineColorBtn: TButton
-        Left = 248
-        Height = 44
-        Top = 4
-        Width = 156
+        Left = 124
+        Height = 22
+        Top = 2
+        Width = 78
         Caption = 'Color'
         OnClick = LineColorBtnClick
         ParentFont = False
         TabOrder = 1
       end
       object LineWidthEdit: TSpinEdit
-        Left = 96
-        Height = 56
-        Top = 4
-        Width = 140
+        Left = 48
+        Height = 21
+        Top = 2
+        Width = 70
         MaxValue = 7
         OnChange = LineWidthEditChange
         ParentFont = False
@@ -1265,20 +1266,20 @@ object GLForm1: TGLForm1
     end
     object Slice2DBox: TGroupBox
       Left = 0
-      Height = 264
-      Top = 1134
-      Width = 432
+      Height = 132
+      Top = 475
+      Width = 216
       Align = alTop
       Caption = '2D Slice Selection'
-      ClientHeight = 224
-      ClientWidth = 430
+      ClientHeight = 114
+      ClientWidth = 208
       ParentFont = False
       TabOrder = 7
       object LeftBtn: TButton
-        Left = 8
-        Height = 40
-        Top = 36
-        Width = 80
+        Left = 4
+        Height = 20
+        Top = 18
+        Width = 40
         Caption = 'L'
         OnClick = OrientBtnClick
         ParentFont = False
@@ -1286,10 +1287,10 @@ object GLForm1: TGLForm1
       end
       object SuperiorBtn: TButton
         Tag = 5
-        Left = 296
-        Height = 40
-        Top = 4
-        Width = 80
+        Left = 148
+        Height = 20
+        Top = 2
+        Width = 40
         Caption = 'S'
         OnClick = OrientBtnClick
         ParentFont = False
@@ -1297,10 +1298,10 @@ object GLForm1: TGLForm1
       end
       object InferiorBtn: TButton
         Tag = 4
-        Left = 296
-        Height = 40
-        Top = 68
-        Width = 80
+        Left = 148
+        Height = 20
+        Top = 34
+        Width = 40
         Caption = 'I'
         OnClick = OrientBtnClick
         ParentFont = False
@@ -1308,10 +1309,10 @@ object GLForm1: TGLForm1
       end
       object AnteriorBtn: TButton
         Tag = 3
-        Left = 96
-        Height = 40
-        Top = 4
-        Width = 80
+        Left = 48
+        Height = 20
+        Top = 2
+        Width = 40
         Caption = 'A'
         OnClick = OrientBtnClick
         ParentFont = False
@@ -1319,10 +1320,10 @@ object GLForm1: TGLForm1
       end
       object PosteriorBtn: TButton
         Tag = 2
-        Left = 96
-        Height = 40
-        Top = 68
-        Width = 80
+        Left = 48
+        Height = 20
+        Top = 34
+        Width = 40
         Caption = 'P'
         OnClick = OrientBtnClick
         ParentFont = False
@@ -1330,29 +1331,29 @@ object GLForm1: TGLForm1
       end
       object RightBtn: TButton
         Tag = 1
-        Left = 184
-        Height = 40
-        Top = 32
-        Width = 80
+        Left = 92
+        Height = 20
+        Top = 16
+        Width = 40
         Caption = 'R'
         OnClick = OrientBtnClick
         ParentFont = False
         TabOrder = 3
       end
       object CoordLabel: TLabel
-        Left = 6
-        Height = 39
-        Top = 116
-        Width = 261
+        Left = 3
+        Height = 16
+        Top = 58
+        Width = 118
         Caption = 'Coordinates (X,Y,Z)'
         ParentColor = False
         ParentFont = False
       end
       object XCoordEdit: TEdit
-        Left = 4
-        Height = 44
-        Top = 160
-        Width = 132
+        Left = 2
+        Height = 22
+        Top = 80
+        Width = 66
         AutoSize = False
         OnChange = CoordEditChange
         OnKeyPress = MinMaxEditKeyPress
@@ -1362,10 +1363,10 @@ object GLForm1: TGLForm1
         Text = '0'
       end
       object YCoordEdit: TEdit
-        Left = 140
-        Height = 44
-        Top = 160
-        Width = 132
+        Left = 70
+        Height = 22
+        Top = 80
+        Width = 66
         AutoSize = False
         OnChange = CoordEditChange
         OnKeyPress = MinMaxEditKeyPress
@@ -1375,10 +1376,10 @@ object GLForm1: TGLForm1
         Text = '0'
       end
       object ZCoordEdit: TEdit
-        Left = 276
-        Height = 44
-        Top = 160
-        Width = 132
+        Left = 138
+        Height = 22
+        Top = 80
+        Width = 66
         AutoSize = False
         OnChange = CoordEditChange
         OnKeyPress = MinMaxEditKeyPress
@@ -1390,10 +1391,10 @@ object GLForm1: TGLForm1
     end
   end
   object CollapsedToolPanel: TPanel
-    Left = 432
-    Height = 1465
+    Left = 216
+    Height = 584
     Top = 0
-    Width = 10
+    Width = 5
     Align = alLeft
     ParentFont = False
     TabOrder = 1
@@ -1401,8 +1402,8 @@ object GLForm1: TGLForm1
     OnClick = CollapsedToolPanelClick
   end
   object MainMenu1: TMainMenu
-    left = 640
-    top = 1072
+    left = 320
+    top = 536
     object AppleMenu: TMenuItem
       Caption = ''
       object AppleAbout: TMenuItem
@@ -2025,8 +2026,8 @@ object GLForm1: TGLForm1
     FileName = '/Users/rorden/Documents/pas'
     Filter = 'NIfTI|*.nii;*.hdr;*.nii.gz|PIC|*.PIC'
     InitialDir = '/Users/rorden/Documents/'
-    left = 640
-    top = 32
+    left = 320
+    top = 16
   end
   object ColorDialog1: TColorDialog
     Color = clBlack
@@ -2052,62 +2053,62 @@ object GLForm1: TGLForm1
       'ColorS=F0FBFF'
       'ColorT=A4A0A0'
     )
-    left = 864
-    top = 32
+    left = 432
+    top = 16
   end
   object UpdateTimer: TTimer
     Enabled = False
     Interval = 150
     OnTimer = UpdateTimerTimer
-    left = 640
-    top = 160
+    left = 320
+    top = 80
   end
   object SaveDialog1: TSaveDialog
     DefaultExt = '.png'
     Filter = 'PNG lossless|*.png'
-    left = 640
-    top = 288
+    left = 320
+    top = 144
   end
   object AutoRunTimer1: TTimer
     Enabled = False
     Interval = 250
     OnTimer = AutoRunTimer1Timer
-    left = 640
-    top = 416
+    left = 320
+    top = 208
   end
   object GradientsIdleTimer: TTimer
     Enabled = False
     OnTimer = GradientsIdleTimerTimer
-    left = 640
-    top = 560
+    left = 320
+    top = 280
   end
   object SaveDialogVoi: TSaveDialog
     Title = 'Save drawing as'
     Filter = 'Volume of Interest (.voi)|.voi|FSL (.nii.gz)|.nii.gz|SPM/FSL (.nii)|.nii'
-    left = 640
-    top = 688
+    left = 320
+    top = 344
   end
   object OpenDialogVoi: TOpenDialog
-    left = 640
-    top = 816
+    left = 320
+    top = 408
   end
   object OpenDialogTxt: TOpenDialog
     Filter = 'ITK-SnAP Label Description (txt)|*.txt'
-    left = 640
-    top = 944
+    left = 320
+    top = 472
   end
   object ErrorTimer: TTimer
     Enabled = False
     Interval = 50
     OnTimer = ErrorTimerTimer
-    left = 864
-    top = 144
+    left = 432
+    top = 72
   end
   object YokeTimer: TTimer
     Enabled = False
     Interval = 200
     OnTimer = YokeTimerTimer
-    left = 858
-    top = 302
+    left = 429
+    top = 151
   end
 end

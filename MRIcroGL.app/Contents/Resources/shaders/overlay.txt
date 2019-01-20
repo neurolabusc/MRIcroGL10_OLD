@@ -129,6 +129,7 @@ void main() {
 	float len = length(dir);
 	dir = normalize(dir);
 	float clipStart = 0.0;
+	float stepSizex2 = -1.0;
 	float clipEnd = len;
 	//next see if clip plane intersects ray
 	if (clipPlaneDepth > -0.5) {
@@ -171,6 +172,7 @@ void main() {
 				clipEnd = dis;
 				clipStart = disBackFace;
 			}
+			stepSizex2 = clipStart + ( sliceSize * 3.0);
 		}
 	}
 	vec3 deltaDir = dir * stepSize;
@@ -187,7 +189,7 @@ void main() {
 	vec4 oprevNorm = vec4(0.0,0.0,0.0,0.0);
 		float opacityCorrection = stepSize/sliceSize;
 	vec3 lightDirHeadOn =  normalize(gl_ModelViewMatrixInverse * vec4(0.0,0.0,1.0,0.0)).xyz ;
-	float stepSizex2 = clipStart + ( sliceSize * 3.0);
+	//float stepSizex2 = clipStart + ( sliceSize * 3.0);
 	float boundAcc = 0.0;
 	float boundAcc2 = 0.0;
 	for(int i = 0; i < loops; i++) {
@@ -209,7 +211,8 @@ void main() {
 				prevNorm = gradientSample;
 				//Edge shading - darken edges parallel with viewing direction
 				float lightNormDot = dot(gradientSample.rgb, lightDirHeadOn); //with respect to viewer
-				float edgeVal = pow(1.0-abs(lightNormDot),edgeExp) * pow(gradientSample.a,0.3);
+				float absLND = min(abs(lightNormDot), 0.9999); //avoid Windows IntelGPU artefacts 
+				float edgeVal = pow(1.0-absLND,edgeExp) * pow(gradientSample.a,0.3);
 				if (edgeVal >= edgeThresh)
 					colorSample.rgb = mix(colorSample.rgb, vec3(0.0,0.0,0.0), pow((edgeVal-edgeThresh)/(1.0-edgeThresh),4.0));
 				//specular
