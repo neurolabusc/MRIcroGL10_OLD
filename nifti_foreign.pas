@@ -38,6 +38,7 @@ function FSize (lFName: String): Int64;
 function isTIFF(fnm: string): boolean;
 implementation
 
+//uses mainunit;
 const
     kNaNSingle : single = 1/0;
 Type
@@ -2611,7 +2612,10 @@ var
   offset: array[0..3] of single;
   vSqr, flt: single;
   transformMatrix: array [0..11] of single;
+  dtMin, dtMax, dtRange, dtScale, oldRange, oldMin, oldMax: double;
 begin
+  oldMin := NaN;
+  oldMax := NaN;
   //gX := gX + 1; GLForm1.caption := inttostr(gX);
   //LOAD_MAT33(rot33, 1,0,0, 0,1,0, 0,0,1);
   LOAD_MAT33(rot33, -1,0,0, 0,-1,0, 0,0,1);
@@ -2675,6 +2679,11 @@ begin
       if (nItems > 6) then nItems :=6;
       for i:=0 to (nItems-1) do
         nhdr.pixdim[i+1] :=strtofloat(mArray.Strings[i]);
+    end else if (AnsiStartsText( 'oldmin', tagName)) or (AnsiStartsText( 'old min', tagName)) then begin
+          oldMin :=strtofloat(mArray.Strings[i]);
+    end else if (AnsiStartsText( 'oldmax', tagName)) or (AnsiStartsText( 'old max', tagName)) then begin
+          oldMax :=strtofloat(mArray.Strings[i]);
+
     end else if AnsiStartsText('sizes', tagName) then begin
       if (nItems > 6) then nItems :=6;
       //for i:=1 to 6 do
@@ -2797,6 +2806,21 @@ begin
       //break;
 
     end; //for ...else tag names
+  end;
+  if (nhdr.datatype <> kDT_FLOAT32) and (nhdr.datatype <> kDT_DOUBLE) and (not specialdouble(oldMin)) and (not specialdouble(oldMax)) then begin
+     oldRange := oldMax - oldMin;
+     dtMin := 0; //DT_UINT8, DT_RGB24, DT_UINT16
+     if (nhdr.datatype = kDT_INT16) then dtMin := -32768.0;
+     if (nhdr.datatype = kDT_INT32) then dtMin := -2147483648;
+     dtMax := 255.00; //DT_UINT8, DT_RGB24
+     if (nhdr.datatype = kDT_INT16) then dtMax := 32767;
+     if (nhdr.datatype = kDT_UINT16) then dtMax := 65535.0;
+     if (nhdr.datatype = kDT_INT32) then dtMax := 2147483647.0;
+     dtRange := dtMax - dtMin;
+     dtScale := oldRange/dtRange;
+     nhdr.scl_slope := dtScale;
+     nhdr.scl_inter := (dtMin*dtScale)- oldMin;
+     //showmessage(format('%g..%g', [oldMin,oldMax]));
   end;
   if ((headerSize = 0) and ( not isDetachedFile)) then begin
     if gzBytes = K_gzBytes_headerAndImageCompressed then
@@ -3139,6 +3163,7 @@ begin
        if lExt2GZ <> '' then
           NSLog('Use ImageJ/Fiji to convert this '+lExt2GZ+' BioFormat image to NRRD for viewing');
   end;
+  //GLForm1.IntensityBox.Caption := (format('%g', [lHdr.vox_offset]));
 end;
 
 end.

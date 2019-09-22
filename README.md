@@ -1,22 +1,20 @@
 # MRIcroGL
 
+##### Warning
+
+ ![#f03c15](https://placehold.it/15/f03c15/000000?text=+) **This repository is for the old MRIcroGL 1.0 (which uses OpenGL 2.1). Development has moved to [MRIcroGL 1.2](https://github.com/rordenlab/MRIcroGL12) (which uses OpenGL 3.3).**
+
 ##### About
 
-MRIcroGL is an open source volume ray caster. For details and compiled versions visit the [NITRC wiki](https://www.nitrc.org/plugins/mwiki/index.php/mricrogl:MainPage). You can also visit the [MRIcroGL home pages](http://www.mccauslandcenter.sc.edu/mricrogl/) which include [videos](http://www.mccauslandcenter.sc.edu/mricrogl/tutorials), [notes on compiling](http://www.mccauslandcenter.sc.edu/mricrogl/source) and [troubleshooting advice](http://www.mccauslandcenter.sc.edu/mricrogl/notes).
-
-http://www.mccauslandcenter.sc.edu/mricrogl/
+MRIcroGL is an open source volume ray caster. For details and compiled versions visit the [NITRC wiki](https://www.nitrc.org/plugins/mwiki/index.php/mricrogl:MainPage). You can also visit the [MRIcroGL home pages](http://www.mccauslandcenter.sc.edu/mricrogl/) which include [videos](http://www.mccauslandcenter.sc.edu/mricrogl/tutorials), [notes](http://www.mccauslandcenter.sc.edu/mricrogl/notese) and [troubleshooting advice](https://www.mccauslandcenter.sc.edu/mricrogl/troubleshooting).
 
 ![alt tag](https://github.com/neurolabusc/MRIcroGL/blob/master/clipping.jpg)
-
-
 
 ##### Installation
 
 You can download the latest release for Windows, MacOS or Linux from either of these sites:
  - [Available from NITRC](https://www.nitrc.org/projects/mricrogl/).
  - [Available from Github](https://github.com/neurolabusc/MRIcroGL/releases).
-
-
 
 ##### Compiling
 
@@ -39,9 +37,6 @@ else
 fi
 ```
 
-
 ##### License
 
-This software includes a [BSD license](https://opensource.org/licenses/BSD-2-Clause)
-
-
+This software includes a [BSD license](https://opensource.org/licenses/BSD-2-Clause).

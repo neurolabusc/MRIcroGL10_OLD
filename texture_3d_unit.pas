@@ -365,6 +365,7 @@ var
 begin
   if gTexture3D.FiltImg = nil then
         exit;
+
   if not AdjustTransparencyRGBA(gTexture3D) then begin
     GenerateLUT(gCLUTrec, lCLUT);
     rescale2RGB (gTexture3D,gCLUTrec.min,gCLUTrec.max,lCLUT); // see CLUT.pas

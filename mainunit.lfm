@@ -1,7 +1,7 @@
 object GLForm1: TGLForm1
   Left = 438
   Height = 584
-  Top = 103
+  Top = 102
   Width = 624
   ActiveControl = ToolPanel
   AllowDropFiles = True
@@ -38,8 +38,8 @@ object GLForm1: TGLForm1
       Width = 216
       Align = alTop
       Caption = 'Clipping'
-      ClientHeight = 74
-      ClientWidth = 208
+      ClientHeight = 73
+      ClientWidth = 206
       ParentFont = False
       TabOrder = 4
       object Label4: TLabel
@@ -118,7 +118,7 @@ object GLForm1: TGLForm1
       Align = alClient
       Caption = 'Shader'
       ClientHeight = 0
-      ClientWidth = 208
+      ClientWidth = 206
       ParentFont = False
       TabOrder = 9
       OnResize = ShaderBoxResize
@@ -126,7 +126,7 @@ object GLForm1: TGLForm1
         Left = 0
         Height = 0
         Top = 0
-        Width = 208
+        Width = 206
         Align = alClient
         Lines.Strings = (
           'Memo1'
@@ -313,11 +313,11 @@ object GLForm1: TGLForm1
         Left = 0
         Height = 120
         Top = 0
-        Width = 208
+        Width = 206
         Align = alTop
         BevelOuter = bvNone
         ClientHeight = 120
-        ClientWidth = 208
+        ClientWidth = 206
         ParentFont = False
         TabOrder = 0
         object ShaderDrop: TComboBox
@@ -795,8 +795,8 @@ object GLForm1: TGLForm1
       Width = 216
       Align = alTop
       Caption = 'Intensity Range'
-      ClientHeight = 32
-      ClientWidth = 208
+      ClientHeight = 31
+      ClientWidth = 206
       ParentFont = False
       TabOrder = 2
       object MinEdit: TEdit
@@ -835,8 +835,8 @@ object GLForm1: TGLForm1
       Width = 216
       Align = alTop
       Caption = 'Cutout'
-      ClientHeight = 74
-      ClientWidth = 208
+      ClientHeight = 73
+      ClientWidth = 206
       ParentFont = False
       TabOrder = 5
       object Xx: TLabel
@@ -978,16 +978,16 @@ object GLForm1: TGLForm1
       Width = 216
       Align = alTop
       Caption = 'Mosaic'
-      ClientHeight = 241
-      ClientWidth = 208
+      ClientHeight = 240
+      ClientWidth = 206
       ParentFont = False
       TabOrder = 6
       Visible = False
       object MosaicText: TMemo
         Left = 0
-        Height = 125
+        Height = 124
         Top = 116
-        Width = 208
+        Width = 206
         Align = alClient
         Lines.Strings = (
           'MosaicText'
@@ -1000,11 +1000,11 @@ object GLForm1: TGLForm1
         Left = 0
         Height = 116
         Top = 0
-        Width = 208
+        Width = 206
         Align = alTop
         BevelOuter = bvNone
         ClientHeight = 116
-        ClientWidth = 208
+        ClientWidth = 206
         ParentFont = False
         TabOrder = 0
         object ColOverlap: TTrackBar
@@ -1157,16 +1157,16 @@ object GLForm1: TGLForm1
       Width = 216
       Align = alTop
       Caption = 'Overlays'
-      ClientHeight = 56
-      ClientWidth = 208
+      ClientHeight = 55
+      ClientWidth = 206
       ParentFont = False
       TabOrder = 3
       Visible = False
       object StringGrid1: TStringGrid
         Left = 0
-        Height = 56
+        Height = 55
         Top = 0
-        Width = 208
+        Width = 206
         Align = alClient
         AutoEdit = False
         BorderStyle = bsNone
@@ -1194,6 +1194,7 @@ object GLForm1: TGLForm1
         Width = 55
         DropDownCount = 22
         ItemHeight = 26
+        ItemIndex = 0
         Items.Strings = (
           'a'
           'b'
@@ -1207,7 +1208,7 @@ object GLForm1: TGLForm1
         ParentFont = False
         Style = csDropDownList
         TabOrder = 1
-        Text = '0'
+        Text = 'a'
       end
     end
     object HideRenderToolsBtn: TButton
@@ -1229,8 +1230,8 @@ object GLForm1: TGLForm1
       Width = 216
       Align = alTop
       Caption = 'Lines'
-      ClientHeight = 32
-      ClientWidth = 208
+      ClientHeight = 31
+      ClientWidth = 206
       ParentFont = False
       TabOrder = 8
       object LineWidthLabel: TLabel
@@ -1271,8 +1272,8 @@ object GLForm1: TGLForm1
       Width = 216
       Align = alTop
       Caption = '2D Slice Selection'
-      ClientHeight = 114
-      ClientWidth = 208
+      ClientHeight = 113
+      ClientWidth = 206
       ParentFont = False
       TabOrder = 7
       object LeftBtn: TButton

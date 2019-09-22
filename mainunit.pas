@@ -3929,7 +3929,7 @@ begin
      strs.Free;
 end;
 
-procedure CheckForUpdatesDcm2niix;
+(*procedure CheckForUpdatesDcm2niix;
 const
      kBase = '/rordenlab/dcm2niix/releases/latest';
      kUrl = 'https://github.com' + kBase;
@@ -3946,7 +3946,7 @@ begin
     dcm2niiForm.RunCmd(cmd, false, line1);
     localVer := delimStr(line1, line1, 5);
     ReportGitVer(localVer, kApi, kUrl, exe);
-end;
+end;*)
 
 (*
 //this is an alternate method, using dcm2niix's internal methods: has additional dependencies (sed, awk) and Unix only
@@ -3975,7 +3975,7 @@ end;*)
 procedure TGLForm1.CheckForUpdates(Sender: TObject);
 begin
      CheckForUpdatesMRIcroGL;
-     CheckForUpdatesDcm2niix;
+     //CheckForUpdatesDcm2niix;
 end;
 {$ELSE}
 procedure TGLForm1.CheckForUpdates(Sender: TObject);
@@ -6296,7 +6296,7 @@ if (not DirectoryExists(lFilename)) and (NIFTIvolumes(lFilename) > 0) then begin
    exit;
 end;
 //check for DICOM
- lFilename := dcm2Nifti(dcm2niiForm.getExeName, lFilename);
+ lFilename := dcm2Nifti(dcm2niiForm.getCustomDcm2niix(), lFilename);
  if lFilename = '' then exit;
  LoadDatasetNIFTIvolx(lFileName,true);
 end;
